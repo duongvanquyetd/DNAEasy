@@ -2,7 +2,7 @@ package com.dnaeasy.dnaeasy.controller;
 
 import com.dnaeasy.dnaeasy.dto.request.UserUpdateResquest;
 import com.dnaeasy.dnaeasy.dto.response.UserResponse;
-import com.dnaeasy.dnaeasy.service.UserService;
+import com.dnaeasy.dnaeasy.service.impl.UserService;
 import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +40,11 @@ public class UserController {
       }
       return ResponseEntity.ok(userService.updateUser(userUpdateResquest));
 
+   }
+   @GetMapping("/delete/{id}")
+    public ResponseEntity<?> Delete(@PathVariable("id") int id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok().build();
    }
 
 }

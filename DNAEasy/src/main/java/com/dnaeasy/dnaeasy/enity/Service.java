@@ -1,17 +1,20 @@
 package com.dnaeasy.dnaeasy.enity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-
+@Data
 @Entity
 @Table(name = "Service")
 public class Service {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int serviceId;
+    @Nationalized
     private String serviceName;
     @Lob
     @Column(columnDefinition = "TEXT")

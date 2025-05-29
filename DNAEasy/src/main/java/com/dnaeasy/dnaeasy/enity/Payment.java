@@ -20,13 +20,14 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int paymentId;
     private String paymentMethod;
-    private String paymentStatus;
+    private boolean paymentStatus;
     @Lob
     @Column(columnDefinition = "TEXT")
     private String contenPayment;
     @Column(precision = 19, scale = 2)
     private BigDecimal paymentAmount;
-    @OneToOne(mappedBy = "payment")
+    @OneToOne( cascade = CascadeType.ALL)
+    @JoinColumn(name="apppointment_id")
     private Appointment appointment;
 
 }

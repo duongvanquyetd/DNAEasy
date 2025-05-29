@@ -2,10 +2,9 @@ package com.dnaeasy.dnaeasy.config;
 
 import com.dnaeasy.dnaeasy.dto.request.IntrospectRequest;
 import com.dnaeasy.dnaeasy.dto.response.IntrospectResponse;
-import com.dnaeasy.dnaeasy.service.AuthencationService;
-import com.nimbusds.jose.JOSEException;
-import lombok.AllArgsConstructor;
+import com.dnaeasy.dnaeasy.service.impl.AuthencationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -14,11 +13,12 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
-import java.text.ParseException;
+
 @Component
 
 public class CustomJwtDecoder implements JwtDecoder {
-    protected final static String SIGNERKEY = "1zbArs1Mw1U1DFy6gihY+UARQQERM6RIT6WsiB8KD+sG8ewTKntmCMGPlG7ZPHmF";
+    @Value("${jwt.signlekey}")
+    protected  String SIGNERKEY;
     @Autowired
     AuthencationService authencationService;
     private NimbusJwtDecoder nimbusJwtDecoder;
@@ -27,12 +27,11 @@ public class CustomJwtDecoder implements JwtDecoder {
     public Jwt decode(String token) throws JwtException {
         try {
             IntrospectResponse istoken = authencationService.IsAuthencation(new IntrospectRequest(token));
-            System.out.println("ajfskkjl");
+
             if (!istoken.isSuccess()) {
                 throw new JwtException("Invalid token DECODER");
             }
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new JwtException("Invalid token");
         }
         SecretKeySpec key = new SecretKeySpec(SIGNERKEY.getBytes(), "HSF512");

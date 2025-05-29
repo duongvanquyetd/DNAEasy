@@ -1,21 +1,19 @@
-package com.dnaeasy.dnaeasy.service;
+package com.dnaeasy.dnaeasy.service.impl;
 
 import com.dnaeasy.dnaeasy.dto.request.UserCreateRequest;
 import com.dnaeasy.dnaeasy.dto.request.UserUpdateResquest;
 import com.dnaeasy.dnaeasy.dto.response.UserResponse;
 import com.dnaeasy.dnaeasy.enity.Person;
 import com.dnaeasy.dnaeasy.mapper.UserMapper;
-import com.dnaeasy.dnaeasy.responsity.UserResponsity;
+import com.dnaeasy.dnaeasy.responsity.IsUserResponsity;
+import com.dnaeasy.dnaeasy.service.IsUserService;
 import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +21,7 @@ import java.util.List;
 @AllArgsConstructor
 @Service
 public class UserService implements IsUserService {
-    UserResponsity personResponsity;
+    IsUserResponsity personResponsity;
     UserMapper userMapper;
     CloudinaryUtil cloudinaryUtil;
 
@@ -66,7 +64,19 @@ public class UserService implements IsUserService {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         String name = SecurityContextHolder.getContext().getAuthentication().getName();
         Person p = personResponsity.findByUsername(name);
-        System.out.println(p);
+    //    System.out.println(p);
+        if(!p.getEmail().equals(userUpdateResquest.getEmail())) {
+
+            if(personResponsity.findByEmail(userUpdateResquest.getEmail()) >= 1 ) {
+                return "Email is already in use";
+            }
+        }
+        if(!p.getPhone().equals(userUpdateResquest.getPhone())) {
+            if(personResponsity.findByPhone(userUpdateResquest.getPhone()) >= 1 )
+            {
+                return "Phone number is already in use";
+            }
+        }
 
         if (passwordEncoder.matches(userUpdateResquest.getOldpassword(), p.getPassword())) {
             p.setCity(userUpdateResquest.getCity());
@@ -78,10 +88,16 @@ public class UserService implements IsUserService {
             p.setDistrict(userUpdateResquest.getDistrict());
             p.setStreets(userUpdateResquest.getStreets());
             p.setGender(userUpdateResquest.getGender());
-            System.out.println(p);
+           // System.out.println(p);
             personResponsity.save(p);
          return "Update Success";
         }
+
         return "Invalid OldPassword";
+    }
+
+    @Override
+    public void deleteUser(int id) {
+     personResponsity.deleteById(String.valueOf(id));
     }
 }

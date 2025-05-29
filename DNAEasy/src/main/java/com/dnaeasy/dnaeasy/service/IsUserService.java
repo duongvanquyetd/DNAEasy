@@ -21,4 +21,5 @@ public interface IsUserService {
     UserResponse myInfor();
 
     String updateUser(UserUpdateResquest userUpdateResques);
+    void deleteUser(int id);
 }

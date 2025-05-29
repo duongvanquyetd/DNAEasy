@@ -1,4 +1,4 @@
-package com.dnaeasy.dnaeasy.service;
+package com.dnaeasy.dnaeasy.service.impl;
 
 import com.dnaeasy.dnaeasy.dto.request.IntrospectRequest;
 import com.dnaeasy.dnaeasy.dto.request.AuthencationRequest;
@@ -10,7 +10,8 @@ import com.dnaeasy.dnaeasy.enity.Person;
 import com.dnaeasy.dnaeasy.enums.RoleName;
 import com.dnaeasy.dnaeasy.mapper.UserMapper;
 import com.dnaeasy.dnaeasy.responsity.IsInvalidateToken;
-import com.dnaeasy.dnaeasy.responsity.UserResponsity;
+import com.dnaeasy.dnaeasy.responsity.IsUserResponsity;
+import com.dnaeasy.dnaeasy.service.IsAuthencationService;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -34,7 +35,7 @@ import java.util.UUID;
 
 public class AuthencationService implements IsAuthencationService {
     // JwtService jwtService;
-    UserResponsity personResponsity;
+    IsUserResponsity personResponsity;
     UserMapper userMapper;
     IsInvalidateToken isInvalidateToken;
     protected final static String SIGNERKEY = "1zbArs1Mw1U1DFy6gihY+UARQQERM6RIT6WsiB8KD+sG8ewTKntmCMGPlG7ZPHmF";
@@ -45,6 +46,7 @@ public class AuthencationService implements IsAuthencationService {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         Person person = personResponsity.findByUsername(authencationRequest.getUsername());
         if (person != null) {
+
             boolean isvalid = passwordEncoder.matches(authencationRequest.getPassword(), person.getPassword());
             if (isvalid == true) {
 

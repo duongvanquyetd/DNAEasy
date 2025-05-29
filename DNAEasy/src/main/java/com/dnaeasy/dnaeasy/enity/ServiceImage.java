@@ -18,8 +18,8 @@ import lombok.Setter;
         @GeneratedValue(strategy = GenerationType.AUTO)
         private Long blogId;
         private String BlogImageName;
-        @Lob
-        private byte[] BlogImagePath;
+
+        private String BlogImagePath;
         @ManyToOne
         @JoinColumn(name="Service_id")
         private Service service;

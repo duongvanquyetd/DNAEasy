@@ -16,11 +16,8 @@ public class BlogImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int blogImageId;
-
     private String BlogImageName;
-
-    @Lob
-    private byte[] BlogImagePath;
+    private String BlogImagePath;
     @ManyToOne
     @JoinColumn(name="blog_id")
     private Blog blog;

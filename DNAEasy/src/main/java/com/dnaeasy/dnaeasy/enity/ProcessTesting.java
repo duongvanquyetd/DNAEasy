@@ -1,5 +1,6 @@
 package com.dnaeasy.dnaeasy.enity;
 
+import com.dnaeasy.dnaeasy.enums.SampleMethod;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,7 +15,9 @@ public class ProcessTesting {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int  procssTestingId;
-    private String  sampleMethod;
+    @Enumerated(EnumType.STRING)
+
+    private SampleMethod sampleMethod;
     private String  statusName;
     private int orderProcess;
     private boolean isFinished;

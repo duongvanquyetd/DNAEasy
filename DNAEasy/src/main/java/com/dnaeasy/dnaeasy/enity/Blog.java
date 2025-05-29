@@ -2,18 +2,15 @@ package com.dnaeasy.dnaeasy.enity;
 
 import com.dnaeasy.dnaeasy.enums.BlogStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
+@Data
 @Entity
 @Table(name = "Blog")
 public class Blog {
@@ -26,7 +23,7 @@ public class Blog {
 
     private boolean blogStatus;
     private String blogType;
-
+    private LocalDateTime createDate;
     @ManyToOne
     @JoinColumn(name="staff_id")
     private Person staff;

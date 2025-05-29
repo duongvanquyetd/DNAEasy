@@ -1,5 +1,6 @@
 package com.dnaeasy.dnaeasy.enity;
 
+import com.dnaeasy.dnaeasy.enums.SampleMethod;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,23 +21,20 @@ public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int appointmentId;
-    private String Location;
+    private String location;
     private LocalDateTime dateCollect;
     @Lob
     @Column(columnDefinition = "TEXT")
     private String note;
-    private String typeCollect;
+    private SampleMethod typeCollect;
     private String curentStatusAppointment;
-
-
     @OneToOne
     @JoinColumn(name="satff_id")
     private Person staff;
     @ManyToOne
     @JoinColumn(name ="service_id")
     private Service service ;
-    @OneToOne
-    @JoinColumn(name="payment_id")
+    @OneToOne(mappedBy = "appointment")
     private Payment payment;
     @OneToMany(mappedBy = "appointment",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Sample> sampelist = new ArrayList<>();

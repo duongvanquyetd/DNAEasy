@@ -12,9 +12,7 @@ import org.hibernate.annotations.Nationalized;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
-@ToString
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity

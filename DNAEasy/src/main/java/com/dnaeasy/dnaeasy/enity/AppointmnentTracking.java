@@ -1,10 +1,7 @@
 package com.dnaeasy.dnaeasy.enity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -13,7 +10,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="StatusTracking")
+@Table(name="AppointmentTracking")
+
 public class AppointmnentTracking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
