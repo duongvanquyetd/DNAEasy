@@ -15,7 +15,7 @@ public class Service {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int serviceId;
-    private int sample_count;
+    @Nationalized
     private String serviceName;
     @Lob
     @Column(columnDefinition = "TEXT")
