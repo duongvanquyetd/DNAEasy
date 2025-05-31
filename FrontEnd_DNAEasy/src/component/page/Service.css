@@ -1,0 +1,227 @@
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+  }
+
+  .service-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+ 
+header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #ccc;
+  position: relative;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+  position: absolute;
+  left: 20px;
+  flex: 0 1 auto;
+}
+
+.nav-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  max-width: 800px;
+}
+
+nav ul li a {
+  text-decoration: none;
+  color: #000;
+}
+
+.auth-buttons {
+  position: absolute;
+  right: 60px;
+  display: flex;
+  gap: 10px;
+}
+
+.LR-btn {
+  background: linear-gradient(to right, #56E0E0, #007299);
+  color: #fff;
+  padding: 5px 15px;
+  border-radius: 5px;
+  text-decoration: none;
+  display: inline-block;
+  border: none;
+  font-weight: bold;
+  transition: 0.3s ease;
+}
+
+  .nav a {
+    margin: 0 15px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+  }
+
+
+  .banner {
+    background: url('banner-bg.jpg') no-repeat center center/cover;
+    padding: 50px 20px;
+    text-align: center;
+    color: #333;
+    background-color: #f0f4f8;
+  }
+
+  .banner h1 {
+    font-size: 32px;
+    margin: 0;
+  }
+
+  .filter-section {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background-color: #fff;
+    justify-content: flex-start; /* Align buttons to the left */
+  }
+
+  .filter-btn {
+    padding: 10px 30px; /* Increased width by adjusting padding */
+    border: none;
+    background-color: #ddd;
+    cursor: pointer;
+    margin-right: 10px;
+    width: 120px; /* Added fixed width for consistency */
+  }
+
+  .filter-btn.active {
+    background-color: #1a73e8;
+    color: #fff;
+  }
+
+  .search-bar {
+    display: flex;
+    align-items: center;
+    margin-left: auto; /* Pushes search bar to the right */
+  }
+
+  .search-bar input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px 0 0 4px;
+    outline: none;
+  }
+
+  .search-btn {
+    padding: 8px 16px;
+    background-color: #1a73e8;
+    color: #fff;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .service-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: center;
+  }
+
+  .service-img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+  }
+
+  .service-card h3 {
+    font-size: 18px;
+    margin: 10px 0;
+  }
+
+  .price {
+    color: #d32f2f;
+    font-weight: bold;
+    margin: 5px 0;
+  }
+
+  .booking-btn {
+    background-color: #0C2B64;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    margin: 10px 0;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .pagination button {
+    padding: 8px 12px;
+    margin: 0 5px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    cursor: pointer;
+  }
+
+  .pagination span {
+    margin: 0 10px;
+  }
+
+  .footer {
+    background-color: #0C2B64;
+    color: #fff;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .footer-left, .footer-links, .footer-contact {
+    margin: 10px;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 40px;
+  }
+
+  .footer-links div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .footer-links a {
+    color: #fff;
+    text-decoration: none;
+    margin: 5px 0;
+  }
+
+  .footer-contact p {
+    margin: 5px 0;
+  }
