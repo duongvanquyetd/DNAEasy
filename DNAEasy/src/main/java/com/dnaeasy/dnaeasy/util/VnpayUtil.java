@@ -32,10 +32,10 @@ public class VnpayUtil {
 
     // tao ra chuoi hop le o url vd https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?vnp_version=2.10&.v.v.v.
     public String dataToappendUrl(Map<String, String> params) {
-
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            System.out.println(entry.getKey() + "=" + entry.getValue());
-        }
+//
+//        for (Map.Entry<String, String> entry : params.entrySet()) {
+//            System.out.println(entry.getKey() + "=" + entry.getValue());
+//        }
         StringBuilder query = new StringBuilder();
 
 
@@ -50,8 +50,6 @@ public class VnpayUtil {
             if (value != null && value.length() > 0) {
 
                 query.append(key).append("=").append(URLEncoder.encode(params.get(key), StandardCharsets.US_ASCII)).append("&");
-
-
             }
         }
             query.deleteCharAt(query.length() - 1);

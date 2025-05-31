@@ -11,7 +11,8 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AppointmentCreateResponse {
+public class AppointmentResponse {
+    private int appointmentId;
     private String  serviceName;
     private String location;
     private LocalDateTime dateCollect;

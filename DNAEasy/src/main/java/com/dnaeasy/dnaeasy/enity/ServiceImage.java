@@ -23,6 +23,4 @@ import lombok.Setter;
         @ManyToOne
         @JoinColumn(name="Service_id")
         private Service service;
-
-
 }

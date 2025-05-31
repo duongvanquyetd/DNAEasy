@@ -26,6 +26,7 @@ public class Appointment {
     @Lob
     @Column(columnDefinition = "TEXT")
     private String note;
+    @Enumerated(EnumType.STRING)
     private SampleMethod typeCollect;
     private String curentStatusAppointment;
     @OneToOne

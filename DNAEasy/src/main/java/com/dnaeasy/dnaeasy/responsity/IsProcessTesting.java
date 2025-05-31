@@ -5,8 +5,11 @@ import com.dnaeasy.dnaeasy.enums.SampleMethod;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-public interface IsProcessTesting extends JpaRepository<ProcessTesting,Integer> {
+import java.util.List;
 
-    @Query("Select p.statusName from ProcessTesting  p where p.sampleMethod =:sampleMethod and  p.orderProcess = 1 ")
-    String getFirstStatusNameBySampleMethod(SampleMethod sampleMethod);
+public interface IsProcessTesting extends JpaRepository<ProcessTesting,Integer> {
+ ProcessTesting findByOrderProcessAndSampleMethod(Integer orderProcess, SampleMethod sampleMethod);
+ ProcessTesting findOrderProcessByStatusName(String statusName);
+
+ List<ProcessTesting> findAllBySampleMethod(SampleMethod sampleMethod);
 }

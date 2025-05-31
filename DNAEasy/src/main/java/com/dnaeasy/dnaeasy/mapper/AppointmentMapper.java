@@ -1,7 +1,7 @@
 package com.dnaeasy.dnaeasy.mapper;
 
 import com.dnaeasy.dnaeasy.dto.request.AppointmentCreateRequest;
-import com.dnaeasy.dnaeasy.dto.response.AppointmentCreateResponse;
+import com.dnaeasy.dnaeasy.dto.response.AppointmentResponse;
 import com.dnaeasy.dnaeasy.enity.Appointment;
 import com.dnaeasy.dnaeasy.enity.AppointmnentTracking;
 import org.mapstruct.Mapper;
@@ -21,7 +21,7 @@ public interface AppointmentMapper {
     @Mapping(target = "customerName" ,source = "customer.name")
     @Mapping(target = "tracking",expression = "java(AppointmetTrackingToMap(appointment))")
     @Mapping(target = "paymentAmount" , source = "payment.paymentAmount")
-    AppointmentCreateResponse AppointmentCreateResponse(Appointment appointment);
+    AppointmentResponse AppointmentCreateResponse(Appointment appointment);
     default Map<String, LocalDateTime> AppointmetTrackingToMap(Appointment appointment) {
         Map<String, LocalDateTime> appointmetTracking = new HashMap<>();
         for(AppointmnentTracking a : appointment.getAppointmnentTrackings()) {

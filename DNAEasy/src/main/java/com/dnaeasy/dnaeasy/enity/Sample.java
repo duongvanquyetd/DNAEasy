@@ -21,6 +21,7 @@ public class Sample {
     private int sampleid;
 
     private String sampleType;//mong tay/mau/ban chai.v.v.v..v
+    @Column(unique = true)
     private String samplecode;
     private String sampleName;
     private String cureStatusSample;

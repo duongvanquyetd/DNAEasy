@@ -1,5 +1,6 @@
 package com.dnaeasy.dnaeasy.enity;
 
+import com.dnaeasy.dnaeasy.enums.RoleName;
 import com.dnaeasy.dnaeasy.enums.SampleMethod;
 import jakarta.persistence.*;
 import lombok.*;
@@ -21,6 +22,9 @@ public class ProcessTesting {
     private String  statusName;
     private int orderProcess;
     private boolean isFinished;
+    private String formfor;
+    @Enumerated(EnumType.STRING)
+    private RoleName person_confirm;
 
 
 

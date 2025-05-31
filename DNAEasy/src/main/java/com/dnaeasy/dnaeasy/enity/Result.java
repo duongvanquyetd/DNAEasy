@@ -14,8 +14,8 @@ public class Result {
     @Column(nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int resultId;
-    @Lob
-    private byte[] resulFilePDF;
+
+    private String resulFilePDF;
     private String conclustionResult;
     private String curentStatusResult;
     private LocalDateTime resultTime;

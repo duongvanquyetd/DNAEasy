@@ -2,11 +2,13 @@ package com.dnaeasy.dnaeasy.service.impl;
 
 import com.dnaeasy.dnaeasy.config.VnpayConfig;
 import com.dnaeasy.dnaeasy.enity.Appointment;
+import com.dnaeasy.dnaeasy.enity.Payment;
 import com.dnaeasy.dnaeasy.util.VnpayUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -21,12 +23,20 @@ public class PaymentService {
     @Autowired
     HttpServletRequest request;
 
-    public String paymentUrl(String serviceName, long amount) {
+    public String paymentUrl(Payment payment) {
         Map<String, String> params = vnpayConfig.getVNPayConfig();
-        long money = amount * 100;// mai mốt thay giá trị vào
-        params.put("vnp_Amount", String.valueOf(money));
+
+        BigDecimal money = payment.getPaymentAmount().multiply(BigDecimal.valueOf(100));// mai mốt thay giá trị vào
+
+       String value = String.valueOf(money);
+       String val[] = value.split("\\.");
+       if (val.length == 2) {
+           value =  val[0];
+       }
+        System.out.println(value);
+        params.put("vnp_Amount", value);
         params.put("vnp_IpAddr", request.getRemoteAddr());
-        params.put("vnp_OrderInfo", "Thanh toan don hang:" + serviceName);
+        params.put("vnp_OrderInfo",  payment.getContenPayment());
         String query = vnpayUtil.dataToappendUrl(params);
         String hasdata = vnpayUtil.hmacSHA512(vnpayConfig.getSecretKey(), query);
 
@@ -37,7 +47,7 @@ public class PaymentService {
         return payurl;
     }
 
-    public String checkPayment() {
+    public Boolean checkPayment() {
 
 
         Map<String, String> params = new HashMap<>();
@@ -54,9 +64,9 @@ public class PaymentService {
         System.out.println(hasdata);
         System.out.println(hasdataRequest);
         if (hasdataRequest.equals(hasdata)) {
-            return "success";
+            return true;
         }
-        throw new RuntimeException();
+       return false;
 
 
     }
