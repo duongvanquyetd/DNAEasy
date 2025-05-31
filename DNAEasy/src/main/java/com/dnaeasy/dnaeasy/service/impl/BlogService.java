@@ -52,6 +52,7 @@ public class BlogService implements IsBlogService {
         Blog b = blogMapper.BlogCreateRequestToBlog(blogCreateRequest);
         System.out.println("Created blog: " + b.getBlogImages());
         for (BlogImage img : b.getBlogImages()) {
+
             img.setBlog(b);
         }
         b.setStaff(person);

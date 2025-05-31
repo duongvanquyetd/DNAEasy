@@ -39,8 +39,6 @@ public class VnpayUtil {
         StringBuilder query = new StringBuilder();
 
 
-
-
         //VNPAY bat phai sap xep theo Alphabet
         List<String> filekey = new ArrayList<>(params.keySet());
         Collections.sort(filekey);

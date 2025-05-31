@@ -1,5 +1,6 @@
 package com.dnaeasy.dnaeasy.enity;
 
+import com.dnaeasy.dnaeasy.enums.ServiceType;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Nationalized;
@@ -21,7 +22,9 @@ public class Service {
     private String serviceDescription;
     @Column( precision = 19, scale = 2)
     private BigDecimal servicePrice;
+
     private String typeService;
+
     @OneToMany(mappedBy = "service",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ServiceImage> serviceImageList = new ArrayList<>();
     @OneToMany(mappedBy = "service",cascade = CascadeType.ALL, orphanRemoval = true)
