@@ -15,6 +15,8 @@ public class Service {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int serviceId;
+    // them transinet
+    @Transient
     private int sample_count;
     private String serviceName;
     @Lob
