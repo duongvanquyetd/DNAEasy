@@ -17,19 +17,14 @@ import com.dnaeasy.dnaeasy.responsity.*;
 import com.dnaeasy.dnaeasy.service.IsAppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
-//import org.springframework.stereotype.Service;                    xoa import nay, them import o dong(22,23,24)
-
-import com.dnaeasy.dnaeasy.enity.Service;
-
-import com.dnaeasy.dnaeasy.exception.ResourceNotFound;
-import com.dnaeasy.dnaeasy.responsity.IsServiceResponsitory;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@org.springframework.stereotype.Service
+@Service
 public class AppointmentService implements IsAppointmentService {
     @Autowired
     IsAppointmentResponsitory isAppointmentResponsitory;
@@ -115,15 +110,9 @@ public class AppointmentService implements IsAppointmentService {
         appointmnentTracking.setStatusDate(LocalDateTime.now());
         trackingList.add(appointmnentTracking);
 
-        Long serviceIdLong = Long.valueOf(request.getServiceid());
 
-        Service service = isServiceResponsitory.findById(serviceIdLong).orElseThrow(() ->
-                new ResourceNotFound("Không tìm thấy Service với id = " + serviceIdLong));
-
-//        com.dnaeasy.dnaeasy.enity.Service service = (com.dnaeasy.dnaeasy.enity.Service)
-//                isServiceResponsitory.findById(request.getServiceid()).orElseThrow(() ->
-//                new ResourceNotFound("Do not have " + request.getServiceid()));
-
+        com.dnaeasy.dnaeasy.enity.Service service = (com.dnaeasy.dnaeasy.enity.Service) isServiceResponsitory.findById(request.getServiceid()).orElseThrow(() ->
+                new ResourceNotFound("Do not have " + request.getServiceid()));
         Payment payment = new Payment();
         payment.setPaymentMethod(request.getPaymentMethod());
         payment.setContenPayment("Pay haft price for " + service.getServiceName());
