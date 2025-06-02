@@ -111,7 +111,7 @@ public class AppointmentService implements IsAppointmentService {
         trackingList.add(appointmnentTracking);
 
 
-        com.dnaeasy.dnaeasy.enity.Service service = (com.dnaeasy.dnaeasy.enity.Service) isServiceResponsitory.findById(request.getServiceid()).orElseThrow(() ->
+        com.dnaeasy.dnaeasy.enity.Service service = (com.dnaeasy.dnaeasy.enity.Service) isServiceResponsitory.findById(Long.valueOf(request.getServiceid())).orElseThrow(() ->
                 new ResourceNotFound("Do not have " + request.getServiceid()));
         Payment payment = new Payment();
         payment.setPaymentMethod(request.getPaymentMethod());

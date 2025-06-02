@@ -42,4 +42,5 @@ public class AppointmentController {
     public ResponseEntity<List<AppointmentResponse>> getAppointmentInprocess() {
         return ResponseEntity.ok(appointmentService.getAppoinmentinprocess());
     }
+    //
 }
