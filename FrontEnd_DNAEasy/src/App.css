@@ -1,0 +1,123 @@
+/* .gradient-custom { */
+/* fallback for old browsers */
+/* background: #6a11cb; */
+
+/* Chrome 10-25, Safari 5.1-6 */
+/* background: -webkit-linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1)); */
+
+/* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+/* background: linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1))
+} */
+ /* App.css */
+.gradient-custom {
+  /* fallback for old browsers */
+  background: #6a11cb;
+
+  /* Chrome 10-25, Safari 5.1-6 */
+  background: -webkit-linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1));
+
+  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  background: linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1));
+  color: white;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+}
+
+.login-container {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  display: flex;
+  max-width: 700px;
+  width: 90%;
+  overflow: hidden;
+}
+
+.login-image {
+  flex: 1;
+  background-color: #e6e6e6;
+}
+
+.login-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.login-form {
+  flex: 1;
+  padding: 40px 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+.login-title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: bold;
+  font-size: 24px;
+}
+
+.login-input {
+  margin-bottom: 15px;
+}
+
+.login-input input {
+  border-radius: 5px !important;
+  border: 1px solid #ccc !important;
+  padding: 10px !important;
+}
+
+.login-btn {
+  background-color: #4caf50 !important;
+  color: white !important;
+  font-weight: bold;
+  border-radius: 5px !important;
+  padding: 10px !important;
+  width: 100%;
+  border: none !important;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.login-btn:hover {
+  background-color: #45a049 !important;
+}
+
+.google-btn {
+  background-color: #4285F4 !important;
+  color: white !important;
+  margin-top: 10px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 5px !important;
+  text-decoration: none;
+}
+
+.google-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.register-text {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.register-link {
+  color: #4285F4;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.invalid-feedback {
+  display: block;
+}
