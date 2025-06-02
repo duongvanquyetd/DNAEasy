@@ -70,6 +70,8 @@ public class ServiceController {
         request.setServiceImageList(imgs);
         serviceService.update(id, request);
         return ResponseEntity.ok(serviceService.getById(id));
+        //
+
     }
 
     @DeleteMapping("/delete/{id}")
