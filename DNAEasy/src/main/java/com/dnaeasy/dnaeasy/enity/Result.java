@@ -9,12 +9,10 @@ import java.util.List;
 @Entity
 @Table(name = "Result")
 public class Result {
-
     @Id
     @Column(nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int resultId;
-
     private String resulFilePDF;
     private String conclustionResult;
     private String curentStatusResult;
@@ -24,6 +22,5 @@ public class Result {
     private Person staff;
     @OneToMany(mappedBy = "result", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Sample> sampelist = new ArrayList<>();
-
 
 }

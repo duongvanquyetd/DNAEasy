@@ -10,10 +10,7 @@ import com.dnaeasy.dnaeasy.enity.ProcessTesting;
 import com.dnaeasy.dnaeasy.enums.SampleMethod;
 import com.dnaeasy.dnaeasy.exception.ResourceNotFound;
 import com.dnaeasy.dnaeasy.mapper.SampleMapper;
-import com.dnaeasy.dnaeasy.responsity.IsAppointmentResponsitory;
-import com.dnaeasy.dnaeasy.responsity.IsProcessTesting;
-import com.dnaeasy.dnaeasy.responsity.IsSampleRespository;
-import com.dnaeasy.dnaeasy.responsity.IsUserResponsity;
+import com.dnaeasy.dnaeasy.responsity.*;
 import com.dnaeasy.dnaeasy.service.IsSampleService;
 import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +34,8 @@ public class SampleService implements IsSampleService {
     private IsUserResponsity isUserResponsity;
     @Autowired
     private IsProcessTesting isProcessTesting;
+    @Autowired
+    private IsPersonTesting isPersonTesting;
 
     @Override
     public List<SampleResponse> Create(SampleCreateRequest sampleCreateRequest) {
@@ -126,26 +125,29 @@ public class SampleService implements IsSampleService {
 
 
                 sample.setSampleType(updateSampleRequest.getSampleType());
-                sample.setSampleName(updateSampleRequest.getSampleName());
                 sample.setCureStatusSample(updateSampleRequest.getNextStatusName());
 
                 SampleTracking sampleTracking = new SampleTracking();
                 sampleTracking.setStatusDate(LocalDateTime.now());
                 sampleTracking.setStatusName(updateSampleRequest.getNextStatusName());
                 List<SampleTracking> sampleTrackingList = new ArrayList<>();
-//            if (sample.getTracks() == null || sample.getTracks().size() == 0) {
-//                sampleTrackingList = new ArrayList<>();
-//
-//            }
-//            else {
-//                sampleTrackingList = sample.getTracks();
-                //  }
+
+
+                PersonTest p = new PersonTest();
+
+                p.setCCCD(updateSampleRequest.getCCCD());
+                p.setName(updateSampleRequest.getName());
+                p.setRelationName(updateSampleRequest.getRelationName());
+                p.setSample(sample);
+                isPersonTesting.save(p);
+                sample.setPersonTest(p);
                 sampleTrackingList.add(sampleTracking);
 
                 sample.getTracks().addAll(sampleTrackingList);
                 for (SampleTracking track : sample.getTracks()) {
                     track.setSample(sample);
                 }
+
                 isSampleRespository.save(sample);
                 sampleResponseList.add(sampleMapper.SampeToSampleResponse(sample));
 

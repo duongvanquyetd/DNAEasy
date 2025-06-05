@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ResultRequest {
     private int appoinmentId;
+    private int sampleid;
     private String resulFilePDF;
     private String conclustionResult;
 }

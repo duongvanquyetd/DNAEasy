@@ -14,6 +14,10 @@ import java.util.Map;
 
 @Mapper(componentModel = "spring")
 public interface SampleMapper {
+
+    @Mapping(target = "CCCD" , source = "personTest.CCCD")
+    @Mapping(target = "relationName" ,source = "personTest.relationName")
+    @Mapping(target = "name",source = "personTest.name")
     @Mapping(target = "sampleTracking" , expression = "java(SampleTrackinToMap(sample))")
     SampleResponse SampeToSampleResponse(Sample sample);
     default Map<String, LocalDateTime> SampleTrackinToMap(Sample sample) {
