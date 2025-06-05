@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 public class UpdateSampleRequest {
     private int sampleId;
     private String sampleType;//mong tay/mau/ban chai.v.v.v..v
-    private String sampleName;
+    private String CCCD;
+    private String relationName;
+    private String name;
     private String nextStatusName;
 }

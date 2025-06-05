@@ -23,7 +23,7 @@ public class Sample {
     private String sampleType;//mong tay/mau/ban chai.v.v.v..v
     @Column(unique = true)
     private String samplecode;
-    private String sampleName;
+
     private String cureStatusSample;
     @ManyToOne
     @JoinColumn(name = "appointment_id")
@@ -33,4 +33,8 @@ public class Sample {
     private Result result;
     @OneToMany(mappedBy = "sample",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SampleTracking> tracks = new ArrayList<>();
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "persontest_Id")
+    private PersonTest personTest;
 }
