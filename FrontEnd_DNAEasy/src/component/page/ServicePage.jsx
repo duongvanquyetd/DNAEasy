@@ -1,18 +1,32 @@
-import React from 'react';
+import React,{useState,useEffect} from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Service.css';
+import { getALlServies } from '../../service/service';
 
 const Service = () => {
   const navigate = useNavigate();
 
-  const services = [
-    { id: 'paternity', title: 'Paternity DNA Test', price: '1,250,000VND/mẫu', img: 'https://image.shutterstock.com/image-photo/smile-family-portrait-on-shoulder-260nw-2476215249.jpg' },
-    { id: 'mother-child', title: 'Mother-Child DNA Testing', price: '1,250,000VND/mẫu', img: 'https://image.shutterstock.com/image-photo/family-parenthood-people-concept-happy-260nw-2341637857.jpg' },
-    { id: 'paternal', title: 'Paternal DNA Testing', price: '1,250,000VND/mẫu', img: 'https://cdn.stocksnap.io/img-thumbs/280h/kids-father_NFZION4R4G.jpg' },
-    { id: 'maternal-lineage', title: 'Maternal Lineage DNA Testing', price: '1,250,000VND/mẫu', img: 'https://cdn.stocksnap.io/img-thumbs/280h/mother-son_5WGHFLZULM.jpg' },
-    { id: 'birth', title: 'Birth DNA Test', price: '1,250,000VND/mẫu', img: 'https://image.shutterstock.com/image-photo/sleeping-baby-boy-12-months-260nw-2556901361.jpg' },
-    { id: 'divorce', title: 'DNA Test Divorce', price: '1,250,000VND/mẫu', img: 'https://image.shutterstock.com/image-photo/smiling-mid-adult-couple-hugging-260nw-2006404289.jpg' },
-  ];
+  Const [services, setServices] = useState([]);
+  getALlServies()
+    .then((response) => {
+      setServices(response.data);
+      console.log('Services fetched successfully:', response.data);
+    })
+    .catch((error) => {
+
+      console.error('Error fetching services:', error);
+      // Handle error appropriately, e.g., show a message to the user
+    });
+
+
+  // const services = [
+  //   { id: 'paternity', title: 'Paternity DNA Test', price: '1,250,000VND/mẫu', img: 'https://image.shutterstock.com/image-photo/smile-family-portrait-on-shoulder-260nw-2476215249.jpg' },
+  //   { id: 'mother-child', title: 'Mother-Child DNA Testing', price: '1,250,000VND/mẫu', img: 'https://image.shutterstock.com/image-photo/family-parenthood-people-concept-happy-260nw-2341637857.jpg' },
+  //   { id: 'paternal', title: 'Paternal DNA Testing', price: '1,250,000VND/mẫu', img: 'https://cdn.stocksnap.io/img-thumbs/280h/kids-father_NFZION4R4G.jpg' },
+  //   { id: 'maternal-lineage', title: 'Maternal Lineage DNA Testing', price: '1,250,000VND/mẫu', img: 'https://cdn.stocksnap.io/img-thumbs/280h/mother-son_5WGHFLZULM.jpg' },
+  //   { id: 'birth', title: 'Birth DNA Test', price: '1,250,000VND/mẫu', img: 'https://image.shutterstock.com/image-photo/sleeping-baby-boy-12-months-260nw-2556901361.jpg' },
+  //   { id: 'divorce', title: 'DNA Test Divorce', price: '1,250,000VND/mẫu', img: 'https://image.shutterstock.com/image-photo/smiling-mid-adult-couple-hugging-260nw-2006404289.jpg' },
+  // ];
 
   const handleBookingClick = (serviceId) => {
     navigate(`/booking/${serviceId}`);
