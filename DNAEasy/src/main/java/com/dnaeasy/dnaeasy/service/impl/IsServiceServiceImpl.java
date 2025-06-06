@@ -92,7 +92,7 @@ public class IsServiceServiceImpl implements IsServiceService {
 
         List<String> urls = new ArrayList<>();
         for (ServiceImage img : s.getServiceImageList()) {
-            urls.add(img.getBlogImagePath());            // dùng getter đúng tên đường dẫn ảnh
+            urls.add(img.getServiceImagePath());            // dùng getter đúng tên đường dẫn ảnh
         }
         r.setImageUrls(urls);
         return r;

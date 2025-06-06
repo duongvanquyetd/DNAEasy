@@ -6,10 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -39,5 +36,19 @@ public class PaymentController {
         return ResponseEntity.ok("Payment failed");
 
 
+    }
+    @GetMapping("/status/{id}")
+    public ResponseEntity<Boolean> Status(@PathVariable("id") int appointmentId) {
+        return  ResponseEntity.ok(paymentService.StatusPayment(appointmentId));
+    }
+    @PostMapping("/updateStatus/{id}")
+    public ResponseEntity<String> updateStatus(@PathVariable("id") int appointmentId) {
+        paymentService.UpdateStatus(appointmentId);
+        return ResponseEntity.ok("Payment successful");
+
+    }
+    @GetMapping("/paytoview/{id}")
+    public ResponseEntity<String> paytoview(@PathVariable("id") int appointment) {
+       return ResponseEntity.ok(paymentService.PayToviewResult(appointment)) ;
     }
 }

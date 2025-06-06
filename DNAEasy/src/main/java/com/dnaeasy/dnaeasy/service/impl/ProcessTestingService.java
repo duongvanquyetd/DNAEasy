@@ -2,7 +2,6 @@ package com.dnaeasy.dnaeasy.service.impl;
 
 import com.dnaeasy.dnaeasy.dto.response.ProcessOfTestResponse;
 import com.dnaeasy.dnaeasy.enity.Appointment;
-import com.dnaeasy.dnaeasy.enums.SampleMethod;
 import com.dnaeasy.dnaeasy.responsity.IsAppointmentResponsitory;
 import com.dnaeasy.dnaeasy.responsity.IsProcessTesting;
 import com.dnaeasy.dnaeasy.service.IsProcessTestingService;
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 @Service
-public class ProcessTesting implements IsProcessTestingService {
+public class ProcessTestingService implements IsProcessTestingService {
     @Autowired
     private IsProcessTesting isProcessTesting;
     @Autowired

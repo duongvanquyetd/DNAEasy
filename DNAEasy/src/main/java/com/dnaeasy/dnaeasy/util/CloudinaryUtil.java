@@ -33,7 +33,22 @@ public class CloudinaryUtil {
         cleanDisk(fileUpload);
         return  cloudinary.url().generate(StringUtils.join(publicValue, ".", extension));
     }
+    public String uploadFile(MultipartFile file) throws IOException {
+        // Dành cho PDF, DOCX, ảnh, v.v...
+        assert file.getOriginalFilename() != null;
+        String publicValue = generatePublicValue(file.getOriginalFilename());
+        File fileUpload = convert(file);
 
+        var result = cloudinary.uploader().upload(fileUpload, ObjectUtils.asMap(
+                "public_id", publicValue,
+                "resource_type", "raw",
+                "format", "pdf"
+        ));
+
+
+        cleanDisk(fileUpload);
+        return result.get("secure_url").toString();
+    }
     private File convert(MultipartFile file) throws IOException {
         assert file.getOriginalFilename() != null;
         File convFile = new File(StringUtils.join(generatePublicValue(file.getOriginalFilename()), getFileName(file.getOriginalFilename())[1]));
