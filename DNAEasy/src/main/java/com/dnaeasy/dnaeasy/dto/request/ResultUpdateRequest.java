@@ -5,9 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class ResultRequest {
-    private int appoinmentId;
-   
+@NoArgsConstructor
+public class ResultUpdateRequest {
+    private int resultId;
+    private String resulFilePDF;
+    private String conclustionResult;
 }

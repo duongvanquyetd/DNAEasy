@@ -1,11 +1,14 @@
 package com.dnaeasy.dnaeasy.enity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
+@Setter
+@Getter
 @Entity
 @Table(name = "Result")
 public class Result {

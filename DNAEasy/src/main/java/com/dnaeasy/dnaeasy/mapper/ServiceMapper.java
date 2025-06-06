@@ -58,7 +58,7 @@ public class ServiceMapper {
         // Lấy danh sách URL từ ServiceImage
         List<String> urls = new ArrayList<>();
         for (ServiceImage img : s.getServiceImageList()) {
-            urls.add(img.getBlogImagePath());
+            urls.add(img.getServiceImagePath());
         }
         r.setImageUrls(urls);
         return r;

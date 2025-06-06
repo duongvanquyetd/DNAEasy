@@ -16,10 +16,10 @@ import lombok.Setter;
     public class ServiceImage {
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
-        private Long blogId;
-        private String BlogImageName;
-
-        private String BlogImagePath;
+        private Long serviceImageId;
+        private String serviceImageName;
+        @Lob
+        private String serviceImagePath;
         @ManyToOne
         @JoinColumn(name="Service_id")
         private Service service;
