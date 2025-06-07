@@ -6,21 +6,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+// sua lai lop cho phu hop voi mapper service
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@Entity
+@Table(name = "ServiceImage")
+public class ServiceImage {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long blogId;
+    private String BlogImageName;
 
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Getter
-    @Setter
-    @Entity
-    @Table(name = "ServiceImage")
-    public class ServiceImage {
-        @Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
-        private Long serviceImageId;
-        private String serviceImageName;
-        @Lob
-        private String serviceImagePath;
-        @ManyToOne
-        @JoinColumn(name="Service_id")
-        private Service service;
+    private String BlogImagePath;
+    @ManyToOne
+    @JoinColumn(name="Service_id")
+    private Service service;
 }

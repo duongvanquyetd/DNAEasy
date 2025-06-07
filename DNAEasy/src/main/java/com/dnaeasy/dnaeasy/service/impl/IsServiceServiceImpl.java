@@ -5,35 +5,51 @@ import com.dnaeasy.dnaeasy.dto.response.ServiceResponse;
 import com.dnaeasy.dnaeasy.enity.Service;
 import com.dnaeasy.dnaeasy.enity.ServiceImage;
 import com.dnaeasy.dnaeasy.exception.ResourceNotFound;
+import com.dnaeasy.dnaeasy.mapper.ServiceMapper;
 import com.dnaeasy.dnaeasy.responsity.IsServiceResponsitory;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.web.multipart.MultipartFile;
 
 
 import java.util.ArrayList;
 import java.util.List;
 
 @org.springframework.stereotype.Service
-
 public class IsServiceServiceImpl implements IsServiceService {
     @Autowired
     private IsServiceResponsitory serviceRepo;
 
+    @Autowired
+    private ServiceMapper serviceMapper;
 
+    @Autowired
+    private CloudinaryService cloudinaryService;
     @Override
     public Service create(ServiceCreateRequest request) {
-        Service s = new Service();
-        s.setServiceName(request.getServiceName());
-        s.setServiceDescription(request.getServiceDescription());
-        s.setServicePrice(request.getServicePrice());
+        // Chỉ thực hiện mapping DTO -> Entity và lưu, không xử lý ảnh ở đây
+        Service entity = serviceMapper.toEntity(request);
+        return serviceRepo.save(entity);
+    }
 
-        s.setTypeService(request.getTypeService());
-        // Gán quan hệ ảnh
-        for (ServiceImage img : request.getServiceImageList()) {
-            img.setService(s);
+    public Service createService(ServiceCreateRequest dto, MultipartFile imageFile) {
+        Service entity = serviceMapper.toEntity(dto);
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            String imageUrl = cloudinaryService.uploadFile(imageFile);
+
+            // 1. Tạo một instance của ServiceImage (lớp nhóm đã code sẵn)
+            ServiceImage img = new ServiceImage();
+            img.setBlogImagePath(imageUrl);      // set đường dẫn ảnh lên field bLogImagePath
+            img.setBlogImageName(imageFile.getOriginalFilename()); // (nếu muốn lưu tên file)
+            img.setService(entity);              // gán quan hệ ManyToOne về Service cha
+
+            // 2. Put vào List<ServiceImage> rồi gán cho entity
+            List<ServiceImage> listImg = new ArrayList<>();
+            listImg.add(img);
+            entity.setServiceImageList(listImg);
         }
-        s.setServiceImageList(request.getServiceImageList());
-        return serviceRepo.save(s);
+
+        return serviceRepo.save(entity);
     }
 
     @Override
@@ -92,7 +108,7 @@ public class IsServiceServiceImpl implements IsServiceService {
 
         List<String> urls = new ArrayList<>();
         for (ServiceImage img : s.getServiceImageList()) {
-            urls.add(img.getServiceImagePath());            // dùng getter đúng tên đường dẫn ảnh
+            urls.add(img.getBlogImagePath());            // dùng getter đúng tên đường dẫn ảnh
         }
         r.setImageUrls(urls);
         return r;
