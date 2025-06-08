@@ -21,6 +21,8 @@ public interface AppointmentMapper {
     @Mapping(target = "customerName" ,source = "customer.name")
     @Mapping(target = "tracking",expression = "java(AppointmetTrackingToMap(appointment))")
     @Mapping(target = "paymentAmount" , source = "payment.paymentAmount")
+
+    @Mapping(target = "paymentStatus",source = "payment.paymentStatus")
     AppointmentResponse AppointmentCreateResponse(Appointment appointment);
     default Map<String, LocalDateTime> AppointmetTrackingToMap(Appointment appointment) {
         Map<String, LocalDateTime> appointmetTracking = new HashMap<>();

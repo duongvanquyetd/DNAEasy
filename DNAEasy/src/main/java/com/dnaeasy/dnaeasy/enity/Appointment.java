@@ -29,7 +29,7 @@ public class Appointment {
     @Enumerated(EnumType.STRING)
     private SampleMethod typeCollect;
     private String curentStatusAppointment;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name="satff_id")
     private Person staff;
     @ManyToOne

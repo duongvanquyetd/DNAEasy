@@ -78,7 +78,7 @@ public class SampleService implements IsSampleService {
             }
 
         } else {
-            ProcessTesting curent = isProcessTesting.findOrderProcessByStatusName(sampleList.get(0).getCureStatusSample());
+            ProcessTesting curent = isProcessTesting.findOrderProcessByStatusNameAndSampleMethod(sampleList.get(0).getCureStatusSample(),appointment.getTypeCollect());
             ProcessTesting p = isProcessTesting.findByOrderProcessAndSampleMethod(curent.getOrderProcess() + 1, appointment.getTypeCollect());
             if (person.getRolename().equals(p.getPerson_confirm())) {
                 testprocessResponse.setIsallowCofirmation(true);
@@ -105,6 +105,11 @@ public class SampleService implements IsSampleService {
         Appointment appointmnet = isAppointmentResponsitory.findById(appointmentid).orElseThrow(() -> new ResourceNotFound("Appointment not found"));
         List<Sample> sampleList = appointmnet.getSampelist();
         List<SampleResponse> sampleResponseList = new ArrayList<>();
+        if(sampleList == null)
+        {
+            return sampleResponseList;
+        }
+
         for (Sample sample : sampleList) {
             SampleResponse sampleResponse = sampleMapper.SampeToSampleResponse(sample);
             sampleResponseList.add(sampleResponse);

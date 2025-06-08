@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class StatusUpdateAppointment {
     private int appointmentId;
-    private String stautus;
+    private String status;
     private String note;
 }

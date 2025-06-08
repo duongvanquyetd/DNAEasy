@@ -3,6 +3,7 @@ package com.dnaeasy.dnaeasy.responsity;
 import com.dnaeasy.dnaeasy.enity.Appointment;
 import com.dnaeasy.dnaeasy.enity.Person;
 import com.dnaeasy.dnaeasy.enity.Sample;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -22,4 +23,13 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
 
 @Query("Select a.appointment.appointmentId from Sample a where a.sampleid =:id  ")
     int  getAppointmentIDBySampleID(int id);
+
+    List<Appointment> findAllByCurentStatusAppointmentNotIn(Collection<String> curentStatusAppointments);
+
+    Appointment findBySampelist(List<Sample> sampelist);
+
+
+    List<Appointment> findAllByStaffAndCurentStatusAppointmentIsIn(Person staff, Collection<String> curentStatusAppointments);
+
+    List<Appointment> findAllByCustomerAndCurentStatusAppointmentIsIn(Person customer, Collection<String> curentStatusAppointments);
 }

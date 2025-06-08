@@ -1,10 +1,7 @@
 package com.dnaeasy.dnaeasy.exception;
 
-import com.dnaeasy.dnaeasy.enity.Person;
 import jakarta.validation.ConstraintViolationException;
-import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.NonTransientDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -46,8 +43,15 @@ public class GlobalExeption {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
-
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<Map<String, String>> handleBadResquest(BadRequestException ex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
+
+
+}
 
 
 

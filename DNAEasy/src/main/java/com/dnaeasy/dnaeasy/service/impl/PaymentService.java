@@ -42,7 +42,9 @@ public class PaymentService implements IsPaymentService {
         if (val.length == 2) {
             value = val[0];
         }
+        String id = String.valueOf(payment.getAppointment().getAppointmentId())+"_"+ payment.getContenPayment().substring(4,8);
         System.out.println(value);
+        params.put("vnp_TxnRef", id);
         params.put("vnp_Amount", value);
         params.put("vnp_IpAddr", request.getRemoteAddr());
         params.put("vnp_OrderInfo", payment.getContenPayment());
@@ -92,6 +94,7 @@ public class PaymentService implements IsPaymentService {
     public void UpdateStatus(int appointmentId) {
         Appointment a = isAppointmentResponsitory.findById(appointmentId).orElseThrow(() -> new ResourceNotFound("Not have an appointment with id " + appointmentId));
         a.getPayment().setPaymentStatus(true);
+        a.getPayment().setPaymentAmount(a.getPayment().getPaymentAmount().multiply(BigDecimal.valueOf(2)));
         isAppointmentResponsitory.save(a);
 
     }
@@ -99,6 +102,10 @@ public class PaymentService implements IsPaymentService {
     @Override
     public String PayToviewResult(int appointmentId) {
         Appointment a = isAppointmentResponsitory.findById(appointmentId).orElseThrow(() -> new ResourceNotFound("Not have an appointment with id " + appointmentId));
+
+        a.getPayment().setContenPayment(a.getPayment().getContenPayment().replaceAll("haft","full"));
+
+        isAppointmentResponsitory.save(a);
         return paymentUrl(a.getPayment()) ;
     }
 }

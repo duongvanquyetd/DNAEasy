@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@CrossOrigin("*")
 @RestController
 @RequestMapping("api/appointment")
 public class AppointmentController {
@@ -21,7 +21,7 @@ public class AppointmentController {
 //
 //        return ResponseEntity.ok(appointmentService.createAppointment(appointment));
 //    }
-    @GetMapping("/updateStatus")
+    @PostMapping("/updateStatus")
     public ResponseEntity<AppointmentResponse> UpdateStatus(@RequestBody StatusUpdateAppointment request) {
         return ResponseEntity.ok(appointmentService.UpdateStatusAppoinment(request));
     }
@@ -30,7 +30,7 @@ public class AppointmentController {
 
         return ResponseEntity.ok(appointmentService.createAppointment(appointment));
     }
-    @GetMapping("/getAllFlowCurrentUser")
+    @GetMapping("/getAllCompleteFlowCurrentUser")
     public ResponseEntity<List<AppointmentResponse>> getAllFlowCurrentUser() {
         return ResponseEntity.ok(appointmentService.getAllFlowCurentUser());
     }
@@ -41,6 +41,10 @@ public class AppointmentController {
     @GetMapping("/getAppointmentInprocess")
     public ResponseEntity<List<AppointmentResponse>> getAppointmentInprocess() {
         return ResponseEntity.ok(appointmentService.getAppoinmentinprocess());
+    }
+    @GetMapping("/getForStaffLab")
+    public ResponseEntity<List<AppointmentResponse>> getForStaffLab() {
+        return ResponseEntity.ok(appointmentService.getAppoinmentFofStaff_Lab());
     }
     //
 }

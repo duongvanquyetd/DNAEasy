@@ -6,11 +6,9 @@ import com.dnaeasy.dnaeasy.service.IsProcessTestingService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/processtesting")
 public class ProcessTessController {
@@ -19,5 +17,10 @@ public class ProcessTessController {
     @GetMapping("/{id}")
     public ResponseEntity<ProcessOfTestResponse> getProcessTesting(@PathVariable("id")int  id) {
         return ResponseEntity.ok(isProcessTestingService.proceesOrder(id));
+    }
+    @GetMapping("/getcurentOrderProcess/{id}")
+    public ResponseEntity<Integer> getOrder(@PathVariable("id")int  id) {
+
+        return ResponseEntity.ok(isProcessTestingService.curentOrder(id));
     }
 }

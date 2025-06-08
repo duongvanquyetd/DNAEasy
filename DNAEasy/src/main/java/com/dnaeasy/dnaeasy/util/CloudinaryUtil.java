@@ -41,8 +41,7 @@ public class CloudinaryUtil {
 
         var result = cloudinary.uploader().upload(fileUpload, ObjectUtils.asMap(
                 "public_id", publicValue,
-                "resource_type", "raw",
-                "format", "pdf"
+                "format", "pdf" // Đừng dùng "resource_type: raw"
         ));
 
 

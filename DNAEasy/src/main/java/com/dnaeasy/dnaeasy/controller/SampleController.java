@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/sample")
 public class SampleController {
@@ -22,7 +22,7 @@ public class SampleController {
         return ResponseEntity.ok(sampleService.Create(sampleCreateRequest));
     }
     // xem người login hiện tại có được cofirm status tiếp theo hay không và lấy status tiếp theo lên
-    @GetMapping("/nextStatusAndAllow") ResponseEntity<TestprocessResponse> isAllowCofirmation(@RequestBody SampleCreateRequest sampleCreateRequest) {
+    @PostMapping("/nextStatusAndAllow") ResponseEntity<TestprocessResponse> isAllowCofirmation(@RequestBody SampleCreateRequest sampleCreateRequest) {
         return ResponseEntity.ok(sampleService.isAllowCofirmation(sampleCreateRequest));
     }
     @GetMapping("/currenstatus/{id}")

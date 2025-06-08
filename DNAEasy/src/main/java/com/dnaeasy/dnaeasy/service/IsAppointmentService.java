@@ -16,4 +16,5 @@ public interface IsAppointmentService {
     List<AppointmentResponse> getAllFlowCurentUser();
     List<AppointmentResponse> getAll();
     List<AppointmentResponse> getAppoinmentinprocess();
+    List<AppointmentResponse> getAppoinmentFofStaff_Lab();
 }
