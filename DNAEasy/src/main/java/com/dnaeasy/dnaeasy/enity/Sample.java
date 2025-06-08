@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "Sample")
@@ -28,9 +30,10 @@ public class Sample {
     @ManyToOne
     @JoinColumn(name = "appointment_id")
     private Appointment appointment;
-    @ManyToOne
-    @JoinColumn(name = "result_id")
-    private Result result;
+    @ManyToMany(mappedBy = "sampelist")
+    private Set<Result> result = new HashSet<>();
+
+
     @OneToMany(mappedBy = "sample",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SampleTracking> tracks = new ArrayList<>();
 

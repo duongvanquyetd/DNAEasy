@@ -2,6 +2,7 @@ package com.dnaeasy.dnaeasy.service.impl;
 
 import com.dnaeasy.dnaeasy.dto.response.ProcessOfTestResponse;
 import com.dnaeasy.dnaeasy.enity.Appointment;
+import com.dnaeasy.dnaeasy.enity.Sample;
 import com.dnaeasy.dnaeasy.responsity.IsAppointmentResponsitory;
 import com.dnaeasy.dnaeasy.responsity.IsProcessTesting;
 import com.dnaeasy.dnaeasy.service.IsProcessTestingService;
@@ -28,5 +29,18 @@ public class ProcessTestingService implements IsProcessTestingService {
          }
         processOfTestResponse.setStatusNames(process);
          return processOfTestResponse;
+    }
+
+    @Override
+    public int curentOrder(int appointmnetid) {
+
+        Appointment appointment = isAppointmentResponsitory.findById(appointmnetid).orElseThrow(() -> new RuntimeException("appointment not found"));
+         List<Sample> sampleList = appointment.getSampelist();
+          if ( sampleList.isEmpty() || sampleList.get(0).getCureStatusSample() == null)
+          {
+              return 0;
+          }
+          return isProcessTesting.findOrderProcessByStatusNameAndSampleMethod(sampleList.get(0).getCureStatusSample(),appointment.getTypeCollect()).getOrderProcess();
+
     }
 }

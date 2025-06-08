@@ -6,7 +6,10 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 @Setter
 @Getter
 @Entity
@@ -23,7 +26,11 @@ public class Result {
     @ManyToOne
     @JoinColumn(name = "Staff_id")
     private Person staff;
-    @OneToMany(mappedBy = "result", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Sample> sampelist = new ArrayList<>();
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "Sample_Result",
+            joinColumns = {@JoinColumn(name ="Result_id")},inverseJoinColumns = @JoinColumn(name = "Sample_Id")
+    )
+    private Set<Sample> sampelist = new HashSet<>();
 
 }

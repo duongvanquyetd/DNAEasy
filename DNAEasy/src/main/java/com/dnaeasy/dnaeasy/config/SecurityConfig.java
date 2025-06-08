@@ -14,12 +14,16 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
 
-    public String[] URL = {"/api/auth/*","/api/payment/*"};
+    public String[] URL = {"/api/auth/*", "/api/payment/*"};
     @Autowired
-   private CustomJwtDecoder jwtDecoder;
+    private CustomJwtDecoder jwtDecoder;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity
+                .cors(cors -> {
+                });// ➕ Cho phép CORS
+
 
 //là cái link sau localhost://8080 nha
         httpSecurity.authorizeHttpRequests(request ->

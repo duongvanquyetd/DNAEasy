@@ -12,4 +12,6 @@ public interface IsProcessTesting extends JpaRepository<ProcessTesting,Integer> 
  ProcessTesting findOrderProcessByStatusName(String statusName);
 
  List<ProcessTesting> findAllBySampleMethod(SampleMethod sampleMethod);
+
+ ProcessTesting findOrderProcessByStatusNameAndSampleMethod(String statusName, SampleMethod sampleMethod);
 }

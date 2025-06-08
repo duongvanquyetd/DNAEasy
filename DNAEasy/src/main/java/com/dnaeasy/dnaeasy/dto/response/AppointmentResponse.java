@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 @Data
 @AllArgsConstructor
@@ -25,5 +26,8 @@ public class AppointmentResponse {
     private Map<String, LocalDateTime> tracking;
     private BigDecimal paymentAmount;
 
+
+    private  Boolean paymentStatus;
+    List<SampleResponse> listSample;
 
 }

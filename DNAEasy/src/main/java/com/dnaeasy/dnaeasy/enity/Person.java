@@ -68,9 +68,8 @@ public class Person {
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Appointment> appointmentList = new ArrayList<>();
 
-    @OneToOne(mappedBy = "staff")
-    private Appointment appointment;
-
+    @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Appointment> appointmentstaff = new ArrayList<>();
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notification> notificationList = new ArrayList<>();
