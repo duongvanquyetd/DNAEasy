@@ -16,8 +16,8 @@ function Home() {
               <li><Link to="/">Home</Link></li>
               <li><Link to="/service">Service</Link></li>
               <li><Link to="/blog">Blog</Link></li>
-              <li><Link to="/">Appointment</Link></li>
-              <li><Link to="/">Booking History</Link></li>
+              <li><Link to="/yourappoinment">Appointment</Link></li>
+              <li><Link to="/historyBooking">Booking History</Link></li>
             </ul>
           </nav>
         </div>
