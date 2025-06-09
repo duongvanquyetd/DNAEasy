@@ -166,7 +166,7 @@ export const YourAppointment = () => {
                     );
 
                     UpdateResult(formData)
-                      .then((response) => {
+                      .then(() => {
                         alert("Cập nhật kết quả thành công!");
                         setResultform(null);
                         window.location.reload();
