@@ -33,8 +33,8 @@ public class ServiceController {
         List<ServiceImage> imgs = new ArrayList<>();
         for (MultipartFile file : files) {
             ServiceImage img = new ServiceImage();
-            img.setBlogImageName(file.getOriginalFilename());
-            img.setBlogImagePath(cloudinaryUtil.uploadImage(file));
+            img.setServiceImageName(file.getOriginalFilename());
+            img.setServiceImagePath(cloudinaryUtil.uploadImage(file));
             imgs.add(img);
         }
         request.setServiceImageList(imgs);
@@ -62,8 +62,8 @@ public class ServiceController {
         List<ServiceImage> imgs = new ArrayList<>();
         for (MultipartFile file : files) {
             ServiceImage img = new ServiceImage();
-            img.setBlogImageName(file.getOriginalFilename());
-            img.setBlogImagePath(cloudinaryUtil.uploadImage(file));
+            img.setServiceImageName(file.getOriginalFilename());
+            img.setServiceImagePath(cloudinaryUtil.uploadImage(file));
             imgs.add(img);
         }
         request.setServiceImageList(imgs);
