@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './Service.css';
+import '../css/Service.css';
 import { getALlServies } from '../../service/service';
-
+import Header from '../Header';
+import Footer from '../Footer';
 const Service = () => {
   const navigate = useNavigate();
 
@@ -38,7 +39,7 @@ const Service = () => {
 
   return (
     <div className="service-page">
-      <header>
+      {/* <header>
         <div className="logo">DNAeasy</div>
         <div className="nav-container">
           <nav>
@@ -55,7 +56,8 @@ const Service = () => {
           <Link to="/user/login" className="LR-btn">Login</Link>
           <Link to="/user/register" className="LR-btn">Register</Link>
         </div>
-      </header>
+      </header> */}
+      <Header />
 
       <section className="banner">
         <div className="banner-content">
@@ -116,38 +118,7 @@ const Service = () => {
         <span>...</span>
         <button>5</button>
       </section>
-
-      <footer className="footer">
-        <div className="footer-left">
-          <div className="logo">DNAeasy</div>
-          <p>DNAeasy Genetic Technology Company Limited</p>
-        </div>
-        <div className="footer-links">
-          <div>
-            <h4>Home</h4>
-            <Link to="/tests">DNA Tests</Link>
-            <Link to="/">You Can Do At Home</Link>
-          </div>
-          <div>
-            <h4>Legal Tests</h4>
-            <Link to="/legal-paternity">Legal Paternity Tests</Link>
-            <Link to="/">Immigration Tests</Link>
-            <Link to="/">Locations</Link>
-          </div>
-          <div>
-            <h4>Popular Links</h4>
-            <Link to="/">DNA Test</Link>
-            <Link to="/blog">Blog</Link>
-            <Link to="/">Contact</Link>
-          </div>
-        </div>
-        <div className="footer-contact">
-          <h4>Contact</h4>
-          <p>Phone: +84 123 456 789</p>
-          <p>Mon-Fri: 8am-4:30pm</p>
-          <p>83</p>
-        </div>
-      </footer>
+     <Footer />
     </div>
   );
 };
