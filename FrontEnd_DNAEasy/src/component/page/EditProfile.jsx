@@ -1,24 +1,25 @@
 // src/component/page/EditProfile.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../Header.jsx'; // Ensure this path is correct
-import Footer from '../Footer.jsx'; // Ensure this path is correct
+import Header from '../Header.jsx';
+import Footer from '../Footer.jsx';
+import avatarImage from '../image/avatar/kiet.jpg'; // Import avatar image
+import '../css/EditProfile.css';
 
 const EditProfile = () => {
   const navigate = useNavigate();
-  console.log('Rendering EditProfile');
 
   const [formData, setFormData] = useState({
-    name: 'Mehrab',
-    email: 'Mehrabozorgi.business@gmail.com',
-    streets: '',
-    district: 'Truong thanh',
-    city: '',
-    contactNumber: '012345678',
-    gender: 'Female',
-    password: '',
-    newPassword: '',
-    confirmNewPassword: '',
+    name: 'viet',
+    email: 'vietviet@example.com',
+    streets: '123123',
+    district: '123123',
+    city: '123123',
+    contactNumber: '123123',
+    gender: '123123',
+    password: '123123',
+    newPassword: '123123',
+    confirmNewPassword: '123123',
   });
 
   const handleChange = (e) => {
@@ -33,214 +34,141 @@ const EditProfile = () => {
   };
 
   return (
-    <div style={styles.page}>
+    <div className="page">
       <Header />
 
-      <main style={styles.main}>
-        <div style={styles.profileContainer}>
-          <div style={styles.avatar}></div>
-          <form style={styles.form} onSubmit={handleSubmit}>
-            <div style={styles.field}>
-              <label style={styles.label}>Name</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                style={styles.input}
-              />
+      <main className="main">
+        <div className="profile-container">
+          <div className="avatar-section">
+            <img
+              src={avatarImage}
+              alt="User Avatar"
+              className="avatar"
+            />
+          </div>
+          <form className="profile-form" onSubmit={handleSubmit}>
+            <div className="form-grid">
+              <div className="field">
+                <label className="label">Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="input"
+                />
+              </div>
+              <div className="field">
+                <label className="label">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="input"
+                />
+              </div>
+              <div className="field">
+                <label className="label">Streets</label>
+                <input
+                  type="text"
+                  name="streets"
+                  value={formData.streets}
+                  onChange={handleChange}
+                  className="input"
+                />
+              </div>
+              <div className="field">
+                <label className="label">District</label>
+                <input
+                  type="text"
+                  name="district"
+                  value={formData.district}
+                  onChange={handleChange}
+                  className="input"
+                />
+              </div>
+              <div className="field">
+                <label className="label">City</label>
+                <input
+                  type="text"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
+                  className="input"
+                />
+              </div>
+              <div className="field">
+                <label className="label">Contact Number</label>
+                <input
+                  type="tel"
+                  name="contactNumber"
+                  value={formData.contactNumber}
+                  onChange={handleChange}
+                  className="input"
+                />
+              </div>
+              <div className="field">
+                <label className="label">Gender</label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  className="input"
+                >
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+              <div className="field">
+                <label className="label">Password</label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="input"
+                />
+              </div>
+              <div className="field">
+                <label className="label">New Password</label>
+                <input
+                  type="password"
+                  name="newPassword"
+                  value={formData.newPassword}
+                  onChange={handleChange}
+                  className="input"
+                />
+              </div>
+              <div className="field">
+                <label className="label">Confirm New Password</label>
+                <input
+                  type="password"
+                  name="confirmNewPassword"
+                  value={formData.confirmNewPassword}
+                  onChange={handleChange}
+                  className="input"
+                />
+              </div>
             </div>
-            <div style={styles.field}>
-              <label style={styles.label}>Email</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                style={styles.input}
-              />
-            </div>
-            <div style={styles.field}>
-              <label style={styles.label}>Streets</label>
-              <input
-                type="text"
-                name="streets"
-                value={formData.streets}
-                onChange={handleChange}
-                style={styles.input}
-              />
-            </div>
-            <div style={styles.field}>
-              <label style={styles.label}>District</label>
-              <input
-                type="text"
-                name="district"
-                value={formData.district}
-                onChange={handleChange}
-                style={styles.input}
-              />
-            </div>
-            <div style={styles.field}>
-              <label style={styles.label}>City</label>
-              <input
-                type="text"
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-                style={styles.input}
-              />
-            </div>
-            <div style={styles.field}>
-              <label style={styles.label}>Contact Number</label>
-              <input
-                type="tel"
-                name="contactNumber"
-                value={formData.contactNumber}
-                onChange={handleChange}
-                style={styles.input}
-              />
-            </div>
-            <div style={styles.field}>
-              <label style={styles.label}>Gender</label>
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                style={styles.input}
+            <div className="form-actions">
+              <button type="submit" className="save-button">Save</button>
+              <button
+                type="button"
+                className="cancel-button"
+                onClick={() => navigate('/user/profile')}
               >
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
+                Cancel
+              </button>
             </div>
-            <div style={styles.field}>
-              <label style={styles.label}>Password</label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                style={styles.input}
-              />
-            </div>
-            <div style={styles.field}>
-              <label style={styles.label}>New Password</label>
-              <input
-                type="password"
-                name="newPassword"
-                value={formData.newPassword}
-                onChange={handleChange}
-                style={styles.input}
-              />
-            </div>
-            <div style={styles.field}>
-              <label style={styles.label}>Confirm New Password</label>
-              <input
-                type="password"
-                name="confirmNewPassword"
-                value={formData.confirmNewPassword}
-                onChange={handleChange}
-                style={styles.input}
-              />
-            </div>
-            <button type="submit" style={styles.saveButton}>
-              Save
-            </button>
           </form>
-          <button
-            type="button"
-            style={styles.cancelButton}
-            onClick={() => navigate('/user/profile')}
-          >
-            Cancel
-          </button>
         </div>
       </main>
 
       <Footer />
     </div>
   );
-};
-
-const styles = {
-  page: {
-    fontFamily: 'Arial, sans-serif',
-    margin: 0,
-    padding: 0,
-    display: 'flex',
-    flexDirection: 'column',
-    minHeight: '100vh',
-    backgroundColor: '#f5f5f5',
-  },
-  main: {
-    flex: 1,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-  },
-  profileContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: '20px',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    width: '400px',
-  },
-  avatar: {
-    width: '80px',
-    height: '80px',
-    backgroundColor: '#ddd',
-    borderRadius: '50%',
-    marginBottom: '20px',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '15px',
-    width: '100%',
-  },
-  field: {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  label: {
-    fontWeight: '600',
-    marginBottom: '5px',
-    color: '#444',
-    fontSize: '14px',
-  },
-  input: {
-    padding: '8px 10px',
-    fontSize: '14px',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
-    width: '100%',
-  },
-  saveButton: {
-    marginTop: '20px',
-    padding: '10px 20px',
-    backgroundColor: '#56E0E0',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '5px',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    width: '100%',
-    textTransform: 'uppercase',
-  },
-  cancelButton: {
-    marginTop: '10px',
-    padding: '10px 20px',
-    backgroundColor: '#56E0E0',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '5px',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    width: '100%',
-  },
 };
 
 export default EditProfile;
