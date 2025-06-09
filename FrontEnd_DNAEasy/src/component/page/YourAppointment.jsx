@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { GetAppointmetnForStaff_Lab, GetYourAppointmentInProcess, ProcesstheAppointment } from '../../service/appointment';
+import { GetAppointmetnForStaff_Lab, GetYourAppointmentInProcess, ProcesstheAppointment, UpdateStatusAppointment } from '../../service/appointment';
 import { AllowConfimAppointment, ConfirmSample, GetSampleByAppointmentId } from '../../service/sample';
 import { GetcurentOrderProcess } from '../../service/processtesting';
 import { CreateResult, UpdateResult } from '../../service/result';
@@ -10,6 +10,10 @@ export const YourAppointment = () => {
   const [sampleform, setSampleform] = useState();
   const [Resultform, setResultform] = useState();
   const [nextStatus, setNextStatus] = useState('');
+  const [errorSample, setErrorSample] = useState('');
+  const [errorResult, setErrorResult] = useState('');
+  const [cancelForm, setCancelForm] = useState('');
+  const [cancelNote,setCancelNote] = useState('');
   const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
   useEffect(() => {
     const fetchData = async () => {
@@ -33,7 +37,7 @@ export const YourAppointment = () => {
               ProcesstheAppointment(appointment.appointmentId),
               AllowConfimAppointment({ appointmentId: appointment.appointmentId }),
               GetcurentOrderProcess(appointment.appointmentId),
-            
+
             ]);
 
             return {
@@ -41,7 +45,7 @@ export const YourAppointment = () => {
               statusNames: processRes.data.statusNames,
               Confimed: confirmRes.data,
               orderProcess: orderProcess.data,
-              
+
             };
           })
         );
@@ -71,7 +75,7 @@ export const YourAppointment = () => {
           setResultform(response.data);
         }).catch((error) => {
           console.error("Error confirming samples:", error);
-          alert("Có lỗi xảy ra khi xác nhận mẫu.");
+
         });
       // setResultform(appointment.listSample);
 
@@ -92,12 +96,12 @@ export const YourAppointment = () => {
       ConfirmSample(formData)
         .then((response) => {
           console.log("Samples confirmed successfully:", response.data);
-          alert("Xác nhận mẫu thành công!");
+
           window.location.reload(); // Reload the page to fetch updated data
         })
         .catch((error) => {
           console.error("Error confirming samples:", error);
-          alert("Có lỗi xảy ra khi xác nhận mẫu.");
+
         });
     }
 
@@ -106,14 +110,64 @@ export const YourAppointment = () => {
 
 
   }
-  function isValidCCCD(cccd) {
-    const regex = /^\d{12}$/;
-    return regex.test(cccd);
-  }
+
 
   return (
 
+
+
     <div className="container mt-4">
+
+
+      {cancelForm && (
+        <div className="modal show d-block" tabIndex="-1" role="dialog">
+          <div className="modal-dialog" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Xác nhận hủy lịch hẹn</h5>
+                <button type="button" className="btn-close" onClick={() => setCancelForm(null)}></button>
+              </div>
+              <div className="modal-body">
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!cancelNote.trim()) return alert("Vui lòng nhập lý do hủy.");
+
+                  console.log("aaaa",{appointmentId:cancelForm.appointmentId, note: cancelNote})
+                  const appointmentUpdate ={
+                    appointmentId:cancelForm.appointmentId,
+                     note: cancelNote,
+                    status:"CANCLE"}
+             
+                  UpdateStatusAppointment(appointmentUpdate).then((response)=>
+                  {
+                    console.log(response.data)
+                    window.location.reload();
+                  }).catch((error)=>
+                  {
+                    alert("loi khi huy ");
+                  })
+                
+                }}>
+                  <div className="mb-3">
+                    <label className="form-label">Lý do hủy</label>
+                    <textarea
+                      className="form-control"
+                      value={cancelNote}
+                      onChange={(e) => setCancelNote(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <button type="submit" className="btn btn-danger">Xác nhận hủy</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+
+
       {Resultform && (
         <div className="modal show d-block" tabIndex="-1" role="dialog">
           <div className="modal-dialog modal-lg" role="document">
@@ -143,7 +197,7 @@ export const YourAppointment = () => {
                       const file = fileInput.files[0];
 
                       if (!file || !conclusionResult) {
-                        alert("Vui lòng chọn đầy đủ file PDF và kết luận cho tất cả kết quả.");
+                        setErrorResult("Please enter all field");
                         return;
                       }
 
@@ -167,13 +221,13 @@ export const YourAppointment = () => {
 
                     UpdateResult(formData)
                       .then(() => {
-                        alert("Cập nhật kết quả thành công!");
+
                         setResultform(null);
                         window.location.reload();
                       })
                       .catch((error) => {
                         console.error("Error updating results:", error);
-                        alert("Có lỗi xảy ra khi cập nhật kết quả.");
+
                       });
                   }}
                 >
@@ -206,7 +260,7 @@ export const YourAppointment = () => {
                       </div>
                     </div>
                   ))}
-
+                  <p><strong>{errorResult && <div className='text-danger' > {errorResult}</div>}</strong></p>
                   <button type="submit" className="btn btn-primary">Xác nhận tất cả</button>
                 </form>
               </div>
@@ -243,11 +297,11 @@ export const YourAppointment = () => {
                     }));
 
                     const isValid = formData.every((s) =>
-                      s.cccd && isValidCCCD(s.cccd) && s.name && s.relationName && s.sampleType
+                      s.cccd && s.name && s.relationName && s.sampleType
                     );
 
                     if (!isValid) {
-                      alert("Vui lòng điền đầy đủ thông tin cho tất cả mẫu. Va CCCD phải là 12 chữ số.");
+                      setErrorSample(" All field Not empty")
                       return;
                     }
 
@@ -256,9 +310,14 @@ export const YourAppointment = () => {
                       .then((response) => {
 
                         console.log("Samples confirmed successfully:", response.data);
-                        alert("Xác nhận mẫu thành công!");
+
                         setSampleform(null);
                         window.location.reload(); // Reload the page to fetch updated data
+                      }).catch((error) => {
+                        if (error.response.data != null) {
+                          setErrorSample(error.response.data.CCCD)
+                        }
+                        console.log("loi", error.response.data.CCCD)
                       })
 
                   }}
@@ -325,7 +384,7 @@ export const YourAppointment = () => {
                       </div>
                     </div>
                   ))}
-
+                  <p><strong>{errorSample && <div className='text-danger' > {errorSample}</div>}</strong></p>
                   <button type="submit" className="btn btn-primary">
                     Gửi xác nhận
                   </button>
@@ -340,6 +399,10 @@ export const YourAppointment = () => {
       {loading ? (
         <p>Loading...</p>
       ) : appointments.length > 0 ? (
+
+
+
+
         <div className="row">
           {appointments.map((appointment) => (
             <div className="col-md-6 mb-4" key={appointment.appointmentId}>
@@ -441,6 +504,17 @@ export const YourAppointment = () => {
                   </p>
 
                   {/* Confirm button */}
+                  {(appointment.orderProcess === 0 ||
+                    user.rolename === "STAFF_LAB" ||
+                    user.rolename === "STAFF_TEST") && (
+                      <button
+                        className="btn btn-danger mt-2"
+                        onClick={() => setCancelForm(appointment)}
+                      >
+                        Hủy lịch hẹn
+                      </button>
+                    )}
+
                   {appointment.Confimed.isallowCofirmation && (
                     <button className="btn btn-success" onClick={() => handelconfirm(appointment)}>
                       {appointment.Confimed.nextStatus}

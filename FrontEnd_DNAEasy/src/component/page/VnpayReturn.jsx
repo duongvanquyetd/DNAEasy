@@ -22,10 +22,10 @@ export const VNPayReturn = () => {
     console.log("Update Appointment Data:", updateappointment);
     const appoimentid = { appointmentId: updateappointment.appointmentId };
     if (responseCode === '00') {
-      alert("Thanh toán thành công!");
+    
       console.log(vnp_OrderInfo)
       if (vnp_OrderInfo.includes("Pay haft price for")) {
-        alert("vao cho mau roi")
+      
         UpdateStatusAppointment(updateappointment)
           .then((response) => {
             console.log(response.data);
@@ -38,12 +38,12 @@ export const VNPayReturn = () => {
               })
               .catch((error) => {
                 console.error("Lỗi khi tạo mẫu:", error);
-                alert("Có lỗi xảy ra khi tạo mẫu.");
+               
               });
           })
           .catch((error) => {
             console.error("Cập nhật lịch hẹn thất bại:", error);
-            alert("Có lỗi xảy ra khi cập nhật lịch hẹn.");
+          
           });
       }
       else {

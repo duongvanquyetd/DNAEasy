@@ -82,7 +82,7 @@ export const BookingServicePage = () => {
             setErrorHour(error.response.data.error)
           }
           console.error("Error booking appointment:", error.response.data.error);
-          alert("Booking failed. Please try again.");
+          
         });
     }
 

@@ -21,14 +21,6 @@ const Service = () => {
       });
   }, []);
 
-  // const services = [
-  //   { id: 'paternity', title: 'Paternity DNA Test', price: '1,250,000VND/mẫu', img: 'https://image.shutterstock.com/image-photo/smile-family-portrait-on-shoulder-260nw-2476215249.jpg' },
-  //   { id: 'mother-child', title: 'Mother-Child DNA Testing', price: '1,250,000VND/mẫu', img: 'https://image.shutterstock.com/image-photo/family-parenthood-people-concept-happy-260nw-2341637857.jpg' },
-  //   { id: 'paternal', title: 'Paternal DNA Testing', price: '1,250,000VND/mẫu', img: 'https://cdn.stocksnap.io/img-thumbs/280h/kids-father_NFZION4R4G.jpg' },
-  //   { id: 'maternal-lineage', title: 'Maternal Lineage DNA Testing', price: '1,250,000VND/mẫu', img: 'https://cdn.stocksnap.io/img-thumbs/280h/mother-son_5WGHFLZULM.jpg' },
-  //   { id: 'birth', title: 'Birth DNA Test', price: '1,250,000VND/mẫu', img: 'https://image.shutterstock.com/image-photo/sleeping-baby-boy-12-months-260nw-2556901361.jpg' },
-  //   { id: 'divorce', title: 'DNA Test Divorce', price: '1,250,000VND/mẫu', img: 'https://image.shutterstock.com/image-photo/smiling-mid-adult-couple-hugging-260nw-2006404289.jpg' },
-  // ];
 
   const handleBookingClick = (serviceId) => {
     navigate(`/booking/${serviceId}`);
@@ -39,24 +31,7 @@ const Service = () => {
 
   return (
     <div className="service-page">
-      {/* <header>
-        <div className="logo">DNAeasy</div>
-        <div className="nav-container">
-          <nav>
-            <ul>
-              <li><Link to="/">Home</Link></li>
-              <li><Link to="/service">Service</Link></li>
-              <li><Link to="/blog">Blog</Link></li>
-              <li><Link to="/">Appointment</Link></li>
-              <li><Link to="/">Booking History</Link></li>
-            </ul>
-          </nav>
-        </div>
-        <div className="auth-buttons">
-          <Link to="/user/login" className="LR-btn">Login</Link>
-          <Link to="/user/register" className="LR-btn">Register</Link>
-        </div>
-      </header> */}
+   
       <Header />
 
       <section className="banner">
