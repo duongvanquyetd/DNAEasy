@@ -4,7 +4,7 @@ import '../css/BookingDetail.css';
 import Footer from '../Footer';
 import Header from '../Header';
 
-const PaternityBookingDetail = () => {
+const MotherChildBookingDetail = () => {
   return (
     <div className="booking-page">
       <Header />
@@ -13,13 +13,13 @@ const PaternityBookingDetail = () => {
         <section className="hero-section">
           <div className="hero-overlay"></div>
           <img 
-            src="https://image.shutterstock.com/image-photo/smile-family-portrait-on-shoulder-260nw-2476215249.jpg" 
-            alt="Paternity DNA Test"
+            src="https://image.shutterstock.com/image-photo/mother-hugging-child-happy-portrait-260nw-1234567890.jpg" 
+            alt="Mother-Child DNA Test"
             className="hero-image" 
           />
           <div className="hero-content">
-            <h1 className="hero-title">Paternity DNA Test</h1>
-            <p className="hero-subtitle">Discover the Truth with Precision and Care</p>
+            <h1 className="hero-title">Mother-Child DNA Test</h1>
+            <p className="hero-subtitle">Reassurance Through Scientific Certainty</p>
             <p className="hero-price">1,250,000 VND/sample</p>
             <button className="hero-cta">Book Now</button>
           </div>
@@ -29,9 +29,9 @@ const PaternityBookingDetail = () => {
         <section className="overview-section">
           <div className="overview-content">
             <div className="overview-text">
-              <h2 className="section-title">Why Choose Our Paternity DNA Test?</h2>
+              <h2 className="section-title">Why Choose Our Mother-Child DNA Test?</h2>
               <p className="section-description">
-                Our Paternity DNA Test offers unparalleled accuracy and confidentiality, helping you confirm biological relationships with ease. Using state-of-the-art technology, we ensure reliable results delivered with the utmost care and privacy.
+                Our Mother-Child DNA Test provides accurate and confidential verification of maternal relationships. Using advanced technology, we ensure trustworthy results with fast turnaround and complete privacy.
               </p>
             </div>
             <div className="overview-stats">
@@ -97,7 +97,7 @@ const PaternityBookingDetail = () => {
         {/* CTA Section */}
         <section className="cta-section">
           <h2 className="cta-title">Ready to Get Started?</h2>
-          <p className="cta-description">Take the first step towards clarity with our trusted Paternity DNA Test.</p>
+          <p className="cta-description">Take the first step towards reassurance with our trusted Mother-Child DNA Test.</p>
           <button className="cta-button">Book Your Test Today</button>
         </section>
 
@@ -105,24 +105,24 @@ const PaternityBookingDetail = () => {
         <section className="ratings-section">
           <h2 className="section-title">What Our Customers Say</h2>
           <p className="section-description">
-            Hear from others who have experienced our trusted and professional paternity testing services.
+            Hear from others who have experienced our trusted and professional mother-child DNA testing services.
           </p>
           <div className="ratings-grid">
             {[
               {
-                name: 'John D.',
+                name: 'Emily R.',
                 rating: 5,
-                feedback: 'The process was seamless, and the results were delivered quickly. Highly professional and confidential service!',
+                feedback: 'The process was straightforward and the results came quickly. I felt supported throughout the entire experience.',
               },
               {
-                name: 'Sarah M.',
+                name: 'Anna L.',
                 rating: 4,
-                feedback: 'Very satisfied with the accuracy and support provided. The staff was friendly and guided me through every step.',
+                feedback: 'Very professional service with clear communication. The results were reliable and delivered on time.',
               },
               {
-                name: 'Michael T.',
+                name: 'Lisa K.',
                 rating: 5,
-                feedback: 'I appreciated the privacy and speed of the service. Got my results in just 3 days!',
+                feedback: 'I was impressed by the confidentiality and speed. The staff made the process stress-free!',
               },
             ].map((review, index) => (
               <div key={index} className="feature-card">
@@ -141,4 +141,4 @@ const PaternityBookingDetail = () => {
   );
 };
 
-export default PaternityBookingDetail;
+export default MotherChildBookingDetail;
