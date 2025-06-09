@@ -9,8 +9,10 @@ import EditProfile from './component/page/EditProfile';
 import Service from './component/page/ServicePage';
 import PaternityBookingDetail from './component/page/PaternityBookingDetail';
 import MotherChildBookingDetail from './component/page/motherChild';
-import AdminDashboard from './component/page/AdminDashboard';
-
+import  {VNPayReturn} from './component/page/VnpayReturn';
+import  {YourAppointment}  from './component/page/YourAppointment';
+import  {BookingServicePage}  from './component/page/BookingService';
+import  {HistoryBooking}  from './component/page/HistoryBooking';
 function App() {
   return (
     <BrowserRouter>
@@ -26,7 +28,10 @@ function App() {
         <Route path="/service/legal" element={<Service type="legal" />} />
         <Route path="/booking/paternity" element={<PaternityBookingDetail />} />
         <Route path="/booking/mother-child" element={<MotherChildBookingDetail />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/booking/:id" element={<BookingServicePage />} />
+        <Route path="/vnpay-callback" element={<VNPayReturn />} />
+        <Route path="/yourappoinment" element={<YourAppointment />} />
+        <Route path="/historyBooking" element={<HistoryBooking />} />
         <Route path="*" element={<div>404 - Page Not Found</div>} /> {/* Fallback route */}
       </Routes>     
     </BrowserRouter>

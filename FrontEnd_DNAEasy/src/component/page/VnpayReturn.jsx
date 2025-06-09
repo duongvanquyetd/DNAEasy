@@ -49,6 +49,7 @@ export const VNPayReturn = () => {
       else {
        
         UpdatePaymentStatus(updateappointment.appointmentId).then((response) => {
+          console.log(response)
           navigator("/historyBooking")
         }).catch((error) => {
           console.log(error)
