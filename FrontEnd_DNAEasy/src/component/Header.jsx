@@ -1,40 +1,59 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Logo from './image/logo/Logo.jpg'; 
+import Logo from './image/logo/Logo.jpg';
 
 const Header = () => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
-
+  const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
   const handleLogout = () => {
+    localStorage.clear();
     navigate('/user/login');
   };
+
 
   return (
     <header style={styles.header}>
       <div style={styles.logo}>
-        <img src={Logo} alt="DNAEASY Logo" style={styles.image} /> 
+        <img src={Logo} alt="DNAEASY Logo" style={styles.image} />
       </div>
       <nav style={styles.nav}>
         <a href="/" style={styles.navLink}>Home</a>
         <a href="/service" style={styles.navLink}>Service</a>
         <a href="/blog" style={styles.navLink}>Blog</a>
-        <a href="/appointment" style={styles.navLink}>Appointment</a>
+        <a href="/yourappoinment" style={styles.navLink}>Appointment</a>
         <a href="/historybooking" style={styles.navLink}>HistoryBooking</a>
       </nav>
-      <button
-        style={{
-          ...styles.logoutButton,
-          background: isHovered
-            ? 'linear-gradient(to right, #46D0D0, #006289)'
-            : 'linear-gradient(to right, #56E0E0, #007299)',
-        }}
-        onClick={handleLogout}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        Logout
-      </button>
+      {user ? (
+        <button
+          style={{
+            ...styles.logoutButton,
+            background: isHovered
+              ? 'linear-gradient(to right, #46D0D0, #006289)'
+              : 'linear-gradient(to right, #56E0E0, #007299)',
+          }}
+          onClick={handleLogout}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          Logout
+        </button>
+      ) : (
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button
+            style={styles.logoutButton}
+            onClick={() => navigate('/user/login')}
+          >
+            Login
+          </button>
+          <button
+            style={styles.logoutButton}
+            onClick={() => navigate('/user/register')}
+          >
+            Register
+          </button>
+        </div>
+      )}
     </header>
   );
 };
