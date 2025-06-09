@@ -39,8 +39,8 @@ public class IsServiceServiceImpl implements IsServiceService {
 
             // 1. Tạo một instance của ServiceImage (lớp nhóm đã code sẵn)
             ServiceImage img = new ServiceImage();
-            img.setBlogImagePath(imageUrl);      // set đường dẫn ảnh lên field bLogImagePath
-            img.setBlogImageName(imageFile.getOriginalFilename()); // (nếu muốn lưu tên file)
+            img.setServiceImagePath(imageUrl);      // set đường dẫn ảnh lên field bLogImagePath
+            img.setServiceImageName(imageFile.getOriginalFilename()); // (nếu muốn lưu tên file)
             img.setService(entity);              // gán quan hệ ManyToOne về Service cha
 
             // 2. Put vào List<ServiceImage> rồi gán cho entity
@@ -108,7 +108,7 @@ public class IsServiceServiceImpl implements IsServiceService {
 
         List<String> urls = new ArrayList<>();
         for (ServiceImage img : s.getServiceImageList()) {
-            urls.add(img.getBlogImagePath());            // dùng getter đúng tên đường dẫn ảnh
+            urls.add(img.getServiceImagePath());            // dùng getter đúng tên đường dẫn ảnh
         }
         r.setImageUrls(urls);
         return r;
