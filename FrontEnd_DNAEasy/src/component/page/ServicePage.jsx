@@ -1,12 +1,11 @@
-
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { getALlServies } from '../../service/service';
+// import { getALlServies } from '../../service/service';
 import Header from '../Header';
 import Footer from '../Footer';
 import '../css/Service.css'; // Import the CSS file as is
-// import { getAllServices } from '../../service/MockService';
+import { getAllServices } from '../../service/MockService';
 
 const ErrorBoundary = ({ children }) => {
   const [hasError, setHasError] = useState(false);
@@ -48,8 +47,8 @@ const Service = () => {
   const fetchServices = async () => {
     try {
       setLoading(true);
-      const response = await getALlServies(); 
-            setServices(response.data || []); // Handle potential undefined data
+      const response = await getAllServices(); 
+      setServices(response.data || []); // Handle potential undefined data
       setError(null);
     } catch (error) {
       console.error('Error fetching services:', error);
@@ -80,16 +79,15 @@ const Service = () => {
     [navigate]
   );
 
-  const handleFilterClick = useCallback(
-    (newType) => {
-      // Use navigate with pathname to ensure URL update
-      navigate({
-        pathname: `/service/${newType}`,
-      }, { replace: false }); // replace: false keeps history
-      setCurrentPage(1); // Reset to first page
-    },
-    [navigate]
-  );
+  const handleCategoryChange = useCallback((e) => {
+    const category = e.target.value;
+    if (category === 'all') {
+      navigate('/service'); // Navigate to all services page
+    } else if (category) {
+      navigate(`/service/${category}`);
+    }
+    setCurrentPage(1); // Reset to first page
+  }, [navigate]);
 
   const handleSearch = useCallback((e) => {
     e.preventDefault();
@@ -100,9 +98,9 @@ const Service = () => {
     return services.filter(
       (service) =>
         service.serviceName.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        (!type || service.type === type)
+        (!type || type === 'all' || service.type === type)
     );
-  }, [services, searchQuery, type]); // React to type changes
+  }, [services, searchQuery, type]);
 
   const paginatedServices = useMemo(() => {
     const startIndex = (currentPage - 1) * servicesPerPage;
@@ -182,29 +180,18 @@ const Service = () => {
         </section>
 
         <section className="filterSection">
-          <div className="filterButtons">
-            <button
-              className={`filterBtn ${type === 'civil' ? 'active' : ''}`}
-              onClick={() => handleFilterClick('civil')}
-              aria-pressed={type === 'civil'}
-            >
-              Civil Services
-            </button>
-            <button
-              className={`filterBtn ${type === 'legal' ? 'active' : ''}`}
-              onClick={() => handleFilterClick('legal')}
-              aria-pressed={type === 'legal'}
-            >
-              Legal Services
-            </button>
-          </div>
           <form className="searchBar" onSubmit={handleSearch}>
             <input
               type="text"
-              placeholder="Search services..."
+              placeholder="What are you looking for?"
               onChange={handleSearchChange}
-              aria-label="Search DNA testing services"
+              aria-label="Search services"
             />
+            <select name="category" aria-label="Select category" onChange={handleCategoryChange} value={type || 'all'}>
+              <option value="all">All Services</option>
+              <option value="civil">Civil Services</option>
+              <option value="legal">Legal Services</option>
+            </select>
             <button type="submit" className="searchBtn" aria-label="Search">
               Search
             </button>
@@ -282,5 +269,3 @@ ErrorBoundary.propTypes = {
 };
 
 export default Service;
-
-
