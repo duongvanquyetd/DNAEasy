@@ -28,8 +28,9 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
 
     Appointment findBySampelist(List<Sample> sampelist);
 
-
     List<Appointment> findAllByStaffAndCurentStatusAppointmentIsIn(Person staff, Collection<String> curentStatusAppointments);
 
     List<Appointment> findAllByCustomerAndCurentStatusAppointmentIsIn(Person customer, Collection<String> curentStatusAppointments);
+
+    boolean existsByCustomer_PersonIdAndService_ServiceId(Integer customerId, Integer serviceId);
 }
