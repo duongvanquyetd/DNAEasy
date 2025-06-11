@@ -24,8 +24,8 @@ function App() {
         <Route path="/user/profile" element={<UserProfile />} />
         <Route path="/user/edit-profile" element={<EditProfile />} />
         <Route path="/service" element={<Service />} />
-        <Route path="/service/civil" element={<Service type="civil" />} />
-        <Route path="/service/legal" element={<Service type="legal" />} />
+        <Route path="/service/:type" element={<Service />} /> {/* Dynamic route */}
+        <Route path="/service" element={<Service />} /> {/* Default without type */}
         <Route path="/booking/paternity" element={<PaternityBookingDetail />} />
         <Route path="/booking/mother-child" element={<MotherChildBookingDetail />} />
         <Route path="/booking/:id" element={<BookingServicePage />} />
