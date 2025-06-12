@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Logo from './image/logo/Logo.jpg';
 import avatarImage from './image/avatar/kiet.jpg'; 
+import { FileX } from 'lucide-react';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -177,7 +178,7 @@ const styles = {
     alignItems: 'center',
     padding: '15px 30px',
     backgroundColor: '#ffffff',
-    position: 'sticky',
+    position: 'fixed',
     top: 0,
     zIndex: 1000,
     fontFamily: "'Inter', 'Poppins', sans-serif",
