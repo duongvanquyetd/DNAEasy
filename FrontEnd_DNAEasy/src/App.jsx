@@ -7,6 +7,7 @@ import RegisterForm from './component/page/register';
 import UserProfile from './component/page/UserProfile';
 import EditProfile from './component/page/EditProfile';
 import Service from './component/page/ServicePage';
+import Blog from './component/page/BlogPage';
 import  {VNPayReturn} from './component/page/VnpayReturn';
 import  {YourAppointment}  from './component/page/YourAppointment';
 import  {BookingServicePage}  from './component/page/BookingService';
@@ -22,6 +23,7 @@ function App() {
         <Route path="/user/profile" element={<UserProfile />} />
         <Route path="/user/edit-profile" element={<EditProfile />} />
         <Route path="/service" element={<Service />} />
+        <Route path="/blog" element={<Blog />} />
         <Route path="/service/:type" element={<Service />} /> {/* Dynamic route */}
         <Route path="/service" element={<Service />} /> {/* Default without type */}
         <Route path="/booking/:id" element={<BookingServicePage />} />
