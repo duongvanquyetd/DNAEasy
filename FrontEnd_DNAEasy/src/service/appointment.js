@@ -1,4 +1,4 @@
-import api from './api';    
+import api from './api';
 export const CreateAppointment = (appoinment) => {
     return api.post('/appointment/create', appoinment);
 }
@@ -16,4 +16,7 @@ export const GetAppointmetnForStaff_Lab = () => {
 }
 export const GetHistoryAppointment = () => {
     return api.get(`/appointment/getAllCompleteFlowCurrentUser`);
+}
+export const GetAppointmetnForStaff_reception = () => {
+    return api.get("/appointment/getforStaffReception")
 }
