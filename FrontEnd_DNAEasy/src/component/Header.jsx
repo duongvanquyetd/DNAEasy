@@ -58,6 +58,7 @@ const Header = () => {
         : '0 2px 20px rgba(0, 0, 0, 0.05)',
       transform: isScrolled ? 'translateY(-2px)' : 'translateY(0)',
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      height: '120px', // Ensure consistent height
     }}>
       <div style={styles.logo}>
         <img src={Logo} alt="DNAEASY Logo" style={styles.image} />
@@ -176,18 +177,17 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '15px 30px',
+    padding: '1px 30px',
     backgroundColor: '#ffffff',
     position: 'fixed',
     top: 0,
     zIndex: 1000,
     fontFamily: "'Inter', 'Poppins', sans-serif",
-    maxWidth: '1400px',
+    maxWidth: '2000px',
     margin: '0 auto',
     width: '100%',
     borderRadius: '0 0 20px 20px',
   },
-
   image: {
     width: '120px',
     height: '90px',
@@ -318,31 +318,36 @@ const styles = {
   },
 };
 
-// Add CSS keyframes for animations
+// Add CSS keyframes and global style for content spacing
 const keyframes = `
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  .avatar-container img:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
   }
-}
 
-.avatar-container img:hover {
-  transform: scale(1.1) rotate(5deg);
-  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
-}
+  nav a:hover .nav-underline {
+    width: 100% !important;
+  }
 
-nav a:hover .nav-underline {
-  width: 100% !important;
-}
+  header img:hover {
+    transform: scale(1.05) rotate(-2deg);
+  }
 
-header img:hover {
-  transform: scale(1.05) rotate(-2deg);
-}
+  /* Add global style to push content below header */
+  body {
+    margin-top: 120px; /* Match the header height */
+  }
 `;
 
 // Inject styles
