@@ -30,11 +30,9 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
 
     Appointment findBySampelist(List<Sample> sampelist);
 
-
     List<Appointment> findAllByStaffAndCurentStatusAppointmentIsIn(Person staff, Collection<String> curentStatusAppointments);
 
     List<Appointment> findAllByCustomerAndCurentStatusAppointmentIsIn(Person customer, Collection<String> curentStatusAppointments);
-
     List<Appointment> findAllBySampelist(List<Sample> sampelist);
 
     List<Appointment> findALLByPayment_PaymentMethod(PaymentMehtod paymentPaymentMethod);
@@ -50,4 +48,7 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
     List<Appointment> findALByCurentStatusAppointmentIsIn(Collection<String> curentStatusAppointments);
 
     List<Appointment> findALByPayment_PaymentStatusAndCurentStatusAppointmentIsIn(boolean paymentPaymentStatus, Collection<String> curentStatusAppointments);
+
+    boolean existsByCustomer_PersonIdAndService_ServiceId(Integer customerId, Integer serviceId);
+
 }
