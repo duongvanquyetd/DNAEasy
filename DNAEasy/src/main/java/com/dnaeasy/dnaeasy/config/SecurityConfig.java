@@ -29,7 +29,8 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(request ->
                 request.requestMatchers(HttpMethod.POST, URL).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/user/get").hasAnyAuthority("SCOPE_ADMIN")
-                        .requestMatchers(HttpMethod.OPTIONS, "/api/auth/*").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/api/auth/*","/api/service").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/service").permitAll()
                         .anyRequest().authenticated()
 
         );

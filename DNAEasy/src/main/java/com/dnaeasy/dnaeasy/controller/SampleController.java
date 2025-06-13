@@ -5,10 +5,12 @@ import com.dnaeasy.dnaeasy.dto.request.UpdateSampleRequest;
 import com.dnaeasy.dnaeasy.dto.response.SampleResponse;
 import com.dnaeasy.dnaeasy.dto.response.TestprocessResponse;
 import com.dnaeasy.dnaeasy.enity.Sample;
+import com.dnaeasy.dnaeasy.service.impl.CloudinaryService;
 import com.dnaeasy.dnaeasy.service.impl.SampleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 @CrossOrigin("*")
@@ -17,6 +19,8 @@ import java.util.List;
 public class SampleController {
     @Autowired
     SampleService sampleService;
+    @Autowired
+    CloudinaryService cloudinaryService;
     @PostMapping("/create")
     public ResponseEntity<List<SampleResponse>> createSample(@RequestBody SampleCreateRequest sampleCreateRequest) {
         return ResponseEntity.ok(sampleService.Create(sampleCreateRequest));
@@ -36,8 +40,8 @@ public class SampleController {
 
     @PostMapping("/confirmhaveForm")
     public ResponseEntity<List<SampleResponse>> confirmHaveForm(
-            @RequestBody List<UpdateSampleRequest>  list){
-
-        return ResponseEntity.ok(sampleService.UpdateSampleHaveForm(list));
+            @RequestPart("sampleUpdate") List<UpdateSampleRequest>  list,
+            @RequestPart(value = "file",required = false) MultipartFile file) {
+        return ResponseEntity.ok(sampleService.UpdateSampleHaveForm(list,file));
     }
 }

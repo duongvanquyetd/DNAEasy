@@ -20,6 +20,6 @@ public class SampleResponse {
     private String CCCD;
     private String relationName;
     private String name;
-    private Map<String, LocalDateTime> sampleTracking;
+   List<SampleTrackingResponse> sampleTracking;
 
 }

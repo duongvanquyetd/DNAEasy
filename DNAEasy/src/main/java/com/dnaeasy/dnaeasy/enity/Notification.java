@@ -14,7 +14,7 @@ public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long notiID;
-    private String conten;
+    private String content;
     private LocalDateTime time;
     @ManyToOne
     @JoinColumn(name="person_Id")

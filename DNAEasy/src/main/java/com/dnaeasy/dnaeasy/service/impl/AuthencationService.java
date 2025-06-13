@@ -19,6 +19,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.AllArgsConstructor;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,12 +32,13 @@ import java.util.Date;
 import java.util.UUID;
 
 @Service
-@AllArgsConstructor
-
 public class AuthencationService implements IsAuthencationService {
     // JwtService jwtService;
+    @Autowired
     IsUserResponsity personResponsity;
+    @Autowired
     UserMapper userMapper;
+    @Autowired
     IsInvalidateToken isInvalidateToken;
     protected final static String SIGNERKEY = "1zbArs1Mw1U1DFy6gihY+UARQQERM6RIT6WsiB8KD+sG8ewTKntmCMGPlG7ZPHmF";
 

@@ -4,6 +4,7 @@ import com.dnaeasy.dnaeasy.dto.request.SampleCreateRequest;
 import com.dnaeasy.dnaeasy.dto.request.UpdateSampleRequest;
 import com.dnaeasy.dnaeasy.dto.response.SampleResponse;
 import com.dnaeasy.dnaeasy.dto.response.TestprocessResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -15,6 +16,6 @@ public interface IsSampleService {
 
 
   List<SampleResponse> getbyAppoinment(int appointmentid);
-  List<SampleResponse> UpdateSampleHaveForm(List<UpdateSampleRequest> updateSampleRequestList);
+  List<SampleResponse> UpdateSampleHaveForm(List<UpdateSampleRequest> updateSampleRequestList, MultipartFile file);
 
 }

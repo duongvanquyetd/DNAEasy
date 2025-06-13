@@ -5,9 +5,11 @@ import com.dnaeasy.dnaeasy.dto.request.StatusUpdateAppointment;
 import com.dnaeasy.dnaeasy.dto.response.AppointCreateResponse;
 import com.dnaeasy.dnaeasy.dto.response.AppointmentResponse;
 import com.dnaeasy.dnaeasy.service.impl.AppointmentService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 @CrossOrigin("*")
@@ -16,17 +18,13 @@ import java.util.List;
 public class AppointmentController {
     @Autowired
     AppointmentService appointmentService;
-//    @PostMapping("/create")
-//    public ResponseEntity<AppointmentCreateResponse> createAppointment(@RequestBody AppointmentCreateRequest appointment) {
-//
-//        return ResponseEntity.ok(appointmentService.createAppointment(appointment));
-//    }
+
     @PostMapping("/updateStatus")
-    public ResponseEntity<AppointmentResponse> UpdateStatus(@RequestBody StatusUpdateAppointment request) {
-        return ResponseEntity.ok(appointmentService.UpdateStatusAppoinment(request));
+    public ResponseEntity<AppointmentResponse> UpdateStatus(@RequestPart("appointmentUpdate") StatusUpdateAppointment request,@RequestPart(value = "file",required = false) MultipartFile file) {
+        return ResponseEntity.ok(appointmentService.UpdateStatusAppoinment(request,file));
     }
     @PostMapping("/create")
-    public ResponseEntity<AppointCreateResponse> createAppointment(@RequestBody AppointmentCreateRequest appointment) {
+    public ResponseEntity<AppointCreateResponse> createAppointment(@Valid @RequestBody AppointmentCreateRequest appointment) {
 
         return ResponseEntity.ok(appointmentService.createAppointment(appointment));
     }
@@ -46,5 +44,11 @@ public class AppointmentController {
     public ResponseEntity<List<AppointmentResponse>> getForStaffLab() {
         return ResponseEntity.ok(appointmentService.getAppoinmentFofStaff_Lab());
     }
-    //
+
+    @GetMapping("/getforStaffReception")
+    public ResponseEntity<List<AppointmentResponse>> getForStaffReception() {
+        return  ResponseEntity.ok(appointmentService.getAppoinmentFofStaff_Reception());
+    }
+
+
 }

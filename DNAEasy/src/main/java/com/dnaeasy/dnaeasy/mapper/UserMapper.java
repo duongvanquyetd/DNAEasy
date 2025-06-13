@@ -14,11 +14,6 @@ public interface UserMapper {
     AuthenctionResponse PersonToAuthenctionResponse(Person person);
     @Mapping(target = "address", expression = "java(combineAddress(person))")
     UserResponse PersonToUserResponse(Person person);
-
-//    @Mapping(target = "departmentName", source = "department.departmentName")
-//    @Mapping(target = "address", expression = "java(combineAddress(person))")
-//    StaffResponse PersonToStaffResponse(Person person);
-
     default String combineAddress(Person person) {
         return person.getStreets() + ", " + person.getDistrict() + ", " + person.getCity();
    }

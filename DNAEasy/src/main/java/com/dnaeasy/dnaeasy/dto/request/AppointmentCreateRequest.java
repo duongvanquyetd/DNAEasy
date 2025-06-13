@@ -1,5 +1,6 @@
 package com.dnaeasy.dnaeasy.dto.request;
 
+import com.dnaeasy.dnaeasy.enums.PaymentMehtod;
 import com.dnaeasy.dnaeasy.enums.SampleMethod;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,6 +17,8 @@ public class AppointmentCreateRequest {
     private LocalDateTime dateCollect;
     private String note;
     private SampleMethod typeCollect;
-    private String  paymentMethod;
+    private PaymentMehtod paymentMethod;
+    private String  phoneAppointment;
+    private String  emailAppointment;
 
 }

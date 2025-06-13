@@ -12,11 +12,14 @@ import com.dnaeasy.dnaeasy.exception.ResourceNotFound;
 import com.dnaeasy.dnaeasy.mapper.SampleMapper;
 import com.dnaeasy.dnaeasy.responsity.*;
 import com.dnaeasy.dnaeasy.service.IsSampleService;
+import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
 import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +39,10 @@ public class SampleService implements IsSampleService {
     private IsProcessTesting isProcessTesting;
     @Autowired
     private IsPersonTesting isPersonTesting;
+    @Autowired
+    CloudinaryUtil cloudinaryUtil;
+    @Autowired
+    IsSampleTrackingReponsitory isSampleTrackingReponsitory;
 
     @Override
     public List<SampleResponse> Create(SampleCreateRequest sampleCreateRequest) {
@@ -69,8 +76,23 @@ public class SampleService implements IsSampleService {
         Person person = isUserResponsity.findByUsername(usename);
         TestprocessResponse testprocessResponse = new TestprocessResponse();
         testprocessResponse.setIsallowCofirmation(false);
+        if (sampleList == null || sampleList.size() == 0) {
+            testprocessResponse.setIsallowCofirmation(false);
+            testprocessResponse.setNextStatus("Pay To Continue");
+            return testprocessResponse;
+        }
+        // gim lai de test da chu toi khong confirm de test duoc
+//        if( LocalDate.now().isBefore(appointment.getDateCollect().toLocalDate()))
+//        {
+//            testprocessResponse.setIsallowCofirmation(false);
+//            return testprocessResponse;
+//        }
+
+
         if (sampleList.get(0).getCureStatusSample() == null) {
             ProcessTesting p = isProcessTesting.findByOrderProcessAndSampleMethod(1, appointment.getTypeCollect());
+
+            // ty kiem tra tiep xem ngay hom nay co phai ngay dat lich khong neu phai thi moi cho sua status
             if (person.getRolename().equals(p.getPerson_confirm())) {
                 testprocessResponse.setIsallowCofirmation(true);
                 testprocessResponse.setNextStatus(p.getStatusName());
@@ -78,7 +100,7 @@ public class SampleService implements IsSampleService {
             }
 
         } else {
-            ProcessTesting curent = isProcessTesting.findOrderProcessByStatusNameAndSampleMethod(sampleList.get(0).getCureStatusSample(),appointment.getTypeCollect());
+            ProcessTesting curent = isProcessTesting.findOrderProcessByStatusNameAndSampleMethod(sampleList.get(0).getCureStatusSample(), appointment.getTypeCollect());
             ProcessTesting p = isProcessTesting.findByOrderProcessAndSampleMethod(curent.getOrderProcess() + 1, appointment.getTypeCollect());
             if (person.getRolename().equals(p.getPerson_confirm())) {
                 testprocessResponse.setIsallowCofirmation(true);
@@ -105,25 +127,37 @@ public class SampleService implements IsSampleService {
         Appointment appointmnet = isAppointmentResponsitory.findById(appointmentid).orElseThrow(() -> new ResourceNotFound("Appointment not found"));
         List<Sample> sampleList = appointmnet.getSampelist();
         List<SampleResponse> sampleResponseList = new ArrayList<>();
-        if(sampleList == null)
-        {
+        if (sampleList == null) {
             return sampleResponseList;
         }
 
         for (Sample sample : sampleList) {
             SampleResponse sampleResponse = sampleMapper.SampeToSampleResponse(sample);
+
             sampleResponseList.add(sampleResponse);
         }
         return sampleResponseList;
     }
 
     @Override
-    public List<SampleResponse> UpdateSampleHaveForm(List<UpdateSampleRequest> updateSampleRequestList) {
+    public List<SampleResponse> UpdateSampleHaveForm(List<UpdateSampleRequest> updateSampleRequestList, MultipartFile file) {
 
-         int appointid = isAppointmentResponsitory.getAppointmentIDBySampleID(updateSampleRequestList.get(0).getSampleId());
+        int appointid = isAppointmentResponsitory.getAppointmentIDBySampleID(updateSampleRequestList.get(0).getSampleId());
         TestprocessResponse testprocessResponse = isAllowCofirmation(new SampleCreateRequest(appointid));
         List<SampleResponse> sampleResponseList = new ArrayList<>();
         if (testprocessResponse.isIsallowCofirmation()) {
+            SampleTracking sampleTracking = new SampleTracking();
+            sampleTracking.setStatusDate(LocalDateTime.now());
+            sampleTracking.setStatusName(updateSampleRequestList.get(0).getNextStatusName());
+            if (file != null) {
+
+                try {
+
+                    sampleTracking.setImageUrl(cloudinaryUtil.uploadImage(file));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
 
             for (UpdateSampleRequest updateSampleRequest : updateSampleRequestList) {
                 Sample sample = isSampleRespository.findById(updateSampleRequest.getSampleId()).orElseThrow(() -> new ResourceNotFound("Sample not found"));
@@ -132,31 +166,26 @@ public class SampleService implements IsSampleService {
                 sample.setSampleType(updateSampleRequest.getSampleType());
                 sample.setCureStatusSample(updateSampleRequest.getNextStatusName());
 
-                SampleTracking sampleTracking = new SampleTracking();
-                sampleTracking.setStatusDate(LocalDateTime.now());
-                sampleTracking.setStatusName(updateSampleRequest.getNextStatusName());
-                List<SampleTracking> sampleTrackingList = new ArrayList<>();
 
+                if (sample.getPersonTest() == null && updateSampleRequest.getName() != null) {
+                    PersonTest p = new PersonTest();
 
-                PersonTest p = new PersonTest();
+                    p.setCCCD(updateSampleRequest.getCCCD());
+                    p.setName(updateSampleRequest.getName());
+                    p.setRelationName(updateSampleRequest.getRelationName());
+                    p.setSample(sample);
+                    isPersonTesting.save(p);
 
-                p.setCCCD(updateSampleRequest.getCCCD());
-                p.setName(updateSampleRequest.getName());
-                p.setRelationName(updateSampleRequest.getRelationName());
-                p.setSample(sample);
-                isPersonTesting.save(p);
-                sample.setPersonTest(p);
-                sampleTrackingList.add(sampleTracking);
-
-                sample.getTracks().addAll(sampleTrackingList);
-                for (SampleTracking track : sample.getTracks()) {
-                    track.setSample(sample);
+                    sample.setPersonTest(p);
                 }
+                sample.getSampleTracking().add(sampleTracking);
+                sampleTracking.getSample().add(sample);
 
-                isSampleRespository.save(sample);
+
                 sampleResponseList.add(sampleMapper.SampeToSampleResponse(sample));
 
             }
+            isSampleTrackingReponsitory.save(sampleTracking);
         }
 
 
@@ -184,6 +213,5 @@ public class SampleService implements IsSampleService {
         return sb.toString();
     }
 
-    
 
 }

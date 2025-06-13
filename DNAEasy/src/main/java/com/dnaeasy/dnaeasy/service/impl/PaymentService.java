@@ -1,22 +1,35 @@
 package com.dnaeasy.dnaeasy.service.impl;
 
 import com.dnaeasy.dnaeasy.config.VnpayConfig;
+import com.dnaeasy.dnaeasy.dto.request.PaymentUpdateResquest;
+import com.dnaeasy.dnaeasy.dto.request.SampleCreateRequest;
+import com.dnaeasy.dnaeasy.dto.request.StatusUpdateAppointment;
+import com.dnaeasy.dnaeasy.dto.response.PaymentResponse;
 import com.dnaeasy.dnaeasy.enity.Appointment;
+import com.dnaeasy.dnaeasy.enity.AppointmnentTracking;
 import com.dnaeasy.dnaeasy.enity.Payment;
+import com.dnaeasy.dnaeasy.enity.Person;
+import com.dnaeasy.dnaeasy.enums.PaymentMehtod;
+import com.dnaeasy.dnaeasy.enums.SampleMethod;
 import com.dnaeasy.dnaeasy.exception.ResourceNotFound;
+import com.dnaeasy.dnaeasy.mapper.PaymentMapper;
 import com.dnaeasy.dnaeasy.responsity.IsAppointmentResponsitory;
 import com.dnaeasy.dnaeasy.responsity.IsPaymentResponsitory;
+import com.dnaeasy.dnaeasy.responsity.IsUserResponsity;
 import com.dnaeasy.dnaeasy.service.IsAppointmentService;
 import com.dnaeasy.dnaeasy.service.IsPaymentService;
+import com.dnaeasy.dnaeasy.service.IsUserService;
 import com.dnaeasy.dnaeasy.util.VnpayUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -31,8 +44,13 @@ public class PaymentService implements IsPaymentService {
     IsPaymentResponsitory isPaymentResponsitory;
     @Autowired
     IsAppointmentResponsitory isAppointmentResponsitory;
+    @Autowired
+    IsUserResponsity isUserResponsitory;
+    @Autowired
+    PaymentMapper paymentMapper;
+    @Override
 
-    public String paymentUrl(Payment payment) {
+    public String paymentUrlVnpay(Payment payment) {
         Map<String, String> params = vnpayConfig.getVNPayConfig();
 
         BigDecimal money = payment.getPaymentAmount().multiply(BigDecimal.valueOf(100));// mai mốt thay giá trị vào
@@ -42,7 +60,7 @@ public class PaymentService implements IsPaymentService {
         if (val.length == 2) {
             value = val[0];
         }
-        String id = String.valueOf(payment.getAppointment().getAppointmentId())+"_"+ payment.getContenPayment().substring(4,8);
+        String id = String.valueOf(payment.getAppointment().getAppointmentId()) + "_" + payment.getContenPayment().substring(4, 8);
         System.out.println(value);
         params.put("vnp_TxnRef", id);
         params.put("vnp_Amount", value);
@@ -91,21 +109,68 @@ public class PaymentService implements IsPaymentService {
 
 
     @Override
-    public void UpdateStatus(int appointmentId) {
-        Appointment a = isAppointmentResponsitory.findById(appointmentId).orElseThrow(() -> new ResourceNotFound("Not have an appointment with id " + appointmentId));
-        a.getPayment().setPaymentStatus(true);
-        a.getPayment().setPaymentAmount(a.getPayment().getPaymentAmount().multiply(BigDecimal.valueOf(2)));
-        isAppointmentResponsitory.save(a);
+    public PaymentResponse UpdateStatus(PaymentUpdateResquest resquest) {
+        Appointment a = isAppointmentResponsitory.findById(resquest.getAppointmentId()).orElseThrow(() -> new ResourceNotFound("Not have an appointment with id " + resquest.getAppointmentId()));
+        AppointmnentTracking appointmnentTracking = new AppointmnentTracking();
+        appointmnentTracking.setAppointment(a);
+        appointmnentTracking.setStatusDate(LocalDateTime.now());
+        appointmnentTracking.setStatusName("PAID_"+resquest.getPaymentMehtod());
+       a.getAppointmnentTrackings().add( appointmnentTracking);
 
+        Payment payment = a.getPayment();
+        payment.setPaymentStatus(true);
+        payment.setPaymentAmount(a.getPayment().getPaymentAmount().multiply(BigDecimal.valueOf(2)));
+        if(!payment.getPaymentMethod().equals(resquest.getPaymentMehtod()))
+        {
+            if(payment.getPaymentMethod().equals(PaymentMehtod.Cash))
+            {
+                payment.setPaymentMethod(PaymentMehtod.Cash_VNpay);
+            }
+            else {
+                payment.setPaymentMethod(PaymentMehtod.VNPay_Cash);
+            }
+        }
+        a.setPayment(payment);
+
+        isAppointmentResponsitory.save(a);
+        return paymentMapper.PaymentToPaymentResponse(a.getPayment());
     }
 
     @Override
     public String PayToviewResult(int appointmentId) {
         Appointment a = isAppointmentResponsitory.findById(appointmentId).orElseThrow(() -> new ResourceNotFound("Not have an appointment with id " + appointmentId));
+        if (a.getPayment().getContenPayment().contains("haft")) {
+            a.getPayment().setContenPayment(a.getPayment().getContenPayment().replaceAll("haft", "full"));
 
-        a.getPayment().setContenPayment(a.getPayment().getContenPayment().replaceAll("haft","full"));
+        } else if (a.getPayment().getContenPayment().contains("againt")) {
+            a.getPayment().setContenPayment(a.getPayment().getContenPayment().replaceAll("againt", "full"));
+        }
+
 
         isAppointmentResponsitory.save(a);
-        return paymentUrl(a.getPayment()) ;
+        return paymentUrlVnpay(a.getPayment());
     }
+
+    @Override
+    public String PayAgaint(int appointmentId) {
+        Appointment a = isAppointmentResponsitory.findById(appointmentId).orElseThrow(() -> new ResourceNotFound("Not have an appointment with id " + appointmentId));
+
+        a.getPayment().setContenPayment(a.getPayment().getContenPayment().replaceAll("haft", "againt"));
+
+        isAppointmentResponsitory.save(a);
+        return paymentUrlVnpay(a.getPayment());
+    }
+
+    @Override
+    public void ConfirmPaidCash(int appointmentId) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Person p = isUserResponsitory.findByUsername(username);
+        Payment payment = isPaymentResponsitory.getPaymentByAppointment_AppointmentId(appointmentId);
+        payment.setStaffReception(p);
+
+        isUserResponsitory.save(p);
+    }
+
+
+
 }
