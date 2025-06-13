@@ -24,10 +24,10 @@ function App() {
         <Route path="/user/register" element={<RegisterForm />} />
         <Route path="/user/profile" element={<UserProfile />} />
         <Route path="/user/edit-profile" element={<EditProfile />} />
-                <Route path="/service" element={<Service />} />
+        <Route path="/service" element={<Service />} />
         <Route path="/service/:serviceId" element={<ServiceDetail />} /> {/* Moved up */}
         <Route path="/service/:type" element={<Service />} />
-
+        <Route path="/blog" element={<Blog />}/>
         <Route path="/booking/:id" element={<BookingServicePage />} />
         <Route path="/vnpay-callback" element={<VNPayReturn />} />
         <Route path="/yourappoinment" element={<YourAppointment />} />
