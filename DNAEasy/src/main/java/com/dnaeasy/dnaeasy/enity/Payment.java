@@ -1,5 +1,6 @@
 package com.dnaeasy.dnaeasy.enity;
 
+import com.dnaeasy.dnaeasy.enums.PaymentMehtod;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +20,8 @@ public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int paymentId;
-    private String paymentMethod;
+    @Enumerated(EnumType.STRING)
+    private PaymentMehtod paymentMethod;
     private boolean paymentStatus;
     @Lob
     @Column(columnDefinition = "TEXT")
@@ -29,5 +31,8 @@ public class Payment {
     @OneToOne( cascade = CascadeType.ALL)
     @JoinColumn(name="apppointment_id")
     private Appointment appointment;
+    @ManyToOne
+    @JoinColumn(name = "Staff_receptionID")
+    private Person staffReception;
 
 }

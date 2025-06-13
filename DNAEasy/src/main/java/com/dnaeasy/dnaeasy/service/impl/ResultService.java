@@ -12,6 +12,7 @@ import com.dnaeasy.dnaeasy.exception.ResourceNotFound;
 import com.dnaeasy.dnaeasy.mapper.ResultMapper;
 import com.dnaeasy.dnaeasy.responsity.*;
 import com.dnaeasy.dnaeasy.service.IsResultService;
+import com.dnaeasy.dnaeasy.service.IsSampleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,8 @@ public class ResultService implements IsResultService {
     IsSampleRespository isSampleRespository;
     @Autowired
     AppointmentService appointmentService;
+
+
     @Override
     public List<ResultCreateResponse> createResult(ResultRequest resultRequest) {
         Appointment a = isAppointmentResponsitory.findById(resultRequest.getAppoinmentId()).orElseThrow(() -> new ResourceNotFound("Not have an appointment with id " + resultRequest.getAppoinmentId()));
@@ -54,7 +57,7 @@ public class ResultService implements IsResultService {
                     sampleList.add(s2);
                     Result result = new Result();
 
-                    ProcessTesting status = isProcessTesting.findOrderProcessByStatusNameAndSampleMethod(s1.getCureStatusSample(),a.getTypeCollect());
+                    ProcessTesting status = isProcessTesting.findOrderProcessByStatusNameAndSampleMethod(s1.getCureStatusSample(), a.getTypeCollect());
                     ProcessTesting p = isProcessTesting.findByOrderProcessAndSampleMethod(status.getOrderProcess() + 1, a.getTypeCollect());
                     result.setCurentStatusResult(p.getStatusName());
                     result.getSampelist().addAll(sampleList);
@@ -72,8 +75,8 @@ public class ResultService implements IsResultService {
 
     @Override
     public List<ResultUpdateResponse> UpdateResult(List<ResultUpdateRequest> request) {
-    List<ResultUpdateResponse> responses = new ArrayList<>();
-
+        List<ResultUpdateResponse> responses = new ArrayList<>();
+        List<ProcessTesting> processTestings = new ArrayList<>();
         for (ResultUpdateRequest updateRequest : request) {
             Result result = isResultResponsitory.findResultsByResultId(updateRequest.getResultId());
 
@@ -82,9 +85,8 @@ public class ResultService implements IsResultService {
 
             SampleMethod type = result.getSampelist().iterator().next().getAppointment().getTypeCollect();
             result.setResultTime(LocalDateTime.now());
-            List<ProcessTesting> processTestings = isProcessTesting.findAllBySampleMethod(type);
+            processTestings = isProcessTesting.findAllBySampleMethod(type);
             result.setCurentStatusResult(processTestings.getLast().getStatusName());
-
 
 
             isResultResponsitory.save(result);
@@ -92,12 +94,25 @@ public class ResultService implements IsResultService {
         }
 // cap nhap trang thai appointment
         Result resultt = isResultResponsitory.findResultsByResultId(request.get(0).getResultId());
-        Appointment appointment = isAppointmentResponsitory.findById(resultt.getSampelist().iterator().next().getAppointment().getAppointmentId()).orElseThrow(()-> new ResourceNotFound("Not Have AppointmentId"));
+        Appointment appointment = isAppointmentResponsitory.findById(resultt.getSampelist().iterator().next().getAppointment().getAppointmentId()).orElseThrow(() -> new ResourceNotFound("Not Have AppointmentId"));
         StatusUpdateAppointment newAppointment = new StatusUpdateAppointment();
         newAppointment.setAppointmentId(appointment.getAppointmentId());
         newAppointment.setStatus("COMPLETE");
         newAppointment.setNote(appointment.getNote());
-        appointmentService.UpdateStatusAppoinment(newAppointment);
+
+
+
+//xem lai sao no khong luu nha
+//        Sample sample = appointment.getSampelist().get(0);
+//        SampleTracking sptk = new SampleTracking();
+//        sptk.setSample(sample);
+//        sptk.setStatusName(processTestings.getLast().getStatusName());
+//        sptk.setStatusDate(LocalDateTime.now());
+//        sample.getTracks().add(sptk);
+//        isSampleRespository.save(sample);
+
+
+        appointmentService.UpdateStatusAppoinment(newAppointment,null);
         return responses;
     }
 
@@ -105,30 +120,29 @@ public class ResultService implements IsResultService {
     public List<ResultResponse> getResultByAppointmentID(ResultRequest resultRequest) {
         List<ResultResponse> responses = new ArrayList<>();
 
-        Appointment appointment = isAppointmentResponsitory.findById(resultRequest.getAppoinmentId()).orElseThrow(()-> new ResourceNotFound("Not have an appointment with id " + resultRequest.getAppoinmentId()));
-         if(appointment.getCurentStatusAppointment() .equals("CANCLE"))// khong co result
-         {
-             return null;
-         }
+        Appointment appointment = isAppointmentResponsitory.findById(resultRequest.getAppoinmentId()).orElseThrow(() -> new ResourceNotFound("Not have an appointment with id " + resultRequest.getAppoinmentId()));
+        if (appointment.getCurentStatusAppointment().equals("CANCLE"))// khong co result
+        {
+            return null;
+        }
         List<Result> results = new ArrayList<>();
         List<Sample> samples = appointment.getSampelist();
-        for(Sample sample : samples) {
+        for (Sample sample : samples) {
             results.addAll(sample.getResult());
         }
-        for(int i = 0; i < results.size(); i++) {
+        for (int i = 0; i < results.size(); i++) {
 
-            for(int j = i + 1; j < results.size(); j++) {
-                if(results.get(i).getResultId() == results.get(j).getResultId()) {
+            for (int j = i + 1; j < results.size(); j++) {
+                if (results.get(i).getResultId() == results.get(j).getResultId()) {
                     results.remove(j);
                 }
             }
         }
 
 
-        for(Result result : results) {
+        for (Result result : results) {
             responses.add(resultMapper.resultToResultResponse(result));
         }
-
 
 
         return responses;

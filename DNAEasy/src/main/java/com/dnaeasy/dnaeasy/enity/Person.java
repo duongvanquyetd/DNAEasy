@@ -4,6 +4,7 @@ import com.dnaeasy.dnaeasy.enums.GenderEnum;
 import com.dnaeasy.dnaeasy.enums.RoleName;
 import com.dnaeasy.dnaeasy.enums.Work_hour;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
@@ -22,6 +23,10 @@ public class Person {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int personId;
     @Column(unique = true, nullable = false)
+    @Pattern(
+            regexp = "^0(3|5|7|8|9)[0-9]{8}$",
+            message = "Phone number is invalid. Must be 10 digits and start with 03, 05, 07, 08, or 09"
+    )
     private String phone;
     @Nationalized
     @Column(nullable = false)
@@ -46,19 +51,13 @@ public class Person {
     private String district;
     @Enumerated(EnumType.STRING)
     private RoleName rolename;
-    //    @Lob
-//    private byte[] avatar;
+
     private String avatarUrl;
     @Column(nullable = false, unique = true)
     private String username;
     @Column(nullable = false, unique = true)
+    @Email(message = "Email is invalid")
     private String email;
-    //@ManyToOne
-
-
-//    @JoinColumn(name="department_id")
-//    private Department department;
-
     @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Result> results = new ArrayList<>();
     @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -75,5 +74,9 @@ public class Person {
     private List<Notification> notificationList = new ArrayList<>();
     @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notification> notifications = new ArrayList<>();
+
+    @OneToMany(mappedBy = "staffReception")
+    private List<Payment> paymentList = new ArrayList<>();
+
 
 }

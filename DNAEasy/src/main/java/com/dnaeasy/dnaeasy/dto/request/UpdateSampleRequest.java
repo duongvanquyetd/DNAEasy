@@ -16,4 +16,5 @@ public class UpdateSampleRequest {
     private String relationName;
     private String name;
     private String nextStatusName;
+    private String ImageUrl;
 }

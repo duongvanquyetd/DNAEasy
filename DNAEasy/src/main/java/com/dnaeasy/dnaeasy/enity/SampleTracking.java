@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,7 +21,8 @@ public class SampleTracking {
     private String StatusName;
 
     private LocalDateTime StatusDate; //sample // result //appointment
-    @ManyToOne
-    @JoinColumn(name="sample_id")
-    private Sample sample;
+
+    private String ImageUrl;
+    @ManyToMany(mappedBy = "sampleTracking",cascade = CascadeType.ALL)
+    private Set<Sample> sample = new HashSet<>();
 }

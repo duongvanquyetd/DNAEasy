@@ -1,6 +1,7 @@
 package com.dnaeasy.dnaeasy.controller;
 
-import com.dnaeasy.dnaeasy.enity.Payment;
+import com.dnaeasy.dnaeasy.dto.request.PaymentUpdateResquest;
+import com.dnaeasy.dnaeasy.enity.*;
 import com.dnaeasy.dnaeasy.service.impl.PaymentService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.coyote.Response;
@@ -23,7 +24,7 @@ public class PaymentController {
         payment.setPaymentAmount(new BigDecimal(1000000));
         payment.setContenPayment("Thanh Toan mot nua  dich-vuFatherChild DNA Test Civil");
 
-        return ResponseEntity.ok(paymentService.paymentUrl(payment));
+        return ResponseEntity.ok(paymentService.paymentUrlVnpay(payment));
 
     }
 
@@ -41,9 +42,9 @@ public class PaymentController {
     public ResponseEntity<Boolean> Status(@PathVariable("id") int appointmentId) {
         return  ResponseEntity.ok(paymentService.StatusPayment(appointmentId));
     }
-    @PostMapping("/updateStatus/{id}")
-    public ResponseEntity<String> updateStatus(@PathVariable("id") int appointmentId) {
-        paymentService.UpdateStatus(appointmentId);
+    @PostMapping("/updateStatus")
+    public ResponseEntity<String> updateStatus(@RequestBody PaymentUpdateResquest resquest) {
+        paymentService.UpdateStatus(resquest);
         return ResponseEntity.ok("Payment successful");
 
     }
@@ -51,4 +52,15 @@ public class PaymentController {
     public ResponseEntity<String> paytoview(@PathVariable("id") int appointment) {
        return ResponseEntity.ok(paymentService.PayToviewResult(appointment)) ;
     }
+    @GetMapping("/payagaint/{id}")
+    public ResponseEntity<String> payagint(@PathVariable("id") int appointment) {
+        return ResponseEntity.ok(paymentService.PayAgaint(appointment)) ;
+    }
+    @GetMapping("/confirmpaid/{id}")
+    public ResponseEntity<String> ConfirmPaid(@PathVariable("id") int appointment) {
+
+        paymentService.ConfirmPaidCash(appointment);
+        return ResponseEntity.ok("Payment successful") ;
+    }
+
 }

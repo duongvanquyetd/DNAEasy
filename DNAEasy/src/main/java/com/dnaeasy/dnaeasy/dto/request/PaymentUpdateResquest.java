@@ -1,5 +1,6 @@
 package com.dnaeasy.dnaeasy.dto.request;
 
+import com.dnaeasy.dnaeasy.enums.PaymentMehtod;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,9 +8,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class StatusUpdateAppointment {
+public class PaymentUpdateResquest {
+
     private int appointmentId;
-    private String status;
-    private String note;
-    private String imageUrl;
+    private PaymentMehtod paymentMehtod;
 }

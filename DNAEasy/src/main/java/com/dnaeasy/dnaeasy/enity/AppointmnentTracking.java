@@ -19,13 +19,9 @@ public class AppointmnentTracking {
     private String StatusName;
 
     private LocalDateTime StatusDate; //sample // result //appointment
+    private String imageUrl;
     @ManyToOne
     @JoinColumn(name="appointment_id")
     private Appointment appointment;
-//    @ManyToOne
-//    @JoinColumn(name="result_id")
-//    private Result result;
-//    @ManyToOne
-//    @JoinColumn(name="sample_id")
-//    private Sample sample;
+
 }

@@ -34,10 +34,15 @@ public class Sample {
     private Set<Result> result = new HashSet<>();
 
 
-    @OneToMany(mappedBy = "sample",cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SampleTracking> tracks = new ArrayList<>();
+    @ManyToMany (cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "Sample_SampleTracking",
+            joinColumns = @JoinColumn(name = "sample_Id"),
+            inverseJoinColumns = @JoinColumn(name = "tracking_id")
+    )
+    private Set<SampleTracking> sampleTracking = new HashSet<>();
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "persontest_Id")
     private PersonTest personTest;
 }

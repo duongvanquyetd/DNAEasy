@@ -34,14 +34,18 @@ public class GlobalExeption {
         if (ex.getCause() instanceof ConstraintViolationException) {
             ConstraintViolationException cve = (ConstraintViolationException) ex.getCause();
             if (cve.getConstraintViolations().contains("phone")) {
-                errors.put("phone", "Số điện thoại đã được sử dụng");
+                errors.put("phone", "Phone");
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(errors);
             }
+
+
         }
+
 
         errors.put("error", "Lỗi không xác định");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
+
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<Map<String, String>> handleBadResquest(BadRequestException ex) {
@@ -50,6 +54,18 @@ public class GlobalExeption {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, String>> handleConstraintViolationException(ConstraintViolationException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getConstraintViolations().forEach(error -> {
+            String fieldName = error.getPropertyPath().toString();
+            String errorMessage = error.getMessage();
+            System.out.println(fieldName + " : " + errorMessage);
+            errors.put(fieldName, errorMessage);
+        });
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
 
 }
 

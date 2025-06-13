@@ -44,6 +44,6 @@ public interface IsUserResponsity extends JpaRepository<Person, String> {
 
     Person findByPersonId(int personId);
 
-    @Query("Select  p from Person p where p.rolename = 'STAFF_TEST' and p.work_hour =:workHour and p.personId not in (Select a.staff.personId from Appointment a where a.dateCollect between :starday and :endday )")
+    @Query("Select  p from Person p where p.rolename = 'STAFF_TEST' and p.work_hour =:workHour and p.personId not in (Select a.staff.personId from Appointment a where (a.dateCollect between :starday and :endday) and a.curentStatusAppointment not in ('COMPLETE','CANCLE') )")
     List<Person> findStaffByWorkHour(LocalDateTime starday , LocalDateTime endday, Work_hour workHour) ;
 }

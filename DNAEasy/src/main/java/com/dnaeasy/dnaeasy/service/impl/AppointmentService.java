@@ -4,17 +4,23 @@ import com.dnaeasy.dnaeasy.dto.request.AppointmentCreateRequest;
 import com.dnaeasy.dnaeasy.dto.request.StatusUpdateAppointment;
 import com.dnaeasy.dnaeasy.dto.response.AppointCreateResponse;
 import com.dnaeasy.dnaeasy.dto.response.AppointmentResponse;
+import com.dnaeasy.dnaeasy.dto.response.SampleResponse;
 import com.dnaeasy.dnaeasy.enity.*;
+import com.dnaeasy.dnaeasy.enums.PaymentMehtod;
 import com.dnaeasy.dnaeasy.enums.RoleName;
+import com.dnaeasy.dnaeasy.enums.SampleMethod;
 import com.dnaeasy.dnaeasy.enums.Work_hour;
 import com.dnaeasy.dnaeasy.exception.BadRequestException;
 import com.dnaeasy.dnaeasy.exception.ResourceNotFound;
 import com.dnaeasy.dnaeasy.mapper.AppointmentMapper;
+import com.dnaeasy.dnaeasy.mapper.SampleMapper;
 import com.dnaeasy.dnaeasy.responsity.*;
 import com.dnaeasy.dnaeasy.service.IsAppointmentService;
+import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -39,62 +45,12 @@ public class AppointmentService implements IsAppointmentService {
     PaymentService paymentService;
     @Autowired
     SampleService sampleService;
-//    @Override
-//    public AppointmentCreateResponse createAppointment(AppointmentCreateRequest request) {
-//
-//
-//        String firstStatus = isProcessTesting.getFirstStatusNameBySampleMethod(request.getTypeCollect());
-//
-//
-//        List<AppointmnentTracking> trackingList = new ArrayList<>();
-//        AppointmnentTracking appointmnentTracking = new AppointmnentTracking();
-//        appointmnentTracking.setStatusName(firstStatus);
-//        appointmnentTracking.setStatusDate(LocalDateTime.now());
-//        trackingList.add(appointmnentTracking);
-//
-//
-//        com.dnaeasy.dnaeasy.enity.Service service = (com.dnaeasy.dnaeasy.enity.Service) isServiceResponsitory.findById(request.getServiceid()).orElseThrow(() ->
-//                new ResourceNotFound("Do not have " + request.getServiceid()));
-//
-//
-//
-//        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-//        Person person = isUserResponsity.findByUsername(username);
-//        // thêm bảng system config và thay mấy hashcode này thành giá trị trong bảng
-//        if (request.getDateCollect().isBefore(LocalDateTime.now().plusHours(4)) && request.getDateCollect().getHour() >= 7 && request.getDateCollect().getHour() <= 17) {
-//            throw new IllegalStateException("Date collect must be after now 4 hours and must be interval 7h to 17h");
-//        }
-//
-//
-//        LocalDateTime stardate = request.getDateCollect().minusHours(2);
-//        LocalDateTime enddate = request.getDateCollect().plusHours(6);
-//
-//        System.out.println(Work_hour(request.getDateCollect()));
-//        List<Person> stafflist = isUserResponsity.findStaffByWorkHour(stardate, enddate, Work_hour(request.getDateCollect()));
-//        if (stafflist == null || stafflist.size() == 0) {
-//            throw new ResourceNotFound("No staff found");
-//        }
-//        Person staff = stafflist.get(0);
-//        System.out.println("stafflist"+stafflist);
-//        Appointment appointment = appointmentMapper.AppointmentCreateRequestToAppointment(request);
-//        System.out.println(request);
-//        System.out.println(appointment.getLocation());
-//        appointment.setService(service);
-//        appointment.setCustomer(person);
-//        appointment.setCurentStatusAppointment(firstStatus);
-//        appointment.setStaff(staff);
-//       // appointment.setPayment(payment);
-//        appointment.setAppointmnentTrackings(trackingList);
-//
-//        for (AppointmnentTracking tracking : appointment.getAppointmnentTrackings()) {
-//            tracking.setAppointment(appointment);
-//        }
-//
-//       isAppointmentResponsitory.save(appointment);
-//
-//
-//        return appointmentMapper.AppointmentCreateResponse(appointment);
-//    }
+    @Autowired
+    IsResultResponsitory isResultResponsitory;
+    @Autowired
+    IsSampleRespository isSampleRespository;
+    @Autowired
+    CloudinaryUtil cloudinaryUtil;
 
     @Override
     public AppointCreateResponse createAppointment(AppointmentCreateRequest request) {
@@ -102,6 +58,9 @@ public class AppointmentService implements IsAppointmentService {
 
         String firstStatus = "WAITING FOR PAYMENT";
 
+        if (request.getTypeCollect().equals(SampleMethod.Self_collection)) {
+            request.setDateCollect(LocalDateTime.now());
+        }
 
         List<AppointmnentTracking> trackingList = new ArrayList<>();
         AppointmnentTracking appointmnentTracking = new AppointmnentTracking();
@@ -116,39 +75,33 @@ public class AppointmentService implements IsAppointmentService {
         payment.setPaymentMethod(request.getPaymentMethod());
         payment.setContenPayment("Pay haft price for " + service.getServiceName());
         payment.setPaymentStatus(false);
-        BigDecimal amout = service.getServicePrice().divide(BigDecimal.valueOf(2));
+        BigDecimal amout = service.getServicePrice().divide(BigDecimal.valueOf(2));// them bang configSystem
         payment.setPaymentAmount(amout);
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Person person = isUserResponsity.findByUsername(username);
         // thêm bảng system config và thay mấy hashcode này thành giá trị trong bảng
-        if (request.getDateCollect().isBefore(LocalDateTime.now().plusHours(4)) || request.getDateCollect().getHour() < 7 || request.getDateCollect().getHour() > 17) {
 
-            throw new BadRequestException("Date collect must be after now 4 hours and must be interval 7h to 17h");
+        if (!request.getTypeCollect().equals(SampleMethod.Self_collection)) {
+            if (request.getDateCollect().isBefore(LocalDateTime.now().plusHours(4)) || request.getDateCollect().getHour() < 7 || request.getDateCollect().getHour() > 17) {
+
+                throw new BadRequestException("Date collect must be after now 4 hours and must be interval 7h to 17h");
+            }
         }
-
 
         LocalDateTime stardate = request.getDateCollect().minusHours(2);
         LocalDateTime enddate = request.getDateCollect().plusHours(6);
-
-
-
-        System.out.println(Work_hour(request.getDateCollect()));
-
-
-
         List<Person> stafflist = isUserResponsity.findStaffByWorkHour(stardate, enddate, Work_hour(request.getDateCollect()));
         System.out.println(stafflist.size());
 
         if (stafflist == null || stafflist.size() == 0) {
-            throw new ResourceNotFound("Appointment full in this time " + request.getDateCollect());
+            throw new BadRequestException("Appointment full in this time " + request.getDateCollect());
         }
-        System.out.println("fsss"+stafflist.size());
+
         Person staff = stafflist.get(0);
-       // System.out.println("stafflist" + stafflist);
+
         Appointment appointment = appointmentMapper.AppointmentCreateRequestToAppointment(request);
-        System.out.println(request);
-        System.out.println(appointment.getLocation());
+
         appointment.setService(service);
         appointment.setCustomer(person);
         appointment.setCurentStatusAppointment(firstStatus);
@@ -162,18 +115,18 @@ public class AppointmentService implements IsAppointmentService {
         payment.setAppointment(appointment);
 
         isPaymentResponsitory.save(payment);
-
-// Payment p  = new Payment();
-// p.setPaymentAmount(new BigDecimal(10000000));
-// p.setContenPayment("thanh toan DNa");
         AppointCreateResponse appointCreateResponse = new AppointCreateResponse();
         appointCreateResponse.setAppointmentId(appointment.getAppointmentId());
-        appointCreateResponse.setPaymenturl(paymentService.paymentUrl(appointment.getPayment()));
+        if (payment.getPaymentMethod().equals(PaymentMehtod.VNPay)) {
+
+            appointCreateResponse.setPaymenturl(paymentService.paymentUrlVnpay(appointment.getPayment()));
+        }
+
         return appointCreateResponse;
     }
 
     @Override
-    public AppointmentResponse UpdateStatusAppoinment(StatusUpdateAppointment request) {
+    public AppointmentResponse UpdateStatusAppoinment(StatusUpdateAppointment request, MultipartFile file) {
 
         Appointment appointment = isAppointmentResponsitory.findById(request.getAppointmentId()).orElseThrow(() -> new ResourceNotFound("Do not have " + request.getAppointmentId()));
         appointment.setCurentStatusAppointment(request.getStatus());
@@ -181,6 +134,16 @@ public class AppointmentService implements IsAppointmentService {
         AppointmnentTracking tracking = new AppointmnentTracking();
         tracking.setStatusName(request.getStatus());
         tracking.setStatusDate(LocalDateTime.now());
+
+        if (file != null) {
+
+            try {
+
+                tracking.setImageUrl(cloudinaryUtil.uploadImage(file));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         tracking.setAppointment(appointment);
         appointment.getAppointmnentTrackings().add(tracking);
         isAppointmentResponsitory.save(appointment);
@@ -200,10 +163,42 @@ public class AppointmentService implements IsAppointmentService {
         List<String> list = new ArrayList<>();
         list.add("CANCLE");
         list.add("COMPLETE");
-        if (p.getRolename().equals(RoleName.STAFF_LAB) || p.getRolename().equals(RoleName.STAFF_TEST)) {
+        if (p.getRolename().equals(RoleName.STAFF_TEST)) {
             appointmentList = isAppointmentResponsitory.findAllByStaffAndCurentStatusAppointmentIsIn(p, list);
-        } else {
-            appointmentList = isAppointmentResponsitory.findAllByCustomerAndCurentStatusAppointmentIsIn(p,list);
+        } else if (p.getRolename().equals(RoleName.STAFF_LAB)) {
+
+
+            List<Result> result = isResultResponsitory.findAllByStaff(p);
+
+
+            List<Sample> sampleList = new ArrayList<>();
+            if (!result.isEmpty()) {
+                for (Result r : result) {
+                    appointmentList.add(r.getSampelist().iterator().next().getAppointment());
+                }
+            }
+
+
+
+
+        } else if(p.getRolename().equals(RoleName.STAFF_RECEPTION))
+        {
+
+            List<String> ls = new ArrayList<>();ls.add("COMPLETE");
+            List<Appointment> list1 = isAppointmentResponsitory.findALByPayment_PaymentStatusAndCurentStatusAppointmentIsIn(false,ls);
+            for (Appointment appointment : list1) {
+
+                // them thoi gian hien tai phai sau thoi gian nay thi moi hien cai nay len
+                if(Work_hour(appointment.getDateCollect()).equals(p.getWork_hour()))
+                {
+                    appointmentList.add(appointment);
+                }
+            }
+        }
+        else
+
+        {
+            appointmentList = isAppointmentResponsitory.findAllByCustomerAndCurentStatusAppointmentIsIn(p, list);
         }
 
         List<AppointmentResponse> appointmentResponseList = new ArrayList<>();
@@ -211,10 +206,10 @@ public class AppointmentService implements IsAppointmentService {
         appointmentList.forEach(appointment -> {
 
             AppointmentResponse appointmentResponse = appointmentMapper.AppointmentCreateResponse(appointment);
-          appointmentResponse.setListSample(sampleService.getbyAppoinment(appointment.getAppointmentId()));
+            appointmentResponse.setListSample(sampleService.getbyAppoinment(appointment.getAppointmentId()));
 
             appointmentResponseList.add(appointmentResponse);
-          //  appointmentResponseList.add(appointmentMapper.AppointmentCreateResponse(appointment));
+            //  appointmentResponseList.add(appointmentMapper.AppointmentCreateResponse(appointment));
         });
 
         return appointmentResponseList;
@@ -238,13 +233,31 @@ public class AppointmentService implements IsAppointmentService {
     public List<AppointmentResponse> getAppoinmentinprocess() {
         String usename = SecurityContextHolder.getContext().getAuthentication().getName();
         Person p = isUserResponsity.findByUsername(usename);
-       // System.out.println(p.getName());
+        // System.out.println(p.getName());
         List<Appointment> appointmentList = new ArrayList<>();
         List<String> list = new ArrayList<>();
         list.add("CANCLE");
         list.add("COMPLETE");
-        if (p.getRolename().equals(RoleName.STAFF_LAB) || p.getRolename().equals(RoleName.STAFF_TEST)) {
-            appointmentList = isAppointmentResponsitory.findAllByStaffAndCurentStatusAppointmentNotIn(p, list);
+
+        // staff lab cung nen hien nhung cai ma thuoc ve ca cua minh va nhung cai minh can confirm
+        if ( p.getRolename().equals(RoleName.STAFF_TEST)) {
+         List<Appointment> appointments   = isAppointmentResponsitory.findAllByStaffAndCurentStatusAppointmentNotIn(p, list);
+
+         for (Appointment appointment : appointments) {
+             ProcessTesting processTesting = new ProcessTesting();
+             if (appointment.getSampelist().get(0).getCureStatusSample() == null) {
+                  processTesting = isProcessTesting.findByOrderProcessAndSampleMethod(1, appointment.getTypeCollect());
+
+             } else {
+                 ProcessTesting curent = isProcessTesting.findOrderProcessByStatusNameAndSampleMethod(appointment.getSampelist().get(0).getCureStatusSample(), appointment.getTypeCollect());
+                 processTesting = isProcessTesting.findByOrderProcessAndSampleMethod(curent.getOrderProcess() + 1, appointment.getTypeCollect());
+             }
+             if(p.getRolename().equals(processTesting.getPerson_confirm()))
+             {
+                 appointmentList.add(appointment);
+             }
+         }
+
         } else {
             appointmentList = isAppointmentResponsitory.findAllByCustomerAndCurentStatusAppointmentNotIn(p, list);
         }
@@ -262,6 +275,9 @@ public class AppointmentService implements IsAppointmentService {
 
     @Override
     public List<AppointmentResponse> getAppoinmentFofStaff_Lab() {
+
+
+        // minh se  lay thoi gian dat lich -> doi sang ca -> kiem tra roi hien nhung lich hen thuoc ve ca cua minh len
         String usename = SecurityContextHolder.getContext().getAuthentication().getName();
         Person p = isUserResponsity.findByUsername(usename);
 //        System.out.println(p.getName());
@@ -271,19 +287,24 @@ public class AppointmentService implements IsAppointmentService {
         List<Appointment> appointmentList = isAppointmentResponsitory.findAllByCurentStatusAppointmentNotIn(list);
         List<AppointmentResponse> appointmentResponseList = new ArrayList<>();
 
-        for(Appointment appointment : appointmentList) {
+        for (Appointment appointment : appointmentList) {
 
             List<Sample> sampleList = appointment.getSampelist();
-            if(sampleList != null && sampleList.size() > 0 && sampleList.get(0).getCureStatusSample() != null) {
-                ProcessTesting curent = isProcessTesting.findOrderProcessByStatusNameAndSampleMethod(sampleList.get(0).getCureStatusSample(),appointment.getTypeCollect());
+            if (sampleList != null && sampleList.size() > 0 && sampleList.get(0).getCureStatusSample() != null) {
+                ProcessTesting curent = isProcessTesting.findOrderProcessByStatusNameAndSampleMethod(sampleList.get(0).getCureStatusSample(), appointment.getTypeCollect());
                 ProcessTesting pro = isProcessTesting.findByOrderProcessAndSampleMethod(curent.getOrderProcess() + 1, appointment.getTypeCollect());
 
-
                 if (pro.getPerson_confirm().equals(RoleName.STAFF_LAB)) {
-                    AppointmentResponse appointmentResponse = appointmentMapper.AppointmentCreateResponse(appointment);
-                    appointmentResponse.setListSample(sampleService.getbyAppoinment(appointment.getAppointmentId()));
+                        Work_hour work = Work_hour(appointment.getDateCollect());
+                        if(work.equals(p.getWork_hour()))
+                        {
+                            AppointmentResponse appointmentResponse = appointmentMapper.AppointmentCreateResponse(appointment);
+                            appointmentResponse.setListSample(sampleService.getbyAppoinment(appointment.getAppointmentId()));
 
-                    appointmentResponseList.add(appointmentResponse);
+                            appointmentResponseList.add(appointmentResponse);
+                        }
+                    }
+
                     //  appointmentResponseList.add(appointmentMapper.AppointmentCreateResponse(appointment));
 
                 }
@@ -291,15 +312,39 @@ public class AppointmentService implements IsAppointmentService {
             }
 
 
+
+
+        return appointmentResponseList;
+    }
+
+    @Override
+    public List<AppointmentResponse> getAppoinmentFofStaff_Reception() {
+
+
+        String usename = SecurityContextHolder.getContext().getAuthentication().getName();
+        Person p = isUserResponsity.findByUsername(usename);
+        List<Appointment>  list = isAppointmentResponsitory.findALLByPayment_PaymentMethodAndCurentStatusAppointment(PaymentMehtod.Cash ,"WAITING FOR PAYMENT");
+        List<AppointmentResponse> appointmentResponseList = new ArrayList<>();
+        for (Appointment appointment : list) {
+            Work_hour work = Work_hour(appointment.getDateCollect());
+            if(work.equals(p.getWork_hour()))
+            {
+                appointmentResponseList.add(appointmentMapper.AppointmentCreateResponse(appointment));
+            }
         }
 
         return appointmentResponseList;
     }
 
+
     public Work_hour Work_hour(LocalDateTime dateCollect) {
         int hour = dateCollect.getHour();
+
         int minute = dateCollect.getMinute();
-        int hour_minute = hour + (minute / 10);
+
+        double hour_minute = hour + (minute / 100.0);
+
+
         if (hour_minute >= 7 && hour_minute <= 9.3) {
             return Work_hour.ca_1;
         } else if (hour_minute > 9.3 && hour_minute <= 12) {
@@ -311,4 +356,5 @@ public class AppointmentService implements IsAppointmentService {
         }
         return null;
     }
+
 }

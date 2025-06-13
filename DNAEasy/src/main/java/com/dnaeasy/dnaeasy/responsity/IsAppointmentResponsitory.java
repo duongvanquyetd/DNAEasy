@@ -1,8 +1,10 @@
 package com.dnaeasy.dnaeasy.responsity;
 
 import com.dnaeasy.dnaeasy.enity.Appointment;
+import com.dnaeasy.dnaeasy.enity.Payment;
 import com.dnaeasy.dnaeasy.enity.Person;
 import com.dnaeasy.dnaeasy.enity.Sample;
+import com.dnaeasy.dnaeasy.enums.PaymentMehtod;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -31,6 +33,22 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
     List<Appointment> findAllByStaffAndCurentStatusAppointmentIsIn(Person staff, Collection<String> curentStatusAppointments);
 
     List<Appointment> findAllByCustomerAndCurentStatusAppointmentIsIn(Person customer, Collection<String> curentStatusAppointments);
+    List<Appointment> findAllBySampelist(List<Sample> sampelist);
+
+    List<Appointment> findALLByPayment_PaymentMethod(PaymentMehtod paymentPaymentMethod);
+
+    List<Appointment> findALLByPayment_PaymentMethodAndCurentStatusAppointment(PaymentMehtod paymentPaymentMethod, String curentStatusAppointment);
+
+    List<Appointment> findALLByPayment_StaffReceptionAndCurentStatusAppointmentIsIn(Person paymentStaffReception, Collection<String> curentStatusAppointments);
+
+    List<Appointment> findALlByPayment(Payment payment);
+
+    List<Appointment> findALlByPayment_StaffReception(Person paymentStaffReception);
+
+    List<Appointment> findALByCurentStatusAppointmentIsIn(Collection<String> curentStatusAppointments);
+
+    List<Appointment> findALByPayment_PaymentStatusAndCurentStatusAppointmentIsIn(boolean paymentPaymentStatus, Collection<String> curentStatusAppointments);
 
     boolean existsByCustomer_PersonIdAndService_ServiceId(Integer customerId, Integer serviceId);
+
 }
