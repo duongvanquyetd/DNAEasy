@@ -7,8 +7,7 @@ import RegisterForm from './component/page/register';
 import UserProfile from './component/page/UserProfile';
 import EditProfile from './component/page/EditProfile';
 import Service from './component/page/ServicePage';
-import PaternityBookingDetail from './component/page/PaternityBookingDetail';
-import MotherChildBookingDetail from './component/page/motherChild';
+import Blog from './component/page/BlogPage';
 import  {VNPayReturn} from './component/page/VnpayReturn';
 import  {YourAppointment}  from './component/page/YourAppointment';
 import  {BookingServicePage}  from './component/page/BookingService';
@@ -24,10 +23,9 @@ function App() {
         <Route path="/user/profile" element={<UserProfile />} />
         <Route path="/user/edit-profile" element={<EditProfile />} />
         <Route path="/service" element={<Service />} />
-        <Route path="/service/civil" element={<Service type="civil" />} />
-        <Route path="/service/legal" element={<Service type="legal" />} />
-        <Route path="/booking/paternity" element={<PaternityBookingDetail />} />
-        <Route path="/booking/mother-child" element={<MotherChildBookingDetail />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/service/:type" element={<Service />} /> {/* Dynamic route */}
+        <Route path="/service" element={<Service />} /> {/* Default without type */}
         <Route path="/booking/:id" element={<BookingServicePage />} />
         <Route path="/vnpay-callback" element={<VNPayReturn />} />
         <Route path="/yourappoinment" element={<YourAppointment />} />

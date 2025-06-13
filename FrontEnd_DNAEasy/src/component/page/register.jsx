@@ -77,7 +77,6 @@ const RegisterForm = () => {
 
   return (
     <div className="register-page">
-      <Header />
       <main className="register-main">
         <div className="register-container">
           <h2 className="register-title">Register Account</h2>
@@ -175,7 +174,6 @@ const RegisterForm = () => {
           </form>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };
