@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { GetHistoryAppointment } from '../../service/appointment';
 import { GetSampleByAppointmentId } from '../../service/sample';
 import { GetResultByAppointmentId } from '../../service/result';
-import { GetPaymentStatus, PayToview } from '../../service/payment';
+import { GetPaymentStatus, PayToview, UpdatePaymentStatus } from '../../service/payment';
 import api from '../../service/api'; // Import API base nếu cần cho thanh toán
 
 export const HistoryBooking = () => {
@@ -40,21 +40,34 @@ export const HistoryBooking = () => {
         fetchHistoryBooking();
     }, []);
 
-function handlePayment(appointmentId) {
-    PayToview(appointmentId)
-        .then((response) => {
-           
+    function handleVnpay(appointmentId) {
+        PayToview(appointmentId)
+            .then((response) => {
+
                 window.location.href = response.data; // Redirect to payment page
-           
+
+            })
+            .catch((error) => {
+                console.error("Error fetching payment data:", error);
+                alert("Có lỗi xảy ra khi lấy thông tin thanh toán.");
+            });
+
+    }
+    function handleCash(booking) {
+
+        const Updatepayment = {
+            appointmentId: booking.appointmentId,
+            paymentMehtod: "Cash"
+        }
+        UpdatePaymentStatus(Updatepayment).then((response) => {
+            console.log("update", response.data);
+            window.location.reload();
         })
-        .catch((error) => {
-            console.error("Error fetching payment data:", error);
-            alert("Có lỗi xảy ra khi lấy thông tin thanh toán.");
-        }   );
-
-}
-
-     const formatDate = (date) => new Date(date).toLocaleString();
+            .catch((error) => {
+                console.log(error.data)
+            })
+    }
+    const formatDate = (date) => new Date(date).toLocaleString();
 
     return (
         <div className="p-6 max-w-4xl mx-auto">
@@ -75,32 +88,48 @@ function handlePayment(appointmentId) {
                 >
                     {/* Thông tin tổng quan */}
                     <div className="space-y-1 mb-3">
-                        <h3 className="text-xl font-semibold text-gray-800">{booking.serviceName}</h3>
+                        <h3 className="text-xl font-semibold text-gray-800">{booking.serviceName}({booking.typeService})</h3>
                         <p className="text-gray-700"><strong>Khách hàng:</strong> {booking.customerName}</p>
                         <p className="text-gray-700"><strong>Ngày lấy mẫu:</strong> {formatDate(booking.dateCollect)}</p>
                         <p className="text-gray-700"><strong>Địa điểm:</strong> {booking.location}</p>
+                        <p className="text-gray-700"><strong>Email:</strong> {booking.emailAppointment}</p>
+                        <p className="text-gray-700"><strong>Phone:</strong> {booking.phoneAppointment}</p>
                         <p className="text-gray-700"><strong>Trạng thái:</strong> {booking.curentStatusAppointment || (booking.status ? "Đã thanh toán" : "Chưa thanh toán")}</p>
+                         <p className="text-gray-700"><strong>Note:</strong> {booking.note}</p>
+                        {user.rolename === "STAFF_RECEPTION" && (
+                            <button
+                                onClick={() => handleCash(booking)}
+                                className="bg-[#f97316] text-white px-4 py-2 rounded hover:bg-[#dc2626] transition"
+                            >
+                                Paid cash
+                            </button>
+                        )}
                     </div>
 
                     {/* Chi tiết */}
+
                     {selectedAppointmentId === booking.appointmentId && (
                         <div className="mt-4 space-y-6 border-t pt-4 text-sm">
-                            {!booking.status && user.rolename ==="CUSTOMER"? (
+                            {!booking.status && user.rolename === "CUSTOMER" && booking.curentStatusAppointment === "COMPLETE" ? (
                                 <div className="text-center">
                                     <p className="text-red-600 mb-4 font-medium">
                                         Bạn chưa thanh toán cho lịch hẹn này.
                                     </p>
                                     <button
-                                        onClick={() => handlePayment(booking.appointmentId)}
+                                        onClick={() => handleVnpay(booking.appointmentId)}
                                         className="bg-[#f97316] text-white px-4 py-2 rounded hover:bg-[#dc2626] transition"
                                     >
-                                        Thanh toán ngay
+                                        Thanh toán ngay bang VNpay
                                     </button>
+
                                 </div>
 
 
                             ) : (
+
                                 <>
+
+
                                     <div>
                                         <h4 className="text-base font-semibold text-gray-800 mb-2">Phương thức thanh toán</h4>
                                         <p className="text-gray-600">{booking.paymentMethod}</p>
@@ -109,32 +138,67 @@ function handlePayment(appointmentId) {
                                     <div className="grid md:grid-cols-2 gap-6">
                                         <div>
                                             <h4 className="text-base font-semibold text-gray-800 mb-2">Tiến trình lịch hẹn</h4>
-                                            {booking.tracking && Object.keys(booking.tracking).length > 0 ? (
-                                                <ul className="space-y-1 text-gray-700 list-disc list-inside">
-                                                    {Object.entries(booking.tracking).map(([key, value]) => (
-                                                        <li key={key}>
-                                                            <strong>{key}</strong>: {formatDate(value)}
-                                                        </li>
+                                            
+                                            {booking.tracking && booking.tracking.length > 0 ? (
+                                                <div className="relative border-l-2 border-gray-300 pl-6 space-y-6">
+                                                    {booking.tracking.map((item, index) => (
+                                                        <div key={index} className="relative">
+                                                            {/* Chấm tròn bên trái timeline */}
+                                                            <span className="absolute -left-3 top-2 w-3 h-3 bg-blue-500 rounded-full border border-white shadow" />
+
+                                                            <div className="bg-gray-50 p-4 rounded shadow-sm">
+                                                                <p className="font-semibold text-gray-800">🟢 {item.statusName}</p>
+                                                                <p className="text-sm text-gray-600">{formatDate(item.statusDate)}</p>
+
+                                                                {item.imageUrl && (
+                                                                    <div className="mt-2">
+                                                                        <img style={{ width: '400px' }}
+                                                                            src={item.imageUrl}
+                                                                            alt={`Tracking ${index}`}
+                                                                            className="w-16 h-16 object-cover rounded border"
+                                                                        />
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
                                                     ))}
-                                                </ul>
+                                                </div>
                                             ) : (
                                                 <p className="text-gray-500">Không có dữ liệu.</p>
                                             )}
                                         </div>
 
                                         <div>
-                                            <h4 className="text-base font-semibold text-gray-800 mb-2">Tiến trình xử lý mẫu</h4>
-                                            {booking.trackingSample && Object.keys(booking.trackingSample).length > 0 ? (
-                                                <ul className="space-y-1 text-gray-700 list-disc list-inside">
-                                                    {Object.entries(booking.trackingSample).map(([key, value]) => (
-                                                        <li key={key}>
-                                                            <strong>{key}</strong>: {formatDate(value)}
-                                                        </li>
+                                            <h4 className="text-base font-semibold text-gray-800 mb-4">Tiến trình xử lý mẫu</h4>
+
+                                            {booking.trackingSample && booking.trackingSample.length > 0 ? (
+                                                <div className="relative border-l-2 border-gray-300 pl-6 space-y-6">
+                                                    {booking.trackingSample.map((item, index) => (
+                                                        <div key={index} className="relative">
+                                                            {/* Chấm tròn bên trái timeline */}
+                                                            <span className="absolute -left-3 top-2 w-3 h-3 bg-blue-500 rounded-full border border-white shadow" />
+
+                                                            <div className="bg-gray-50 p-4 rounded shadow-sm">
+                                                                <p className="font-semibold text-gray-800">🟢 {item.nameStatus}</p>
+                                                                <p className="text-sm text-gray-600">{formatDate(item.sampleTrackingTime)}</p>
+
+                                                                {item.imageUrl && (
+                                                                    <div className="mt-2">
+                                                                        <img style={{ width: '400px' }}
+                                                                            src={item.imageUrl}
+                                                                            alt={`Tracking ${index}`}
+                                                                            className="w-16 h-16 object-cover rounded border"
+                                                                        />
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
                                                     ))}
-                                                </ul>
+                                                </div>
                                             ) : (
                                                 <p className="text-gray-500">Không có dữ liệu.</p>
                                             )}
+
                                         </div>
                                     </div>
 
@@ -148,13 +212,25 @@ function handlePayment(appointmentId) {
                                                         <p><strong>Quan hệ:</strong> {res.relationName}</p>
                                                         <p><strong>Mã mẫu:</strong> {res.samplecode}</p>
                                                         <p><strong>Kết luận:</strong> {res.conclustionResult}</p>
+                                                        <p><strong>Có kết quả:</strong> {formatDate(res.resultTime)}</p>
+
+
                                                         {res.resulFilePDF && (
                                                             <div className="mt-3">
                                                                 <img
+
                                                                     src={res.resulFilePDF}
                                                                     alt="Kết quả PDF"
                                                                     className="w-full max-w-md rounded border"
                                                                 />
+                                                                <a
+                                                                    href={res.resulFilePDF.replace('/upload/', '/upload/fl_attachment/')}
+                                                                    className="inline-block mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                                                >
+                                                                    ⬇️ dowload
+
+                                                                </a>
+
                                                             </div>
                                                         )}
                                                     </div>

@@ -18,15 +18,22 @@ export const VNPayReturn = () => {
     const txnRef = searchParams.get('vnp_TxnRef');
     const vnp_OrderInfo = searchParams.get('vnp_OrderInfo');
     const appointmentId = txnRef.split("_")[0];
-    const updateappointment = { appointmentId: Number(appointmentId), status: 'PAID' };
+    const updateappointment = { appointmentId: Number(appointmentId), status: 'PAID_Vnpay' };
     console.log("Update Appointment Data:", updateappointment);
     const appoimentid = { appointmentId: updateappointment.appointmentId };
     if (responseCode === '00') {
-    
+
       console.log(vnp_OrderInfo)
-      if (vnp_OrderInfo.includes("Pay haft price for")) {
-      
-        UpdateStatusAppointment(updateappointment)
+      if (vnp_OrderInfo.includes("Pay haft price for") || vnp_OrderInfo.includes("Pay againt price for")) {
+        const formdata = new FormData();
+        formdata.append(
+          "appointmentUpdate",
+          new Blob([JSON.stringify(updateappointment)], { type: "application/json" })
+        );
+        formdata.append("file",null)
+
+        //
+        UpdateStatusAppointment(formdata)
           .then((response) => {
             console.log(response.data);
 
@@ -38,17 +45,21 @@ export const VNPayReturn = () => {
               })
               .catch((error) => {
                 console.error("Lỗi khi tạo mẫu:", error);
-               
+
               });
           })
           .catch((error) => {
             console.error("Cập nhật lịch hẹn thất bại:", error);
-          
+
           });
       }
       else {
-       
-        UpdatePaymentStatus(updateappointment.appointmentId).then((response) => {
+        const Updatepayment = {
+          appointmentId: updateappointment.appointmentId,
+          paymentMehtod: "VNPay"
+        }
+        console.log("UpdatePayment", Updatepayment)
+        UpdatePaymentStatus({ appointmentId: updateappointment.appointmentId, paymentMehtod: "VNPay" }).then((response) => {
           console.log(response)
           navigator("/historyBooking")
         }).catch((error) => {

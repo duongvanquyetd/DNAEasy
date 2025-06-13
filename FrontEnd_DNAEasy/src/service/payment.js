@@ -5,6 +5,12 @@ export const GetPaymentStatus = (appointmentId ) => {
 export  const PayToview = (appointmentId) => {
     return api.get(`/payment/paytoview/${appointmentId}`);
 }
-export const UpdatePaymentStatus = (appointmentId) => {
-    return api.post(`/payment/updateStatus/${appointmentId}`);
+export const UpdatePaymentStatus = (appoinment) => {
+    return api.post(`/payment/updateStatus`,appoinment);
+}
+export  const PayAgaint = (appointmentId) => {
+    return api.get(`/payment/payagaint/${appointmentId}`);
+}
+export  const ConfirmPaidByCash = (appointmentId) => {
+    return api.get(`/payment/confirmpaid/${appointmentId}`);
 }
