@@ -12,6 +12,7 @@ import  {VNPayReturn} from './component/page/VnpayReturn';
 import  {YourAppointment}  from './component/page/YourAppointment';
 import  {BookingServicePage}  from './component/page/BookingService';
 import  {HistoryBooking}  from './component/page/HistoryBooking';
+import { Test } from './component/page/test';
 function App() {
   return (
     <BrowserRouter>
@@ -31,6 +32,7 @@ function App() {
         <Route path="/yourappoinment" element={<YourAppointment />} />
         <Route path="/historyBooking" element={<HistoryBooking />} />
         <Route path="*" element={<div>404 - Page Not Found</div>} /> {/* Fallback route */}
+         <Route path="/test/:token" element={<Test />} />
       </Routes>     
     </BrowserRouter>
   );

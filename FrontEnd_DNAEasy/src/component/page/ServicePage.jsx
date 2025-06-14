@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
-// import { getALlServies } from '../../service/service';
+
 import Header from '../Header';
 import Footer from '../Footer';
 import '../css/Service.css'; // Import the CSS file as is
-import { getAllServices } from '../../service/MockService';
+import { GetALlServies } from '../../service/service';
+
 
 const ErrorBoundary = ({ children }) => {
   const [hasError, setHasError] = useState(false);
@@ -47,7 +48,7 @@ const Service = () => {
   const fetchServices = async () => {
     try {
       setLoading(true);
-      const response = await getAllServices(); 
+      const response = await GetALlServies(); 
       setServices(response.data || []); // Handle potential undefined data
       setError(null);
     } catch (error) {

@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Logo from './image/logo/Logo.jpg';
-import avatarImage from './image/avatar/kiet.jpg'; 
-import { FileX } from 'lucide-react';
+
+import { Logout } from '../service/login';
+import { GetMyInfor } from '../service/user';
 
 const Header = () => {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-
-  // Handle scroll effect
+  const [user, setUser] = useState('');
   useEffect(() => {
+
+    GetMyInfor().then((response) => {
+      setUser(response.data)
+    })
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
@@ -18,7 +22,6 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest('.avatar-container')) {
@@ -44,7 +47,11 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    navigate('/user/login');
+    const token = { token: localStorage.getItem("token") }
+    Logout(token).then(() => {
+      localStorage.clear();
+      navigate('/user/login');
+    });
     setIsDropdownOpen(false);
   };
 
@@ -53,19 +60,17 @@ const Header = () => {
       ...styles.header,
       backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.95)' : '#ffffff',
       backdropFilter: isScrolled ? 'blur(10px)' : 'none',
-      boxShadow: isScrolled 
-        ? '0 8px 32px rgba(0, 0, 0, 0.1)' 
-        : '0 2px 20px rgba(0, 0, 0, 0.05)',
+      boxShadow: isScrolled ? '0 8px 32px rgba(0, 0, 0, 0.1)' : '0 2px 20px rgba(0, 0, 0, 0.05)',
       transform: isScrolled ? 'translateY(-2px)' : 'translateY(0)',
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     }}>
       <div style={styles.logo}>
         <img src={Logo} alt="DNAEASY Logo" style={styles.image} />
       </div>
-      
+
       <nav style={styles.nav}>
         {['Home', 'Service', 'Blog', 'Appointment', 'HistoryBooking'].map((item, index) => (
-          <a 
+          <a
             key={item}
             href={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '')}`}
             style={{
@@ -88,90 +93,86 @@ const Header = () => {
           </a>
         ))}
       </nav>
-      
-      <div style={styles.avatarContainer} className="avatar-container">
-        <div style={styles.avatarWrapper}>
-          <img
-            src={avatarImage}
-            alt="User Avatar"
-            style={styles.avatar}
-            onClick={handleAvatarClick}
-          />
-          <div style={styles.onlineIndicator}></div>
-        </div>
-        
-        {isDropdownOpen && (
-          <div style={{
-            ...styles.dropdown,
-            animation: 'fadeInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          }}>
-            <div style={styles.dropdownHeader}>
-              <img src={avatarImage} alt="User" style={styles.dropdownAvatar} />
-              <div style={styles.userInfo}>
-                <div style={styles.userName}>Kiet</div>
-                <div style={styles.userRole}>Administrator</div>
-              </div>
+
+      {user && user.avatarUrl ?
+        (
+          <div style={styles.avatarContainer} className="avatar-container">
+            <div style={styles.avatarWrapper}>
+              <img
+                src={user.avatarUrl}
+                alt="User Avatar"
+                style={styles.avatar}
+                onClick={handleAvatarClick}
+              />
+              <div style={styles.onlineIndicator}></div>
             </div>
-            <div style={styles.dropdownDivider}></div>
-            <button 
-              style={styles.dropdownItem} 
-              onClick={handleViewProfile}
-              onMouseEnter={(e) => {
-                e.target.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                e.target.style.color = '#fff';
-                e.target.style.transform = 'translateX(5px)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = 'transparent';
-                e.target.style.color = '#333';
-                e.target.style.transform = 'translateX(0)';
-              }}
-            >
-              <span style={styles.dropdownIcon}>👤</span>
-              View Profile
-            </button>
-            <button 
-              style={styles.dropdownItem} 
-              onClick={handleAdminDashboard}
-              onMouseEnter={(e) => {
-                e.target.style.background = 'linear-gradient(135deg, #00d4aa 0%, #00b894 100%)';
-                e.target.style.color = '#fff';
-                e.target.style.transform = 'translateX(5px)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = 'transparent';
-                e.target.style.color = '#333';
-                e.target.style.transform = 'translateX(0)';
-              }}
-            >
-              <span style={styles.dropdownIcon}>⚙️</span>
-              Admin Dashboard
-            </button>
-            <button 
-              style={styles.dropdownItem} 
-              onClick={handleLogout}
-              onMouseEnter={(e) => {
-                e.target.style.background = 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)';
-                e.target.style.color = '#fff';
-                e.target.style.transform = 'translateX(5px)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = 'transparent';
-                e.target.style.color = '#333';
-                e.target.style.transform = 'translateX(0)';
-              }}
-            >
-              <span style={styles.dropdownIcon}>🚪</span>
-              Logout
-            </button>
+
+            {isDropdownOpen && (
+              <div style={{ ...styles.dropdown, animation: 'fadeInUp 0.3s ease' }}>
+                <div style={styles.dropdownHeader}>
+                  <img src={user.avatarUrl} alt="User" style={styles.dropdownAvatar} />
+                  <div style={styles.userInfo}>
+                    <div style={styles.userName}>{user.name}</div>
+                    <div style={styles.userRole}>{user.rolename}</div>
+                  </div>
+                </div>
+                <div style={styles.dropdownDivider}></div>
+                <button style={styles.dropdownItem} onClick={handleViewProfile}>👤 View Profile</button>
+                {user.rolename === "ADMIN" && (
+
+                  <button style={styles.dropdownItem} onClick={handleAdminDashboard}>⚙️ Admin Dashboard</button>
+                )}
+
+                <button style={styles.dropdownItem} onClick={handleLogout}>🚪 Logout</button>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+
+
+        ) : (
+          <>
+            <div style={styles.authButtons}>
+              <a href='/user/login' style={styles.loginBtn}>Login</a>
+              <a href='/user/register' style={styles.registerBtn}>Register</a>
+            </div>
+
+          </>
+
+        )
+      }
     </header>
   );
 };
 
 const styles = {
+    authButtons: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '16px',
+  },
+  loginBtn: {
+    padding: '8px 16px',
+    borderRadius: '10px',
+    backgroundColor: '#0066cc',
+    color: '#fff',
+    fontWeight: '600',
+    textDecoration: 'none',
+    fontSize: '16px',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 12px rgba(0, 102, 204, 0.2)',
+  },
+  registerBtn: {
+    padding: '8px 16px',
+    borderRadius: '10px',
+    backgroundColor: '#00b894',
+    color: '#fff',
+    fontWeight: '600',
+    textDecoration: 'none',
+    fontSize: '16px',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 12px rgba(0, 184, 148, 0.2)',
+  },
+
   header: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -180,14 +181,14 @@ const styles = {
     backgroundColor: '#ffffff',
     position: 'fixed',
     top: 0,
+    left: 0,
+    right: 0,
     zIndex: 1000,
     fontFamily: "'Inter', 'Poppins', sans-serif",
-    maxWidth: '1400px',
-    margin: '0 auto',
     width: '100%',
+    boxSizing: 'border-box',
     borderRadius: '0 0 20px 20px',
   },
-
   image: {
     width: '120px',
     height: '90px',
@@ -206,12 +207,10 @@ const styles = {
     fontSize: '18px',
     fontWeight: '600',
     position: 'relative',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     paddingBottom: '8px',
     letterSpacing: '0.5px',
   },
   navUnderline: {
-    content: '""',
     position: 'absolute',
     bottom: '0',
     left: '50%',
@@ -219,8 +218,8 @@ const styles = {
     height: '3px',
     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     borderRadius: '2px',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     transform: 'translateX(-50%)',
+    transition: 'all 0.3s',
   },
   avatarContainer: {
     position: 'relative',
@@ -238,7 +237,7 @@ const styles = {
     border: '3px solid transparent',
     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     backgroundClip: 'padding-box',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    transition: 'all 0.3s',
     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
   },
   onlineIndicator: {
@@ -276,7 +275,6 @@ const styles = {
     borderRadius: '50%',
     objectFit: 'cover',
     marginRight: '12px',
-    border: '2px solid rgba(255, 255, 255, 0.8)',
   },
   userInfo: {
     flex: 1,
@@ -285,7 +283,6 @@ const styles = {
     fontSize: '16px',
     fontWeight: '600',
     color: '#333',
-    marginBottom: '2px',
   },
   userRole: {
     fontSize: '12px',
@@ -294,7 +291,7 @@ const styles = {
   },
   dropdownDivider: {
     height: '1px',
-    background: 'linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1), transparent)',
+    background: 'rgba(0, 0, 0, 0.1)',
     margin: '0 20px',
   },
   dropdownItem: {
@@ -304,52 +301,38 @@ const styles = {
     padding: '15px 20px',
     background: 'none',
     border: 'none',
-    textAlign: 'left',
     fontSize: '16px',
     fontWeight: '500',
     color: '#333',
     cursor: 'pointer',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    transition: 'all 0.3s',
     gap: '12px',
-  },
-  dropdownIcon: {
-    fontSize: '18px',
-    opacity: 0.7,
   },
 };
 
-// Add CSS keyframes for animations
-const keyframes = `
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+// Global CSS reset
+const globalCSS = `
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
   }
-}
-
-.avatar-container img:hover {
-  transform: scale(1.1) rotate(5deg);
-  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
-}
-
-nav a:hover .nav-underline {
-  width: 100% !important;
-}
-
-header img:hover {
-  transform: scale(1.05) rotate(-2deg);
-}
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 `;
 
-// Inject styles
+// Inject CSS to head
 if (typeof document !== 'undefined') {
-  const styleElement = document.createElement('style');
-  styleElement.textContent = keyframes;
-  document.head.appendChild(styleElement);
+  const style = document.createElement('style');
+  style.innerHTML = globalCSS;
+  document.head.appendChild(style);
 }
 
 export default Header;

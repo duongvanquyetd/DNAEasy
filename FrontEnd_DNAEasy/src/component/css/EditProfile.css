@@ -10,6 +10,7 @@
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   position: relative;
   overflow-x: hidden;
+
 }
 
 .page::before {
@@ -30,6 +31,7 @@
   align-items: center;
   padding: 40px 20px;
   position: relative;
+    margin-top:100px ;
 }
 
 .profile-container {

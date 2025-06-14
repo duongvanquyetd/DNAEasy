@@ -19,15 +19,7 @@ export const LoginPage = () => {
         .then((response) => {
           setInValid('');
           localStorage.setItem('token', response.data.token);
-          localStorage.setItem('user', JSON.stringify({
-            name: response.data.name,
-            phone: response.data.phone,
-            gender: response.data.gender,
-            address: response.data.address,
-            avatarUrl: response.data.avatarUrl,
-            email: response.data.email,
-            rolename: response.data.rolename
-          }));
+          localStorage.setItem('rolename', response.data.rolename);
           navigate('/home');
         })
         .catch((error) => {
