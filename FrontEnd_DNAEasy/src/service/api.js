@@ -4,7 +4,6 @@ import axios from 'axios';
 
 import { IsTokenAboutToExpire } from './jwtDecode';
 import { RefreshTokenExprie } from './refreshtoken';
-import { FaBullseye } from 'react-icons/fa';
 const api = axios.create({
   baseURL: 'http://localhost:8080/api',
 });

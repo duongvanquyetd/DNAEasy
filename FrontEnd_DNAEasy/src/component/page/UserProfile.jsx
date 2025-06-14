@@ -9,13 +9,15 @@ import { GetMyInfor } from '../../service/user.js';
 const UserProfile = () => {
   const [address, setAddress] = useState([]);
   const [user, setUser] = useState('');
-
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigater = useNavigate();
   useEffect(() => {
     GetMyInfor().then((response) => {
       setUser(response.data)
       console.log("Response Data User", response.data)
       setAddress(response.data.address.split(","));
+      setLoading(false);
     }).catch((error) => {
       if (error.response && error.response.status === 401) {
         navigater("/user/login")
@@ -25,38 +27,8 @@ const UserProfile = () => {
   }, [])
 
 
-
-
-  const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const getUserProfile = async () => {
-      try {
-        console.log("Fetching user profile for userId:", userId); // Debug log
-        const response = await fetchUserProfile(userId);
-        console.log("Response received:", response); // Debug log
-        setUser(response.data);
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching user profile:", err.message); // Debug log
-        setError(err.message || 'Unable to load user profile.');
-        setLoading(false);
-      }
-    };
-
-    if (userId) {
-      getUserProfile();
-    } else {
-      setError('User ID not found.');
-      setLoading(false);
-    }
-  }, [userId]);
-
   const handleEditClick = () => {
-    navigate('/user/edit-profile');
+    navigater('/user/edit-profile');
   };
 
   if (loading) {
