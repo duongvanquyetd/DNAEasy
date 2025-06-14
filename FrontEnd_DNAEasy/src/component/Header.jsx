@@ -70,7 +70,7 @@ const Header = () => {
       </div>
 
       <nav style={styles.nav}>
-        {['Home', 'Service', 'Blog', 'Appointment', 'HistoryBooking'].map((item, index) => (
+        {['Home', 'Service', 'Blog', 'YourAppointment', 'HistoryBooking'].map((item, index) => (
           <a
             key={item}
             href={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '')}`}
@@ -178,7 +178,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '1px 30px',
+    padding: '15px 30px',
     backgroundColor: '#ffffff',
     position: 'fixed',
     top: 0,
@@ -186,7 +186,6 @@ const styles = {
     right: 0,
     zIndex: 1000,
     fontFamily: "'Inter', 'Poppins', sans-serif",
-
     width: '100%',
     boxSizing: 'border-box',
     borderRadius: '0 0 20px 20px',

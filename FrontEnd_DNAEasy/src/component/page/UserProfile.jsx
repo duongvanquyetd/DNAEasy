@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../Header.jsx';
 import Footer from '../Footer.jsx';
-import backgroundImage from '../image/Background.jpg';
+import backgroundImage from '../image/background/background.jpg';
 import '../css/UserProfile.css';
 
 import { GetMyInfor } from '../../service/user.js';
