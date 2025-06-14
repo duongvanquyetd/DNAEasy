@@ -63,6 +63,7 @@ const Header = () => {
       boxShadow: isScrolled ? '0 8px 32px rgba(0, 0, 0, 0.1)' : '0 2px 20px rgba(0, 0, 0, 0.05)',
       transform: isScrolled ? 'translateY(-2px)' : 'translateY(0)',
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      height: '120px', // Ensure consistent height
     }}>
       <div style={styles.logo}>
         <img src={Logo} alt="DNAEASY Logo" style={styles.image} />
@@ -177,7 +178,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '15px 30px',
+    padding: '1px 30px',
     backgroundColor: '#ffffff',
     position: 'fixed',
     top: 0,
@@ -185,6 +186,7 @@ const styles = {
     right: 0,
     zIndex: 1000,
     fontFamily: "'Inter', 'Poppins', sans-serif",
+
     width: '100%',
     boxSizing: 'border-box',
     borderRadius: '0 0 20px 20px',
@@ -310,6 +312,7 @@ const styles = {
   },
 };
 
+
 // Global CSS reset
 const globalCSS = `
   * {
@@ -326,6 +329,7 @@ const globalCSS = `
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
   }
+
 `;
 
 // Inject CSS to head

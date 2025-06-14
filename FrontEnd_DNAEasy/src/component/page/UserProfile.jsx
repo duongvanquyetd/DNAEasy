@@ -4,6 +4,7 @@ import Header from '../Header.jsx';
 import Footer from '../Footer.jsx';
 import backgroundImage from '../image/Background.jpg';
 import '../css/UserProfile.css';
+
 import { GetMyInfor } from '../../service/user.js';
 const UserProfile = () => {
   const [address, setAddress] = useState([]);
@@ -25,20 +26,87 @@ const UserProfile = () => {
 
 
 
+
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const getUserProfile = async () => {
+      try {
+        console.log("Fetching user profile for userId:", userId); // Debug log
+        const response = await fetchUserProfile(userId);
+        console.log("Response received:", response); // Debug log
+        setUser(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching user profile:", err.message); // Debug log
+        setError(err.message || 'Unable to load user profile.');
+        setLoading(false);
+      }
+    };
+
+    if (userId) {
+      getUserProfile();
+    } else {
+      setError('User ID not found.');
+      setLoading(false);
+    }
+  }, [userId]);
 
   const handleEditClick = () => {
     navigate('/user/edit-profile');
   };
 
+  if (loading) {
+    return (
+      <div className="page">
+        <Header />
+        <main className="main">
+          <div className="profile-container loading">
+            <div className="avatar-section">
+              <div className="avatar" style={{ backgroundImage: 'url(https://via.placeholder.com/150)' }}></div>
+            </div>
+            <div className="profile-details">
+              <div className="profile-title">Loading...</div>
+              {['Name', 'Email', 'Street', 'District', 'City', 'Contact Number', 'Gender'].map((label, index) => (
+                <div className="field" key={index}>
+                  <label className="label">{label}</label>
+                  <div className="value"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="page">
+        <Header />
+        <main className="main">
+          <div className="profile-container">
+            <div className="profile-title">Error</div>
+            <div className="field">
+              <div className="value">{error}</div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="page">
       <Header />
-      <main
-        className="main"
-        style={{ backgroundImage: `url(${backgroundImage})` }}
-      >
+      <main className="main" style={{ backgroundImage: `url(${backgroundImage})` }}>
         <div className="profile-container">
+
           <div className="avatar"><img style={{ width: "100%" }} src={user.avatarUrl} ></img></div>
           <div className="detail">Detail</div>
           <div className="field">
@@ -68,10 +136,10 @@ const UserProfile = () => {
           <div className="field">
             <label className="label">Gender</label>
             <div className="value">{user.gender === "F" ? "Female" : "Male"}</div>
+            <button className="edit-button" onClick={handleEditClick}>
+              Edit
+            </button>
           </div>
-          <button className="edit-button" onClick={handleEditClick}>
-            Edit
-          </button>
         </div>
       </main>
       <Footer />
