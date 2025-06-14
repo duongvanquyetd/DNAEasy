@@ -12,7 +12,7 @@ export const IsTokenAboutToExpire = (token) => {
       now: Date.now() / 1000,
       expiresIn: decoded.exp - now,
     });
-    return decoded.exp - now < 3590;
+    return decoded.exp - now < 10;
   } catch (err) {
     return false;
   }
