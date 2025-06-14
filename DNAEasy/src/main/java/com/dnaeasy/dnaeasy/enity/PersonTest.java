@@ -26,6 +26,6 @@ public class PersonTest {
     public String CCCD;
     @NotBlank( message = "relationName Not empty")
     public String relationName;
-    @OneToOne(mappedBy = "personTest")
+    @OneToOne(mappedBy = "personTest",cascade = CascadeType.ALL)
     public Sample sample;
 }

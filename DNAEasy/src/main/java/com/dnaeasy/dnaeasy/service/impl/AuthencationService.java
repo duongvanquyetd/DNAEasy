@@ -24,6 +24,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.naming.AuthenticationException;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.time.Instant;
@@ -72,11 +73,9 @@ public class AuthencationService implements IsAuthencationService {
         System.out.println(userCreateRequest);
 
 
-
         p.setRolename(RoleName.CUSTOMER);
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         p.setPassword(passwordEncoder.encode(p.getPassword()));
-
         personResponsity.save(p);
 
         return userMapper.PersonToAuthenctionResponse(p);
@@ -101,7 +100,7 @@ public class AuthencationService implements IsAuthencationService {
                 .subject(peroson.getUsername())
                 .issuer("DNAEasy.com")
                 .issueTime(new Date())
-                .expirationTime(new Date(Instant.now().plus(3600 * 4, ChronoUnit.SECONDS).toEpochMilli()))
+                .expirationTime(new Date(Instant.now().plus(3600, ChronoUnit.SECONDS).toEpochMilli()))
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope", peroson.getRolename())
                 .build();
@@ -113,6 +112,24 @@ public class AuthencationService implements IsAuthencationService {
             throw new RuntimeException(e);
         }
         return jwsObject.serialize();
+    }
+
+    public AuthenctionResponse RefreshToken(IntrospectRequest request) throws ParseException, JOSEException, AuthenticationException {
+
+        var signed = verifyToken(request.getToken());
+
+        if(isInvalidateToken.existsInvalidTokenById(signed.getJWTClaimsSet().getJWTID())) {
+            throw  new AuthenticationException("Invalid Refresh Token");
+        }
+        Person p = personResponsity.findByUsername(signed.getJWTClaimsSet().getSubject());
+        String jwt = signed.getJWTClaimsSet().getJWTID();
+        Date expirationDate = signed.getJWTClaimsSet().getExpirationTime();
+        isInvalidateToken.save(new InvalidToken(jwt, expirationDate));
+        String token = generateToken(p);
+        AuthenctionResponse response = userMapper.PersonToAuthenctionResponse(p);
+        response.setToken(token);
+        return response;
+
     }
 
     public void Logout(String token) throws ParseException, JOSEException {

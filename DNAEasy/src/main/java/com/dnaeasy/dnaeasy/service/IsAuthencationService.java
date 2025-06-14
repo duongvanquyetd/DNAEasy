@@ -8,4 +8,6 @@ import java.text.ParseException;
 
 public interface IsAuthencationService {
     IntrospectResponse IsAuthencation(IntrospectRequest token) throws ParseException, JOSEException;
+
+
 }

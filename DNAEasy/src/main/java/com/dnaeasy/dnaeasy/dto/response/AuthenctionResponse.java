@@ -10,19 +10,8 @@ import lombok.*;
 @NoArgsConstructor
 @Data
 
-
-
-
-
 public class AuthenctionResponse {
-    private String name;
-    private String phone;
-    private GenderEnum gender;
-    private String address;
 
-    //    private byte[] avatar;
-    private String avatarUrl;
-    private String email;
     private String token;
     private RoleName rolename;
 

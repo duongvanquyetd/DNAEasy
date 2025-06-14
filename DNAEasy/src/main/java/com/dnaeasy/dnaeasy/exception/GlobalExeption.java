@@ -50,6 +50,7 @@ public class GlobalExeption {
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<Map<String, String>> handleBadResquest(BadRequestException ex) {
         Map<String, String> errors = new HashMap<>();
+
         errors.put("error", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }

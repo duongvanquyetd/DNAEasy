@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,10 +27,11 @@ public class Comment {
     private int rating;
     private LocalDateTime commentDate;
     @ManyToOne
-    @JoinColumn(name="customer_id")
-    private  Person customer;
+    @JoinColumn(name = "customer_id")
+    private Person customer;
     @ManyToOne
     @JoinColumn(name = "service_id")
     private Service service;
+
 
 }

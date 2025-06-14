@@ -10,19 +10,16 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-
-
-
 public class UserResponse {
 
     private String name;
     private String phone;
     private GenderEnum gender;
     private String address;
-
-    //    private byte[] avatar;
     private String avatarUrl;
     private String email;
-    private String token;
+    private Work_hour work_hour;
+    private RoleName rolename;
+
 
 }

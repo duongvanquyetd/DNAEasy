@@ -34,7 +34,7 @@ public class Sample {
     private Set<Result> result = new HashSet<>();
 
 
-    @ManyToMany (cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(
             name = "Sample_SampleTracking",
             joinColumns = @JoinColumn(name = "sample_Id"),

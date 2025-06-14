@@ -10,7 +10,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-    @Mapping(target = "address", expression = "java(combineAddress(person))")
+
     AuthenctionResponse PersonToAuthenctionResponse(Person person);
     @Mapping(target = "address", expression = "java(combineAddress(person))")
     UserResponse PersonToUserResponse(Person person);

@@ -4,6 +4,7 @@ import com.dnaeasy.dnaeasy.dto.request.UserUpdateResquest;
 import com.dnaeasy.dnaeasy.dto.response.UserResponse;
 import com.dnaeasy.dnaeasy.service.impl.UserService;
 import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,11 +31,13 @@ public class UserController {
       return ResponseEntity.ok(userService.myInfor());
     }
    @PostMapping("/update")
-  public ResponseEntity<String> updateUser(@RequestPart("user")UserUpdateResquest userUpdateResquest,@RequestPart("file") MultipartFile file) {
+  public ResponseEntity<String> updateUser(@Valid  @RequestPart("user")UserUpdateResquest userUpdateResquest, @RequestPart(value = "file",required = false) MultipartFile file) {
       try{
 
+      if(file != null){
+          userUpdateResquest.setAvatarUrl(cloudinaryUtil.uploadImage(file));
+      }
 
-        userUpdateResquest.setAvatarUrl(cloudinaryUtil.uploadImage(file));
       } catch (Exception e) {
         throw new RuntimeException(e);
       }

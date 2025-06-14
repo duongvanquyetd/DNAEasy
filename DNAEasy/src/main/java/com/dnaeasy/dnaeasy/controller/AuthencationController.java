@@ -19,8 +19,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.naming.AuthenticationException;
 import java.io.IOException;
 import java.text.ParseException;
+
 @CrossOrigin("*")
 @AllArgsConstructor
 @RestController
@@ -41,7 +43,7 @@ public class AuthencationController {
         }
 
 
-            return  ResponseEntity.ok(p);
+        return ResponseEntity.ok(p);
     }
 
     @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -74,12 +76,18 @@ public class AuthencationController {
     public ResponseEntity<IntrospectResponse> UserLogin(@RequestBody IntrospectRequest input) throws ParseException, JOSEException {
         return ResponseEntity.ok(authencationService.IsAuthencation(input));
     }
-@PostMapping("/logout")
-    public ResponseEntity<Void> UserLogout(@RequestBody LogoutRequest token ) throws ParseException, JOSEException {
-        authencationService.Logout(token.getToken());
-        return ResponseEntity.ok().build();
-}
 
+    @PostMapping("/logout")
+    public ResponseEntity<String> UserLogout(@RequestBody LogoutRequest token) throws ParseException, JOSEException {
+        authencationService.Logout(token.getToken());
+        return ResponseEntity.ok("lougout sucessFully");
+    }
+
+    @PostMapping("/refreshtoken")
+    public ResponseEntity<AuthenctionResponse> UserRefreshToken(@RequestBody IntrospectRequest token) throws ParseException, JOSEException, AuthenticationException {
+
+        return ResponseEntity.ok(authencationService.RefreshToken(token));
+    }
 
 
 }
