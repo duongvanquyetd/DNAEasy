@@ -10,6 +10,20 @@ export const getAllServices = async () => {
       price: 2000000,
       imageUrls: ['https://example.com/images/paternity-test.jpg'],
       type: 'civil',
+      reviews: [
+    {
+      "userName": "Jane Doe",
+      "rating": 5,
+      "comment": "Amazing service! Got my results quickly and learned so much about my ancestry.",
+      "date": "2025-05-15T10:00:00Z"
+    },
+    {
+      "userName": "John Smith",
+      "rating": 4,
+      "comment": "Very professional, but I wish the report was more detailed.",
+      "date": "2025-04-20T14:30:00Z"
+    }
+  ]
     },
     {
       serviceId: '2',

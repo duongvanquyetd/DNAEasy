@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
-
-
 import Header from '../Header';
 import Footer from '../Footer';
 import '../css/Service.css'; // Import the CSS file as is
@@ -82,15 +80,15 @@ const Service = () => {
     setCurrentPage(1);
   }, []);
 
-  const filteredServices = useMemo(() => {
-    const result = services.filter(
-      (service) =>
-        service.serviceName.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        (selectedCategory === 'all' || service.type.toLowerCase() === selectedCategory.toLowerCase())
-    );
-    console.log('Filtered services:', result, 'Selected Category:', selectedCategory);
-    return result;
-  }, [services, searchQuery, selectedCategory]);
+const filteredServices = useMemo(() => {
+  return services.filter((service) => {
+    const nameMatch = service.serviceName?.toLowerCase().includes(searchQuery.toLowerCase());
+    const typeMatch =
+      selectedCategory === 'all' ||
+      (service.type && service.type.toLowerCase() === selectedCategory.toLowerCase());
+    return nameMatch && typeMatch;
+  });
+}, [services, searchQuery, selectedCategory]);
 
   const paginatedServices = useMemo(() => {
     const startIndex = (currentPage - 1) * servicesPerPage;
@@ -204,4 +202,3 @@ ErrorBoundary.propTypes = {
 };
 
 export default Service;
-// , useParams
