@@ -174,7 +174,6 @@ public class SampleService implements IsSampleService {
                     p.setName(updateSampleRequest.getName());
                     p.setRelationName(updateSampleRequest.getRelationName());
                     p.setSample(sample);
-                    isPersonTesting.save(p);
 
                     sample.setPersonTest(p);
                 }

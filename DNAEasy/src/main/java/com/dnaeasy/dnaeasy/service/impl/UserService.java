@@ -4,10 +4,12 @@ import com.dnaeasy.dnaeasy.dto.request.UserCreateRequest;
 import com.dnaeasy.dnaeasy.dto.request.UserUpdateResquest;
 import com.dnaeasy.dnaeasy.dto.response.UserResponse;
 import com.dnaeasy.dnaeasy.enity.Person;
+import com.dnaeasy.dnaeasy.exception.BadRequestException;
 import com.dnaeasy.dnaeasy.mapper.UserMapper;
 import com.dnaeasy.dnaeasy.responsity.IsUserResponsity;
 import com.dnaeasy.dnaeasy.service.IsUserService;
 import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
+import jakarta.validation.ConstraintViolationException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -64,40 +66,46 @@ public class UserService implements IsUserService {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         String name = SecurityContextHolder.getContext().getAuthentication().getName();
         Person p = personResponsity.findByUsername(name);
-    //    System.out.println(p);
-        if(!p.getEmail().equals(userUpdateResquest.getEmail())) {
+        //    System.out.println(p);
+        if (!p.getEmail().equals(userUpdateResquest.getEmail())) {
 
-            if(personResponsity.findByEmail(userUpdateResquest.getEmail()) >= 1 ) {
-                return "Email is already in use";
+            if (personResponsity.findByEmail(userUpdateResquest.getEmail()) >= 1) {
+                throw new BadRequestException("Email is already in use");
             }
         }
-        if(!p.getPhone().equals(userUpdateResquest.getPhone())) {
-            if(personResponsity.findByPhone(userUpdateResquest.getPhone()) >= 1 )
-            {
-                return "Phone number is already in use";
+        if (!p.getPhone().equals(userUpdateResquest.getPhone())) {
+            if (personResponsity.findByPhone(userUpdateResquest.getPhone()) >= 1) {
+                throw new BadRequestException(" Phone number is already in use");
             }
         }
+        if (!passwordEncoder.matches(userUpdateResquest.getOldpassword(), p.getPassword())) {
+            throw new BadRequestException("Password Wrong");
+        }
 
-        if (passwordEncoder.matches(userUpdateResquest.getOldpassword(), p.getPassword())) {
-            p.setCity(userUpdateResquest.getCity());
-            p.setName(userUpdateResquest.getName());
-            p.setPhone(userUpdateResquest.getPhone());
-            p.setEmail(userUpdateResquest.getEmail());
+
+        p.setCity(userUpdateResquest.getCity());
+        p.setName(userUpdateResquest.getName());
+        p.setPhone(userUpdateResquest.getPhone());
+        p.setEmail(userUpdateResquest.getEmail());
+        if(userUpdateResquest.getAvatarUrl() != null) {
             p.setAvatarUrl(userUpdateResquest.getAvatarUrl());
-            p.setPassword(passwordEncoder.encode(userUpdateResquest.getNewpassword()));
-            p.setDistrict(userUpdateResquest.getDistrict());
-            p.setStreets(userUpdateResquest.getStreets());
-            p.setGender(userUpdateResquest.getGender());
-           // System.out.println(p);
-            personResponsity.save(p);
-         return "Update Success";
         }
 
-        return "Invalid OldPassword";
+        if (userUpdateResquest.getNewpassword() != null) {
+            p.setPassword(passwordEncoder.encode(userUpdateResquest.getNewpassword()));
+        }
+        p.setDistrict(userUpdateResquest.getDistrict());
+        p.setStreets(userUpdateResquest.getStreets());
+        p.setGender(userUpdateResquest.getGender());
+
+        personResponsity.save(p);
+        return "Update Success";
+
+
     }
 
     @Override
     public void deleteUser(int id) {
-     personResponsity.deleteById(String.valueOf(id));
+        personResponsity.deleteById(String.valueOf(id));
     }
 }

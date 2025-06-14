@@ -34,6 +34,7 @@ public class Person {
     @NotBlank(message = "password not empty")
 
     @Column(nullable = false)
+//    @Pattern(regexp = "^(?=.*[A-Za-z]).{6,16}$",message = "Password must be 6-16 characters and contain at least one letter")
     private String password;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -74,9 +75,7 @@ public class Person {
     private List<Notification> notificationList = new ArrayList<>();
     @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notification> notifications = new ArrayList<>();
-
     @OneToMany(mappedBy = "staffReception")
     private List<Payment> paymentList = new ArrayList<>();
-
 
 }
