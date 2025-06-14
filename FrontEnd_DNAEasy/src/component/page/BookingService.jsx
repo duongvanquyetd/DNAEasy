@@ -3,6 +3,7 @@ import { getServiceById } from '../../service/service';
 import { useParams } from 'react-router-dom';
 import { CreateAppointment } from '../../service/appointment';
 import { useNavigate } from 'react-router-dom';
+import { GetMyInfor } from '../../service/user';
 export const BookingServicePage = () => {
 
 
@@ -14,11 +15,10 @@ export const BookingServicePage = () => {
   const [emailAppointment, setEmailAppointment] = useState('');
   const [services, setServices] = useState([]);
   const { id } = useParams();
-
   const [errorHour, setErrorHour] = useState('');
   const [errorPhone, setErrorPhone] = useState('');
   const [errorEmail, setErrorEmail] = useState('');
-  const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+
   const [errors, setErrors] = useState({
     typeCollect: '',
     dateCollect: '',
@@ -30,9 +30,22 @@ export const BookingServicePage = () => {
 
   const navigator = useNavigate();
   useEffect(() => {
-    setLocation(user ? user.address : '');
-    setPhoneAppointment(user ? user.phone : '')
-    setEmailAppointment(user ? user.email : '')
+
+    GetMyInfor().then((response) => {
+      setLocation(response.data ? response.data.address : '');
+      setPhoneAppointment(response.data ?response.data.phone : '')
+      setEmailAppointment(response.data ? response.data.email : '')
+
+
+      console.log("Response Data User", response.data)
+
+    }).catch((error) => {
+      console.log("error load user", error)
+    })
+
+
+
+
     getServiceById(id)
       .then((response) => {
         setServices(response.data);

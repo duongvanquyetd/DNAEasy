@@ -8,7 +8,7 @@ import api from '../../service/api'; // Import API base nếu cần cho thanh to
 export const HistoryBooking = () => {
     const [historyBooking, setHistoryBooking] = useState([]);
     const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
-    const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+    const rolename = localStorage.getItem('rolename') ? localStorage.getItem('rolename') : null;
     useEffect(() => {
         const fetchHistoryBooking = async () => {
             try {
@@ -95,8 +95,8 @@ export const HistoryBooking = () => {
                         <p className="text-gray-700"><strong>Email:</strong> {booking.emailAppointment}</p>
                         <p className="text-gray-700"><strong>Phone:</strong> {booking.phoneAppointment}</p>
                         <p className="text-gray-700"><strong>Trạng thái:</strong> {booking.curentStatusAppointment || (booking.status ? "Đã thanh toán" : "Chưa thanh toán")}</p>
-                         <p className="text-gray-700"><strong>Note:</strong> {booking.note}</p>
-                        {user.rolename === "STAFF_RECEPTION" && (
+                        <p className="text-gray-700"><strong>Note:</strong> {booking.note}</p>
+                        {rolename === "STAFF_RECEPTION" && (
                             <button
                                 onClick={() => handleCash(booking)}
                                 className="bg-[#f97316] text-white px-4 py-2 rounded hover:bg-[#dc2626] transition"
@@ -110,7 +110,7 @@ export const HistoryBooking = () => {
 
                     {selectedAppointmentId === booking.appointmentId && (
                         <div className="mt-4 space-y-6 border-t pt-4 text-sm">
-                            {!booking.status && user.rolename === "CUSTOMER" && booking.curentStatusAppointment === "COMPLETE" ? (
+                            {!booking.status && rolename === "CUSTOMER" && booking.curentStatusAppointment === "COMPLETE" ? (
                                 <div className="text-center">
                                     <p className="text-red-600 mb-4 font-medium">
                                         Bạn chưa thanh toán cho lịch hẹn này.
@@ -138,7 +138,7 @@ export const HistoryBooking = () => {
                                     <div className="grid md:grid-cols-2 gap-6">
                                         <div>
                                             <h4 className="text-base font-semibold text-gray-800 mb-2">Tiến trình lịch hẹn</h4>
-                                            
+
                                             {booking.tracking && booking.tracking.length > 0 ? (
                                                 <div className="relative border-l-2 border-gray-300 pl-6 space-y-6">
                                                     {booking.tracking.map((item, index) => (

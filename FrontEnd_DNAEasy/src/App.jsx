@@ -8,11 +8,13 @@ import UserProfile from './component/page/UserProfile';
 import EditProfile from './component/page/EditProfile';
 import Service from './component/page/ServicePage';
 import Blog from './component/page/BlogPage';
+
 import ServiceDetail from './component/page/ServiceDetail';
 import { VNPayReturn } from './component/page/VnpayReturn';
 import { YourAppointment } from './component/page/YourAppointment';
 import { BookingServicePage } from './component/page/BookingService';
 import { HistoryBooking } from './component/page/HistoryBooking';
+
 
 function App() {
   return (
@@ -32,8 +34,10 @@ function App() {
         <Route path="/vnpay-callback" element={<VNPayReturn />} />
         <Route path="/yourappoinment" element={<YourAppointment />} />
         <Route path="/historyBooking" element={<HistoryBooking />} />
+
         <Route path="*" element={<div>404 - Page Not Found</div>} />
       </Routes>
+
     </BrowserRouter>
   );
 }

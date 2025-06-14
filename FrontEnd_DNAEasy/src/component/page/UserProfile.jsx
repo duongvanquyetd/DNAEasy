@@ -4,10 +4,29 @@ import Header from '../Header.jsx';
 import Footer from '../Footer.jsx';
 import backgroundImage from '../image/Background.jpg';
 import '../css/UserProfile.css';
-// import { fetchUserProfile } from '../../service/userApi.js';
-import { fetchUserProfile } from '../../service/mockUserProfile.js'; 
 
-const UserProfile = ({ userId = "123" }) => {
+import { GetMyInfor } from '../../service/user.js';
+const UserProfile = () => {
+  const [address, setAddress] = useState([]);
+  const [user, setUser] = useState('');
+
+  const navigater = useNavigate();
+  useEffect(() => {
+    GetMyInfor().then((response) => {
+      setUser(response.data)
+      console.log("Response Data User", response.data)
+      setAddress(response.data.address.split(","));
+    }).catch((error) => {
+      if (error.response && error.response.status === 401) {
+        navigater("/user/login")
+      }
+    })
+
+  }, [])
+
+
+
+
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -87,40 +106,36 @@ const UserProfile = ({ userId = "123" }) => {
       <Header />
       <main className="main" style={{ backgroundImage: `url(${backgroundImage})` }}>
         <div className="profile-container">
-          <div className="avatar-section">
-            <div className="avatar" style={{ backgroundImage: `url(${user?.avatarUrl})` }}></div>
+
+          <div className="avatar"><img style={{ width: "100%" }} src={user.avatarUrl} ></img></div>
+          <div className="detail">Detail</div>
+          <div className="field">
+            <label className="label">Name</label>
+            <div className="value">{user.name}</div>
           </div>
-          <div className="detail">Details</div>
-          <div className="profile-details">
-            <div className="profile-title">User Profile</div>
-            <div className="field">
-              <label className="label">Name</label>
-              <div className="value">{user?.name || 'N/A'}</div>
-            </div>
-            <div className="field">
-              <label className="label">Email</label>
-              <div className="value">{user?.email || 'N/A'}</div>
-            </div>
-            <div className="field">
-              <label className="label">Street</label>
-              <div className="value">{user?.streets || 'N/A'}</div>
-            </div>
-            <div className="field">
-              <label className="label">District</label>
-              <div className="value">{user?.district || 'N/A'}</div>
-            </div>
-            <div className="field">
-              <label className="label">City</label>
-              <div className="value">{user?.city || 'N/A'}</div>
-            </div>
-            <div className="field">
-              <label className="label">Contact Number</label>
-              <div className="value">{user?.contactNumber || 'N/A'}</div>
-            </div>
-            <div className="field">
-              <label className="label">Gender</label>
-              <div className="value">{user?.gender || 'N/A'}</div>
-            </div>
+          <div className="field">
+            <label className="label">Email</label>
+            <div className="value">{user.email}</div>
+          </div>
+          <div className="field">
+            <label className="label">Streets</label>
+            <div className="value">{address[0]}</div>
+          </div>
+          <div className="field">
+            <label className="label">District</label>
+            <div className="value">{address[1]}</div>
+          </div>
+          <div className="field">
+            <label className="label">City</label>
+            <div className="value">{address[2]}</div>
+          </div>
+          <div className="field">
+            <label className="label">Contact Number</label>
+            <div className="value">{user.phone}</div>
+          </div>
+          <div className="field">
+            <label className="label">Gender</label>
+            <div className="value">{user.gender === "F" ? "Female" : "Male"}</div>
             <button className="edit-button" onClick={handleEditClick}>
               Edit
             </button>

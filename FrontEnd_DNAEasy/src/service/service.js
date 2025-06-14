@@ -1,6 +1,6 @@
 import api from './api';
 
-export const getALlServies = () => {
+export const GetALlServies = () => {
     return api.get('/service');
 }
 export const getServiceById = (id) => {

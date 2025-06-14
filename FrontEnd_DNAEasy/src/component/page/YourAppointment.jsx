@@ -17,17 +17,17 @@ export const YourAppointment = () => {
   const [cancelForm, setCancelForm] = useState('');
   const [cancelNote, setCancelNote] = useState('');
   const [typeService, setTypeService] = useState('');
-  const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+  const rolename = localStorage.getItem('rolename') ? localStorage.getItem('rolename') : null;
   useEffect(() => {
     const fetchData = async () => {
       try {
         let appointmentsData = [];
 
-        if (user != null && user.rolename === "STAFF_LAB") {
+        if (rolename != null && rolename === "STAFF_LAB") {
           const res = await GetAppointmetnForStaff_Lab();
           console.log("STAFF_LAB response:", res); // 👈 kiểm tra format
           appointmentsData = res?.data || [];
-        } else if (user != null && user.rolename === "STAFF_RECEPTION") {
+        } else if (rolename != null && rolename === "STAFF_RECEPTION") {
           const res = await GetAppointmetnForStaff_reception();
           console.log("STAFF_LAB response:", res); // 👈 kiểm tra format
           appointmentsData = res?.data || [];
@@ -638,8 +638,8 @@ export const YourAppointment = () => {
 
                     {/* Confirm button */}
                     {(appointment.orderProcess === 0 ||
-                      user.rolename === "STAFF_LAB" ||
-                      user.rolename === "STAFF_TEST") && (
+                      rolename === "STAFF_LAB" ||
+                      rolename === "STAFF_TEST") && (
                         <button
                           className="btn btn-danger mt-2"
                           onClick={() => setCancelForm(appointment)}
@@ -668,7 +668,7 @@ export const YourAppointment = () => {
                     )}
 
                     {
-                      (appointment.paymentMethod.includes("Cash") && user.rolename === "STAFF_RECEPTION") && (
+                      (appointment.paymentMethod.includes("Cash") && rolename === "STAFF_RECEPTION") && (
                         <button className="btn btn-success" onClick={() => handelpaytocash(appointment)}>
                           Confirm  paid
                         </button>
