@@ -14,6 +14,7 @@ import { YourAppointment } from './component/page/YourAppointment';
 import { BookingServicePage } from './component/page/BookingService';
 import { HistoryBooking } from './component/page/HistoryBooking';
 import AdminDashboard from './component/page/AdminDashboard';
+import BlogDetail from './component/page/BlogDetail.jsx';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
         <Route path="/service/:serviceId" element={<ServiceDetail />} />
         <Route path="/service/:type" element={<Service />} />
         <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:blogId" element={<BlogDetail />} />
         <Route path="/booking/:id" element={<BookingServicePage />} />
         <Route path="/vnpay-outcome" element={<VNPayReturn />} />
         <Route path="/YourAppointment" element={<YourAppointment />} />

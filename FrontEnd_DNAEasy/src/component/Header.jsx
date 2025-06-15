@@ -178,7 +178,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '15px 30px',
+    padding: '10px 20px',
     backgroundColor: '#ffffff',
     position: 'fixed',
     top: 0,
