@@ -205,7 +205,7 @@ export const BookingServicePage = () => {
               onChange={(e) => setPaymentMethod(e.target.value)}
               required
             >
-              {typeCollect !== 'Hospital_collection' ? (
+              {typeCollect === 'Hospital_collection' ? (
                 <>
                   <option value="">--Select--</option>
                   <option value="Cash">Cash</option>
@@ -214,7 +214,7 @@ export const BookingServicePage = () => {
                 <>
                   <option value="">--Select--</option>
                   <option value="VNPay">E-Wallet</option>
-                  <option value="Cash">Cash</option>
+                  {/* <option value="Cash">Cash</option> */}
                 </>
               )}
             </select>
