@@ -4,6 +4,8 @@ import { RegisterAPI } from '../../service/login';
 import { useNavigate } from 'react-router-dom';
 import backgroundImage from '../image/background/background.jpg';
 
+
+
 const RegisterForm = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -280,7 +282,7 @@ const RegisterForm = () => {
           <button type="submit" className="button-submit">Register</button>
           <p className="p">
             Already have an account?{' '}
-            <a href="/login" className="span">
+            <a href="/user/login" className="span">
               Sign In
             </a>
           </p>
