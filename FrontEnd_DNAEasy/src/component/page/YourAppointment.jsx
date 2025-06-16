@@ -674,7 +674,6 @@ export const YourAppointment = () => {
                         </button>
                       )
                     }
-
                   </div>
                 </div>
               </div>

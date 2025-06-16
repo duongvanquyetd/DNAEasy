@@ -1,0 +1,238 @@
+.appointment-container {
+  background: linear-gradient(135deg, #e6f0fa 0%, #ffffff 100%);
+  min-height: 100vh;
+  padding: 40px 20px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.appointment-title {
+  color: #2d3748;
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 30px;
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+.loading-text {
+  text-align: center;
+  color: #718096;
+  font-size: 1.2rem;
+}
+
+.no-appointments {
+  text-align: center;
+  color: #718096;
+  font-size: 1.2rem;
+  padding: 20px;
+  background: #edf2f7;
+  border-radius: 10px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.appointment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 20px;
+}
+
+.appointment-card {
+  background: #ffffff;
+  border: 1px solid #bee3f8;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.appointment-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+  background: linear-gradient(90deg, #4a90e2, #63b3ed);
+  padding: 15px;
+  color: #fff;
+  text-align: center;
+}
+
+.card-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.progress-container {
+  margin-bottom: 20px;
+}
+
+.progress-bar {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  position: relative;
+}
+
+.step-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.step-circle.completed {
+  background: #28a745;
+}
+
+.step-circle.current {
+  background: #ffc107;
+  color: #333;
+}
+
+.step-circle:not(.completed):not(.current) {
+  background: #6c757d;
+}
+
+.step-label {
+  font-size: 0.8rem;
+  color: #4a5568;
+  text-align: center;
+  margin-top: 5px;
+  max-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.progress-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #e9ecef;
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 0.5s ease;
+}
+
+.appointment-details p {
+  margin: 8px 0;
+  color: #4a5568;
+  font-size: 0.95rem;
+}
+
+.status-badge {
+  background: #ffed4a;
+  color: #333;
+  padding: 4px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.action-buttons {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+}
+
+.btn-confirm {
+  background: linear-gradient(90deg, #4a90e2, #63b3ed);
+  color: #fff;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-confirm:hover {
+  background: linear-gradient(90deg, #357abd, #4299e1);
+  transform: scale(1.05);
+}
+
+.btn-cancel {
+  background: linear-gradient(90deg, #e53e3e, #fc8181);
+  color: #fff;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+  background: linear-gradient(90deg, #c53030, #f56565);
+  transform: scale(1.05);
+}
+
+.modal-content {
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  background: #4a90e2;
+  color: #fff;
+  border-radius: 12px 12px 0 0;
+}
+
+.modal-title {
+  font-size: 1.3rem;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #2d3748;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, #4a90e2, #63b3ed);
+  border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(90deg, #357abd, #4299e1);
+  transform: scale(1.05);
+}
+
+.btn-danger {
+  background: linear-gradient(90deg, #e53e3e, #fc8181);
+  border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+  background: linear-gradient(90deg, #c53030, #f56565);
+  transform: scale(1.05);
+}
+
+.text-danger {
+  color: #e53e3e;
+  font-size: 0.9rem;
+}
