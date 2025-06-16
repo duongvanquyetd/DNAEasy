@@ -30,7 +30,6 @@ export const BookingServicePage = () => {
   const formGroups = useRef([]);
 
   useEffect(() => {
-    // Fetch user information
     GetMyInfor()
       .then((response) => {
         setLocation(response.data ? response.data.address : '');
@@ -42,7 +41,6 @@ export const BookingServicePage = () => {
         console.log('Error loading user', error);
       });
 
-    // Fetch service details
     getServiceById(id)
       .then((response) => {
         setServices(response.data);
@@ -53,7 +51,6 @@ export const BookingServicePage = () => {
         navigator('/login');
       });
 
-    // Add focus/blur event listeners for form inputs
     const inputs = document.querySelectorAll('.form-control, .form-select');
     const handleFocus = (e) => {
       e.target.closest('.form-group').classList.add('focused');
@@ -119,17 +116,9 @@ export const BookingServicePage = () => {
           }
         })
         .catch((error) => {
-          setErrorHour(error.response && error.response.data.error ? error.response.data.error : '');
-          setErrorPhone(
-            error.response && error.response.data.phoneAppointment
-              ? error.response.data.phoneAppointment
-              : ''
-          );
-          setErrorEmail(
-            error.response && error.response.data.emailAppointment
-              ? error.response.data.emailAppointment
-              : ''
-          );
+          setErrorHour(error.response?.data?.error || '');
+          setErrorPhone(error.response?.data?.phoneAppointment || '');
+          setErrorEmail(error.response?.data?.emailAppointment || '');
           console.error('Error booking appointment:', error.response?.data?.error || error.message);
         });
     }
@@ -144,7 +133,7 @@ export const BookingServicePage = () => {
         <p className="subtitle">Accurate and confidential DNA testing</p>
         <div className="service-image">
           <img
-            src={services.imageUrls && services.imageUrls.length > 0 ? services.imageUrls[0] : dnaImage}
+            src={services.imageUrls?.[0] || dnaImage}
             alt={services.serviceName || 'DNA Test Service'}
           />
         </div>
@@ -205,16 +194,16 @@ export const BookingServicePage = () => {
               onChange={(e) => setPaymentMethod(e.target.value)}
               required
             >
-              {typeCollect === 'Hospital_collection' ? (
+              {typeCollect != 'Hospital_collection' ? (
                 <>
                   <option value="">--Select--</option>
+                  <option value="VNPay">VNPay</option>
                   <option value="Cash">Cash</option>
                 </>
               ) : (
                 <>
                   <option value="">--Select--</option>
-                  <option value="VNPay">E-Wallet</option>
-                  {/* <option value="Cash">Cash</option> */}
+                  <option value="VNPay">VNPay</option>
                 </>
               )}
             </select>
@@ -227,7 +216,11 @@ export const BookingServicePage = () => {
               type="text"
               id="location"
               className={`form-control ${errors.location ? 'is-invalid' : ''}`}
-              value={typeCollect === 'Hospital_collection' ? '111 Le Van Viet, District 9, Thu Duc City' : location}
+              value={
+                typeCollect === 'Hospital_collection'
+                  ? '111 Le Van Viet, District 9, Thu Duc City'
+                  : location
+              }
               onChange={(e) => setLocation(e.target.value)}
               readOnly={typeCollect === 'Hospital_collection'}
               required
@@ -271,7 +264,14 @@ export const BookingServicePage = () => {
           <button
             type="submit"
             className="btn-primary"
-            disabled={errors.typeCollect || errors.dateCollect || errors.paymentMethod || errors.location || errors.phoneAppointment || errors.emailAppointment}
+            disabled={
+              errors.typeCollect ||
+              errors.dateCollect ||
+              errors.paymentMethod ||
+              errors.location ||
+              errors.phoneAppointment ||
+              errors.emailAppointment
+            }
           >
             Book Now
           </button>
