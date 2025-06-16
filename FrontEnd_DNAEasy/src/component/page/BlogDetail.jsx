@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import Header from '../Header';
 import Footer from '../Footer';
 import '../css/BlogDetail.css'; // CSS file for BlogDetail styling
-import { getBlogById } from '../../service/MockBlogService'; // Mock service for fetching blog by ID
+import { getBlogById } from '../../service/MockBlogService'; // Service for fetching blog by ID
 import { FaArrowLeft, FaShare, FaTwitter, FaFacebook, FaLinkedin, FaHeart, FaReply, FaBookmark } from 'react-icons/fa';
 
 const ErrorBoundary = ({ children }) => {
@@ -29,25 +29,49 @@ const ErrorBoundary = ({ children }) => {
   return children;
 };
 
-const CommentSection = ({ comments = [] }) => {
+const Breadcrumbs = ({ title }) => (
+  <nav className="blogDetailBreadcrumbs" aria-label="Breadcrumb">
+    <ol>
+      <li><a href="/">Home</a></li>
+      <li> / </li>
+      <li>{title}</li>
+    </ol>
+  </nav>
+);
+
+const MorePosts = ({ posts }) => (
+  <div className="morePosts">
+    <h3>More Posts</h3>
+    <div className="morePostsGrid">
+      {(posts || [1, 2, 3]).map((post, idx) => (
+        <div className="morePostCard" key={idx}>
+          <div className="morePostImage" />
+          <div className="morePostTitle">Post Title</div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const RedesignedCommentSection = ({ comments = [] }) => {
   const [newComment, setNewComment] = useState('');
+  const [username, setUsername] = useState('');
   const [localComments, setLocalComments] = useState(comments);
 
   const handleSubmitComment = (e) => {
     e.preventDefault();
-    if (!newComment.trim()) return;
-
+    if (!newComment.trim() || !username.trim()) return;
     const comment = {
       id: Date.now(),
-      author: 'Current User',
-      avatar: 'https://ui-avatars.com/api/?name=Current+User',
+      author: username,
+      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}`,
       content: newComment,
       date: new Date().toISOString(),
-      likes: 0
+      likes: 0,
     };
-
     setLocalComments([comment, ...localComments]);
     setNewComment('');
+    setUsername('');
   };
 
   return (
@@ -56,37 +80,33 @@ const CommentSection = ({ comments = [] }) => {
         <h2>Comments</h2>
         <span className="commentsCount">{localComments.length} comments</span>
       </div>
-
-      <form className="commentForm" onSubmit={handleSubmitComment}>
-        <textarea
+      <form className="commentForm redesigned" onSubmit={handleSubmitComment}>
+        <input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Username..."
+          aria-label="Username"
+        />
+        <input
+          type="text"
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          placeholder="Share your thoughts..."
+          placeholder="Your Comment..."
           aria-label="Comment input"
         />
-        <button type="submit">Post Comment</button>
+        <button type="submit">Comment</button>
       </form>
-
-      <div className="commentsList">
+      <div className="commentsList redesigned">
         {localComments.map((comment) => (
-          <div key={comment.id} className="commentCard">
-            <div className="commentHeader">
-              <img src={comment.avatar} alt={comment.author} className="commentAvatar" />
-              <div>
-                <div className="commentAuthor">{comment.author}</div>
-                <div className="commentDate">
-                  {new Date(comment.date).toLocaleDateString()}
-                </div>
+          <div key={comment.id} className="commentCard redesigned">
+            <img src={comment.avatar} alt={comment.author} className="commentAvatar" />
+            <div className="commentBody">
+              <div className="commentMeta">
+                <span className="commentAuthor">{comment.author}</span>
+                <span className="commentDate">{new Date(comment.date).toLocaleDateString()}</span>
               </div>
-            </div>
-            <div className="commentContent">{comment.content}</div>
-            <div className="commentActions">
-              <button className="commentAction">
-                <FaHeart /> Like
-              </button>
-              <button className="commentAction">
-                <FaReply /> Reply
-              </button>
+              <div className="commentContent">{comment.content}</div>
             </div>
           </div>
         ))}
@@ -161,7 +181,7 @@ const BlogDetail = () => {
   useEffect(() => {
     const handleScroll = () => {
       if (!contentRef.current) return;
-      
+
       const element = contentRef.current;
       const totalHeight = element.scrollHeight - element.clientHeight;
       const progress = (window.scrollY / totalHeight) * 100;
@@ -176,10 +196,11 @@ const BlogDetail = () => {
     try {
       setLoading(true);
       const response = await getBlogById(blogId);
+      console.log('Fetched blog data:', response.data); // Debug: Log the fetched data
       if (!response.data) {
         throw new Error('Blog not found');
       }
-      setBlog(response.data);
+      setBlog(response.data); // Use the fetched data directly
       setError(null);
     } catch (error) {
       console.error('Error fetching blog:', error);
@@ -195,82 +216,68 @@ const BlogDetail = () => {
 
   return (
     <ErrorBoundary>
-      <div className="blogDetailContainer">
-        <div 
-          className="readingProgress" 
-          style={{ transform: `scaleX(${readingProgress / 100})` }}
-        />
+      <div className="blogDetailContainer redesigned">
         <Header />
-        {loading ? (
-          <div className="blogDetailLoading">
-            <div className="blogDetailSkeletonImage"></div>
-            <div className="blogDetailSkeletonTitle"></div>
-            <div className="blogDetailSkeletonMeta"></div>
-            <div className="blogDetailSkeletonContent"></div>
-          </div>
-        ) : error ? (
-          <div className="blogDetailError">
-            <p>{error}</p>
-            <button
-              onClick={fetchBlog}
-              className="blogDetailRetry"
-              aria-label="Retry loading blog"
-            >
-              Retry
-            </button>
-          </div>
-        ) : blog ? (
-          <>
-            <section className="blogDetailContent" ref={contentRef}>
-              <div className="blogDetailHeader">
-                <h1>{blog.title}</h1>
-                <div className="blogDetailMeta">
-                  <span className="blogDetailCategory">{blog.category}</span>
-                  <span className="blogDetailDate">{new Date(blog.date).toLocaleDateString()}</span>
-                  <span className="blogDetailAuthor">By {blog.author || 'Unknown Author'}</span>
-                </div>
+        <div className="blogDetailMain redesigned">
+          <div className="blogDetailLeft">
+            <Breadcrumbs title={blog?.title || 'Post Title'} />
+            {loading ? (
+              <div className="blogDetailLoading">
+                <div className="blogDetailSkeletonImage"></div>
+                <div className="blogDetailSkeletonTitle"></div>
+                <div className="blogDetailSkeletonMeta"></div>
+                <div className="blogDetailSkeletonContent"></div>
               </div>
-              {blog.imageUrls?.[0] && (
-                <div className="blogDetailImageContainer">
-                  {/* Decorative SVG or background can be added here */}
-                  <img
-                    src={blog.imageUrls[0]}
-                    alt={blog.title}
-                    className="blogDetailImage"
-                    loading="lazy"
-                  />
-                  {blog.imageCaption && (
-                    <div className="imageCaption">{blog.imageCaption}</div>
-                  )}
-                </div>
-              )}
-              <div className="blogDetailBody">
-                <p className="blogDetailExcerpt">{blog.excerpt}</p>
-                <div className="blogDetailFullContent">
-                  {blog.content ? (
-                    <div dangerouslySetInnerHTML={{ __html: blog.content }} />
-                  ) : (
-                    <p>No additional content available.</p>
-                  )}
-                </div>
+            ) : error ? (
+              <div className="blogDetailError">
+                <p>{error}</p>
+                <button onClick={fetchBlog} className="blogDetailRetry" aria-label="Retry loading blog">Retry</button>
               </div>
-              <AuthorBio
-                author={blog.author}
-                avatar={`https://ui-avatars.com/api/?name=${encodeURIComponent(blog.author)}`}
-                bio="Passionate writer and content creator with expertise in technology and innovation."
-              />
-              <button
-                className="blogDetailBackButton"
-                onClick={handleBackClick}
-                aria-label="Back to blog list"
-              >
-                <FaArrowLeft /> Back to Blogs
-              </button>
-            </section>
-            <CommentSection comments={blog.comments || []} />
-            <ShareButtons />
-          </>
-        ) : null}
+            ) : blog ? (
+              <>
+                <section className="blogDetailContent redesigned" ref={contentRef}>
+                  <h1 className="blogDetailTitle">{blog.title}</h1>
+                  <div className="blogDetailMeta redesigned">
+                    <span className="blogDetailAuthor">{blog.author || 'Author'}</span> |
+                    <span className="blogDetailCategory">{blog.category || 'Category'}</span> |
+                    <span className="blogDetailDate">{blog.date ? new Date(blog.date).toLocaleString() : '1 min ago'}</span>
+                  </div>
+                  <div className="blogDetailImageContainer redesigned">
+                    {blog.imageUrls && blog.imageUrls.length > 0 ? (
+                      <img
+                        src={blog.imageUrls[0]}
+                        alt={blog.title}
+                        className="blogDetailImage"
+                        loading="lazy"
+                        onError={(e) => console.log('Image failed to load:', e.target.src)} // Debug image load errors
+                      />
+                    ) : (
+                      <p>No image available</p> // Fallback if no image
+                    )}
+                  </div>
+                  <div className="blogDetailBody redesigned">
+                    <div className="blogDetailFullContent">
+                      {blog.content ? (
+                        <div dangerouslySetInnerHTML={{ __html: blog.content }} />
+                      ) : (
+                        <p>No additional content available.</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="blogDetailShare redesigned">
+                    <span>Share this</span>
+                    <ShareButtons />
+                  </div>
+                </section>
+                <MorePosts posts={blog.relatedPosts || []} />
+                <RedesignedCommentSection comments={blog.comments || []} />
+              </>
+            ) : null}
+          </div>
+          <div className="blogDetailRight">
+            {blog && <TableOfContents headings={blog.headings || ["lorem ipsum", "lorem ipsum", "lorem ipsum", "lorem ipsum"]} />}
+          </div>
+        </div>
         <Footer />
       </div>
     </ErrorBoundary>
@@ -287,6 +294,9 @@ BlogDetail.propTypes = {
     category: PropTypes.string,
     date: PropTypes.string,
     author: PropTypes.string,
+    relatedPosts: PropTypes.array, // Optional: for MorePosts
+    comments: PropTypes.array,    // Optional: for comments
+    headings: PropTypes.array,    // Optional: for TableOfContents
   }),
 };
 

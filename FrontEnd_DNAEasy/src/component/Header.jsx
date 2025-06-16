@@ -71,7 +71,7 @@ const Header = () => {
       boxShadow: isScrolled ? '0 8px 32px rgba(0, 0, 0, 0.1)' : '0 2px 20px rgba(0, 0, 0, 0.05)',
       transform: isScrolled ? 'translateY(-2px)' : 'translateY(0)',
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      height: '120px', // Ensure consistent height
+      height: '100px', // Ensure consistent height
     }}>
       <div style={styles.logo}>
         <img src={Logo} alt="DNAEASY Logo" style={styles.image} />
