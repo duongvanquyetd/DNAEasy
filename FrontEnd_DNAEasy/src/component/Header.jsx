@@ -45,6 +45,14 @@ const Header = () => {
     navigate('/admin/dashboard');
     setIsDropdownOpen(false);
   };
+  const handleManagerBlog = () => {
+    navigate('/manager/blog');  
+    setIsDropdownOpen(false);
+  };
+  const handleManagerService = () => {
+    navigate('/manager/service'); 
+    setIsDropdownOpen(false);
+  };
 
   const handleLogout = () => {
     const token = { token: localStorage.getItem("token") }
@@ -122,6 +130,11 @@ const Header = () => {
                 {user.rolename === "ADMIN" && (
 
                   <button style={styles.dropdownItem} onClick={handleAdminDashboard}>⚙️ Admin Dashboard</button>
+                )}
+                                {user.rolename === "MANAGER" && (
+
+                  <button style={styles.dropdownItem} onClick={handleManagerBlog}>⚙️ Manage Blog</button>,
+                  <button style={styles.dropdownItem} onClick={handleManagerService}>⚙️ Manage Service</button>
                 )}
 
                 <button style={styles.dropdownItem} onClick={handleLogout}>🚪 Logout</button>
