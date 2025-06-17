@@ -126,7 +126,7 @@ export const YourAppointment = () => {
       <Header />
       <div className="your-appointment">
         <div className="container">
-          {/* Header Section */}
+          Header Section
           <header>
             <div className="header-content">
               <h1>

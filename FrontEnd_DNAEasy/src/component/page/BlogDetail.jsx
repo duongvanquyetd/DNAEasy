@@ -3,24 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Header from '../Header';
 import Footer from '../Footer';
-import '../css/BlogDetail.css'; // CSS file for BlogDetail styling
-import { getBlogById } from '../../service/MockBlogService'; // Service for fetching blog by ID
-import { FaArrowLeft, FaShare, FaTwitter, FaFacebook, FaLinkedin } from 'react-icons/fa';
-
-// Mock feedback service (replace with actual API in production)
-const GetFeedbacksByBlogId = async (blogId) => {
-  // Simulated API response
-  return {
-    data: [
-      { id: '1', name: 'User 1', comment: 'Great post!', createdAt: '2025-06-01' },
-      { id: '2', name: 'User 2', comment: 'Very informative.', createdAt: '2025-06-02' }
-    ]
-  };
-};
-const SubmitFeedback = async (blogId, feedback) => {
-  // Simulated API response
-  return { data: { ...feedback, id: Date.now().toString(), createdAt: new Date().toISOString() }};
-};
+import '../css/BlogDetail.css';
+import { getBlogById } from '../../service/MockBlogService';
+import { FaArrowLeft, FaTwitter, FaFacebook, FaLinkedin, FaClock, FaUser, FaTag, FaBookmark, FaRegBookmark } from 'react-icons/fa';
+import BlogListSidebar from './BlogListSidebar';
 
 const ErrorBoundary = ({ children }) => {
   const [hasError, setHasError] = useState(false);
@@ -36,8 +22,19 @@ const ErrorBoundary = ({ children }) => {
 
   if (hasError) {
     return (
-      <div className="blogDetailError">
-        <p>Something went wrong. Please try again.</p>
+      <div className="error-container">
+        <div className="error-content">
+          <span className="error-icon">⚠️</span>
+          <h3>Oops! Something Went Wrong</h3>
+          <p>We're having trouble loading this content. Please try refreshing the page.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="retry-button"
+            aria-label="Refresh page"
+          >
+            Refresh
+          </button>
+        </div>
       </div>
     );
   }
@@ -45,75 +42,55 @@ const ErrorBoundary = ({ children }) => {
 };
 
 const Breadcrumbs = ({ title }) => (
-  <nav className="blogDetailBreadcrumbs" aria-label="Breadcrumb">
-    <ol>
-      <li><a href="/">Home</a></li>
-      <li> / </li>
-      <li>{title}</li>
-    </ol>
+  <nav className="breadcrumbs" aria-label="Breadcrumb">
+    <div className="breadcrumbs-content">
+      <a href="/" className="breadcrumb-link">
+        Home
+      </a>
+      <span className="breadcrumb-separator">→</span>
+      <span className="breadcrumb-current">{title}</span>
+    </div>
   </nav>
 );
 
-const MorePosts = ({ posts }) => (
-  <div className="morePosts">
-    <h3>More Posts</h3>
-    <div className="morePostsGrid">
-      {(posts || [1, 2, 3]).map((post, idx) => (
-        <div className="morePostCard" key={idx}>
-          <div className="morePostImage" />
-          <div className="morePostTitle">Post Title</div>
-        </div>
-      ))}
-    </div>
-  </div>
-);
-
-const ShareButtons = () => {
+const ShareButtons = ({ title, url }) => {
   const shareButtons = [
-    { icon: <FaTwitter />, label: 'Share on Twitter' },
-    { icon: <FaFacebook />, label: 'Share on Facebook' },
-    { icon: <FaLinkedin />, label: 'Share on LinkedIn' },
+    {
+      icon: <FaTwitter />,
+      label: 'Share on Twitter',
+      color: '#1da1f2',
+      href: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
+    },
+    {
+      icon: <FaFacebook />,
+      label: 'Share on Facebook',
+      color: '#4267b2',
+      href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+    },
+    {
+      icon: <FaLinkedin />,
+      label: 'Share on LinkedIn',
+      color: '#0077b5',
+      href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+    },
   ];
 
   return (
-    <div className="blogDetailShare">
+    <div className="share-buttons">
       {shareButtons.map((button, index) => (
-        <button
+        <a
           key={index}
-          className="shareButton"
+          href={button.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="share-button"
+          style={{ '--button-color': button.color }}
           aria-label={button.label}
           title={button.label}
         >
           {button.icon}
-        </button>
+        </a>
       ))}
-    </div>
-  );
-};
-
-const AuthorBio = ({ author, avatar, bio }) => (
-  <div className="authorBio">
-    <img src={avatar} alt={author} className="authorAvatar" />
-    <div className="authorInfo">
-      <h3>{author}</h3>
-      <p>{bio}</p>
-    </div>
-  </div>
-);
-
-const TableOfContents = ({ headings }) => {
-  if (!headings || headings.length === 0) return null;
-
-  return (
-    <div className="tableOfContents">
-      <h3>Table of Contents</h3>
-      <ul>
-        {headings.map((heading, index) => (
-          <li key={index}>
-            <a href={`#heading-${index}`}>{heading}</a>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 };
@@ -125,13 +102,14 @@ const BlogDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [readingProgress, setReadingProgress] = useState(0);
-  const [feedbacks, setFeedbacks] = useState([]);
-  const [feedbackLoading, setFeedbackLoading] = useState(true);
-  const [feedbackError, setFeedbackError] = useState(null);
-  const [newFeedback, setNewFeedback] = useState({ comment: '' });
+  const [isBookmarked, setIsBookmarked] = useState(false);
   const contentRef = useRef(null);
 
   useEffect(() => {
+    // Load bookmark state from localStorage
+    const bookmarked = localStorage.getItem(`bookmark-${blogId}`);
+    setIsBookmarked(!!bookmarked);
+
     const fetchBlog = async () => {
       try {
         setLoading(true);
@@ -149,22 +127,7 @@ const BlogDetail = () => {
       }
     };
 
-    const fetchFeedbacks = async () => {
-      try {
-        setFeedbackLoading(true);
-        const response = await GetFeedbacksByBlogId(blogId);
-        setFeedbacks(response.data || []);
-        setFeedbackError(null);
-      } catch (error) {
-        console.error('Error fetching feedbacks:', error);
-        setFeedbackError('Failed to load feedbacks. Please try again later.');
-      } finally {
-        setFeedbackLoading(false);
-      }
-    };
-
     fetchBlog();
-    fetchFeedbacks();
   }, [blogId]);
 
   useEffect(() => {
@@ -172,8 +135,8 @@ const BlogDetail = () => {
       if (!contentRef.current) return;
 
       const element = contentRef.current;
-      const totalHeight = element.scrollHeight - element.clientHeight;
-      const progress = (window.scrollY / totalHeight) * 100;
+      const totalHeight = element.scrollHeight - window.innerHeight;
+      const progress = totalHeight > 0 ? (window.scrollY / totalHeight) * 100 : 0;
       setReadingProgress(Math.min(progress, 100));
     };
 
@@ -181,187 +144,139 @@ const BlogDetail = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleFeedbackChange = (e) => {
-    setNewFeedback((prev) => ({ ...prev, comment: e.target.value }));
-  };
-
-  const handleCommentSubmit = async (e) => {
-    e.preventDefault();
-    if (!newFeedback.comment.trim()) {
-      alert('Please provide a comment.');
-      return;
-    }
-    try {
-      const response = await SubmitFeedback(blogId, {
-        ...newFeedback,
-        name: 'Anonymous', // Replace with actual user data in production
-      });
-      setFeedbacks((prev) => [response.data, ...prev]);
-      setNewFeedback({ comment: '' });
-    } catch (error) {
-      console.error('Error submitting feedback:', error);
-      alert('Failed to submit feedback. Please try again later.');
-    }
-  };
-
-  const handleLoadMore = () => {
-    // Placeholder for pagination logic
-    console.log('Load more feedbacks for blogId:', blogId);
-  };
-
   const handleBackClick = () => {
     navigate('/blog');
   };
 
+  const handleBookmark = () => {
+    const newBookmarkState = !isBookmarked;
+    setIsBookmarked(newBookmarkState);
+    if (newBookmarkState) {
+      localStorage.setItem(`bookmark-${blogId}`, 'true');
+    } else {
+      localStorage.removeItem(`bookmark-${blogId}`);
+    }
+  };
+
+  const articleUrl = window.location.href;
+  const articleTitle = blog?.title || 'Check out this article';
+
   return (
     <ErrorBoundary>
-      <div className="blogDetailContainer redesigned">
+      <div className="blog-detail-container">
+        <div className="reading-progress-bar">
+          <div
+            className="reading-progress-fill"
+            style={{ width: `${readingProgress}%` }}
+          ></div>
+        </div>
         <Header />
-        <div className="blogDetailMain redesigned">
-          <div className="blogDetailLeft">
-            <Breadcrumbs title={blog?.title || 'Post Title'} />
-            {loading ? (
-              <div className="blogDetailLoading">
-                <div className="blogDetailSkeletonImage"></div>
-                <div className="blogDetailSkeletonTitle"></div>
-                <div className="blogDetailSkeletonMeta"></div>
-                <div className="blogDetailSkeletonContent"></div>
-              </div>
-            ) : error ? (
-              <div className="blogDetailError">
-                <p>{error}</p>
-                <button onClick={fetchBlog} className="blogDetailRetry" aria-label="Retry loading blog">Retry</button>
-              </div>
-            ) : blog ? (
-              <>
-                <section className="blogDetailContent redesigned" ref={contentRef}>
-                  <h1 className="blogDetailTitle">{blog.title}</h1>
-                  <div className="blogDetailMeta redesigned">
-                    <span className="blogDetailAuthor">{blog.author || 'Author'}</span> |
-                    <span className="blogDetailCategory">{blog.category || 'Category'}</span> |
-                    <span className="blogDetailDate">{blog.date ? new Date(blog.date).toLocaleString() : '1 min ago'}</span>
+        <main className="blog-detail-main">
+          <div className="blog-detail-content" style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start' }}>
+            <div style={{ flex: 1 }}>
+              <Breadcrumbs title={blog?.title || 'Post Title'} />
+              {loading ? (
+                <div className="loading-container">
+                  <div className="loading-skeleton">
+                    <div className="skeleton-image"></div>
+                    <div className="skeleton-title"></div>
+                    <div className="skeleton-meta"></div>
+                    <div className="skeleton-content">
+                      <div className="skeleton-line"></div>
+                      <div className="skeleton-line short"></div>
+                      <div className="skeleton-line"></div>
+                    </div>
                   </div>
-                  <div className="blogDetailImageContainer redesigned">
+                </div>
+              ) : error ? (
+                <div className="error-container">
+                  <div className="error-content">
+                    <span className="error-icon">📝</span>
+                    <h3>Content Unavailable</h3>
+                    <p>{error}</p>
+                    <button
+                      onClick={() => window.location.reload()}
+                      className="retry-button"
+                      aria-label="Retry loading blog"
+                    >
+                      Try Again
+                    </button>
+                  </div>
+                </div>
+              ) : blog ? (
+                <article className="blog-article" ref={contentRef}>
+                  <div className="article-actions">
+                    <button
+                      onClick={handleBackClick}
+                      className="back-button"
+                      aria-label="Go back to blog list"
+                    >
+                      <FaArrowLeft />
+                    </button>
+                    <button
+                      onClick={handleBookmark}
+                      className="bookmark-button"
+                      aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
+                    >
+                      {isBookmarked ? <FaBookmark /> : <FaRegBookmark />}
+                    </button>
+                  </div>
+                  <header className="article-header">
+                    <h1 className="article-title">{blog.title}</h1>
+                    <div className="article-meta">
+                      <div className="meta-item">
+                        <FaUser className="meta-icon" />
+                        <span>{blog.author || 'Anonymous Author'}</span>
+                      </div>
+                      <div className="meta-item">
+                        <FaTag className="meta-icon" />
+                        <span>{blog.category || 'General'}</span>
+                      </div>
+                      <div className="meta-item">
+                        <FaClock className="meta-icon" />
+                        <span>
+                          {blog.date ? new Date(blog.date).toLocaleDateString() : 'Recently'}
+                        </span>
+                      </div>
+                    </div>
+                  </header>
+                  <div className="article-image-container">
                     {blog.imageUrls && blog.imageUrls.length > 0 ? (
                       <img
                         src={blog.imageUrls[0]}
                         alt={blog.title}
-                        className="blogDetailImage"
+                        className="article-image"
                         loading="lazy"
-                        onError={(e) => console.log('Image failed to load:', e.target.src)}
+                        onError={(e) => {
+                          e.target.src = 'https://via.placeholder.com/800x500';
+                        }}
                       />
                     ) : (
-                      <p>No image available</p>
+                      <div className="article-image-placeholder">
+                        <span className="placeholder-icon">📰</span>
+                        <p>Featured image coming soon</p>
+                      </div>
                     )}
                   </div>
-                  <div className="blogDetailBody redesigned">
-                    <div className="blogDetailFullContent">
-                      {blog.content ? (
-                        <div dangerouslySetInnerHTML={{ __html: blog.content }} />
-                      ) : (
-                        <p>No additional content available.</p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="blogDetailShare redesigned">
-                    <span>Share this</span>
-                    <ShareButtons />
-                  </div>
-                </section>
-                <MorePosts posts={blog.relatedPosts || []} />
-                {/* Feedback Section */}
-                <section className="blog-commentSection two-column-layout">
-                  <div className="blog-feedbackForm">
-                    <h2>Submit Feedback</h2>
-                    <form onSubmit={handleCommentSubmit}>
-                      <div>
-                        <label>Your feedback</label>
-                        <textarea
-                          name="comment"
-                          value={newFeedback.comment}
-                          onChange={handleFeedbackChange}
-                          placeholder="If you have any feedback, please type it in here..."
-                          aria-label="Feedback comment"
-                        />
-                      </div>
-                      <button type="submit" className="blog-submitBtn" aria-label="Submit feedback">
-                        Submit feedback
-                      </button>
-                    </form>
-                  </div>
-                  <div className="blog-feedbackComments">
-                    <h2>Comments</h2>
-                    {feedbackLoading ? (
-                      <div className="blog-loadingState">
-                        <p>Loading feedbacks...</p>
-                      </div>
-                    ) : feedbackError ? (
-                      <div className="blog-errorState">
-                        <p>{feedbackError}</p>
-                        <button
-                          onClick={() => {
-                            const fetchFeedbacks = async () => {
-                              try {
-                                setFeedbackLoading(true);
-                                const response = await GetFeedbacksByBlogId(blogId);
-                                setFeedbacks(response.data || []);
-                                setFeedbackError(null);
-                              } catch (error) {
-                                console.error('Error fetching feedbacks:', error);
-                                setFeedbackError('Failed to load feedbacks. Please try again later.');
-                              } finally {
-                                setFeedbackLoading(false);
-                              }
-                            };
-                            fetchFeedbacks();
-                          }}
-                          className="blog-retryBtn"
-                          aria-label="Retry loading feedbacks"
-                        >
-                          Retry
-                        </button>
-                      </div>
+                  <section className="article-content">
+                    {blog.content ? (
+                      <div dangerouslySetInnerHTML={{ __html: blog.content }} />
                     ) : (
-                      <div>
-                        {feedbacks.length === 0 ? (
-                          <p>No feedback yet. Be the first to comment!</p>
-                        ) : (
-                          feedbacks.map((feedback) => (
-                            <div key={feedback.id} className="blog-feedbackCard">
-                              <div className="blog-commentHeader">
-                                <img
-                                  src={feedback.avatar || 'https://via.placeholder.com/40'}
-                                  alt={feedback.name}
-                                  className="blog-commentAvatar"
-                                  loading="lazy"
-                                />
-                                <div className="blog-commentInfo">
-                                  <strong>{feedback.name}</strong>
-                                  <span className="blog-commentDate">{new Date(feedback.createdAt).toLocaleDateString()}</span>
-                                </div>
-                              </div>
-                              <p>{feedback.comment}</p>
-                            </div>
-                          ))
-                        )}
-                        <button
-                          className="blog-loadMoreBtn"
-                          onClick={handleLoadMore}
-                          aria-label="Load more feedbacks"
-                        >
-                          Load More
-                        </button>
-                      </div>
+                      <p>This article is currently being prepared. Check back soon for the full content!</p>
                     )}
-                  </div>
-                </section>
-              </>
-            ) : null}
+                  </section>
+                  <footer className="article-footer">
+                    <div className="share-section">
+                      <span className="share-label">Share this article</span>
+                      <ShareButtons title={articleTitle} url={articleUrl} />
+                    </div>
+                  </footer>
+                </article>
+              ) : null}
+            </div>
+            <BlogListSidebar />
           </div>
-          <div className="blogDetailRight">
-            {blog && <TableOfContents headings={blog.headings || ["lorem ipsum", "lorem ipsum", "lorem ipsum", "lorem ipsum"]} />}
-          </div>
-        </div>
+        </main>
         <Footer />
       </div>
     </ErrorBoundary>
@@ -380,11 +295,18 @@ BlogDetail.propTypes = {
     author: PropTypes.string,
     relatedPosts: PropTypes.array,
     headings: PropTypes.array,
+    avatar: PropTypes.string,
+    bio: PropTypes.string,
   }),
 };
 
 ErrorBoundary.propTypes = {
   children: PropTypes.node.isRequired,
+};
+
+ShareButtons.propTypes = {
+  title: PropTypes.string.isRequired,
+  url: PropTypes.string.isRequired,
 };
 
 export default BlogDetail;
