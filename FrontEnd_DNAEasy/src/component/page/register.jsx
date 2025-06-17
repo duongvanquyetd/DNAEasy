@@ -314,7 +314,7 @@ const StyledWrapper = styled.div`
     text-align: center;
     font-size: 28px;
     font-weight: 700;
-    color: #151717;
+    color: rgb(0, 80, 230);
     margin-bottom: 20px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   }
@@ -407,7 +407,7 @@ const StyledWrapper = styled.div`
 
   .button-submit {
     margin: 0;
-    background-color: #151717;
+    background-color:rgb(48, 120, 255);
     border: none;
     color: white;
     font-size: 15px;

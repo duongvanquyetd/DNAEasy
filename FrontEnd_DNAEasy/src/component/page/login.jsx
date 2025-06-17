@@ -24,7 +24,7 @@ const LoginPage = () => {
         })
         .catch((error) => {
           if (error.response?.status === 401) {
-            setInValid('Invalid username or password');
+            setInValid(error.response.data);
           } else {
             console.log('Unexpected login error:', error);
           }
@@ -92,7 +92,7 @@ const LoginPage = () => {
             />
           </div>
           {error.password && <div className="invalid-feedback">{error.password}</div>}
-          {inValid && <div className="invalid-feedback">{inValid}</div>}
+          {inValid && <div className="text-danger">{inValid}</div>}
 
           <div className="flex-row">
             <span className="span">Forgot password?</span>
@@ -177,7 +177,7 @@ const StyledWrapper = styled.div`
     text-align: center;
     font-size: 28px;
     font-weight: 700;
-    color: #151717;
+    color: rgb(0, 80, 230);
     margin-bottom: 20px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   }
@@ -273,7 +273,7 @@ const StyledWrapper = styled.div`
 
   .button-submit {
     margin: 0;
-    background-color: #151717;
+    background-color:rgb(74, 71, 226);
     border: none;
     color: white;
     font-size: 15px;
