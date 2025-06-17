@@ -10,10 +10,10 @@ import Service from './component/page/ServicePage';
 import Blog from './component/page/BlogPage';
 
 import ServiceDetail from './component/page/ServiceDetail';
-import { VNPayReturn } from './component/page/VnpayReturn';
 import { YourAppointment } from './component/page/YourAppointment';
 import { BookingServicePage } from './component/page/BookingService';
 import { HistoryBooking } from './component/page/HistoryBooking';
+import { Payment } from './component/page/payment';
 
 
 function App() {
@@ -31,7 +31,7 @@ function App() {
         <Route path="/service/:type" element={<Service />} />
         <Route path="/blog" element={<Blog />}/>
         <Route path="/booking/:id" element={<BookingServicePage />} />
-        <Route path="/vnpay-callback" element={<VNPayReturn />} />
+        <Route path="/payment" element={<Payment />} />
         <Route path="/yourappoinment" element={<YourAppointment />} />
         <Route path="/historyBooking" element={<HistoryBooking />} />
 

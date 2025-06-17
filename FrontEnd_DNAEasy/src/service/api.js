@@ -18,7 +18,7 @@ api.interceptors.request.use(
     if (flag && IsTokenAboutToExpire(token)) {
       flag = false;
       try {
-      console.log("token cu ", token)
+     // console.log("token cu ", token)
         const response = await RefreshTokenExprie({ token: token });
         
         localStorage.setItem('token', response.data.token);
@@ -35,7 +35,7 @@ api.interceptors.request.use(
       }
     }
     token = localStorage.getItem("token")
-    console.log("token giu di ",token)
+   // console.log("token giu di ",token)
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }

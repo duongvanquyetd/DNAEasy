@@ -662,7 +662,7 @@ export const YourAppointment = () => {
                             });
                           }}
                         >
-                          {appointment.Confimed.nextStatus}
+                          {appointment.Confimed.nextStatus && appointment.Confimed.nextStatus }
                         </button>
                       )
                     )}

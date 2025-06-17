@@ -33,7 +33,7 @@ export const BookingServicePage = () => {
 
     GetMyInfor().then((response) => {
       setLocation(response.data ? response.data.address : '');
-      setPhoneAppointment(response.data ?response.data.phone : '')
+      setPhoneAppointment(response.data ? response.data.phone : '')
       setEmailAppointment(response.data ? response.data.email : '')
 
 
@@ -102,7 +102,8 @@ export const BookingServicePage = () => {
           console.log("Appointment booked successfully:", response.data);
 
           if (response.data.paymenturl) {
-            window.location.href = response.data.paymenturl;
+            window.location.href=response.data.paymenturl;
+
           }
           else {
             navigator("/yourappoinment")
@@ -177,7 +178,7 @@ export const BookingServicePage = () => {
 
         {typeCollect != "Hospital_collection" ? (
           <>
-            <option value="Cash">Cash</option>
+            <option value="VNPay">VNPay</option>
             <option value="">--Select--</option>
 
           </>

@@ -70,7 +70,7 @@ const Header = () => {
       </div>
 
       <nav style={styles.nav}>
-        {['Home', 'Service', 'Blog', 'Appointment', 'HistoryBooking'].map((item, index) => (
+        {['Home', 'Service', 'Blog', 'yourappoinment', 'HistoryBooking'].map((item, index) => (
           <a
             key={item}
             href={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '')}`}

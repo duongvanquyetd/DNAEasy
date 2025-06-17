@@ -14,3 +14,7 @@ export  const PayAgaint = (appointmentId) => {
 export  const ConfirmPaidByCash = (appointmentId) => {
     return api.get(`/payment/confirmpaid/${appointmentId}`);
 }
+export const VNPay_Return = ()=>
+{
+    return api.get("/payment/vnpay-callback");
+}
