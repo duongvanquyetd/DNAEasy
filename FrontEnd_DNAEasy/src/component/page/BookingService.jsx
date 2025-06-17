@@ -186,9 +186,13 @@ export const BookingServicePage = () => {
               onChange={(e) => setPaymentMethod(e.target.value)}
               required
             >
-              <option value="">--Select--</option>
+              
+              {typeCollect !== 'Hospital_collection' ? (
+                <><option value="">--Select--</option> <option value="VNPay">VNPay</option></>
+              ) : (
+                <><option value="">--Select--</option>
               <option value="VNPay">VNPay</option>
-              {typeCollect !== 'Hospital_collection' && <option value="Cash">Cash</option>}
+              <option value="Cash">Cash</option> </>)}
             </select>
             {errors.paymentMethod && <div className="invalid-feedback">{errors.paymentMethod}</div>}
           </div>

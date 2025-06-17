@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import styled from 'styled-components';
 import { RegisterAPI } from '../../service/login';
 import { useNavigate } from 'react-router-dom';
@@ -68,10 +68,13 @@ const RegisterForm = () => {
       const data = new FormData();
       const { avatar, ...userInfo } = formData;
       data.append('user', new Blob([JSON.stringify(userInfo)], { type: 'application/json' }));
-      if (avatar) data.append('file', avatar);
+
+      data.append('file', avatar ? avatar : null);
+      console.log('Form data:', userInfo);
+      console.log('Avatar file:', avatar);
 
       RegisterAPI(data)
-        .then(() => navigate('/home'))
+        .then(() => navigate('/user/login'))
         .catch((error) => setMess(error.response?.data || 'An error occurred'));
     }
   };
