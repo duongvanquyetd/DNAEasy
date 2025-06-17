@@ -45,6 +45,14 @@ const Header = () => {
     navigate('/admin/dashboard');
     setIsDropdownOpen(false);
   };
+  const handleManagerBlog = () => {
+    navigate('/manager/blog');  
+    setIsDropdownOpen(false);
+  };
+  const handleManagerService = () => {
+    navigate('/manager/service'); 
+    setIsDropdownOpen(false);
+  };
 
   const handleLogout = () => {
     const token = { token: localStorage.getItem("token") }
@@ -63,14 +71,16 @@ const Header = () => {
       boxShadow: isScrolled ? '0 8px 32px rgba(0, 0, 0, 0.1)' : '0 2px 20px rgba(0, 0, 0, 0.05)',
       transform: isScrolled ? 'translateY(-2px)' : 'translateY(0)',
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      height: '120px', // Ensure consistent height
+      height: '100px', // Ensure consistent height
     }}>
       <div style={styles.logo}>
         <img src={Logo} alt="DNAEASY Logo" style={styles.image} />
       </div>
 
       <nav style={styles.nav}>
-        {['Home', 'Service', 'Blog', 'yourappoinment', 'HistoryBooking'].map((item, index) => (
+
+        {['Home', 'Service', 'Blog', 'YourAppointment', 'HistoryBooking'].map((item, index) => (
+
           <a
             key={item}
             href={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '')}`}
@@ -122,6 +132,11 @@ const Header = () => {
                 {user.rolename === "ADMIN" && (
 
                   <button style={styles.dropdownItem} onClick={handleAdminDashboard}>⚙️ Admin Dashboard</button>
+                )}
+                                {user.rolename === "MANAGER" && (
+
+                  <button style={styles.dropdownItem} onClick={handleManagerBlog}>⚙️ Manage Blog</button>,
+                  <button style={styles.dropdownItem} onClick={handleManagerService}>⚙️ Manage Service</button>
                 )}
 
                 <button style={styles.dropdownItem} onClick={handleLogout}>🚪 Logout</button>
@@ -178,7 +193,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '1px 30px',
+    padding: '10px 20px',
     backgroundColor: '#ffffff',
     position: 'fixed',
     top: 0,
@@ -186,7 +201,6 @@ const styles = {
     right: 0,
     zIndex: 1000,
     fontFamily: "'Inter', 'Poppins', sans-serif",
-
     width: '100%',
     boxSizing: 'border-box',
     borderRadius: '0 0 20px 20px',
