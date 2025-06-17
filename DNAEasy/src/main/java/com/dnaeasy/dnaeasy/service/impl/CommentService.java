@@ -57,6 +57,7 @@ public class CommentService implements IsCommentService {
         entity.setCommentDate(LocalDateTime.now());
         Comment comment = commentRepo.save(entity);
 
+
         return commentMapper.toResponseDto(comment);
     }
 
@@ -81,14 +82,13 @@ public class CommentService implements IsCommentService {
         if(!commentRepo.existsById(commentId)){
             throw new RuntimeException("ko tim thay comment" + commentId);
         }
-
         Comment comment = commentRepo.findByCommentId(commentId);
         com.dnaeasy.dnaeasy.enity.Service service = comment.getService();
         service.getComments().remove(comment);
         Person person = comment.getCustomer();
         person.getCommentList().remove(comment);
-
         serviceRepo.save(service);
+
     }
 
     @Override
@@ -98,14 +98,11 @@ public class CommentService implements IsCommentService {
     }
     @Override
     public boolean canComment(int serviceId) {
-        
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Person person = personRepo.findByUsername(username);
-
         List<String>  stauts   = new ArrayList<>();
         stauts.add("COMPLETE");
         return apptRepo.existsByCustomer_PersonIdAndService_ServiceIdAndCurentStatusAppointmentIsIn(person.getPersonId(), serviceId,stauts);
-
     }
 
 

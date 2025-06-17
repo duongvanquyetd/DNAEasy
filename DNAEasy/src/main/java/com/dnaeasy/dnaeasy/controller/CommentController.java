@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-
 @RequestMapping("/api/comments")
 @RequiredArgsConstructor
 @Validated
@@ -30,7 +29,6 @@ public class CommentController {
             @PathVariable("serviceId") Integer serviceId
     ) {
         List<CommentReponse> list = commentService.getCommentsByServiceId(serviceId);
-
         return ResponseEntity.ok(list);
     }
 
@@ -40,6 +38,7 @@ public class CommentController {
 
             @RequestBody @Validated CommentRequest dto
     ) {
+
         return ResponseEntity.ok(commentService.createComment(dto));
     }
 
@@ -47,6 +46,7 @@ public class CommentController {
     public ResponseEntity<CommentReponse> updateComment(
             @PathVariable("commentId") Integer commentId,
             @RequestBody @Validated CommentRequest dto) {
+
         return ResponseEntity.ok(commentService.updateComment(commentId, dto));
     }
 
@@ -56,13 +56,11 @@ public class CommentController {
         return ResponseEntity.noContent().build();
     }
 
-
     @GetMapping("/cancomment/{serviceId}")
     public ResponseEntity<Boolean> canComment(
             @PathVariable int serviceId
 
     ) {
-
         return ResponseEntity.ok(commentService.canComment(serviceId));
     }
 
