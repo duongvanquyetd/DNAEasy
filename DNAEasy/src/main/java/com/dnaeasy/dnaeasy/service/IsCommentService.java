@@ -17,6 +17,6 @@ public interface IsCommentService {
 
     Optional<CommentReponse> getCommentById(Integer commentId);
 
-    boolean canComment(int customerId, int serviceId);
+    boolean canComment( int serviceId);
 
 }
