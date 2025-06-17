@@ -15,7 +15,7 @@ import lombok.Setter;
 @Table(name = "ServiceImage")
 public class ServiceImage {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long serviceImageId;
     private String serviceImageName;
     @Lob
