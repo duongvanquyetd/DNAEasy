@@ -27,7 +27,9 @@ export const BookingServicePage = () => {
   });
 
   const navigator = useNavigate();
+
   const formGroups = useRef([]);
+
 
   useEffect(() => {
     GetMyInfor()
@@ -110,7 +112,10 @@ export const BookingServicePage = () => {
           console.log('Appointment booked successfully:', response.data);
 
           if (response.data.paymenturl) {
-            window.location.href = response.data.paymenturl;
+
+            window.location.href=response.data.paymenturl;
+
+            
           } else {
             navigator('/yourappointment');
           }
@@ -136,8 +141,53 @@ export const BookingServicePage = () => {
             src={services.imageUrls?.[0] || dnaImage}
             alt={services.serviceName || 'DNA Test Service'}
           />
+          {errors.dateCollect && <div className="invalid-feedback">{errors.dateCollect}</div>}
+
+        </>
+      )}
+      {errorHour && <div className='text-danger'>{errorHour}</div>}
+      Payment Method <select className={`form-select ${errors.paymentMethod ? 'is-invalid' : ''}`} aria-label="Default select example" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+
+        {typeCollect != "Hospital_collection" ? (
+          <>
+            <option value="VNPay">VNPay</option>
+            <option value="">--Select--</option>
+
+          </>
+
+        ) : (
+          <>
+            <option value="VNPay">VNPay</option>
+            <option value="Cash">Cash</option>
+            <option value="">--Select--</option>
+          </>
+
+
+        )}
+
+      </select>
+      {errors.paymentMethod && <div className="invalid-feedback">{errors.paymentMethod}</div>}
+
+      <br />
+      Location <input type="text" className={`form-control ${errors.location ? 'is-invalid' : ''}`} value={typeCollect === 'Hospital_collection' ? '111 Le Van Viet, Quan 9, Thanh pho Thu Duc' : location} onChange={(e) => setLocation(e.target.value)} readOnly={typeCollect === 'Hospital_collection'} />
+      {errors.location && <div className="invalid-feedback">{errors.location}</div>}
+
+      Phone <input type="text" className={`form-control ${errors.phoneAppointment ? 'is-invalid' : ''}`} value={phoneAppointment} onChange={(e) => setPhoneAppointment(e.target.value)} />
+      {errors.phoneAppointment && <div className="invalid-feedback">{errors.phoneAppointment}</div>}
+      {errorPhone && <div className='text-danger'>{errorPhone}</div>}
+
+      Email <input type="text" className={`form-control ${errors.emailAppointment ? 'is-invalid' : ''}`} value={emailAppointment} onChange={(e) => setEmailAppointment(e.target.value)} />
+      {errors.emailAppointment && <div className="invalid-feedback">{errors.emailAppointment}</div>}
+      {errorEmail && <div className='text-danger'>{errorEmail}</div>}
+
+
+      <button className="btn btn-primary mt-3" onClick={handlebookingAppoinment}>
+        Pay :{services.price} VND
+      </button>
+
         </div>
       </div>
+
 
       <div className="form-container">
         <form className="booking-form" onSubmit={handleBookingAppointment}>

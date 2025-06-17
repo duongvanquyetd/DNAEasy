@@ -9,12 +9,16 @@ import EditProfile from './component/page/EditProfile';
 import Service from './component/page/ServicePage';
 import Blog from './component/page/BlogPage';
 import ServiceDetail from './component/page/ServiceDetail';
-import { VNPayReturn } from './component/page/VnpayReturn';
 import { YourAppointment } from './component/page/YourAppointment';
 import { BookingServicePage } from './component/page/BookingService';
 import { HistoryBooking } from './component/page/HistoryBooking';
+
+import { Payment } from './component/page/payment';
+
+
 import AdminDashboard from './component/page/AdminDashboard';
 import BlogDetail from './component/page/BlogDetail.jsx';
+
 
 function App() {
   return (
@@ -32,10 +36,13 @@ function App() {
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:blogId" element={<BlogDetail />} />
         <Route path="/booking/:id" element={<BookingServicePage />} />
-        <Route path="/vnpay-outcome" element={<VNPayReturn />} />
+
+        <Route path="/payment" element={<Payment />} />
+       
         <Route path="/YourAppointment" element={<YourAppointment />} />
         <Route path="/HistoryBooking" element={<HistoryBooking />} />
         <Route path="/AdminDashboard" element={<AdminDashboard />} />
+
         <Route path="*" element={<div>404 - Page Not Found</div>} />
       </Routes>
     </BrowserRouter>
