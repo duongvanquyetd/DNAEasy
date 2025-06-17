@@ -21,11 +21,11 @@ export const Payment = () => {
         CreateSampleByAppointmentID({ appointmentId: appointmentId })
           .then((response) => {
             console.log("Tạo mẫu thành công:", response.data);
-            navigate("/yourappoinment");
+            navigate("/yourappointment");
           })
           .catch((err) => {
             alert("Tạo mẫu thất bại.");
-            navigate("/yourappoinment");
+            navigate("/yourappointment");
           });
 
       } else if (paymentfor === "view") {
@@ -40,7 +40,7 @@ export const Payment = () => {
           })
           .catch((error) => {
             alert("Cập nhật trạng thái thanh toán thất bại.");
-            navigate("/yourappoinment");
+            navigate("/yourappointment");
           });
       }
     } else {
