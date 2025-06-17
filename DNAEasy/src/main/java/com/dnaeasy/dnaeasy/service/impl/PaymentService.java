@@ -176,6 +176,7 @@ public class PaymentService implements IsPaymentService {
         Payment payment = isPaymentResponsitory.findAllByVnpay_codeEqualsIgnoreCase(vn_code);
 
         Appointment a = payment.getAppointment();
+        VnpayResponse response = new VnpayResponse();
         if (checkPayment(request) && request.getParameter("vnp_ResponseCode").equals("00")) {
 
 
@@ -191,25 +192,30 @@ public class PaymentService implements IsPaymentService {
 
             if (a.getCurentStatusAppointment().equalsIgnoreCase("WAITING FOR PAYMENT")) {
 
-                VnpayResponse response = new VnpayResponse();
+
                 response.setSuccess(true);
                 response.setAppointmentId(a.getAppointmentId());
                 response.setPaymentfor("pay");
-                return response;
+
             } else {
-                VnpayResponse response = new VnpayResponse();
+
                 response.setSuccess(true);
                 response.setAppointmentId(a.getAppointmentId());
                 response.setPaymentfor("view");
-                return response;
+
             }
+            a.setCurentStatusAppointment("PAID_" + payment.getPaymentMethod());
+            payment.setAppointment(a);
+            isPaymentResponsitory.save(payment);
+
+        }else
+        {
+            response.setSuccess(false);
+            response.setAppointmentId(a.getAppointmentId());
         }
-        a.setCurentStatusAppointment("PAID_" + payment.getPaymentMethod());
-        payment.setAppointment(a);
-        isPaymentResponsitory.save(payment);
-        VnpayResponse response = new VnpayResponse();
-        response.setSuccess(false);
-        response.setAppointmentId(a.getAppointmentId());
+
+
+
 
         return response;
     }

@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -95,13 +96,15 @@ public class CommentService implements IsCommentService {
         return commentRepo.findById(commentId)
                 .map(commentMapper::toResponseDto);
     }
-
     @Override
     public boolean canComment(int serviceId) {
         
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Person person = personRepo.findByUsername(username);
-        return apptRepo.existsByCustomer_PersonIdAndService_ServiceId(person.getPersonId(), serviceId);
+
+        List<String>  stauts   = new ArrayList<>();
+        stauts.add("COMPLETE");
+        return apptRepo.existsByCustomer_PersonIdAndService_ServiceIdAndCurentStatusAppointmentIsIn(person.getPersonId(), serviceId,stauts);
 
     }
 
