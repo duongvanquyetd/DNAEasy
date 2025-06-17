@@ -164,13 +164,13 @@ const BlogDetail = () => {
   return (
     <ErrorBoundary>
       <div className="blog-detail-container">
+      <Header />
         <div className="reading-progress-bar">
           <div
             className="reading-progress-fill"
             style={{ width: `${readingProgress}%` }}
           ></div>
         </div>
-        <Header />
         <main className="blog-detail-main">
           <div className="blog-detail-content" style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start' }}>
             <div style={{ flex: 1 }}>
