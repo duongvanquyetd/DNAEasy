@@ -317,6 +317,7 @@
   animation: shimmer 2s ease-in-out infinite;
 }
 
+
 @keyframes shimmer {
   0% {
     background-position: -200% 0;
