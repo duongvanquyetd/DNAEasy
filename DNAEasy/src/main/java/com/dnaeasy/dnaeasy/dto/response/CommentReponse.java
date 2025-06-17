@@ -16,10 +16,6 @@ public class CommentReponse {
     private String commentContent;
     private LocalDateTime commentDate;
     private Integer rating;
-
-    private Integer customerId;
-    private String customerName;
-
-    private Integer serviceId;
-    private String serviceName;
+    private String avatarUrl;
+    private String name;
 }

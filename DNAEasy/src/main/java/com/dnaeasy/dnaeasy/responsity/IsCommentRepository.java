@@ -29,4 +29,8 @@ public interface IsCommentRepository extends JpaRepository<Comment, Integer> {
         WHERE c.service.serviceId = :serviceId
     """)
     List<Comment> findAllByServiceIdWithCustomerAndService(@Param("serviceId") Integer serviceId);
+
+    List<Comment> findByService_ServiceId(int serviceServiceId);
+
+    Comment findByCommentId(int commentId);
 }

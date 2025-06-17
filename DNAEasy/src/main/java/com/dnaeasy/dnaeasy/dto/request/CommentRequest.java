@@ -18,10 +18,6 @@ public class CommentRequest {
     @Min(value = 1, message = "rating tu 1 to 5")
     @Max(value = 5,message = "rating tu 1 to 5")
     private Integer rating;
-
-    @NotNull(message = "cummerid ko dc trong")
-    private int customerId;
-
     @NotNull(message = "serviceid ko dc trong")
     private int serviceId;
 }

@@ -29,7 +29,7 @@ public class Service {
     private List<ServiceImage> serviceImageList = new ArrayList<>();
     @OneToMany(mappedBy = "service",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Appointment> appointmentsList = new ArrayList<>();
-    @OneToMany(mappedBy = "service")
+    @OneToMany(mappedBy = "service",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
 
