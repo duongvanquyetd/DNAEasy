@@ -21,6 +21,37 @@ const ErrorBoundary = ({ children }) => {
   if (hasError) return <div className="errorState"><p>Something went wrong. Please try again.</p></div>;
   return children;
 };
+const ServiceImageCarousel = ({ imageUrls = [], serviceName }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const intervalRef = useRef(null);
+
+  useEffect(() => {
+    if (imageUrls.length <= 1) return;
+
+    intervalRef.current = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % imageUrls.length);
+    }, 10000); // 
+    return () => clearInterval(intervalRef.current);
+  }, [imageUrls]);
+
+  if (!imageUrls.length) {
+    return <img src="https://via.placeholder.com/320x220?text=No+Image" alt="Placeholder" className="serviceImg" />;
+  }
+
+  return (
+    <div className="carouselContainer">
+      {imageUrls.map((url, index) => (
+        <img
+          key={index}
+          src={url}
+          alt={`${serviceName} ${index}`}
+          className={`carouselImage ${index === currentIndex ? 'active' : ''}`}
+          loading="lazy"
+        />
+      ))}
+    </div>
+  );
+};
 
 const Service = () => {
   const navigate = useNavigate();
@@ -43,6 +74,7 @@ const Service = () => {
       setLoading(true);
 
       const response = await GetALlServies(); 
+      console.log('Fetched services:', response.data); // Log the fetched data for debugging
       setServices(response.data || []); // Handle potential undefined data
 
       setError(null);
@@ -168,9 +200,10 @@ const filteredServices = useMemo(() => {
         ) : (
           <section className="servicesGrid">
             {paginatedServices.map((service) => (
+              
               <div key={service.serviceId} className="serviceCard">
-                <img src={service.imageUrls?.[0] || 'https://via.placeholder.com/320x220?text=Service+Image'} alt={service.serviceName} className="serviceImg" loading="lazy" />
-                <h3>{service.serviceName}</h3>
+               <ServiceImageCarousel imageUrls={service.imageUrls} serviceName={service.serviceName} />
+                <p className="serviceName">{service.serviceName}</p>
                 <p className="price">{new Intl.NumberFormat('vi-VN').format(service.price)} VND</p>
                 <button className="bookingBtn" onClick={() => handleBookingClick(service.serviceId)} aria-label={`Book ${service.serviceName}`}>Book Now</button>
               </div>
