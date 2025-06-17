@@ -4,7 +4,7 @@ import { AllowConfimAppointment, ConfirmSample, CreateSampleByAppointmentID, Get
 import { GetcurentOrderProcess } from '../../service/processtesting';
 import { CreateResult, UpdateResult } from '../../service/result';
 import { ConfirmPaidByCash, PayAgaint, UpdatePaymentStatus } from '../../service/payment';
-import '../css/YourAppointment.css'; // Ensure this points to the updated CSS file
+import '../css/YourAppointment.css'; // Ensure this points to the CSS file
 import Header from '../Header.jsx';
 import Footer from '../Footer.jsx';
 
@@ -450,20 +450,20 @@ export const YourAppointment = () => {
         )}
 
         {/* Result Form Modal */}
-        {resultform && (
-          <div className="modal" key={Date.now()}>
+        
+ {resultform && (
+        <div className="modal show d-block" tabIndex="-1" role="dialog">
+          <div className="modal-dialog modal-lg" role="document">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Xác nhận kết quả xét nghiệm</h5>
                 <button
-                  className="close-btn"
+                  type="button"
+                  className="btn-close"
                   onClick={() => setResultform(null)}
-                >
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+                ></button>
               </div>
+
               <div className="modal-body">
                 <form
                   onSubmit={(e) => {
@@ -473,7 +473,7 @@ export const YourAppointment = () => {
                     const resultDataArray = [];
                     const fileArray = [];
 
-                    resultform.forEach((result, index) => {
+                    Resultform.forEach((result, index) => {
                       const resultId = result.resultId;
                       const conclusionResult = e.target[`conclusionResult-${index}`].value.trim();
                       const fileInput = e.target[`file-${index}`];
@@ -491,10 +491,12 @@ export const YourAppointment = () => {
                       fileArray.push(file);
                     });
 
+                    // Append mỗi file với cùng key "file"
                     fileArray.forEach((file) => {
                       formData.append("file", file);
                     });
 
+                    // Append kết quả (1 mảng JSON)
                     formData.append(
                       "result",
                       new Blob([JSON.stringify(resultDataArray)], { type: "application/json" })
@@ -502,15 +504,17 @@ export const YourAppointment = () => {
 
                     UpdateResult(formData)
                       .then(() => {
+
                         setResultform(null);
                         window.location.reload();
                       })
                       .catch((error) => {
                         console.error("Error updating results:", error);
+
                       });
                   }}
                 >
-                  {resultform.map((result, index) => (
+                  {Resultform.map((result, index) => (
                     <div key={result.resultId} className="mb-4 border-bottom pb-3">
                       <p><strong>Quan hệ:</strong> {result.relationName}</p>
                       <p><strong>Mã mẫu:</strong> {result.samplecode}</p>
@@ -523,6 +527,7 @@ export const YourAppointment = () => {
                           required
                         />
                       </div>
+
                       <div className="mb-2">
                         <label className="form-label">Kết luận</label>
                         <select
@@ -537,13 +542,14 @@ export const YourAppointment = () => {
                       </div>
                     </div>
                   ))}
-                  <p><strong>{errorResult && <div className='text-danger'>{errorResult}</div>}</strong></p>
-                  <button type="submit" className="form-submit confirm">Xác nhận tất cả</button>
+                  <p><strong>{errorResult && <div className='text-danger' > {errorResult}</div>}</strong></p>
+                  <button type="submit" className="btn btn-primary">Xác nhận tất cả</button>
                 </form>
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
         {/* Sample Form Modal */}
         {sampleform && (

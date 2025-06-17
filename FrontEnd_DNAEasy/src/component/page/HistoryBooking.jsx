@@ -244,7 +244,16 @@ export const HistoryBooking = () => {
                                                             </div>
                                                             <h4 className="method-title">Phương thức thanh toán</h4>
                                                         </div>
-                                                        <p className="method-value">{booking.paymentMethod || 'Chưa xác định'}</p>
+                                                        <p >
+                                                            
+                                                            
+                                                            
+                                                            {booking.paymentMethod === 'Cash' || booking.paymentMethod === 'VNPay'  ? (
+                                                                <img src={booking.paymentMethod==='VNPay' ? "https://s-vnba-cdn.aicms.vn/vnba-media/23/8/16/vnpay-logo_64dc3da9d7a11.jpg":"https://www.creativefabrica.com/wp-content/uploads/2021/09/15/Money-finance-cash-payment-icon-Graphics-17346742-1.jpg"} alt={booking.paymentMethod} style={{ maxWidth: '150px' }} />
+                                                            ) : (
+                                                                <span className="method-value">{booking.paymentMethod}</span>
+                                                            )}
+                                                            </p>
                                                     </div>
                                                     <div className="tracking-grid">
                                                         <div className="tracking-section">
@@ -325,7 +334,7 @@ export const HistoryBooking = () => {
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        <div className="tracking-section">
+                                                        <div className="tracking-section full-width">
                                                             <div className="tracking-header">
                                                                 <div className="tracking-icon result">
                                                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -337,22 +346,24 @@ export const HistoryBooking = () => {
                                                             {booking.result && booking.result.length > 0 ? (
                                                                 <div className="space-y-4">
                                                                     {booking.result.map((res, idx) => (
-                                                                        <div key={idx} className="tracking-item">
+                                                                        <div key={idx} className="tracking-item full-width">
                                                                             <div className="status-dot result"></div>
-                                                                            <div className="status-content">
+                                                                            <div className="status-content full-width">
                                                                                 <p className="status-name"><strong>Người lấy mẫu:</strong> {res.nameOfPerson}</p>
                                                                                 <p className="status-name"><strong>Quan hệ:</strong> {res.relationName}</p>
                                                                                 <p className="status-name"><strong>Mã mẫu:</strong> {res.samplecode}</p>
                                                                                 <p className="status-name"><strong>Kết luận:</strong> {res.conclustionResult}</p>
                                                                                 <p className="status-date"><strong>Có kết quả:</strong> {formatDate(res.resultTime)}</p>
                                                                                 {res.resulFilePDF && (
-                                                                                    <div className="mt-3">
-                                                                                        <img
+                                                                                    <div className="mt-33 w-full">
+                                                                                        <img style ={{ maxWidth: '800px' }}
                                                                                             src={res.resulFilePDF}
+
                                                                                             alt="Kết quả PDF"
-                                                                                            className="tracking-image result-image"
+                                                                                            className="tracking-image result-image w-full"
                                                                                         />
-                                                                                        <a
+                                                                                        <div>
+                                                                                            <a
                                                                                             href={res.resulFilePDF.replace('/upload/', '/upload/fl_attachment/')}
                                                                                             className="download-button"
                                                                                         >
@@ -361,6 +372,8 @@ export const HistoryBooking = () => {
                                                                                             </svg>
                                                                                             Tải xuống
                                                                                         </a>
+                                                                                            
+                                                                                            </div>
                                                                                     </div>
                                                                                 )}
                                                                             </div>
