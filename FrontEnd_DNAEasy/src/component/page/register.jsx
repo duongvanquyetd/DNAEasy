@@ -67,15 +67,32 @@ const RegisterForm = () => {
     if (validate()) {
       const data = new FormData();
       const { avatar, ...userInfo } = formData;
-      data.append('user', new Blob([JSON.stringify(userInfo)], { type: 'application/json' }));
+
+
+      const creatuser = ({
+
+        name:userInfo.name,
+
+        phone:userInfo.phone, 
+        gender:userInfo.gender,
+        city: userInfo.city,
+        district: userInfo.district,
+        streets: userInfo.streets,
+        username: userInfo.username,
+        email: userInfo.email,
+        password: userInfo.password,
+      })
+      data.append('user', new Blob([JSON.stringify(creatuser)], { type: 'application/json' }));
 
       data.append('file', avatar ? avatar : null);
-      console.log('Form data:', userInfo);
+      console.log('Form data:', creatuser);
       console.log('Avatar file:', avatar);
 
       RegisterAPI(data)
         .then(() => navigate('/user/login'))
-        .catch((error) => setMess(error.response?.data || 'An error occurred'));
+        .catch((error) => {
+          setMess( error.response.data );
+        });
     }
   };
 
@@ -281,7 +298,7 @@ const RegisterForm = () => {
             </div>
           </div>
 
-          {mess && <div className="invalid-feedback">{mess}</div>}
+          {mess && <div className="text-danger">{mess}</div>}
           <button type="submit" className="button-submit">Register</button>
           <p className="p">
             Already have an account?{' '}
