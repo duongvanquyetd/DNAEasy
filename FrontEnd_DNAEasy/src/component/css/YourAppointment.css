@@ -1,3 +1,15 @@
+/* Điều chỉnh khoảng cách để header không che nội dung */
+.your-appointment,
+.main-container {
+  padding-top: 80px; /* hoặc margin-top: 80px; */
+}
+
+/* Nếu header là fixed, bạn nên đảm bảo nội dung bên dưới không bị chồng */
+.your-appointment {
+  position: relative;
+  z-index: 1;
+}
+
 /* YourAppointment.css */
 .your-appointment {
   min-height: 100vh;

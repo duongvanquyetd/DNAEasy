@@ -106,7 +106,6 @@ const EditProfile = () => {
   return (
     <div className="page">
       <Header />
-
       <main className="main">
         <div className="profile-container">
           <div className="avatar-section">
@@ -114,8 +113,8 @@ const EditProfile = () => {
               src={avatar}
               alt="User Avatar"
               className="avatar"
+              
             />
-
           </div>
           <div className="field">
             <label className="label">Avatar</label>
