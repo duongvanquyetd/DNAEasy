@@ -5,6 +5,7 @@ import com.dnaeasy.dnaeasy.dto.request.StatusUpdateAppointment;
 import com.dnaeasy.dnaeasy.dto.response.AppointCreateResponse;
 import com.dnaeasy.dnaeasy.dto.response.AppointmentResponse;
 import com.dnaeasy.dnaeasy.service.impl.AppointmentService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +25,9 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.UpdateStatusAppoinment(request,file));
     }
     @PostMapping("/create")
-    public ResponseEntity<AppointCreateResponse> createAppointment(@Valid @RequestBody AppointmentCreateRequest appointment) {
+    public ResponseEntity<AppointCreateResponse> createAppointment(@Valid @RequestBody AppointmentCreateRequest appointment, HttpServletRequest request) {
 
-        return ResponseEntity.ok(appointmentService.createAppointment(appointment));
+        return ResponseEntity.ok(appointmentService.createAppointment(appointment,request));
     }
     @GetMapping("/getAllCompleteFlowCurrentUser")
     public ResponseEntity<List<AppointmentResponse>> getAllFlowCurrentUser() {

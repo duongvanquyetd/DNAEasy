@@ -5,6 +5,7 @@ import com.dnaeasy.dnaeasy.dto.request.PaymentUpdateResquest;
 import com.dnaeasy.dnaeasy.dto.request.SampleCreateRequest;
 import com.dnaeasy.dnaeasy.dto.request.StatusUpdateAppointment;
 import com.dnaeasy.dnaeasy.dto.response.PaymentResponse;
+import com.dnaeasy.dnaeasy.dto.response.VnpayResponse;
 import com.dnaeasy.dnaeasy.enity.Appointment;
 import com.dnaeasy.dnaeasy.enity.AppointmnentTracking;
 import com.dnaeasy.dnaeasy.enity.Payment;
@@ -39,44 +40,44 @@ public class PaymentService implements IsPaymentService {
     @Autowired
     VnpayUtil vnpayUtil;
     @Autowired
-    HttpServletRequest request;
-    @Autowired
     IsPaymentResponsitory isPaymentResponsitory;
-    @Autowired
-    IsAppointmentResponsitory isAppointmentResponsitory;
+    //    @Autowired
+//    IsAppointmentResponsitory isAppointmentResponsitory;
     @Autowired
     IsUserResponsity isUserResponsitory;
     @Autowired
     PaymentMapper paymentMapper;
+
     @Override
 
-    public String paymentUrlVnpay(Payment payment) {
+    public String paymentUrlVnpay(int appointmnetid, HttpServletRequest request) {
         Map<String, String> params = vnpayConfig.getVNPayConfig();
-
+        Payment payment = isPaymentResponsitory.findByAppointment_AppointmentId(appointmnetid);
         BigDecimal money = payment.getPaymentAmount().multiply(BigDecimal.valueOf(100));// mai mốt thay giá trị vào
-
         String value = String.valueOf(money);
         String val[] = value.split("\\.");
+
+        String ID = UUID.randomUUID().toString();
+
+        payment.setVnpay_code(ID);
+        isPaymentResponsitory.save(payment);
         if (val.length == 2) {
             value = val[0];
         }
-        String id = String.valueOf(payment.getAppointment().getAppointmentId()) + "_" + payment.getContenPayment().substring(4, 8);
-        System.out.println(value);
-        params.put("vnp_TxnRef", id);
+        //   String id = String.valueOf(payment.getAppointment().getAppointmentId()) + "_" + payment.getContenPayment().substring(4, 8);
+
+        params.put("vnp_TxnRef", ID);
         params.put("vnp_Amount", value);
         params.put("vnp_IpAddr", request.getRemoteAddr());
         params.put("vnp_OrderInfo", payment.getContenPayment());
         String query = vnpayUtil.dataToappendUrl(params);
         String hasdata = vnpayUtil.hmacSHA512(vnpayConfig.getSecretKey(), query);
-
-        //  String hashdata = vnpayUtil.hmacSHA512(vnpayConfig.getSecretKey(), hasdata.toString());
-
         String payurl = vnpayConfig.getVnp_PayUrl() + query + "&vnp_SecureHash=" + hasdata;
-
+        System.out.println("dev tools");
         return payurl;
     }
 
-    public Boolean checkPayment() {
+    public Boolean checkPayment(HttpServletRequest request) {
 
 
         Map<String, String> params = new HashMap<>();
@@ -90,8 +91,7 @@ public class PaymentService implements IsPaymentService {
         String query = vnpayUtil.dataToappendUrl(params);
         String hasdataRequest = vnpayUtil.hmacSHA512(vnpayConfig.getSecretKey(), query);
 
-        System.out.println(hasdata);
-        System.out.println(hasdataRequest);
+
         if (hasdataRequest.equals(hasdata)) {
             return true;
         }
@@ -109,36 +109,33 @@ public class PaymentService implements IsPaymentService {
 
 
     @Override
-    public PaymentResponse UpdateStatus(PaymentUpdateResquest resquest) {
-        Appointment a = isAppointmentResponsitory.findById(resquest.getAppointmentId()).orElseThrow(() -> new ResourceNotFound("Not have an appointment with id " + resquest.getAppointmentId()));
+    public PaymentResponse UpdateStatusToView(PaymentUpdateResquest resquest) {
+        Appointment a = isPaymentResponsitory.findByAppointment_AppointmentId(resquest.getAppointmentId()).getAppointment();
         AppointmnentTracking appointmnentTracking = new AppointmnentTracking();
         appointmnentTracking.setAppointment(a);
         appointmnentTracking.setStatusDate(LocalDateTime.now());
-        appointmnentTracking.setStatusName("PAID_"+resquest.getPaymentMehtod());
-       a.getAppointmnentTrackings().add( appointmnentTracking);
+        appointmnentTracking.setStatusName("PAID_" + resquest.getPaymentMehtod());
+        a.getAppointmnentTrackings().add(appointmnentTracking);
 
         Payment payment = a.getPayment();
         payment.setPaymentStatus(true);
         payment.setPaymentAmount(a.getPayment().getPaymentAmount().multiply(BigDecimal.valueOf(2)));
-        if(!payment.getPaymentMethod().equals(resquest.getPaymentMehtod()))
-        {
-            if(payment.getPaymentMethod().equals(PaymentMehtod.Cash))
-            {
+        if (!payment.getPaymentMethod().equals(resquest.getPaymentMehtod())) {
+            if (payment.getPaymentMethod().equals(PaymentMehtod.Cash)) {
                 payment.setPaymentMethod(PaymentMehtod.Cash_VNpay);
-            }
-            else {
+            } else {
                 payment.setPaymentMethod(PaymentMehtod.VNPay_Cash);
             }
         }
         a.setPayment(payment);
 
-        isAppointmentResponsitory.save(a);
+        isPaymentResponsitory.save(payment);
         return paymentMapper.PaymentToPaymentResponse(a.getPayment());
     }
 
     @Override
-    public String PayToviewResult(int appointmentId) {
-        Appointment a = isAppointmentResponsitory.findById(appointmentId).orElseThrow(() -> new ResourceNotFound("Not have an appointment with id " + appointmentId));
+    public String PayToviewResult(int appointmentId, HttpServletRequest request) {
+        Appointment a = isPaymentResponsitory.findByAppointment_AppointmentId(appointmentId).getAppointment();
         if (a.getPayment().getContenPayment().contains("haft")) {
             a.getPayment().setContenPayment(a.getPayment().getContenPayment().replaceAll("haft", "full"));
 
@@ -147,18 +144,18 @@ public class PaymentService implements IsPaymentService {
         }
 
 
-        isAppointmentResponsitory.save(a);
-        return paymentUrlVnpay(a.getPayment());
+        isPaymentResponsitory.save(a.getPayment());
+        return paymentUrlVnpay(a.getAppointmentId(), request);
     }
 
     @Override
-    public String PayAgaint(int appointmentId) {
-        Appointment a = isAppointmentResponsitory.findById(appointmentId).orElseThrow(() -> new ResourceNotFound("Not have an appointment with id " + appointmentId));
+    public String PayAgaint(int appointmentId, HttpServletRequest request) {
+        Appointment a = isPaymentResponsitory.findByAppointment_AppointmentId(appointmentId).getAppointment();
 
         a.getPayment().setContenPayment(a.getPayment().getContenPayment().replaceAll("haft", "againt"));
 
-        isAppointmentResponsitory.save(a);
-        return paymentUrlVnpay(a.getPayment());
+        isPaymentResponsitory.save(a.getPayment());
+        return paymentUrlVnpay(a.getAppointmentId(), request);
     }
 
     @Override
@@ -171,6 +168,51 @@ public class PaymentService implements IsPaymentService {
         isUserResponsitory.save(p);
     }
 
+    @Override
+    public VnpayResponse UrlReturnFE(HttpServletRequest request) {
+
+        String vn_code = request.getParameter("vnp_TxnRef");
+        System.out.println(vn_code);
+        Payment payment = isPaymentResponsitory.findAllByVnpay_codeEqualsIgnoreCase(vn_code);
+
+        Appointment a = payment.getAppointment();
+        if (checkPayment(request) && request.getParameter("vnp_ResponseCode").equals("00")) {
+
+
+            System.out.println(a.getService() + "appointment");
+
+            AppointmnentTracking appointmnentTracking = new AppointmnentTracking();
+            appointmnentTracking.setAppointment(a);
+            appointmnentTracking.setStatusDate(LocalDateTime.now());
+            appointmnentTracking.setStatusName("PAID_" + payment.getPaymentMethod());
+            a.getAppointmnentTrackings().add(appointmnentTracking);
+
+
+
+            if (a.getCurentStatusAppointment().equalsIgnoreCase("WAITING FOR PAYMENT")) {
+
+                VnpayResponse response = new VnpayResponse();
+                response.setSuccess(true);
+                response.setAppointmentId(a.getAppointmentId());
+                response.setPaymentfor("pay");
+                return response;
+            } else {
+                VnpayResponse response = new VnpayResponse();
+                response.setSuccess(true);
+                response.setAppointmentId(a.getAppointmentId());
+                response.setPaymentfor("view");
+                return response;
+            }
+        }
+        a.setCurentStatusAppointment("PAID_" + payment.getPaymentMethod());
+        payment.setAppointment(a);
+        isPaymentResponsitory.save(payment);
+        VnpayResponse response = new VnpayResponse();
+        response.setSuccess(false);
+        response.setAppointmentId(a.getAppointmentId());
+
+        return response;
+    }
 
 
 }
