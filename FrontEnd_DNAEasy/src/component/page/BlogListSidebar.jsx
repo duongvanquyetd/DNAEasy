@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getAllBlogs } from '../../service/MockBlogService';
+import '../../component/css/BlogListSidebar.css';
 
 const BlogListSidebar = () => {
   const [blogs, setBlogs] = useState([]);
