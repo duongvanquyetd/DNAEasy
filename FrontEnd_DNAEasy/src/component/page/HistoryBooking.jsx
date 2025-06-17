@@ -340,7 +340,7 @@ export const HistoryBooking = () => {
                                                                         <div key={idx} className="tracking-item">
                                                                             <div className="status-dot result"></div>
                                                                             <div className="status-content">
-                                                                                <p className="status-name"><strong>Người mẫu:</strong> {res.nameOfPerson}</p>
+                                                                                <p className="status-name"><strong>Người lấy mẫu:</strong> {res.nameOfPerson}</p>
                                                                                 <p className="status-name"><strong>Quan hệ:</strong> {res.relationName}</p>
                                                                                 <p className="status-name"><strong>Mã mẫu:</strong> {res.samplecode}</p>
                                                                                 <p className="status-name"><strong>Kết luận:</strong> {res.conclustionResult}</p>
