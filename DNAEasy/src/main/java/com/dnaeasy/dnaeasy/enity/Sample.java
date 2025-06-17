@@ -42,7 +42,7 @@ public class Sample {
     )
     private Set<SampleTracking> sampleTracking = new HashSet<>();
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "persontest_Id")
     private PersonTest personTest;
 }

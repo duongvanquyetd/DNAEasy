@@ -23,6 +23,8 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     private PaymentMehtod paymentMethod;
     private boolean paymentStatus;
+
+    private String vnpay_code;
     @Lob
     @Column(columnDefinition = "TEXT")
     private String contenPayment;

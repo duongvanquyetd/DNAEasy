@@ -41,7 +41,7 @@ public class Appointment {
     @ManyToOne
     @JoinColumn(name = "service_id")
     private Service service;
-    @OneToOne(mappedBy = "appointment")
+    @OneToOne(mappedBy = "appointment",cascade = CascadeType.ALL)
     private Payment payment;
     @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Sample> sampelist = new ArrayList<>();

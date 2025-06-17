@@ -4,13 +4,14 @@ import com.dnaeasy.dnaeasy.dto.request.AppointmentCreateRequest;
 import com.dnaeasy.dnaeasy.dto.request.StatusUpdateAppointment;
 import com.dnaeasy.dnaeasy.dto.response.AppointCreateResponse;
 import com.dnaeasy.dnaeasy.dto.response.AppointmentResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface IsAppointmentService {
 
-    AppointCreateResponse createAppointment(AppointmentCreateRequest request);
+    AppointCreateResponse createAppointment(AppointmentCreateRequest request, HttpServletRequest httpServletReques);
 
     AppointmentResponse UpdateStatusAppoinment(StatusUpdateAppointment request, MultipartFile file);
 

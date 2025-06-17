@@ -17,6 +17,7 @@ import com.dnaeasy.dnaeasy.mapper.SampleMapper;
 import com.dnaeasy.dnaeasy.responsity.*;
 import com.dnaeasy.dnaeasy.service.IsAppointmentService;
 import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -40,20 +41,18 @@ public class AppointmentService implements IsAppointmentService {
     @Autowired
     IsProcessTesting isProcessTesting;
     @Autowired
-    IsPaymentResponsitory isPaymentResponsitory;
-    @Autowired
     PaymentService paymentService;
     @Autowired
     SampleService sampleService;
     @Autowired
     IsResultResponsitory isResultResponsitory;
     @Autowired
-    IsSampleRespository isSampleRespository;
-    @Autowired
     CloudinaryUtil cloudinaryUtil;
+    @Autowired
+    IsSystemConfigRepo isSystemConfigRepo;
 
     @Override
-    public AppointCreateResponse createAppointment(AppointmentCreateRequest request) {
+    public AppointCreateResponse createAppointment(AppointmentCreateRequest request, HttpServletRequest httpServletRequest) {
 
 
         String firstStatus = "WAITING FOR PAYMENT";
@@ -80,12 +79,17 @@ public class AppointmentService implements IsAppointmentService {
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Person person = isUserResponsity.findByUsername(username);
-        // thêm bảng system config và thay mấy hashcode này thành giá trị trong bảng
+        // thêm bảng system config và thay mấy hashcode này thành giá trị trong bảngt
+        SystemConfig houropen = isSystemConfigRepo.findByName("houropen");
+        SystemConfig hourclose = isSystemConfigRepo.findByName("hourclose");
+        int hour_open = Integer.valueOf(houropen.getValue());
+        int hour_close = Integer.valueOf(hourclose.getValue());
+
 
         if (!request.getTypeCollect().equals(SampleMethod.Self_collection)) {
-            if (request.getDateCollect().isBefore(LocalDateTime.now().plusHours(4)) || request.getDateCollect().getHour() < 7 || request.getDateCollect().getHour() > 17) {
+            if (request.getDateCollect().isBefore(LocalDateTime.now().plusHours(4)) || request.getDateCollect().getHour() < hour_open || request.getDateCollect().getHour() > hour_close) {
 
-                throw new BadRequestException("Date collect must be after now 4 hours and must be interval 7h to 17h");
+                throw new BadRequestException("Date collect must be after now 4 hours and must be interval "+hour_open+" to "+hour_close);
             }
         }
 
@@ -101,7 +105,6 @@ public class AppointmentService implements IsAppointmentService {
         Person staff = stafflist.get(0);
 
         Appointment appointment = appointmentMapper.AppointmentCreateRequestToAppointment(request);
-
         appointment.setService(service);
         appointment.setCustomer(person);
         appointment.setCurentStatusAppointment(firstStatus);
@@ -114,12 +117,12 @@ public class AppointmentService implements IsAppointmentService {
         }
         payment.setAppointment(appointment);
 
-        isPaymentResponsitory.save(payment);
+        isAppointmentResponsitory.save(appointment);
         AppointCreateResponse appointCreateResponse = new AppointCreateResponse();
         appointCreateResponse.setAppointmentId(appointment.getAppointmentId());
         if (payment.getPaymentMethod().equals(PaymentMehtod.VNPay)) {
 
-            appointCreateResponse.setPaymenturl(paymentService.paymentUrlVnpay(appointment.getPayment()));
+            appointCreateResponse.setPaymenturl(paymentService.paymentUrlVnpay(appointment.getAppointmentId(),httpServletRequest));
         }
 
         return appointCreateResponse;
