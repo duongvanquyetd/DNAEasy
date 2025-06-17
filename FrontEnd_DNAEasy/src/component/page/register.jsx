@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import styled from 'styled-components';
 import { RegisterAPI } from '../../service/login';
 import { useNavigate } from 'react-router-dom';
@@ -68,10 +68,13 @@ const RegisterForm = () => {
       const data = new FormData();
       const { avatar, ...userInfo } = formData;
       data.append('user', new Blob([JSON.stringify(userInfo)], { type: 'application/json' }));
-      if (avatar) data.append('file', avatar);
+
+      data.append('file', avatar ? avatar : null);
+      console.log('Form data:', userInfo);
+      console.log('Avatar file:', avatar);
 
       RegisterAPI(data)
-        .then(() => navigate('/home'))
+        .then(() => navigate('/user/login'))
         .catch((error) => setMess(error.response?.data || 'An error occurred'));
     }
   };
@@ -314,7 +317,7 @@ const StyledWrapper = styled.div`
     text-align: center;
     font-size: 28px;
     font-weight: 700;
-    color: #151717;
+    color: rgb(0, 80, 230);
     margin-bottom: 20px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   }
@@ -407,7 +410,7 @@ const StyledWrapper = styled.div`
 
   .button-submit {
     margin: 0;
-    background-color: #151717;
+    background-color:rgb(48, 120, 255);
     border: none;
     color: white;
     font-size: 15px;

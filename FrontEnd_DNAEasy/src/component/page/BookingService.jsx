@@ -4,6 +4,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { CreateAppointment } from '../../service/appointment';
 import { GetMyInfor } from '../../service/user';
 import '/src/component/css/BookingService.css';
+import Header from '../Header.jsx';
+import Footer from '../Footer.jsx';
 
 export const BookingServicePage = () => {
   const [typeCollect, setTypeCollect] = useState('');
@@ -118,6 +120,9 @@ export const BookingServicePage = () => {
   const dnaImage = `data:image/svg+xml,...`; // (Giữ nguyên như cũ hoặc rút gọn để dễ đọc)
 
   return (
+    <>
+      <Header />
+
     <div className="main-container">
       <div className="booking-header">
         <h1>{services.serviceName || 'Book a DNA Test'}</h1>
@@ -181,9 +186,13 @@ export const BookingServicePage = () => {
               onChange={(e) => setPaymentMethod(e.target.value)}
               required
             >
-              <option value="">--Select--</option>
+              
+              {typeCollect !== 'Hospital_collection' ? (
+                <><option value="">--Select--</option> <option value="VNPay">VNPay</option></>
+              ) : (
+                <><option value="">--Select--</option>
               <option value="VNPay">VNPay</option>
-              {typeCollect !== 'Hospital_collection' && <option value="Cash">Cash</option>}
+              <option value="Cash">Cash</option> </>)}
             </select>
             {errors.paymentMethod && <div className="invalid-feedback">{errors.paymentMethod}</div>}
           </div>
@@ -251,6 +260,8 @@ export const BookingServicePage = () => {
         </form>
       </div>
     </div>
+    <Footer />
+    </>
   );
 };
 

@@ -26,7 +26,9 @@ const LoginPage = () => {
           console.log('Login error:', error.response);
           if (error.response?.status === 401) {
             setInValid(error.response.data);
+
             console.log(inValid);
+
           } else {
             console.log('Unexpected login error:', error);
           }
@@ -179,7 +181,7 @@ const StyledWrapper = styled.div`
     text-align: center;
     font-size: 28px;
     font-weight: 700;
-    color: #151717;
+    color: rgb(0, 80, 230);
     margin-bottom: 20px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   }
@@ -275,7 +277,7 @@ const StyledWrapper = styled.div`
 
   .button-submit {
     margin: 0;
-    background-color: #151717;
+    background-color:rgb(74, 71, 226);
     border: none;
     color: white;
     font-size: 15px;

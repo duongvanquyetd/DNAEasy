@@ -19,7 +19,7 @@ body {
 }
 
 /* Header */
-/* .header {
+.header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -83,7 +83,7 @@ body {
 .auth-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(30, 64, 175, 0.3);
-} */
+}
 
 /* Hero Section */
 .hero-image {
@@ -167,7 +167,9 @@ body {
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
   align-items: center;
 }
-
+.main-content {
+  grid-template-columns: 1fr 1.2fr;
+}
 .main-content2 {
   grid-template-columns: 1.2fr 1fr;
 }

@@ -5,7 +5,22 @@ import Header from '../Header';
 import Footer from '../Footer';
 import '../css/BlogDetail.css'; // CSS file for BlogDetail styling
 import { getBlogById } from '../../service/MockBlogService'; // Service for fetching blog by ID
-import { FaArrowLeft, FaShare, FaTwitter, FaFacebook, FaLinkedin, FaHeart, FaReply, FaBookmark } from 'react-icons/fa';
+import { FaArrowLeft, FaShare, FaTwitter, FaFacebook, FaLinkedin } from 'react-icons/fa';
+
+// Mock feedback service (replace with actual API in production)
+const GetFeedbacksByBlogId = async (blogId) => {
+  // Simulated API response
+  return {
+    data: [
+      { id: '1', name: 'User 1', comment: 'Great post!', createdAt: '2025-06-01' },
+      { id: '2', name: 'User 2', comment: 'Very informative.', createdAt: '2025-06-02' }
+    ]
+  };
+};
+const SubmitFeedback = async (blogId, feedback) => {
+  // Simulated API response
+  return { data: { ...feedback, id: Date.now().toString(), createdAt: new Date().toISOString() }};
+};
 
 const ErrorBoundary = ({ children }) => {
   const [hasError, setHasError] = useState(false);
@@ -52,68 +67,6 @@ const MorePosts = ({ posts }) => (
     </div>
   </div>
 );
-
-const RedesignedCommentSection = ({ comments = [] }) => {
-  const [newComment, setNewComment] = useState('');
-  const [username, setUsername] = useState('');
-  const [localComments, setLocalComments] = useState(comments);
-
-  const handleSubmitComment = (e) => {
-    e.preventDefault();
-    if (!newComment.trim() || !username.trim()) return;
-    const comment = {
-      id: Date.now(),
-      author: username,
-      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}`,
-      content: newComment,
-      date: new Date().toISOString(),
-      likes: 0,
-    };
-    setLocalComments([comment, ...localComments]);
-    setNewComment('');
-    setUsername('');
-  };
-
-  return (
-    <div className="blogDetailComments">
-      <div className="commentsHeader">
-        <h2>Comments</h2>
-        <span className="commentsCount">{localComments.length} comments</span>
-      </div>
-      <form className="commentForm redesigned" onSubmit={handleSubmitComment}>
-        <input
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Username..."
-          aria-label="Username"
-        />
-        <input
-          type="text"
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          placeholder="Your Comment..."
-          aria-label="Comment input"
-        />
-        <button type="submit">Comment</button>
-      </form>
-      <div className="commentsList redesigned">
-        {localComments.map((comment) => (
-          <div key={comment.id} className="commentCard redesigned">
-            <img src={comment.avatar} alt={comment.author} className="commentAvatar" />
-            <div className="commentBody">
-              <div className="commentMeta">
-                <span className="commentAuthor">{comment.author}</span>
-                <span className="commentDate">{new Date(comment.date).toLocaleDateString()}</span>
-              </div>
-              <div className="commentContent">{comment.content}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
 
 const ShareButtons = () => {
   const shareButtons = [
@@ -166,17 +119,53 @@ const TableOfContents = ({ headings }) => {
 };
 
 const BlogDetail = () => {
-  const { blogId } = useParams(); // Get blogId from URL
+  const { blogId } = useParams();
   const navigate = useNavigate();
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [readingProgress, setReadingProgress] = useState(0);
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [feedbackLoading, setFeedbackLoading] = useState(true);
+  const [feedbackError, setFeedbackError] = useState(null);
+  const [newFeedback, setNewFeedback] = useState({ comment: '' });
   const contentRef = useRef(null);
 
   useEffect(() => {
+    const fetchBlog = async () => {
+      try {
+        setLoading(true);
+        const response = await getBlogById(blogId);
+        if (!response.data) {
+          throw new Error('Blog not found');
+        }
+        setBlog(response.data);
+        setError(null);
+      } catch (error) {
+        console.error('Error fetching blog:', error);
+        setError('Failed to load blog post. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchFeedbacks = async () => {
+      try {
+        setFeedbackLoading(true);
+        const response = await GetFeedbacksByBlogId(blogId);
+        setFeedbacks(response.data || []);
+        setFeedbackError(null);
+      } catch (error) {
+        console.error('Error fetching feedbacks:', error);
+        setFeedbackError('Failed to load feedbacks. Please try again later.');
+      } finally {
+        setFeedbackLoading(false);
+      }
+    };
+
     fetchBlog();
-  }, [blogId]); // Re-fetch if blogId changes
+    fetchFeedbacks();
+  }, [blogId]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -192,26 +181,36 @@ const BlogDetail = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const fetchBlog = async () => {
+  const handleFeedbackChange = (e) => {
+    setNewFeedback((prev) => ({ ...prev, comment: e.target.value }));
+  };
+
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
+    if (!newFeedback.comment.trim()) {
+      alert('Please provide a comment.');
+      return;
+    }
     try {
-      setLoading(true);
-      const response = await getBlogById(blogId);
-      console.log('Fetched blog data:', response.data); // Debug: Log the fetched data
-      if (!response.data) {
-        throw new Error('Blog not found');
-      }
-      setBlog(response.data); // Use the fetched data directly
-      setError(null);
+      const response = await SubmitFeedback(blogId, {
+        ...newFeedback,
+        name: 'Anonymous', // Replace with actual user data in production
+      });
+      setFeedbacks((prev) => [response.data, ...prev]);
+      setNewFeedback({ comment: '' });
     } catch (error) {
-      console.error('Error fetching blog:', error);
-      setError('Failed to load blog post. Please try again later.');
-    } finally {
-      setLoading(false);
+      console.error('Error submitting feedback:', error);
+      alert('Failed to submit feedback. Please try again later.');
     }
   };
 
+  const handleLoadMore = () => {
+    // Placeholder for pagination logic
+    console.log('Load more feedbacks for blogId:', blogId);
+  };
+
   const handleBackClick = () => {
-    navigate('/blog'); // Navigate back to blog list
+    navigate('/blog');
   };
 
   return (
@@ -249,10 +248,10 @@ const BlogDetail = () => {
                         alt={blog.title}
                         className="blogDetailImage"
                         loading="lazy"
-                        onError={(e) => console.log('Image failed to load:', e.target.src)} // Debug image load errors
+                        onError={(e) => console.log('Image failed to load:', e.target.src)}
                       />
                     ) : (
-                      <p>No image available</p> // Fallback if no image
+                      <p>No image available</p>
                     )}
                   </div>
                   <div className="blogDetailBody redesigned">
@@ -270,7 +269,92 @@ const BlogDetail = () => {
                   </div>
                 </section>
                 <MorePosts posts={blog.relatedPosts || []} />
-                <RedesignedCommentSection comments={blog.comments || []} />
+                {/* Feedback Section */}
+                <section className="blog-commentSection two-column-layout">
+                  <div className="blog-feedbackForm">
+                    <h2>Submit Feedback</h2>
+                    <form onSubmit={handleCommentSubmit}>
+                      <div>
+                        <label>Your feedback</label>
+                        <textarea
+                          name="comment"
+                          value={newFeedback.comment}
+                          onChange={handleFeedbackChange}
+                          placeholder="If you have any feedback, please type it in here..."
+                          aria-label="Feedback comment"
+                        />
+                      </div>
+                      <button type="submit" className="blog-submitBtn" aria-label="Submit feedback">
+                        Submit feedback
+                      </button>
+                    </form>
+                  </div>
+                  <div className="blog-feedbackComments">
+                    <h2>Comments</h2>
+                    {feedbackLoading ? (
+                      <div className="blog-loadingState">
+                        <p>Loading feedbacks...</p>
+                      </div>
+                    ) : feedbackError ? (
+                      <div className="blog-errorState">
+                        <p>{feedbackError}</p>
+                        <button
+                          onClick={() => {
+                            const fetchFeedbacks = async () => {
+                              try {
+                                setFeedbackLoading(true);
+                                const response = await GetFeedbacksByBlogId(blogId);
+                                setFeedbacks(response.data || []);
+                                setFeedbackError(null);
+                              } catch (error) {
+                                console.error('Error fetching feedbacks:', error);
+                                setFeedbackError('Failed to load feedbacks. Please try again later.');
+                              } finally {
+                                setFeedbackLoading(false);
+                              }
+                            };
+                            fetchFeedbacks();
+                          }}
+                          className="blog-retryBtn"
+                          aria-label="Retry loading feedbacks"
+                        >
+                          Retry
+                        </button>
+                      </div>
+                    ) : (
+                      <div>
+                        {feedbacks.length === 0 ? (
+                          <p>No feedback yet. Be the first to comment!</p>
+                        ) : (
+                          feedbacks.map((feedback) => (
+                            <div key={feedback.id} className="blog-feedbackCard">
+                              <div className="blog-commentHeader">
+                                <img
+                                  src={feedback.avatar || 'https://via.placeholder.com/40'}
+                                  alt={feedback.name}
+                                  className="blog-commentAvatar"
+                                  loading="lazy"
+                                />
+                                <div className="blog-commentInfo">
+                                  <strong>{feedback.name}</strong>
+                                  <span className="blog-commentDate">{new Date(feedback.createdAt).toLocaleDateString()}</span>
+                                </div>
+                              </div>
+                              <p>{feedback.comment}</p>
+                            </div>
+                          ))
+                        )}
+                        <button
+                          className="blog-loadMoreBtn"
+                          onClick={handleLoadMore}
+                          aria-label="Load more feedbacks"
+                        >
+                          Load More
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </section>
               </>
             ) : null}
           </div>
@@ -294,9 +378,8 @@ BlogDetail.propTypes = {
     category: PropTypes.string,
     date: PropTypes.string,
     author: PropTypes.string,
-    relatedPosts: PropTypes.array, // Optional: for MorePosts
-    comments: PropTypes.array,    // Optional: for comments
-    headings: PropTypes.array,    // Optional: for TableOfContents
+    relatedPosts: PropTypes.array,
+    headings: PropTypes.array,
   }),
 };
 

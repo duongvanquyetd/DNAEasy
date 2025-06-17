@@ -1,10 +1,12 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+
 import { useParams, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Header from '../Header';
 import Footer from '../Footer';
 import '../css/ServiceDetail.css';
+import { GetFeedbacksByServiceId, AddFeedback } from '../../service/mockFeedbackAPI';
 import { getServiceById } from '../../service/service';
 const ServiceImageCarousel = ({ imageUrls = [], serviceName }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -77,6 +79,13 @@ const ServiceDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [newFeedback, setNewFeedback] = useState({
+    rating: 0,
+    comment: ''
+  });
+  const [feedbackLoading, setFeedbackLoading] = useState(true);
+  const [feedbackError, setFeedbackError] = useState(null);
 
   useEffect(() => {
     const fetchService = async () => {
@@ -96,7 +105,22 @@ const ServiceDetail = () => {
       }
     };
 
+    const fetchFeedbacks = async () => {
+      try {
+        setFeedbackLoading(true);
+        const response = await GetFeedbacksByServiceId(serviceId);
+        setFeedbacks(response.data || []);
+        setFeedbackError(null);
+      } catch (error) {
+        console.error('Error fetching feedbacks:', error);
+        setFeedbackError('Failed to load feedbacks. Please try again later.');
+      } finally {
+        setFeedbackLoading(false);
+      }
+    };
+
     fetchService();
+    fetchFeedbacks();
   }, [serviceId]);
 
   const handleBookingClick = useCallback(() => {
@@ -122,6 +146,55 @@ const ServiceDetail = () => {
     { label: 'Lab Analysis', icon: '🔬' },
     { label: 'Results Delivery', icon: '📄' },
   ];
+
+  const handleFeedbackChange = (e) => {
+    const { name, value } = e.target;
+    setNewFeedback(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleRatingChange = (rating) => {
+    setNewFeedback(prev => ({
+      ...prev,
+      rating
+    }));
+  };
+
+  const handleCommentSubmit = useCallback(async (e) => {
+    e.preventDefault();
+    if (newFeedback.rating === 0 || !newFeedback.comment.trim()) return;
+
+    // Assume user info is fetched from context or session
+    const userInfo = {
+      name: 'Current User', // Replace with actual user data from context
+      email: 'user@example.com', // Replace with actual user data from context
+      phone: '123-456-7890', // Replace with actual user data from context
+      company: 'User Company' // Replace with actual user data from context
+    };
+
+    try {
+      const feedbackData = {
+        serviceId,
+        name: userInfo.name,
+        email: userInfo.email,
+        phone: userInfo.phone,
+        company: userInfo.company,
+        rating: newFeedback.rating,
+        comment: newFeedback.comment
+      };
+      const response = await AddFeedback(feedbackData);
+      setFeedbacks((prev) => [response.data, ...prev]);
+      setNewFeedback({
+        rating: 0,
+        comment: ''
+      });
+    } catch (error) {
+      console.error('Error adding feedback:', error);
+      setFeedbackError('Failed to add feedback. Please try again.');
+    }
+  }, [newFeedback, serviceId]);
 
   return (
     <ErrorBoundary>
@@ -231,6 +304,107 @@ const ServiceDetail = () => {
                     Back to Services
                   </button>
                 </div>
+              </div>
+
+            </section>
+              {/* comment */}
+            <section className="detail-commentSection two-column-layout">
+              <div className="detail-feedbackForm">
+                <h2>Submit Feedback</h2>
+                <form onSubmit={handleCommentSubmit}>
+                  <div>
+                    <label>Your service rating</label>
+                    <div className="detail-starRating">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <span
+                          key={star}
+                          className={star <= newFeedback.rating ? 'detail-star filled' : 'detail-star'}
+                          onClick={() => handleRatingChange(star)}
+                        >
+                          ★
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label>Additional feedback</label>
+                    <textarea
+                      name="comment"
+                      value={newFeedback.comment}
+                      onChange={handleFeedbackChange}
+                      placeholder="If you have any additional feedback, please type it in here..."
+                    />
+                  </div>
+                  <button type="submit" className="detail-submitBtn">Submit feedback</button>
+                </form>
+              </div>
+              <div className="detail-feedbackComments">
+                <h2>Comments</h2>
+                {feedbackLoading ? (
+                  <div className="detail-loadingState">
+                    <p>Loading feedbacks...</p>
+                  </div>
+                ) : feedbackError ? (
+                  <div className="detail-errorState">
+                    <p>{feedbackError}</p>
+                    <button
+                      onClick={() => {
+                        const fetchFeedbacks = async () => {
+                          try {
+                            setFeedbackLoading(true);
+                            const response = await GetFeedbacksByServiceId(serviceId);
+                            setFeedbacks(response.data || []);
+                            setFeedbackError(null);
+                          } catch (error) {
+                            console.error('Error fetching feedbacks:', error);
+                            setFeedbackError('Failed to load feedbacks. Please try again later.');
+                          } finally {
+                            setFeedbackLoading(false);
+                          }
+                        };
+                        fetchFeedbacks();
+                      }}
+                      className="detail-retryBtn"
+                      aria-label="Retry loading feedbacks"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    {feedbacks.length === 0 ? (
+                      <p>No feedback yet. Be the first to comment!</p>
+                    ) : (
+                      feedbacks.map((feedback, index) => (
+                        <div key={index} className="detail-feedbackCard">
+                          <div className="detail-commentHeader">
+                            <img
+                              src="https://via.placeholder.com/40"
+                              alt={feedback.name}
+                              className="detail-commentAvatar"
+                            />
+                            <div className="detail-commentInfo">
+                              <strong>{feedback.name}</strong>
+                              <span className="detail-commentDate">{new Date(feedback.createdAt).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                          <p>{feedback.comment}</p>
+                          <div className="detail-feedbackRating">
+                            {Array.from({ length: 5 }, (_, i) => (
+                              <span
+                                key={i}
+                                className={i < feedback.rating ? 'detail-star filled' : 'detail-star'}
+                              >
+                                ★
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                    <button className="detail-loadMoreBtn">Load More</button>
+                  </div>
+                )}
               </div>
             </section>
           </div>
