@@ -5,6 +5,8 @@ import { EditOutlined, DeleteOutlined, PlusOutlined, UploadOutlined } from '@ant
 import Header from '../Header';
 import Footer from '../Footer';
 import '../css/ManageService.css';
+import { useNavigate } from 'react-router-dom';
+
 
 const ManageService = () => {
   const [services, setServices] = useState([]);
