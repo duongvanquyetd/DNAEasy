@@ -312,8 +312,9 @@ const ServiceDetail = () => {
                   </button>
                 </div>
               </div>
-            </section>
 
+            </section>
+              {/* comment */}
             <section className="detail-commentSection two-column-layout">
               <div className="detail-feedbackForm">
                 <h2>Submit Feedback</h2>
