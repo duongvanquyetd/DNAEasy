@@ -23,8 +23,12 @@ const LoginPage = () => {
           navigate('/home');
         })
         .catch((error) => {
+          console.log('Login error:', error.response);
           if (error.response?.status === 401) {
             setInValid(error.response.data);
+
+            console.log(inValid);
+
           } else {
             console.log('Unexpected login error:', error);
           }

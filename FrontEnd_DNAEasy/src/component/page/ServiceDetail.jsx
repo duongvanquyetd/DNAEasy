@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+
 import { useParams, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Header from '../Header';
@@ -6,7 +8,37 @@ import Footer from '../Footer';
 import '../css/ServiceDetail.css';
 import { GetFeedbacksByServiceId, AddFeedback } from '../../service/mockFeedbackAPI';
 import { getServiceById } from '../../service/service';
+const ServiceImageCarousel = ({ imageUrls = [], serviceName }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const intervalRef = useRef(null);
 
+  useEffect(() => {
+    if (imageUrls.length <= 1) return;
+
+    intervalRef.current = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % imageUrls.length);
+    }, 10000); // 
+    return () => clearInterval(intervalRef.current);
+  }, [imageUrls]);
+
+  if (!imageUrls.length) {
+    return <img src="https://via.placeholder.com/320x220?text=No+Image" alt="Placeholder" className="serviceImg" />;
+  }
+
+  return (
+    <div className="carouselContainer">
+      {imageUrls.map((url, index) => (
+        <img
+          key={index}
+          src={url}
+          alt={`${serviceName} ${index}`}
+          className={`carouselImage ${index === currentIndex ? 'active' : ''}`}
+          loading="lazy"
+        />
+      ))}
+    </div>
+  );
+};
 const ErrorBoundary = ({ children }) => {
   const [hasError, setHasError] = useState(false);
 
@@ -194,52 +226,12 @@ const ServiceDetail = () => {
         ) : (
           <div className="detail-serviceDetail">
             <section className="detail-hero">
-              <div className="detail-heroOverlay"></div>
-              {service?.imageUrls?.length > 1 ? (
-                <div className="detail-imageCarousel">
-                  <button
-                    className="detail-carouselBtn detail-prev"
-                    onClick={() => handleImageChange(-1)}
-                    aria-label="Previous image"
-                  >
-                    ←
-                  </button>
-                  <img
-                    src={service.imageUrls[currentImageIndex] || 'https://via.placeholder.com/1200x500?text=DNA+Test+Image'}
-                    alt={`${service.serviceName} Image ${currentImageIndex + 1}`}
-                    className="detail-heroImage"
-                    loading="lazy"
-                  />
-                  <button
-                    className="detail-carouselBtn detail-next"
-                    onClick={() => handleImageChange(1)}
-                    aria-label="Next image"
-                  >
-                    →
-                  </button>
-                  <div className="detail-carouselDots">
-                    {service.imageUrls.map((_, index) => (
-                      <span
-                        key={index}
-                        className={`detail-carouselDot ${index === currentImageIndex ? 'detail-active' : ''}`}
-                        onClick={() => setCurrentImageIndex(index)}
-                        aria-label={`Go to image ${index + 1}`}
-                      ></span>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <img
-                  src={service?.imageUrls?.[0] || 'https://via.placeholder.com/1200x500?text=DNA+Test+Image'}
-                  alt={`${service.serviceName} Hero`}
-                  className="detail-heroImage"
-                  loading="lazy"
-                />
-              )}
+              <div className="detail-heroOverlay">  <ServiceImageCarousel imageUrls={service.imageUrls} serviceName={service.serviceName} /></div>
+              
               <div className="detail-heroContent">
                 <div className="detail-heroText">
                   <h1>{service.serviceName}</h1>
-                  <p className="detail-subtitle">Precision DNA Testing Tailored for You</p>
+                  <p className="detail-subtitle">{service.serviceDescription}</p>
                   <button
                     className="detail-ctaBtn"
                     onClick={handleBookingClick}
@@ -260,14 +252,15 @@ const ServiceDetail = () => {
 
                 <div className="detail-priceSection">
                   <p className="detail-price">
-                    <span className="detail-currency">VND</span>
+                   
                     {new Intl.NumberFormat('vi-VN').format(service.price)}
+                     <span className="detail-currency">VND</span>
                   </p>
                 </div>
 
                 <div className="detail-descriptionSection">
                   <h3>About This Test</h3>
-                  <p className="detail-description">{service.description || 'No description available.'}</p>
+                  <p className="detail-description">{service.serviceDescription || 'No description available.'}</p>
                   {service.testDetails && (
                     <div className="detail-testDetails">
                       <h4>Test Details</h4>
