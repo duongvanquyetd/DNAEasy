@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Header from '../Header';
 import Footer from '../Footer';
+
 import '../css/BlogDetail.css'; // CSS file for BlogDetail styling
 import { getBlogById } from '../../service/MockBlogService'; // Service for fetching blog by ID
 import { FaArrowLeft, FaShare, FaTwitter, FaFacebook, FaLinkedin } from 'react-icons/fa';
@@ -13,75 +14,55 @@ import { GetBlogById } from '../../service/Blog';
 
 
 const Breadcrumbs = ({ title }) => (
-  <nav className="blogDetailBreadcrumbs" aria-label="Breadcrumb">
-    <ol>
-      <li><a href="/">Home</a></li>
-      <li> / </li>
-      <li>{title}</li>
-    </ol>
+  <nav className="breadcrumbs" aria-label="Breadcrumb">
+    <div className="breadcrumbs-content">
+      <a href="/" className="breadcrumb-link">
+        Home
+      </a>
+      <span className="breadcrumb-separator">→</span>
+      <span className="breadcrumb-current">{title}</span>
+    </div>
   </nav>
 );
 
-const MorePosts = ({ posts }) => (
-  <div className="morePosts">
-    <h3>More Posts</h3>
-    <div className="morePostsGrid">
-      {(posts || [1, 2, 3]).map((post, idx) => (
-        <div className="morePostCard" key={idx}>
-          <div className="morePostImage" />
-          <div className="morePostTitle">Post Title</div>
-        </div>
-      ))}
-    </div>
-  </div>
-);
-
-const ShareButtons = () => {
+const ShareButtons = ({ title, url }) => {
   const shareButtons = [
-    { icon: <FaTwitter />, label: 'Share on Twitter' },
-    { icon: <FaFacebook />, label: 'Share on Facebook' },
-    { icon: <FaLinkedin />, label: 'Share on LinkedIn' },
+    {
+      icon: <FaTwitter />,
+      label: 'Share on Twitter',
+      color: '#1da1f2',
+      href: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
+    },
+    {
+      icon: <FaFacebook />,
+      label: 'Share on Facebook',
+      color: '#4267b2',
+      href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+    },
+    {
+      icon: <FaLinkedin />,
+      label: 'Share on LinkedIn',
+      color: '#0077b5',
+      href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+    },
   ];
 
   return (
-    <div className="blogDetailShare">
+    <div className="share-buttons">
       {shareButtons.map((button, index) => (
-        <button
+        <a
           key={index}
-          className="shareButton"
+          href={button.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="share-button"
+          style={{ '--button-color': button.color }}
           aria-label={button.label}
           title={button.label}
         >
           {button.icon}
-        </button>
+        </a>
       ))}
-    </div>
-  );
-};
-
-const AuthorBio = ({ author, avatar, bio }) => (
-  <div className="authorBio">
-    <img src={avatar} alt={author} className="authorAvatar" />
-    <div className="authorInfo">
-      <h3>{author}</h3>
-      <p>{bio}</p>
-    </div>
-  </div>
-);
-
-const TableOfContents = ({ headings }) => {
-  if (!headings || headings.length === 0) return null;
-
-  return (
-    <div className="tableOfContents">
-      <h3>Table of Contents</h3>
-      <ul>
-        {headings.map((heading, index) => (
-          <li key={index}>
-            <a href={`#heading-${index}`}>{heading}</a>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 };
@@ -94,6 +75,7 @@ const BlogDetail = () => {
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   const contentRef = useRef(null);
 
   useEffect(() => {
@@ -105,18 +87,20 @@ const BlogDetail = () => {
         setLoading(false);
         console.log('Blog fetched successfully:', response.data);
       }
+
       ).catch((err) => {
         console.error('Error fetching blog:', err);
       })
   }, []);
+
 
   useEffect(() => {
     const handleScroll = () => {
       if (!contentRef.current) return;
 
       const element = contentRef.current;
-      const totalHeight = element.scrollHeight - element.clientHeight;
-      const progress = (window.scrollY / totalHeight) * 100;
+      const totalHeight = element.scrollHeight - window.innerHeight;
+      const progress = totalHeight > 0 ? (window.scrollY / totalHeight) * 100 : 0;
       setReadingProgress(Math.min(progress, 100));
     };
 
@@ -126,11 +110,11 @@ const BlogDetail = () => {
 
 
 
-  const handleBackClick = () => {
-    navigate('/blog');
-  };
+  const articleUrl = window.location.href;
+  const articleTitle = blog?.title || 'Check out this article';
 
   return (
+
 
     <div className="blogDetailContainer redesigned">
       <Header />
@@ -196,6 +180,7 @@ const BlogDetail = () => {
         <div className="blogDetailRight">
           {blog && <TableOfContents headings={blog.headings || ["lorem ipsum", "lorem ipsum", "lorem ipsum", "lorem ipsum"]} />}
         </div>
+
       </div>
       <Footer />
     </div>
@@ -215,9 +200,16 @@ BlogDetail.propTypes = {
     author: PropTypes.string,
     relatedPosts: PropTypes.array,
     headings: PropTypes.array,
+    avatar: PropTypes.string,
+    bio: PropTypes.string,
   }),
 };
 
 
+
+ShareButtons.propTypes = {
+  title: PropTypes.string.isRequired,
+  url: PropTypes.string.isRequired,
+};
 
 export default BlogDetail;

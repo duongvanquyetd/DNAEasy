@@ -12,12 +12,11 @@ import ServiceDetail from './component/page/ServiceDetail';
 import { YourAppointment } from './component/page/YourAppointment';
 import { BookingServicePage } from './component/page/BookingService';
 import { HistoryBooking } from './component/page/HistoryBooking';
-
 import { Payment } from './component/page/payment';
-
-
 import AdminDashboard from './component/page/AdminDashboard';
 import BlogDetail from './component/page/BlogDetail.jsx';
+import ManageBlog from './component/page/ManageBlog';
+import ManageService from './component/page/ManageService';
 
 
 function App() {
@@ -42,6 +41,8 @@ function App() {
         <Route path="/YourAppointment" element={<YourAppointment />} />
         <Route path="/HistoryBooking" element={<HistoryBooking />} />
         <Route path="/AdminDashboard" element={<AdminDashboard />} />
+        <Route path="/ManageBlog" element={<ManageBlog />} />
+        <Route path="/ManageService" element={<ManageService />} />
 
         <Route path="*" element={<div>404 - Page Not Found</div>} />
       </Routes>
