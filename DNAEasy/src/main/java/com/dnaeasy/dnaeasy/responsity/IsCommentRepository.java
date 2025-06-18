@@ -1,6 +1,8 @@
 package com.dnaeasy.dnaeasy.responsity;
 
 import com.dnaeasy.dnaeasy.enity.Comment;
+import com.dnaeasy.dnaeasy.enity.Person;
+import com.dnaeasy.dnaeasy.enity.Service;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -33,4 +35,8 @@ public interface IsCommentRepository extends JpaRepository<Comment, Integer> {
     List<Comment> findByService_ServiceId(int serviceServiceId);
 
     Comment findByCommentId(int commentId);
+
+    boolean existsByServiceAndCustomer(Service service, Person customer);
+
+
 }

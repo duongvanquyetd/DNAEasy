@@ -46,24 +46,23 @@ public class AuthencationController {
         return ResponseEntity.ok(p);
     }
 
-    @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/register")
     public ResponseEntity<?> createUser(
             @RequestPart("user") @Valid UserCreateRequest userCreateRequest,
             @RequestPart(value = "file", required = false) MultipartFile file) {
-        //UserCreateRequest userCreateRequest = null;
+
+
         try {
             if (file != null) {
-                byte[] image = file.getBytes();
-//                ObjectMapper mapper = new ObjectMapper(); String json
-//                 userCreateRequest = mapper.readValue(json, UserCreateRequest.class);
-                // handle image if needed
                 userCreateRequest.setAvatarUrl(cloudinaryUtil.uploadImage(file));
                 System.out.println(userCreateRequest);
             }
         } catch (IOException e) {
+            System.out.println("loi file");
             e.printStackTrace();
         }
         if (userService.checkUsernameEmailPhone(userCreateRequest) != null) {
+            System.out.println("sklfsfas");
             return ResponseEntity.badRequest().body(userService.checkUsernameEmailPhone(userCreateRequest));
         }
 

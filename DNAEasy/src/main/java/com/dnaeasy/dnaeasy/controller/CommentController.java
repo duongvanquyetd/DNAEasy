@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ import java.util.List;
 @RequestMapping("/api/comments")
 @RequiredArgsConstructor
 @Validated
+@CrossOrigin("*")
 public class CommentController {
 
     private final CommentService commentService;
@@ -36,10 +38,10 @@ public class CommentController {
     @PostMapping("/create")
     public ResponseEntity<CommentReponse> createComment(
 
-            @RequestBody @Validated CommentRequest dto
+            @RequestPart("comment") @Validated CommentRequest dto,@RequestPart(value = "file",required = false) List<MultipartFile> file
     ) {
 
-        return ResponseEntity.ok(commentService.createComment(dto));
+        return ResponseEntity.ok(commentService.createComment(dto,file));
     }
 
     @PutMapping("/update/{commentId}")

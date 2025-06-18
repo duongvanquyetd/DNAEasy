@@ -1,6 +1,7 @@
 package com.dnaeasy.dnaeasy.service.impl;
 
 import com.dnaeasy.dnaeasy.dto.request.BlogCreateRequest;
+import com.dnaeasy.dnaeasy.dto.request.SearchRequest;
 import com.dnaeasy.dnaeasy.dto.response.BlogResponse;
 import com.dnaeasy.dnaeasy.enity.Blog;
 import com.dnaeasy.dnaeasy.enity.BlogImage;
@@ -60,26 +61,24 @@ public class BlogService implements IsBlogService {
         b.setCreateDate(LocalDateTime.now());
 
 
-
         Blog blogsave = isBlogResponsity.save(b);
-        System.out.println(blogsave.getBlogImages() );
-
+        System.out.println(blogsave.getBlogImages());
 
 
         return blogMapper.BlogToBlogResponse(blogsave);
     }
 
     @Override
-    public BlogResponse UpdateBlog(int blogid,BlogCreateRequest blogCreateRequest) {
-        Blog b = isBlogResponsity.findById(blogid).orElseThrow(() -> new ResourceNotFound("Blog id not found"+blogid));
+    public BlogResponse UpdateBlog(int blogid, BlogCreateRequest blogCreateRequest) {
+        Blog b = isBlogResponsity.findById(blogid).orElseThrow(() -> new ResourceNotFound("Blog id not found" + blogid));
 
 
         // hiên tại đang làm update là sẽ xóa hết tất cả các ảnh cũ đi và thêm tất cả ảnh mới vào
         // nếu lam xong sớm tôi muốn làm hiện tất cả ảnh lên và chọn xóa ảnh và thêm ảnh thì vao đây sẽ xem ảnh nào có trong database mà không có trong list image mới thi xóa ảnh đó trong database
 
- //       isBlogImageResponsity.deleteByBlog(b.getBlogId());
+        //       isBlogImageResponsity.deleteByBlog(b.getBlogId());
 
-        for(BlogImage img : blogCreateRequest.getBlogImages()) {
+        for (BlogImage img : blogCreateRequest.getBlogImages()) {
             img.setBlog(b);
         }
         // vi dang sai   orphanRemoval = true nen khi ma list con thay doi thi database cung se thay doi theo nen ta phai lay list hien tai ra va thay doi tren list do neu them list moi vao se vi loi
@@ -89,12 +88,12 @@ public class BlogService implements IsBlogService {
         b.setBlogTitle(blogCreateRequest.getBlogTitle());
 
         isBlogResponsity.save(b);
-       return blogMapper.BlogToBlogResponse(b);
+        return blogMapper.BlogToBlogResponse(b);
     }
 
     @Override
     public String ApproveBlog(int blogid) {
-        Blog b = isBlogResponsity.findById(blogid).orElseThrow(() -> new ResourceNotFound("Blog id not found"+blogid));
+        Blog b = isBlogResponsity.findById(blogid).orElseThrow(() -> new ResourceNotFound("Blog id not found" + blogid));
         b.setBlogStatus(true);
         isBlogResponsity.save(b);
         return "Approved";
@@ -102,15 +101,27 @@ public class BlogService implements IsBlogService {
 
     @Override
     public void DeleteBlog(int blogid) {
-        Blog blog = isBlogResponsity.findById(blogid).orElseThrow(() -> new ResourceNotFound("Blog id not found"+blogid));
+        Blog blog = isBlogResponsity.findById(blogid).orElseThrow(() -> new ResourceNotFound("Blog id not found" + blogid));
         isBlogResponsity.delete(blog);
     }
 
     @Override
-    public List<BlogResponse> findbyNameAndType(String keyword) {
-        System.out.println(keyword);
+    public List<BlogResponse> findbyNameAndType(SearchRequest request) {
 
-            List<Blog> blogList = isBlogResponsity.findByNameOrBlogType(keyword);
+
+        List<Blog> blogList = new ArrayList<>();
+
+        if (request.getKeywordType() != null && request.getKeywordSearch() != null) {
+            blogList = isBlogResponsity.findByBlogTitleContainsIgnoreCaseAndBlogTypeContainingIgnoreCase(request.getKeywordSearch(), request.getKeywordType());
+        } else if (request.getKeywordSearch() == null && request.getKeywordType() != null) {
+            blogList = isBlogResponsity.findByBlogType(request.getKeywordType());
+        } else if (request.getKeywordType() == null && request.getKeywordSearch() != null) {
+            blogList = isBlogResponsity.findByBlogTitle(request.getKeywordSearch());
+        }
+        else {
+            blogList = isBlogResponsity.findAll();
+        }
+
 
         List<BlogResponse> blogResponseList = new ArrayList<>();
         blogList.forEach(blog -> {
@@ -118,6 +129,15 @@ public class BlogService implements IsBlogService {
             blogResponseList.add(blogResponse);
         });
         return blogResponseList;
+    }
+
+    @Override
+    public BlogResponse getBlogByID(int id) {
+
+        Blog b = isBlogResponsity.findById(id).orElseThrow(() -> new ResourceNotFound("Blog id not found" + id));
+
+        return blogMapper.BlogToBlogResponse(b);
+
     }
 
 }
