@@ -3,10 +3,43 @@ import { Link, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Header from '../Header';
 import Footer from '../Footer';
-import '../css/Service.css'; // Import the CSS file as is
-import { GetALlServies } from '../../service/service';
+import '../css/Service.css'; // Ensure this points to the CSS file with the new class names
+import { SearchAndGet } from '../../service/service';
 
 
+
+
+const ServiceImageCarouselService = ({ imageUrls = [], serviceName }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const intervalRef = useRef(null);
+
+  useEffect(() => {
+    if (imageUrls.length <= 1) return;
+
+    intervalRef.current = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % imageUrls.length);
+    }, 5000); // 
+    return () => clearInterval(intervalRef.current);
+  }, [imageUrls]);
+
+  if (!imageUrls.length) {
+    return <img src="https://via.placeholder.com/320x220?text=No+Image" alt="Placeholder" className="serviceImg" />;
+  }
+
+  return (
+    <div className="carouselContainerService">
+      {imageUrls.map((url, index) => (
+        <img
+          key={index}
+          src={url}
+          alt={`${serviceName} ${index}`}
+          className={`carouselImageService ${index === currentIndex ? 'active' : ''}`}
+          loading="lazy"
+        />
+      ))}
+    </div>
+  );
+};
 
 const ErrorBoundary = ({ children }) => {
   const [hasError, setHasError] = useState(false);
@@ -21,118 +54,67 @@ const ErrorBoundary = ({ children }) => {
   if (hasError) return <div className="errorState"><p>Something went wrong. Please try again.</p></div>;
   return children;
 };
-const ServiceImageCarousel = ({ imageUrls = [], serviceName }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const intervalRef = useRef(null);
 
-  useEffect(() => {
-    if (imageUrls.length <= 1) return;
-
-    intervalRef.current = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % imageUrls.length);
-    }, 10000); // 
-    return () => clearInterval(intervalRef.current);
-  }, [imageUrls]);
-
-  if (!imageUrls.length) {
-    return <img src="https://via.placeholder.com/320x220?text=No+Image" alt="Placeholder" className="serviceImg" />;
-  }
-
-  return (
-    <div className="carouselContainer">
-      {imageUrls.map((url, index) => (
-        <img
-          key={index}
-          src={url}
-          alt={`${serviceName} ${index}`}
-          className={`carouselImage ${index === currentIndex ? 'active' : ''}`}
-          loading="lazy"
-        />
-      ))}
-    </div>
-  );
-};
 
 const Service = () => {
   const navigate = useNavigate();
-  // const { type } = useParams(); // Giữ để tương thích với URL hiện tại, nhưng không sử dụng
+
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all'); // Thêm trạng thái cho danh mục
   const [currentPage, setCurrentPage] = useState(1);
-  const servicesPerPage = 6;
-  const searchInputRef = useRef(null);
+  const servicesPerPage = 9;
+  const [totalPages, setTotalPages] = useState(0);
+  const [search, setSearch] = useState('');
+
+  const [category, setCategory] = useState('');
+
 
   useEffect(() => {
     fetchServices();
-  }, []);
 
-  const fetchServices = async () => {
+  }, [currentPage, servicesPerPage, searchQuery, category]); // Thêm category vào dependencies
+
+  const fetchServices = useCallback(async () => {
+
     try {
       setLoading(true);
-
-      const response = await GetALlServies(); 
-      console.log('Fetched services:', response.data); // Log the fetched data for debugging
-      setServices(response.data || []); // Handle potential undefined data
-
+      // Reset to first page on new search
+      console.log('Fetching services with:', { keywordSearch: searchQuery, keywordType: category, currentPage, servicesPerPage });
+      const response = await SearchAndGet({ keywordSearch: searchQuery, keywordType: category }, currentPage, servicesPerPage);
+      console.log('Fetched services:', response.data);
+      setServices(response.data.content);
+      setTotalPages(response.data.totalPages);
       setError(null);
-    } catch (error) {
-      console.error('Error fetching services:', error);
+      setSearch('');
+
+    } catch (err) {
+      console.error('Error fetching services:', err);
       setError('Failed to load services. Please try again later.');
+
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, servicesPerPage, searchQuery, category]);
 
-  const debouncedSetSearchQuery = useCallback((value) => {
-    setSearchQuery(value);
-    setCurrentPage(1);
-  }, []);
-
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    clearTimeout(searchInputRef.current);
-    searchInputRef.current = setTimeout(() => debouncedSetSearchQuery(value), 300);
-  };
 
   const handleBookingClick = useCallback((serviceId) => {
     navigate(`/service/${serviceId}`);
+
   }, [navigate]);
 
-  const handleCategoryChange = useCallback((e) => {
-    const category = e.target.value;
-    setSelectedCategory(category); // Cập nhật trạng thái mà không điều hướng
-    setCurrentPage(1); // Đặt lại trang về 1 khi thay đổi danh mục
-  }, []);
-
-  const handleSearch = useCallback((e) => {
-    e.preventDefault();
+  function handlsearch() {
+    
     setCurrentPage(1);
-  }, []);
+     
 
-const filteredServices = useMemo(() => {
-  return services.filter((service) => {
-    const nameMatch = service.serviceName?.toLowerCase().includes(searchQuery.toLowerCase());
-    const typeMatch =
-      selectedCategory === 'all' ||
-      (service.type && service.type.toLowerCase() === selectedCategory.toLowerCase());
-    return nameMatch && typeMatch;
-  });
-}, [services, searchQuery, selectedCategory]);
-
-  const paginatedServices = useMemo(() => {
-    const startIndex = (currentPage - 1) * servicesPerPage;
-    return filteredServices.slice(startIndex, startIndex + servicesPerPage);
-  }, [filteredServices, currentPage]);
-
-  const totalPages = Math.ceil(filteredServices.length / servicesPerPage);
+  }
 
   const renderPagination = () => {
     if (totalPages <= 1) return null;
     const pages = [];
-    const maxPagesToShow = 5;
+    const maxPagesToShow = totalPages;
     const startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
     const endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
 
@@ -150,6 +132,8 @@ const filteredServices = useMemo(() => {
     return pages;
   };
 
+
+
   return (
     <ErrorBoundary>
       <div className="servicePage">
@@ -165,10 +149,10 @@ const filteredServices = useMemo(() => {
         </section>
 
         <section className="filterSection">
-          <form className="searchBar" onSubmit={handleSearch}>
-            <input type="text" placeholder="What are you looking for?" onChange={handleSearchChange} aria-label="Search services" />
-            <select name="category" aria-label="Select category" onChange={handleCategoryChange} value={selectedCategory}>
-              <option value="all">All Services</option>
+          <form className="searchBar" onSubmit={(e)=>{ e.preventDefault(); handlsearch(); }} >
+            <input type="text" placeholder="What are you looking for?" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} aria-label="Search services" />
+            <select name="category" aria-label="Select category" onChange={(e) => setCategory(e.target.value)} value={category}>
+              <option value="">All Services</option>
               <option value="civil">Civil Services</option>
               <option value="legal">Legal Services</option>
             </select>
@@ -178,7 +162,7 @@ const filteredServices = useMemo(() => {
 
         {loading ? (
           <div className="loadingState">
-            {Array.from({ length: servicesPerPage }).map((_, index) => (
+            {Array.from({ length: services }).map((_, index) => (
               <div key={index} className="skeletonCard">
                 <div className="skeletonImage"></div>
                 <div className="skeletonText"></div>
@@ -192,17 +176,17 @@ const filteredServices = useMemo(() => {
             <p>{error}</p>
             <button onClick={fetchServices} className="retryBtn" aria-label="Retry loading services">Retry</button>
           </div>
-        ) : filteredServices.length === 0 ? (
+        ) : services.length === 0 ? (
           <div className="errorState">
             <p>No services found for the selected category.</p>
             <button onClick={() => setSelectedCategory('all')} className="backBtn" aria-label="Back to all services">Back to All Services</button>
           </div>
         ) : (
           <section className="servicesGrid">
-            {paginatedServices.map((service) => (
-              
+            {services.map((service) => (
+
               <div key={service.serviceId} className="serviceCard">
-               <ServiceImageCarousel imageUrls={service.imageUrls} serviceName={service.serviceName} />
+                <ServiceImageCarouselService imageUrls={service.imageUrls} serviceName={service.serviceName} />
                 <p className="serviceName">{service.serviceName}</p>
                 <p className="price">{new Intl.NumberFormat('vi-VN').format(service.price)} VND</p>
                 <button className="bookingBtn" onClick={() => handleBookingClick(service.serviceId)} aria-label={`Book ${service.serviceName}`}>Book Now</button>

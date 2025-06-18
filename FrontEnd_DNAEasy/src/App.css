@@ -21,7 +21,7 @@ background: linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 
   width: 100%; /* Ensure it spans the parent */
   margin: 0; /* Remove centering */
   padding: 0; /* Remove padding to avoid inset content */
-  text-align: center; /* Retain text alignment if needed */
+  /* text-align: center; Retain text alignment if needed */
 }
 
 .logo {

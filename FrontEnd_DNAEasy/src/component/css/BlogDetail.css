@@ -425,3 +425,58 @@
   font-size: 0.9rem;
   color: #666;
 }
+.blog-detail-body {
+  padding: 32px;
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+  font-family: 'Segoe UI', sans-serif;
+  color: #1f2937;
+  line-height: 1.8;
+}
+
+.blog-detail-content article {
+  font-size: 17px;
+  color: #374151;
+}
+
+.blog-detail-content h1,
+.blog-detail-content h2,
+.blog-detail-content h3 {
+  color: #1e40af;
+  margin-top: 24px;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.blog-detail-content p {
+  margin-bottom: 18px;
+  text-align: justify;
+}
+
+.blog-detail-content ul,
+.blog-detail-content ol {
+  margin-left: 24px;
+  margin-bottom: 16px;
+  color: #4b5563;
+}
+
+.blog-detail-content li {
+  margin-bottom: 8px;
+}
+
+.blog-detail-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 20px 0;
+  display: block;
+}
+
+.no-content {
+  text-align: center;
+  color: #9ca3af;
+  font-style: italic;
+}
