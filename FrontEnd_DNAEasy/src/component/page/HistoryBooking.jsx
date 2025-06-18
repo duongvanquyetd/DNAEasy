@@ -244,7 +244,7 @@ export const HistoryBooking = () => {
                                                             </div>
                                                             <h4 className="method-title">Phương thức thanh toán</h4>
                                                         </div>
-                                                        <p >
+                                                        <p style={{display:"flex",justifyContent:"center"}} >
                                                             
                                                             
                                                             
