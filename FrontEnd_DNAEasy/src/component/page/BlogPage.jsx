@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import Header from '../Header';
 import Footer from '../Footer';
 import '../css/Blog.css'; // Ensure this points to the CSS file with the new class names
-import { getAllBlogs } from '../../service/MockBlogService'; // Mock service for blog posts
 import { GetALlBlog, SearchByTitleAndCatagery } from '../../service/Blog';
 
 const ErrorBoundary = ({ children }) => {

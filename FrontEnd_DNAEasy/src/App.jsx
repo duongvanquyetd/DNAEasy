@@ -35,9 +35,7 @@ function App() {
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:blogId" element={<BlogDetail />} />
         <Route path="/booking/:id" element={<BookingServicePage />} />
-
-        <Route path="/payment" element={<Payment />} />
-       
+        <Route path="/payment" element={<Payment />} /> 
         <Route path="/YourAppointment" element={<YourAppointment />} />
         <Route path="/HistoryBooking" element={<HistoryBooking />} />
         <Route path="/AdminDashboard" element={<AdminDashboard />} />
