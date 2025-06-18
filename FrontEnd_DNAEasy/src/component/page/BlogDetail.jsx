@@ -167,6 +167,9 @@ const BlogDetail = () => {
         <div className="blogDetailRight">
           <BlogListSidebar />
         </div>
+            </>
+          ) : null}
+        </div>
       </div>
       <Footer />
     </div>
