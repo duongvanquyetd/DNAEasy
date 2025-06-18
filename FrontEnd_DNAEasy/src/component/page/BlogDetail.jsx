@@ -161,22 +161,12 @@ const BlogDetail = () => {
                   <ShareButtons />
                 </div>
               </section>
-<<<<<<< HEAD
-</>
-=======
-            </> 
->>>>>>> 137b2e69a07e7da47e0b6b26168c91e705674edd
+            </>
           ) : null}
         </div>
         <div className="blogDetailRight">
           <BlogListSidebar />
         </div>
-<<<<<<< HEAD
-=======
-            </>
-          ) : null}
-        </div>
->>>>>>> 137b2e69a07e7da47e0b6b26168c91e705674edd
       </div>
       <Footer />
     </div>
