@@ -25,8 +25,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AppointmentService implements IsAppointmentService {
@@ -50,6 +52,7 @@ public class AppointmentService implements IsAppointmentService {
     CloudinaryUtil cloudinaryUtil;
     @Autowired
     IsSystemConfigRepo isSystemConfigRepo;
+
 
     @Override
     public AppointCreateResponse createAppointment(AppointmentCreateRequest request, HttpServletRequest httpServletRequest) {
@@ -359,5 +362,25 @@ public class AppointmentService implements IsAppointmentService {
         }
         return null;
     }
+
+    @Override
+    public int getCompletedAppointmentsToday() {
+        LocalDateTime startDay = LocalDateTime.now().toLocalDate().atStartOfDay();
+        LocalDateTime endDay = startDay.plusDays(1);
+        return isAppointmentResponsitory.countCompletedAppointmentsToday(startDay, endDay);
+    }
+
+    @Override
+    public List<AppointmentResponse> getAppointmentYesterday() {
+        LocalDateTime startDay = LocalDateTime.now().minusDays(1).toLocalDate().atStartOfDay();
+        LocalDateTime endDay = LocalDateTime.now().toLocalDate().atStartOfDay().minusNanos(1);
+
+        List<Appointment> listAppointmentYesterday = isAppointmentResponsitory.findAllByCurentStatusAppointmentAndDateCollectIsBetween("COMPLTED",startDay,endDay);
+
+        return listAppointmentYesterday.stream()
+                .map(appointmentMapper::AppointmentCreateResponse)
+                .collect(Collectors.toList());
+    }
+
 
 }

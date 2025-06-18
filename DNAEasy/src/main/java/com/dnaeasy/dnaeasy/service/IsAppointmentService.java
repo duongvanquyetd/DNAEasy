@@ -20,4 +20,6 @@ public interface IsAppointmentService {
     List<AppointmentResponse> getAppoinmentinprocess();
     List<AppointmentResponse> getAppoinmentFofStaff_Lab();
     List<AppointmentResponse> getAppoinmentFofStaff_Reception();
+    int getCompletedAppointmentsToday();
+    List<AppointmentResponse> getAppointmentYesterday();
 }

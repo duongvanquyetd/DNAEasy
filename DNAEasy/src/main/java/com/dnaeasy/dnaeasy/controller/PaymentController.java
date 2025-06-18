@@ -66,5 +66,8 @@ public class PaymentController {
         paymentService.ConfirmPaidCash(appointment);
         return ResponseEntity.ok("Payment successful");
     }
-
+@GetMapping("/revenuetoday")
+    public ResponseEntity<BigDecimal> getRevenueToday(){
+        return ResponseEntity.ok(paymentService.totalRevenueToday());
+    }
 }
