@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-
 import { useParams, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Header from '../Header';
@@ -9,7 +8,7 @@ import '../css/ServiceDetail.css';
 import { GetFeedbacksByServiceId, AddFeedback } from '../../service/mockFeedbackAPI';
 import { getServiceById } from '../../service/service';
 import { CanComment, createComment, getCommentsByServiceId } from '../../service/Comment';
-import style from 'style-component';
+
 
 
 
