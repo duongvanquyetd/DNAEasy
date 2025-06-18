@@ -6,7 +6,7 @@ import Header from '../Header';
 import Footer from '../Footer';
 import '../css/ManageService.css';
 import { useNavigate } from 'react-router-dom';
-import { GetALlServies, getServiceById, createService, updateService, deleteService } from '../../service/service';
+import { GetALlServies, getServiceById } from '../../service/service';//, createService, updateService, deleteService
 
 const ManageService = () => {
   const [services, setServices] = useState([]);
