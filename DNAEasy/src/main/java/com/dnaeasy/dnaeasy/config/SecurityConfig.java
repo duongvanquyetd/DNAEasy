@@ -14,7 +14,10 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
 
-    public String[] URL = {"/api/auth/*", "/api/payment/*"};
+    public String[] URL = {"/api/auth/*", "/api/payment/*","/api/comments/*","/api/blog","/api/blog/*"
+
+    ,"/api/service","/api/payment/*","/api/comments/*","/api/auth/*","/api/service","/api/service/*","/api/service/*"};
+
     @Autowired
     private CustomJwtDecoder jwtDecoder;
 
@@ -29,8 +32,8 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(request ->
                 request.requestMatchers(HttpMethod.POST, URL).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/user/get").hasAnyAuthority("SCOPE_ADMIN")
-                        .requestMatchers(HttpMethod.OPTIONS, "/api/auth/*","/api/service").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/service","/api/payment/*").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, URL).permitAll()
+                        .requestMatchers(HttpMethod.GET, URL).permitAll()
                         .anyRequest().authenticated()
 
         );

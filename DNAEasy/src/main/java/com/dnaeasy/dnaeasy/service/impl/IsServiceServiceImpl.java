@@ -1,5 +1,6 @@
 package com.dnaeasy.dnaeasy.service.impl;
 
+import com.dnaeasy.dnaeasy.dto.request.SearchRequest;
 import com.dnaeasy.dnaeasy.dto.request.ServiceCreateRequest;
 import com.dnaeasy.dnaeasy.dto.response.ServiceResponse;
 import com.dnaeasy.dnaeasy.enity.Service;
@@ -8,6 +9,10 @@ import com.dnaeasy.dnaeasy.exception.ResourceNotFound;
 import com.dnaeasy.dnaeasy.mapper.ServiceMapper;
 import com.dnaeasy.dnaeasy.responsity.IsServiceResponsitory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -24,6 +29,7 @@ public class IsServiceServiceImpl implements IsServiceService {
 
     @Autowired
     private CloudinaryService cloudinaryService;
+
     @Override
     public Service create(ServiceCreateRequest request) {
         // Chỉ thực hiện mapping DTO -> Entity và lưu, không xử lý ảnh ở đây
@@ -98,12 +104,43 @@ public class IsServiceServiceImpl implements IsServiceService {
     public void delete(Long id) {
         serviceRepo.deleteById(id);
     }
+
+    @Override
+    public Page<ServiceResponse> search(SearchRequest request, Pageable pageable) {
+        Page<Service> services = null;
+        if(request.getKeywordType() != null && request.getKeywordSearch() != null)
+        {
+            services = serviceRepo.findByTypeServiceContainingIgnoreCaseAndServiceNameContaining(request.getKeywordType(), request.getKeywordSearch(),pageable);
+        }
+       else if(request.getKeywordType() == null && request.getKeywordSearch() != null)
+       {
+           services = serviceRepo.findByServiceNameContainingIgnoreCase(request.getKeywordSearch(),pageable);
+       }else if(request.getKeywordType() != null && request.getKeywordSearch() == null)
+       {
+           services = serviceRepo.findByTypeServiceContainingIgnoreCase(request.getKeywordType(),pageable);
+       }
+       else {
+            services = serviceRepo.findAll(pageable);
+        }
+
+
+
+
+        Page<ServiceResponse> responses = services.map(
+                   serviceMapper::convertToResponse);
+
+
+
+
+        return responses;
+    }
+
     private ServiceResponse convertToResponse(Service s) {
         ServiceResponse r = new ServiceResponse();
         r.setServiceId(Long.valueOf(s.getServiceId()));             // ID dùng getter đúng tên field
         r.setServiceName(s.getServiceName());
         r.setServiceDescription(s.getServiceDescription());
-        r.setPrice(s.getServicePrice().doubleValue());   // gọi setPrice,
+        r.setPrice(s.getServicePrice());   // gọi setPrice,
         r.setTypeService(s.getTypeService());
 
         List<String> urls = new ArrayList<>();

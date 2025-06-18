@@ -1,5 +1,6 @@
 package com.dnaeasy.dnaeasy.controller;
 
+import com.dnaeasy.dnaeasy.dto.request.SearchRequest;
 import com.dnaeasy.dnaeasy.dto.request.ServiceCreateRequest;
 import com.dnaeasy.dnaeasy.dto.response.ServiceResponse;
 import com.dnaeasy.dnaeasy.enity.Service;
@@ -7,6 +8,9 @@ import com.dnaeasy.dnaeasy.enity.ServiceImage;
 import com.dnaeasy.dnaeasy.service.impl.IsServiceService;
 import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/api/service")
@@ -76,4 +81,16 @@ public class ServiceController {
         serviceService.delete(id);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/search")
+    public ResponseEntity<Page<ServiceResponse>> search(@RequestBody SearchRequest request,
+                                                        @RequestParam("page") int page,
+                                                        @RequestParam("size") int size) {
+
+        Pageable pageable = PageRequest.of(page-1, size);
+
+       return ResponseEntity.ok(serviceService.search(request, pageable));
+    }
+
+
 }

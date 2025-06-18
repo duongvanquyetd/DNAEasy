@@ -32,6 +32,7 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "service_id")
     private Service service;
+    @OneToMany(mappedBy = "comment",cascade = CascadeType.ALL, orphanRemoval = true)
 
-
+    private List<CommentImage> commentImages = new ArrayList<>();
 }

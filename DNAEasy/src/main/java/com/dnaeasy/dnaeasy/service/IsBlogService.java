@@ -1,6 +1,7 @@
 package com.dnaeasy.dnaeasy.service;
 
 import com.dnaeasy.dnaeasy.dto.request.BlogCreateRequest;
+import com.dnaeasy.dnaeasy.dto.request.SearchRequest;
 import com.dnaeasy.dnaeasy.dto.response.BlogResponse;
 
 import java.util.List;
@@ -15,5 +16,7 @@ public interface IsBlogService {
 
     String ApproveBlog(int blogid);
     void DeleteBlog(int blogid);
-    List<BlogResponse> findbyNameAndType(String keyword);
+    List<BlogResponse> findbyNameAndType(SearchRequest searchRequest);
+    BlogResponse getBlogByID(int id);
+
 }

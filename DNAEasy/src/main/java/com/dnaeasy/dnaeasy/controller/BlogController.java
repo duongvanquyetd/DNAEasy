@@ -1,6 +1,7 @@
 package com.dnaeasy.dnaeasy.controller;
 
 import com.dnaeasy.dnaeasy.dto.request.BlogCreateRequest;
+import com.dnaeasy.dnaeasy.dto.request.SearchRequest;
 import com.dnaeasy.dnaeasy.dto.response.BlogResponse;
 import com.dnaeasy.dnaeasy.enity.BlogImage;
 import com.dnaeasy.dnaeasy.service.impl.BlogService;
@@ -21,7 +22,7 @@ public class BlogController {
     BlogService blogService;
     @Autowired
     CloudinaryUtil cloudinaryUtil;
-    @PostMapping("/getAllBlog")
+    @GetMapping()
     public ResponseEntity<List<BlogResponse>> getAll()
     {
         return ResponseEntity.ok(blogService.getAllBlog());
@@ -81,8 +82,15 @@ public class BlogController {
             blogService.DeleteBlog(blogid);
         return ResponseEntity.ok("Deleted blog");
     }
-    @GetMapping("/find")
-    public ResponseEntity<List<BlogResponse>> findBlog(@RequestBody String keyword) {
-        return  ResponseEntity.ok(blogService.findbyNameAndType(keyword));
+    @PostMapping("/find")
+    public ResponseEntity<List<BlogResponse>> findBlog(@RequestBody SearchRequest request) {
+
+
+        return  ResponseEntity.ok(blogService.findbyNameAndType(request));
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<BlogResponse> getBlogById(@PathVariable("id") int id) {
+        return ResponseEntity.ok(blogService.getBlogByID(id));
     }
 }

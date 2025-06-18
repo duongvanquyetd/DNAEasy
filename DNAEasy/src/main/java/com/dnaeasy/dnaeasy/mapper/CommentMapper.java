@@ -3,11 +3,14 @@ package com.dnaeasy.dnaeasy.mapper;
 import com.dnaeasy.dnaeasy.dto.request.CommentRequest;
 import com.dnaeasy.dnaeasy.dto.response.CommentReponse;
 import com.dnaeasy.dnaeasy.enity.Comment;
+import com.dnaeasy.dnaeasy.enity.CommentImage;
 import com.dnaeasy.dnaeasy.enity.Person;
 import org.mapstruct.*;
 import com.dnaeasy.dnaeasy.enity.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Mapper(
         componentModel = "spring",
@@ -23,9 +26,21 @@ public interface CommentMapper {
             // Person → customerId, customerName
             @Mapping(target = "avatarUrl",   source = "customer.avatarUrl"),
             @Mapping(target = "name", source = "customer.name"),
+            @Mapping(target = "imgUrls",expression = "java(getImgUrls(entity))")
     })
     CommentReponse toResponseDto(Comment entity);
+default List<String> getImgUrls(Comment entity) {
+    List< CommentImage> images = entity.getCommentImages();
+    if (images != null) {
+        List<String> imgUrls = new ArrayList<>();
+        for (CommentImage image : images) {
+            imgUrls.add(image.getImgUrl());
+        }
+        return imgUrls;
+    }
+    return null;
 
+}
     @Named("mapIdToPerson")
     default Person mapIdToPerson(Integer id) {
         if (id == null) {
