@@ -473,7 +473,7 @@ export const YourAppointment = () => {
                     const resultDataArray = [];
                     const fileArray = [];
 
-                    Resultform.forEach((result, index) => {
+                    resultform.forEach((result, index) => {
                       const resultId = result.resultId;
                       const conclusionResult = e.target[`conclusionResult-${index}`].value.trim();
                       const fileInput = e.target[`file-${index}`];
@@ -514,7 +514,7 @@ export const YourAppointment = () => {
                       });
                   }}
                 >
-                  {Resultform.map((result, index) => (
+                  {resultform.map((result, index) => (
                     <div key={result.resultId} className="mb-4 border-bottom pb-3">
                       <p><strong>Quan hệ:</strong> {result.relationName}</p>
                       <p><strong>Mã mẫu:</strong> {result.samplecode}</p>
@@ -634,7 +634,7 @@ export const YourAppointment = () => {
                             required
                           />
                         </div>
-                      )}
+                      )} 
                       <div className="form-group">
                         <label className="form-label">Tên người lấy mẫu</label>
                         <input

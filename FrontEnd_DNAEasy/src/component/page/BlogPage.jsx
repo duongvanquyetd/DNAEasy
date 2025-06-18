@@ -5,6 +5,7 @@ import Header from '../Header';
 import Footer from '../Footer';
 import '../css/Blog.css'; // Ensure this points to the CSS file with the new class names
 import { getAllBlogs } from '../../service/MockBlogService'; // Mock service for blog posts
+import { GetALlBlog, SearchByTitleAndCatagery } from '../../service/Blog';
 
 const ErrorBoundary = ({ children }) => {
   const [hasError, setHasError] = useState(false);
@@ -30,14 +31,15 @@ const ErrorBoundary = ({ children }) => {
 
 const Blog = () => {
   const navigate = useNavigate();
-  const { category } = useParams(); // Get category from URL
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [category, setCategory] = useState('');
+
   const [currentPage, setCurrentPage] = useState(1);
   const blogsPerPage = 6;
-  const searchInputRef = useRef(null);
+
 
   useEffect(() => {
     fetchBlogs();
@@ -46,8 +48,10 @@ const Blog = () => {
   const fetchBlogs = async () => {
     try {
       setLoading(true);
-      const response = await getAllBlogs();
+      const response = await GetALlBlog(); // Fetch blogs from the service
       setBlogs(response.data || []); // Handle potential undefined data
+
+      console.log('Fetched blogs:', response.data); // Log the fetched data for debugging
       setError(null);
     } catch (error) {
       console.error('Error fetching blogs:', error);
@@ -57,19 +61,7 @@ const Blog = () => {
     }
   };
 
-  const debouncedSetSearchQuery = useCallback(
-    (value) => {
-      setSearchQuery(value);
-      setCurrentPage(1);
-    },
-    []
-  );
 
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    clearTimeout(searchInputRef.current);
-    searchInputRef.current = setTimeout(() => debouncedSetSearchQuery(value), 300);
-  };
 
   const handleBlogClick = useCallback(
     (blogId) => {
@@ -78,41 +70,13 @@ const Blog = () => {
     [navigate]
   );
 
-  const handleCategoryChange = useCallback((e) => {
-    const selectedCategory = e.target.value;
-    if (selectedCategory === 'all') {
-      navigate('/blog'); // Navigate to all blogs page
-    } else if (selectedCategory) {
-      navigate(`/blog/${selectedCategory}`);
-    }
-    setCurrentPage(1); // Reset to first page
-  }, [navigate]);
 
-  const handleSearch = useCallback((e) => {
-    e.preventDefault();
-    setCurrentPage(1);
-  }, []);
-
-  const filteredBlogs = useMemo(() => {
-    return blogs.filter(
-      (blog) =>
-        blog.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        (!category || category === 'all' || blog.category === category)
-    );
-  }, [blogs, searchQuery, category]);
-
-  const paginatedBlogs = useMemo(() => {
-    const startIndex = (currentPage - 1) * blogsPerPage;
-    return filteredBlogs.slice(startIndex, startIndex + blogsPerPage);
-  }, [filteredBlogs, currentPage]);
-
-  const totalPages = Math.ceil(filteredBlogs.length / blogsPerPage);
 
   const renderPagination = () => {
     const pages = [];
     const maxPagesToShow = 5;
     const startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
-    const endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+    const endPage = Math.min(5, 1 + maxPagesToShow - 1);
 
     if (startPage > 1) {
       pages.push(
@@ -142,23 +106,40 @@ const Blog = () => {
       );
     }
 
-    if (endPage < totalPages) {
-      if (endPage < totalPages - 1) pages.push(<span key="end-ellipsis" className="blogPageEllipsis">...</span>);
+    if (endPage < 5) {
+      if (endPage < 5 - 1) pages.push(<span key="end-ellipsis" className="blogPageEllipsis">...</span>);
       pages.push(
         <button
-          key={totalPages}
+          key={5}
           className="blogPageBtn"
-          onClick={() => setCurrentPage(totalPages)}
+          onClick={() => setCurrentPage(5)}
           aria-label="Go to last page"
         >
-          {totalPages}
+          {5}
         </button>
       );
     }
 
     return pages;
   };
+  function SearchApi(e) {
+    e.preventDefault(); // Prevent default form submission
 
+
+
+    // Append the search query to the FormData object
+    // Log the search query for debugging
+    SearchByTitleAndCatagery({ keywordSearch: searchQuery, keywordType: category }).then((response) => {
+      console.log('Search results:', response.data); // Log the search results for debugging
+      setBlogs(response.data.length === 0 ? blogs : response.data); // Update blogs with search results or keep original if no results
+      setCurrentPage(1); // Reset to first page after search
+
+    }).catch((error) => {
+      console.error('Error searching blogs:', error);
+      setError('Failed to search blogs. Please try again later.');
+    });
+
+  }
   return (
     <ErrorBoundary>
       <div className="blogContainer">
@@ -179,25 +160,32 @@ const Blog = () => {
         </section>
 
         <section className="blogFilter">
-          <form className="blogSearchBar" onSubmit={handleSearch}>
+          <form className="blogSearchBar">
             <input
               type="text"
               placeholder="Search blog posts..."
-              onChange={handleSearchChange}
+              onChange={(e) => setSearchQuery(e.target.value)}
               aria-label="Search blog posts"
             />
             <select
               name="category"
               aria-label="Select blog category"
-              onChange={handleCategoryChange}
-              value={category || 'all'}
+              onChange={(e) => { setCategory(e.target.value); }}
+              value={category || ''}
             >
-              <option value="all">All Categories</option>
-              <option value="tech">Technology</option>
-              <option value="lifestyle">Lifestyle</option>
-              <option value="health">Health</option>
+              <option value="">All Categories</option>
+              {blogs.length > 0 && (
+                blogs.map((blog) => (
+                  <option key={blog.blogType} value={blog.blogType}>
+                    {blog.blogType}
+                  </option>
+                ))
+
+              )}
+
+             
             </select>
-            <button type="submit" className="blogSearchBar button" aria-label="Search">
+            <button type="submit" className="blogSearchBar button" onClick={SearchApi} aria-label="Search">
               Search
             </button>
           </form>
@@ -227,20 +215,20 @@ const Blog = () => {
           </div>
         ) : (
           <section className="blogPosts">
-            {paginatedBlogs.map((blog) => (
+            {blogs.map((blog) => (
               <div key={blog.blogId} className="blogPost">
                 <img
-                  src={blog.imageUrls?.[0] || 'https://via.placeholder.com/320x220?text=Blog+Image'}
-                  alt={blog.title}
+                  src={blog.blogimage?.[0] || 'https://via.placeholder.com/320x220?text=Blog+Image'}
+                  alt={blog.blogTitle}
                   className="blogImage"
                   loading="lazy"
                 />
-                <h3>{blog.title}</h3>
+                <h3>{blog.blogTitle}</h3>
                 <p className="blogSummary">{blog.excerpt}</p>
                 <button
                   className="blogLinkButton"
                   onClick={() => handleBlogClick(blog.blogId)}
-                  aria-label={`Read more about ${blog.title}`}
+                  aria-label={`Read more about ${blog.blogTitle}`}
                 >
                   Read More
                 </button>

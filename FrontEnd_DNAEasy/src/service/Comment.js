@@ -1,0 +1,17 @@
+import axios from "axios";
+import api from "./api";
+
+const API_URL = "http://localhost:8080/api/comments/";
+
+export const createComment = (commentData) => {
+  return  api.post("/comments/create", commentData);
+}
+
+export const getCommentsByServiceId = (serviceId) => {
+  return axios.get(API_URL + `${serviceId}`);
+}
+
+export const CanComment = (serviceId) => {
+
+  return api.get(`/comments/cancomment/${serviceId}`);
+}

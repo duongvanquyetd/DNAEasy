@@ -3,43 +3,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Header from '../Header';
 import Footer from '../Footer';
-import '../css/BlogDetail.css';
-import { getBlogById } from '../../service/MockBlogService';
-import { FaArrowLeft, FaTwitter, FaFacebook, FaLinkedin, FaClock, FaUser, FaTag, FaBookmark, FaRegBookmark } from 'react-icons/fa';
-import BlogListSidebar from './BlogListSidebar';
 
-const ErrorBoundary = ({ children }) => {
-  const [hasError, setHasError] = useState(false);
+import '../css/BlogDetail.css'; // CSS file for BlogDetail styling
+import { getBlogById } from '../../service/MockBlogService'; // Service for fetching blog by ID
+import { FaArrowLeft, FaShare, FaTwitter, FaFacebook, FaLinkedin } from 'react-icons/fa';
+import { GetBlogById } from '../../service/Blog';
 
-  useEffect(() => {
-    const errorHandler = (error) => {
-      console.error('ErrorBoundary caught:', error);
-      setHasError(true);
-    };
-    window.addEventListener('error', errorHandler);
-    return () => window.removeEventListener('error', errorHandler);
-  }, []);
+// Mock feedback service (replace with actual API in production)
 
-  if (hasError) {
-    return (
-      <div className="error-container">
-        <div className="error-content">
-          <span className="error-icon">⚠️</span>
-          <h3>Oops! Something Went Wrong</h3>
-          <p>We're having trouble loading this content. Please try refreshing the page.</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="retry-button"
-            aria-label="Refresh page"
-          >
-            Refresh
-          </button>
-        </div>
-      </div>
-    );
-  }
-  return children;
-};
+
 
 const Breadcrumbs = ({ title }) => (
   <nav className="breadcrumbs" aria-label="Breadcrumb">
@@ -97,38 +69,30 @@ const ShareButtons = ({ title, url }) => {
 
 const BlogDetail = () => {
   const { blogId } = useParams();
+
+
   const navigate = useNavigate();
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [readingProgress, setReadingProgress] = useState(0);
-  const [isBookmarked, setIsBookmarked] = useState(false);
+
   const contentRef = useRef(null);
 
   useEffect(() => {
-    // Load bookmark state from localStorage
-    const bookmarked = localStorage.getItem(`bookmark-${blogId}`);
-    setIsBookmarked(!!bookmarked);
 
-    const fetchBlog = async () => {
-      try {
-        setLoading(true);
-        const response = await getBlogById(blogId);
-        if (!response.data) {
-          throw new Error('Blog not found');
-        }
+
+    GetBlogById(blogId)
+      .then((response) => {
         setBlog(response.data);
-        setError(null);
-      } catch (error) {
-        console.error('Error fetching blog:', error);
-        setError('Failed to load blog post. Please try again later.');
-      } finally {
         setLoading(false);
+        console.log('Blog fetched successfully:', response.data);
       }
-    };
 
-    fetchBlog();
-  }, [blogId]);
+      ).catch((err) => {
+        console.error('Error fetching blog:', err);
+      })
+  }, []);
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -144,142 +108,83 @@ const BlogDetail = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleBackClick = () => {
-    navigate('/blog');
-  };
 
-  const handleBookmark = () => {
-    const newBookmarkState = !isBookmarked;
-    setIsBookmarked(newBookmarkState);
-    if (newBookmarkState) {
-      localStorage.setItem(`bookmark-${blogId}`, 'true');
-    } else {
-      localStorage.removeItem(`bookmark-${blogId}`);
-    }
-  };
 
   const articleUrl = window.location.href;
   const articleTitle = blog?.title || 'Check out this article';
 
   return (
-    <ErrorBoundary>
-      <div className="blog-detail-container">
+
+
+    <div className="blogDetailContainer redesigned">
       <Header />
-        <div className="reading-progress-bar">
-          <div
-            className="reading-progress-fill"
-            style={{ width: `${readingProgress}%` }}
-          ></div>
-        </div>
-        <main className="blog-detail-main">
-          <div className="blog-detail-content" style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start' }}>
-            <div style={{ flex: 1 }}>
-              <Breadcrumbs title={blog?.title || 'Post Title'} />
-              {loading ? (
-                <div className="loading-container">
-                  <div className="loading-skeleton">
-                    <div className="skeleton-image"></div>
-                    <div className="skeleton-title"></div>
-                    <div className="skeleton-meta"></div>
-                    <div className="skeleton-content">
-                      <div className="skeleton-line"></div>
-                      <div className="skeleton-line short"></div>
-                      <div className="skeleton-line"></div>
-                    </div>
-                  </div>
-                </div>
-              ) : error ? (
-                <div className="error-container">
-                  <div className="error-content">
-                    <span className="error-icon">📝</span>
-                    <h3>Content Unavailable</h3>
-                    <p>{error}</p>
-                    <button
-                      onClick={() => window.location.reload()}
-                      className="retry-button"
-                      aria-label="Retry loading blog"
-                    >
-                      Try Again
-                    </button>
-                  </div>
-                </div>
-              ) : blog ? (
-                <article className="blog-article" ref={contentRef}>
-                  <div className="article-actions">
-                    <button
-                      onClick={handleBackClick}
-                      className="back-button"
-                      aria-label="Go back to blog list"
-                    >
-                      <FaArrowLeft />
-                    </button>
-                    <button
-                      onClick={handleBookmark}
-                      className="bookmark-button"
-                      aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
-                    >
-                      {isBookmarked ? <FaBookmark /> : <FaRegBookmark />}
-                    </button>
-                  </div>
-                  <header className="article-header">
-                    <h1 className="article-title">{blog.title}</h1>
-                    <div className="article-meta">
-                      <div className="meta-item">
-                        <FaUser className="meta-icon" />
-                        <span>{blog.author || 'Anonymous Author'}</span>
-                      </div>
-                      <div className="meta-item">
-                        <FaTag className="meta-icon" />
-                        <span>{blog.category || 'General'}</span>
-                      </div>
-                      <div className="meta-item">
-                        <FaClock className="meta-icon" />
-                        <span>
-                          {blog.date ? new Date(blog.date).toLocaleDateString() : 'Recently'}
-                        </span>
-                      </div>
-                    </div>
-                  </header>
-                  <div className="article-image-container">
-                    {blog.imageUrls && blog.imageUrls.length > 0 ? (
-                      <img
-                        src={blog.imageUrls[0]}
-                        alt={blog.title}
-                        className="article-image"
-                        loading="lazy"
-                        onError={(e) => {
-                          e.target.src = 'https://via.placeholder.com/800x500';
-                        }}
-                      />
-                    ) : (
-                      <div className="article-image-placeholder">
-                        <span className="placeholder-icon">📰</span>
-                        <p>Featured image coming soon</p>
-                      </div>
-                    )}
-                  </div>
-                  <section className="article-content">
-                    {blog.content ? (
-                      <div dangerouslySetInnerHTML={{ __html: blog.content }} />
-                    ) : (
-                      <p>This article is currently being prepared. Check back soon for the full content!</p>
-                    )}
-                  </section>
-                  <footer className="article-footer">
-                    <div className="share-section">
-                      <span className="share-label">Share this article</span>
-                      <ShareButtons title={articleTitle} url={articleUrl} />
-                    </div>
-                  </footer>
-                </article>
-              ) : null}
+      <div className="blogDetailMain redesigned">
+        <div className="blogDetailLeft">
+          <Breadcrumbs title={blog?.title || 'Post Title'} />
+          {loading ? (
+            <div className="blogDetailLoading">
+              <div className="blogDetailSkeletonImage"></div>
+              <div className="blogDetailSkeletonTitle"></div>
+              <div className="blogDetailSkeletonMeta"></div>
+              <div className="blogDetailSkeletonContent"></div>
             </div>
-            <BlogListSidebar />
-          </div>
-        </main>
-        <Footer />
+          ) : error ? (
+            <div className="blogDetailError">
+              <p>{error}</p>
+              <button onClick={fetchBlog} className="blogDetailRetry" aria-label="Retry loading blog">Retry</button>
+            </div>
+          ) : blog ? (
+            <>
+              <section className="blogDetailContent redesigned" ref={contentRef}>
+                <h1 className="blogDetailTitle">{blog.blogTitle}</h1>
+                <div className="blogDetailMeta redesigned">
+                  <span className="blogDetailAuthor">{blog.staffName || 'Author'}</span> |
+                  <span className="blogDetailCategory">{blog.blogType || 'Category'}</span> |
+                  <span className="blogDetailDate">{blog.createDate ? new Date(blog.createDate).toLocaleString() : '1 min ago'}</span>
+                </div>
+                <div className="blogDetailImageContainer redesigned">
+                  {blog.blogimage && blog.blogimage.length > 0 ? (
+                    <img
+                      src={blog.blogimage[0]}
+                      alt={blog.blogTitle}
+                      className="blogDetailImage"
+                      loading="lazy"
+                      onError={(e) => console.log('Image failed to load:', e.target.src)}
+                    />
+                  ) : (
+                    <p>No image available</p>
+                  )}
+                </div>
+                <div className="blog-detail-body">
+                  <div className="blog-detail-content">
+                    {blog.blogContent ? (
+                      <article dangerouslySetInnerHTML={{ __html: blog.blogContent }} />
+                    ) : (
+                      <p className="no-content">No additional content available.</p>
+                    )}
+                  </div>
+                </div>
+                <div className="blogDetailShare redesigned">
+                  <span>Share this</span>
+                  <ShareButtons />
+                </div>
+              </section>
+              <MorePosts posts={blog.relatedPosts || []} />
+
+
+
+
+            </>
+          ) : null}
+        </div>
+        <div className="blogDetailRight">
+          {blog && <TableOfContents headings={blog.headings || ["lorem ipsum", "lorem ipsum", "lorem ipsum", "lorem ipsum"]} />}
+        </div>
+
       </div>
-    </ErrorBoundary>
+      <Footer />
+    </div>
+
   );
 };
 
@@ -300,9 +205,7 @@ BlogDetail.propTypes = {
   }),
 };
 
-ErrorBoundary.propTypes = {
-  children: PropTypes.node.isRequired,
-};
+
 
 ShareButtons.propTypes = {
   title: PropTypes.string.isRequired,
