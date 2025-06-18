@@ -9,6 +9,7 @@
   overflow-x: hidden;
 }
 
+<<<<<<< HEAD
 .blogContainer::before {
   content: '';
   position: absolute;
@@ -25,6 +26,8 @@
   50% { background-position: 100% 50%; }
 }
 
+=======
+>>>>>>> 137b2e69a07e7da47e0b6b26168c91e705674edd
 /* Banner Section */
 .blogBanner {
   position: relative;
