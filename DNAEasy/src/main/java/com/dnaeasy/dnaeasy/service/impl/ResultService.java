@@ -13,6 +13,8 @@ import com.dnaeasy.dnaeasy.mapper.ResultMapper;
 import com.dnaeasy.dnaeasy.responsity.*;
 import com.dnaeasy.dnaeasy.service.IsResultService;
 import com.dnaeasy.dnaeasy.service.IsSampleService;
+import com.dnaeasy.dnaeasy.util.EmailSender;
+import jakarta.validation.constraints.Email;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -29,7 +31,6 @@ public class ResultService implements IsResultService {
     IsAppointmentResponsitory isAppointmentResponsitory;
     @Autowired
     IsProcessTesting isProcessTesting;
-
     @Autowired
     ResultMapper resultMapper;
     @Autowired
@@ -38,6 +39,8 @@ public class ResultService implements IsResultService {
     IsSampleRespository isSampleRespository;
     @Autowired
     AppointmentService appointmentService;
+    @Autowired
+    EmailSender emailSender;
 
 
     @Override
@@ -75,6 +78,9 @@ public class ResultService implements IsResultService {
 
     @Override
     public List<ResultUpdateResponse> UpdateResult(List<ResultUpdateRequest> request) {
+
+
+
         List<ResultUpdateResponse> responses = new ArrayList<>();
         List<ProcessTesting> processTestings = new ArrayList<>();
         for (ResultUpdateRequest updateRequest : request) {
@@ -101,15 +107,17 @@ public class ResultService implements IsResultService {
         newAppointment.setNote(appointment.getNote());
 
 
+        Result a =isResultResponsitory.findResultsByResultId(request.get(0).getResultId());
+        Appointment appointment1 = a.getSampelist().iterator().next().getAppointment();
+        Person customer = appointment1.getCustomer();
 
-//xem lai sao no khong luu nha
-//        Sample sample = appointment.getSampelist().get(0);
-//        SampleTracking sptk = new SampleTracking();
-//        sptk.setSample(sample);
-//        sptk.setStatusName(processTestings.getLast().getStatusName());
-//        sptk.setStatusDate(LocalDateTime.now());
-//        sample.getTracks().add(sptk);
-//        isSampleRespository.save(sample);
+        try
+        {
+            emailSender.SendMail(customer.getEmail());
+        }catch (Exception e)
+        {
+            new RuntimeException(e);
+        }
 
 
         appointmentService.UpdateStatusAppoinment(newAppointment,null);

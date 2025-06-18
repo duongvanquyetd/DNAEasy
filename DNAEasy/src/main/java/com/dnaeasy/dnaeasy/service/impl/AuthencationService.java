@@ -7,6 +7,7 @@ import com.dnaeasy.dnaeasy.dto.response.AuthenctionResponse;
 import com.dnaeasy.dnaeasy.dto.response.IntrospectResponse;
 import com.dnaeasy.dnaeasy.enity.InvalidToken;
 import com.dnaeasy.dnaeasy.enity.Person;
+import com.dnaeasy.dnaeasy.enums.GenderEnum;
 import com.dnaeasy.dnaeasy.enums.RoleName;
 import com.dnaeasy.dnaeasy.mapper.UserMapper;
 import com.dnaeasy.dnaeasy.responsity.IsInvalidateToken;
@@ -20,6 +21,7 @@ import com.nimbusds.jwt.SignedJWT;
 import lombok.AllArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -41,7 +43,13 @@ public class AuthencationService implements IsAuthencationService {
     UserMapper userMapper;
     @Autowired
     IsInvalidateToken isInvalidateToken;
-    protected final static String SIGNERKEY = "1zbArs1Mw1U1DFy6gihY+UARQQERM6RIT6WsiB8KD+sG8ewTKntmCMGPlG7ZPHmF";
+    @Value("${jwt.signlekey}")
+    protected  String SIGNERKEY;
+    @Value("${avatar.female}")
+    private String avatarMale;
+
+    @Value("${avatar.male}")
+    private String avatarFemale;
 
 
     public AuthenctionResponse UserLogin(AuthencationRequest authencationRequest) {
@@ -70,7 +78,15 @@ public class AuthencationService implements IsAuthencationService {
             return null;
         }
         Person p = userMapper.PersonRequestToPerson(userCreateRequest);
-        System.out.println(userCreateRequest);
+       if(p.getAvatarUrl() == null || p.getAvatarUrl().isEmpty()) {
+           if(p.getGender() == GenderEnum.F)
+           {
+               p.setAvatarUrl(avatarFemale);
+           }
+           else {
+               p.setAvatarUrl(avatarMale);
+           }
+       }
 
 
         p.setRolename(RoleName.CUSTOMER);
