@@ -16,6 +16,7 @@ const Header = () => {
       if (localStorage.getItem("token")) {
         GetMyInfor().then((response) => {
           setUser(response.data)
+          console.log("response infor user",response.data);
         })
 
       }
@@ -110,7 +111,7 @@ const Header = () => {
         ))}
       </nav>
 
-      {user && user.avatarUrl ?
+      {user  ?
         (
           <div style={styles.avatarContainer} className="avatar-container">
             <div style={styles.avatarWrapper}>

@@ -161,7 +161,7 @@ const BlogDetail = () => {
                   <ShareButtons />
                 </div>
               </section>
-            </> 
+</>
           ) : null}
         </div>
         <div className="blogDetailRight">

@@ -11,14 +11,16 @@ export const SearchAndGet = (search,page,size) => {
     return axios.post(`http://localhost:8080/api/service/search?size=${size}&page=${page}`,search);
 }
 
-export const createService = (serviceData) => {
-    return axios.post('http://localhost:8080/api/service', serviceData);
-}
 
-export const updateService = (id, serviceData) => {
-    return axios.put(`http://localhost:8080/api/service/${id}`, serviceData);
-}
+//CRUD
+// export const createService = (serviceData) => {
+//     return axios.post('http://localhost:8080/api/service', serviceData);
+// }
 
-export const deleteService = (id) => {
-    return axios.delete(`http://localhost:8080/api/service/${id}`);
-}
+// export const updateService = (id, serviceData) => {
+//     return axios.put(`http://localhost:8080/api/service/${id}`, serviceData);
+// }
+
+// export const deleteService = (id) => {
+//     return axios.delete(`http://localhost:8080/api/service/${id}`);
+// }
