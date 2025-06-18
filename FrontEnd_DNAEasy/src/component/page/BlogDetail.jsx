@@ -169,7 +169,7 @@ const BlogDetail = () => {
                   <ShareButtons />
                 </div>
               </section>
-              <MorePosts posts={blog.relatedPosts || []} />
+              
 
 
 
@@ -177,9 +177,7 @@ const BlogDetail = () => {
             </>
           ) : null}
         </div>
-        <div className="blogDetailRight">
-          {blog && <TableOfContents headings={blog.headings || ["lorem ipsum", "lorem ipsum", "lorem ipsum", "lorem ipsum"]} />}
-        </div>
+        
 
       </div>
       <Footer />

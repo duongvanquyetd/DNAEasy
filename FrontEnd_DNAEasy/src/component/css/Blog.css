@@ -3,6 +3,7 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+ 
 }
 
 /* Banner Section */
@@ -157,6 +158,9 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
   gap: 40px;
+   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .blogPost {
@@ -167,6 +171,7 @@
   transition: all 0.4s ease;
   position: relative;
   border: 1px solid #f1f5f9;
+  width: 45%;
 }
 
 .blogPost::before {

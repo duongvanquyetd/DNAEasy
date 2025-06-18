@@ -429,6 +429,9 @@
     max-width: 28rem; /* max-w-md */
     width: 100%;
     margin: 0 1rem; /* mx-4 */
+    position: absolute;
+    top: 120px;
+    
   }
 
   .your-appointment .modal-content.large {
