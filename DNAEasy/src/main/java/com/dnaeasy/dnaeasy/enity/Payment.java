@@ -36,5 +36,6 @@ public class Payment {
     @ManyToOne
     @JoinColumn(name = "Staff_receptionID")
     private Person staffReception;
-
+    @Column(name = "pay_date")
+    private LocalDateTime paymentDate;
 }
