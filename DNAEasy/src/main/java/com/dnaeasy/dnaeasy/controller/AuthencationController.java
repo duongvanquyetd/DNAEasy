@@ -13,6 +13,7 @@ import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
 import com.nimbusds.jose.JOSEException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,7 @@ public class AuthencationController {
     CloudinaryUtil cloudinaryUtil;
     UserService userService;
     UserMapper userMapper;
+
 
     @PostMapping("/login")
 
@@ -55,8 +57,9 @@ public class AuthencationController {
         try {
             if (file != null) {
                 userCreateRequest.setAvatarUrl(cloudinaryUtil.uploadImage(file));
-                System.out.println(userCreateRequest);
+
             }
+
         } catch (IOException e) {
             System.out.println("loi file");
             e.printStackTrace();

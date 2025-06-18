@@ -196,6 +196,7 @@ public class PaymentService implements IsPaymentService {
                 response.setSuccess(true);
                 response.setAppointmentId(a.getAppointmentId());
                 response.setPaymentfor("pay");
+                a.setCurentStatusAppointment("PAID_" + payment.getPaymentMethod());
 
             } else {
 
@@ -204,7 +205,7 @@ public class PaymentService implements IsPaymentService {
                 response.setPaymentfor("view");
 
             }
-            a.setCurentStatusAppointment("PAID_" + payment.getPaymentMethod());
+
             payment.setAppointment(a);
             isPaymentResponsitory.save(payment);
 
@@ -213,9 +214,6 @@ public class PaymentService implements IsPaymentService {
             response.setSuccess(false);
             response.setAppointmentId(a.getAppointmentId());
         }
-
-
-
 
         return response;
     }

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNA Test Result Notification</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #e6f0ff 0%, #b3d4ff 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        .card {
+            background: linear-gradient(145deg, #ffffff, #f8fbff);
+
+            border-radius: 1.2rem;
+            box-shadow: 0 15px 40px rgba(0, 123, 255, 0.15), 0 5px 15px rgba(0, 123, 255, 0.1);
+            text-align: center;
+            max-width: 550px;
+            width: 90%;
+            border: 1px solid rgba(0, 123, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0, 123, 255, 0.2), 0 8px 20px rgba(0, 123, 255, 0.15);
+        }
+
+        .banner {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 1rem 1rem 0 0;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #007bff;
+            padding:8px 8px 0px 8px;
+            box-sizing: border-box;
+        }
+
+        .message {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #003087;
+            margin-bottom: 1.5rem;
+            line-height: 1.3;
+        }
+
+        .info {
+            font-size: 1rem;
+            color: #2d3748;
+            line-height: 1.8;
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 0 2rem 2.5rem;
+        }
+
+        .btn {
+            background: linear-gradient(90deg, #007bff, #00a3ff);
+            color: white;
+            padding: 0.9rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn:hover {
+            background: linear-gradient(90deg, #0056b3, #007bff);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 0 1.5rem 2rem;
+                width: 95%;
+            }
+
+            .banner {
+                height: 120px;
+            }
+
+            .message {
+                font-size: 1.5rem;
+            }
+
+            .info {
+                font-size: 0.95rem;
+            }
+
+            .btn {
+                font-size: 1rem;
+                padding: 0.8rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <img
+            src="https://res.cloudinary.com/dy3uhobsq/image/upload/v1750143425/aed6338d-3e9e-43b8-9d49-24c2284bab1d_Logo.jpg"
+            alt="DNA Banner"
+            class="banner"
+    >
+    <div class="message">Your DNA Test Results Are Ready</div>
+    <div class="info">
+        We are thrilled to announce that your DNA sample analysis is complete.
+        Your personalized report offers detailed insights into your genetic background,
+        identity verification, and relationship findings.
+        Access your secure results now to explore the full report.
+    </div>
+    <a href="http://localhost:5173/historybooking" class="btn">View Results</a>
+</div>
+</body>
+</html>
