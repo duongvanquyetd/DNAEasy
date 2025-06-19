@@ -112,7 +112,7 @@ const LoginPage = () => {
           </p>
           <p className="p line">Or With</p>
           <div className="flex-row">
-            <a href="/auth/google" className="btn google">
+            <a href="/googlelogin" className="btn google">
               <svg
                 version="1.1"
                 width={20}
