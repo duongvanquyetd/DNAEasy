@@ -255,12 +255,14 @@ export const HistoryBooking = () => {
                                                             </div>
                                                             <h4 className="method-title">Phương thức thanh toán</h4>
                                                         </div>
-                                                        <p >
 
+                                                        <p style={{display:"flex",justifyContent:"center"}} >
+                                                            
+                                                            
+                                                            
+                                                            {booking.paymentMethod === 'Cash' || booking.paymentMethod === 'VNPay'  ? (
+                                                                <img src={booking.paymentMethod==='VNPay' ? "https://s-vnba-cdn.aicms.vn/vnba-media/23/8/16/vnpay-logo_64dc3da9d7a11.jpg":"https://www.creativefabrica.com/wp-content/uploads/2021/09/15/Money-finance-cash-payment-icon-Graphics-17346742-1.jpg"} alt={booking.paymentMethod} style={{ maxWidth: '150px' }} />
 
-
-                                                            {booking.paymentMethod === 'Cash' || booking.paymentMethod === 'VNPay' ? (
-                                                                <img src={booking.paymentMethod === 'VNPay' ? "https://s-vnba-cdn.aicms.vn/vnba-media/23/8/16/vnpay-logo_64dc3da9d7a11.jpg" : "https://www.creativefabrica.com/wp-content/uploads/2021/09/15/Money-finance-cash-payment-icon-Graphics-17346742-1.jpg"} alt={booking.paymentMethod} style={{ maxWidth: '150px' }} />
                                                             ) : (
                                                                 <span className="method-value">{booking.paymentMethod}</span>
                                                             )}

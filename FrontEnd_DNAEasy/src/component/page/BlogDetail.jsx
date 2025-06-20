@@ -3,14 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Header from '../Header';
 import Footer from '../Footer';
-
+import BlogListSidebar from './BlogListSidebar';
 import '../css/BlogDetail.css'; // CSS file for BlogDetail styling
-import { getBlogById } from '../../service/MockBlogService'; // Service for fetching blog by ID
-import { FaArrowLeft, FaShare, FaTwitter, FaFacebook, FaLinkedin } from 'react-icons/fa';
+import { FaTwitter, FaFacebook, FaLinkedin } from 'react-icons/fa';
 import { GetBlogById } from '../../service/Blog';
-
-// Mock feedback service (replace with actual API in production)
-
 
 
 const Breadcrumbs = ({ title }) => (
@@ -69,8 +65,6 @@ const ShareButtons = ({ title, url }) => {
 
 const BlogDetail = () => {
   const { blogId } = useParams();
-
-
   const navigate = useNavigate();
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -79,8 +73,6 @@ const BlogDetail = () => {
   const contentRef = useRef(null);
 
   useEffect(() => {
-
-
     GetBlogById(blogId)
       .then((response) => {
         setBlog(response.data);
@@ -91,7 +83,7 @@ const BlogDetail = () => {
       ).catch((err) => {
         console.error('Error fetching blog:', err);
       })
-  }, []);
+  }, [blogId]);
 
 
   useEffect(() => {
@@ -169,18 +161,12 @@ const BlogDetail = () => {
                   <ShareButtons />
                 </div>
               </section>
-              <MorePosts posts={blog.relatedPosts || []} />
-
-
-
-
             </>
           ) : null}
         </div>
         <div className="blogDetailRight">
-          {blog && <TableOfContents headings={blog.headings || ["lorem ipsum", "lorem ipsum", "lorem ipsum", "lorem ipsum"]} />}
+          <BlogListSidebar />
         </div>
-
       </div>
       <Footer />
     </div>
