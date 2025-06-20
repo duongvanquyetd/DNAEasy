@@ -83,31 +83,31 @@ const UserProfile = () => {
           <div className="detail">Detail</div>
           <div className="field">
             <label className="label">Name</label>
-            <div className="value">{user.name}</div>
+            <div className="value">{user.name ? user.name:""}</div>
           </div>
           <div className="field">
             <label className="label">Email</label>
-            <div className="value">{user.email}</div>
+            <div className="value">{user.email ? user.email:""}</div>
           </div>
           <div className="field">
             <label className="label">Streets</label>
-            <div className="value">{address[0]}</div>
+            <div className="value">{address ? address[0]:""}</div>
           </div>
           <div className="field">
             <label className="label">District</label>
-            <div className="value">{address[1]}</div>
+            <div className="value">{address ? address[1]:""}</div>
           </div>
           <div className="field">
             <label className="label">City</label>
-            <div className="value">{address[2]}</div>
+            <div className="value">{address ? address[2]:""}</div>
           </div>
           <div className="field">
             <label className="label">Contact Number</label>
-            <div className="value">{user.phone}</div>
+            <div className="value">{user.phone }</div>
           </div>
           <div className="field">
             <label className="label">Gender</label>
-            <div className="value">{user.gender === "F" ? "Female" : "Male"}</div>
+            <div className="value">{user.gender === "F" ? "Female" : user.gender === 'M' ? "Male":""}</div>
             <button className="edit-button" onClick={handleEditClick}>
               Edit
             </button>

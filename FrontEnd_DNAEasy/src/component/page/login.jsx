@@ -1,15 +1,31 @@
-import React, { useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { LoginAPI } from '../../service/login';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import backgroundImage from '../image/background/background.jpg'; // Import the image from src/component/image/background/
+import { Search } from 'lucide-react';
 
 const LoginPage = () => {
+
+const [searchParams] = useSearchParams();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState({ username: '', password: '' });
   const [inValid, setInValid] = useState('');
   const navigate = useNavigate();
+
+
+  useEffect(() => {
+    // Check if token and rolename are already in localStorage  
+if(searchParams.get('token') && searchParams.get('rolename')) {
+
+  localStorage.setItem('token', searchParams.get('token'));
+  localStorage.setItem('rolename', searchParams.get('rolename')); 
+  console.log('Token and rolename set from URL parameters');
+  navigate('/home');
+}
+  }, []);
+
 
   function UserLogin(e) {
     e.preventDefault();
@@ -112,7 +128,7 @@ const LoginPage = () => {
           </p>
           <p className="p line">Or With</p>
           <div className="flex-row">
-            <a href="/googlelogin" className="btn google">
+            <a href="http://localhost:8080/oauth2/authorization/google" className="btn google">
               <svg
                 version="1.1"
                 width={20}

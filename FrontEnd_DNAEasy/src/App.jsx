@@ -17,7 +17,7 @@ import AdminDashboard from './component/page/AdminDashboard';
 import BlogDetail from './component/page/BlogDetail.jsx';
 import ManageBlog from './component/page/ManageBlog';
 import ManageService from './component/page/ManageService';
-import {LoginWithGoogle} from './component/page/LoginWithGoogle';
+
 
 
 function App() {
@@ -44,7 +44,7 @@ function App() {
         <Route path="/AdminDashboard" element={<AdminDashboard />} />
         <Route path="/ManageBlog" element={<ManageBlog />} />
         <Route path="/ManageService" element={<ManageService />} />
-        <Route path='/login' element={<LoginWithGoogle />} />
+       
         <Route path="*" element={<div>404 - Page Not Found</div>} />
       </Routes>
     </BrowserRouter>
