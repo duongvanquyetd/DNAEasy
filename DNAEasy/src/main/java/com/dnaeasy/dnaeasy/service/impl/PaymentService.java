@@ -218,5 +218,11 @@ public class PaymentService implements IsPaymentService {
         return response;
     }
 
+    @Override
+    public BigDecimal totalRevenueToday() {
+        BigDecimal revenue= isPaymentResponsitory.getTodayRevenueToday();
+        return revenue != null ? revenue : BigDecimal.ZERO;
+    }
+
 
 }

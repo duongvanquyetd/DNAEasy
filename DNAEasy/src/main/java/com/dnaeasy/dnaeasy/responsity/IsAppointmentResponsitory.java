@@ -8,7 +8,9 @@ import com.dnaeasy.dnaeasy.enums.PaymentMehtod;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -23,8 +25,8 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
 
     List<Appointment> findAllByCustomerAndCurentStatusAppointmentNotIn(Person customer, Collection<String> curentStatusAppointments);
 
-@Query("Select a.appointment.appointmentId from Sample a where a.sampleid =:id  ")
-    int  getAppointmentIDBySampleID(int id);
+    @Query("Select a.appointment.appointmentId from Sample a where a.sampleid =:id  ")
+    int getAppointmentIDBySampleID(int id);
 
     List<Appointment> findAllByCurentStatusAppointmentNotIn(Collection<String> curentStatusAppointments);
 
@@ -33,6 +35,7 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
     List<Appointment> findAllByStaffAndCurentStatusAppointmentIsIn(Person staff, Collection<String> curentStatusAppointments);
 
     List<Appointment> findAllByCustomerAndCurentStatusAppointmentIsIn(Person customer, Collection<String> curentStatusAppointments);
+
     List<Appointment> findAllBySampelist(List<Sample> sampelist);
 
     List<Appointment> findALLByPayment_PaymentMethod(PaymentMehtod paymentPaymentMethod);
@@ -53,5 +56,17 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
 
     boolean existsByCustomer_PersonIdAndService_ServiceIdAndCurentStatusAppointmentIsIn(int customerPersonId, int serviceServiceId, Collection<String> curentStatusAppointments);
 
+
     int countByService_ServiceIdAndCustomer_PersonId(int serviceServiceId, int customerPersonId);
+
+    @Query("select count(a) from Appointment a where a.dateCollect between :start and :end and a.curentStatusAppointment='COMPLETED'")
+    int countCompletedAppointmentsToday(@Param("start") LocalDateTime start,
+                                         @Param("end") LocalDateTime end);
+
+    List<Appointment> findAllByCurentStatusAppointmentAndDateCollectIsBetween(String status,LocalDateTime start,LocalDateTime end);
+
+
+
+
+
 }

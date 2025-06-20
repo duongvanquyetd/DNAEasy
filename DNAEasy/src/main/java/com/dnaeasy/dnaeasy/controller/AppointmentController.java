@@ -51,5 +51,13 @@ public class AppointmentController {
         return  ResponseEntity.ok(appointmentService.getAppoinmentFofStaff_Reception());
     }
 
+    @GetMapping("/countToday")
+    public ResponseEntity<Integer> countAppointmentsToday(){
+        return ResponseEntity.ok(appointmentService.getCompletedAppointmentsToday());
+    }
 
+    @GetMapping("/countYesterday")
+    public ResponseEntity<List<AppointmentResponse>> getAppointmentYesterday(){
+        return ResponseEntity.ok(appointmentService.getAppointmentYesterday());
+    }
 }
