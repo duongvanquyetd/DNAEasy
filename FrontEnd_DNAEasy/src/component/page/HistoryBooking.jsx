@@ -7,6 +7,7 @@ import api from '../../service/api';
 import '../css/HistoryBooking.css'; // Ensure this points to the CSS file with the new class names
 import Header from '../Header.jsx';
 import Footer from '../Footer.jsx';
+import { CanComment } from '../../service/Comment.js';
 
 export const HistoryBooking = () => {
     const [historyBooking, setHistoryBooking] = useState([]);
@@ -19,9 +20,10 @@ export const HistoryBooking = () => {
                 const appointmentData = await GetHistoryAppointment();
                 const fullAppointments = await Promise.all(
                     appointmentData.data.map(async (appointment) => {
-                        const [result, status] = await Promise.all([
+                        const [result, status,cancomment] = await Promise.all([
                             GetResultByAppointmentId({ appoinmentId: appointment.appointmentId }),
                             GetPaymentStatus(appointment.appointmentId),
+                            CanComment(appointment.serviceId),
                         ]);
 
                         return {
@@ -29,6 +31,7 @@ export const HistoryBooking = () => {
                             trackingSample: appointment.listSample[0]?.sampleTracking || [],
                             result: result.data || [],
                             status: status.data,
+                            cancomment: cancomment.data,
                         };
                     })
                 );
@@ -192,7 +195,15 @@ export const HistoryBooking = () => {
                                                     <p className="detail-label">Ghi chú</p>
                                                     <p className="detail-value">{booking.note || 'Không có'}</p>
                                                 </div>
+                                                {booking.cancomment  && (
+                                                        <a href={`/service/${booking.serviceId}`} className="comment-button">
+                                                            Comment
+                                                        </a>
+                                                    )}
+                                        
                                             </div>
+
+
                                         </div>
                                         {rolename === "STAFF_RECEPTION" && (
                                             <div className="staff-section">
@@ -244,16 +255,18 @@ export const HistoryBooking = () => {
                                                             </div>
                                                             <h4 className="method-title">Phương thức thanh toán</h4>
                                                         </div>
+
                                                         <p style={{display:"flex",justifyContent:"center"}} >
                                                             
                                                             
                                                             
                                                             {booking.paymentMethod === 'Cash' || booking.paymentMethod === 'VNPay'  ? (
                                                                 <img src={booking.paymentMethod==='VNPay' ? "https://s-vnba-cdn.aicms.vn/vnba-media/23/8/16/vnpay-logo_64dc3da9d7a11.jpg":"https://www.creativefabrica.com/wp-content/uploads/2021/09/15/Money-finance-cash-payment-icon-Graphics-17346742-1.jpg"} alt={booking.paymentMethod} style={{ maxWidth: '150px' }} />
+
                                                             ) : (
                                                                 <span className="method-value">{booking.paymentMethod}</span>
                                                             )}
-                                                            </p>
+                                                        </p>
                                                     </div>
                                                     <div className="tracking-grid">
                                                         <div className="tracking-section">
@@ -356,7 +369,7 @@ export const HistoryBooking = () => {
                                                                                 <p className="status-date"><strong>Có kết quả:</strong> {formatDate(res.resultTime)}</p>
                                                                                 {res.resulFilePDF && (
                                                                                     <div className="mt-33 w-full">
-                                                                                        <img style ={{ maxWidth: '800px' }}
+                                                                                        <img style={{ maxWidth: '800px' }}
                                                                                             src={res.resulFilePDF}
 
                                                                                             alt="Kết quả PDF"
@@ -364,16 +377,16 @@ export const HistoryBooking = () => {
                                                                                         />
                                                                                         <div>
                                                                                             <a
-                                                                                            href={res.resulFilePDF.replace('/upload/', '/upload/fl_attachment/')}
-                                                                                            className="download-button"
-                                                                                        >
-                                                                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="inline-block w-5 h-5 mr-2">
-                                                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                                                                            </svg>
-                                                                                            Tải xuống
-                                                                                        </a>
-                                                                                            
-                                                                                            </div>
+                                                                                                href={res.resulFilePDF.replace('/upload/', '/upload/fl_attachment/')}
+                                                                                                className="download-button"
+                                                                                            >
+                                                                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="inline-block w-5 h-5 mr-2">
+                                                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                                                                </svg>
+                                                                                                Tải xuống
+                                                                                            </a>
+
+                                                                                        </div>
                                                                                     </div>
                                                                                 )}
                                                                             </div>

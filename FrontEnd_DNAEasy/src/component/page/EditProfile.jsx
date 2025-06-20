@@ -25,6 +25,7 @@ const EditProfile = () => {
     password: '',
     newPassword: '',
     confirmNewPassword: '',
+    typeLogin: ''
 
   });
   useEffect(() => {
@@ -45,6 +46,7 @@ const EditProfile = () => {
           password: '',
           newPassword: null,
           confirmNewPassword: null,
+          typeLogin: response.data.typeLogin
         })
     }).catch((error) => {
       if (error.response && error.response.status === 401) {
@@ -63,7 +65,7 @@ const EditProfile = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const userform = new FormData();
-  setError('')
+    setError('')
 
     if (formData.newPassword && !/^(?=.*[A-Za-z]).{6,16}$/.test(formData.newPassword)) {
       setError("New Password must be 6-16 characters and contain at least one letter")
@@ -89,7 +91,7 @@ const EditProfile = () => {
     userform.append("user", new Blob([JSON.stringify(json)], { type: "application/json" }))
     userform.append("file", avatarupdate ? avatarupdate : null)
     UpdateInfor(userform).then((response) => {
-      
+
       console.log("userupdate", response.data)
       navigate('/user/profile');
     }).catch((error) => {
@@ -113,7 +115,7 @@ const EditProfile = () => {
               src={avatar}
               alt="User Avatar"
               className="avatar"
-              
+
             />
           </div>
           <div className="field">
@@ -220,62 +222,71 @@ const EditProfile = () => {
 
 
 
-              <div className="field">
-                <label className="label">Password</label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="input"
-                  required
-                />
-
-              </div>
-
-
-
-
-
-
-              {updatepass && (
-                <>
-
+              {formData.typeLogin === null &&
+                
+                  (
+                    <>
                   <div className="field">
-                    <label className="label">New Password</label>
+                    <label className="label">Password</label>
                     <input
                       type="password"
-                      name="newPassword"
-                      value={formData.newPassword}
+                      name="password"
+                      value={formData.password}
                       onChange={handleChange}
                       className="input"
-
+                      required
                     />
 
                   </div>
-                  <div className="field">
-                    <label className="label">Confirm New Password</label>
-                    <input
-                      type="password"
-                      name="confirmNewPassword"
-                      value={formData.confirmNewPassword}
-                      onChange={handleChange}
-                      className="input"
+                  {updatepass && (
+                    <>
 
-                    />
+                      <div className="field">
+                        <label className="label">New Password</label>
+                        <input
+                          type="password"
+                          name="newPassword"
+                          value={formData.newPassword}
+                          onChange={handleChange}
+                          className="input"
 
-                  </div>
+                        />
+
+                      </div>
+                      <div className="field">
+                        <label className="label">Confirm New Password</label>
+                        <input
+                          type="password"
+                          name="confirmNewPassword"
+                          value={formData.confirmNewPassword}
+                          onChange={handleChange}
+                          className="input"
+
+                        />
+
+                      </div>
+                    </>
+
+                  )
+
+                  }
                 </>
 
-              )
+                )}
 
-              }
+
+
+
+
+
+
+
 
             </div>
 
             {error && <div className='text-danger'>{error}</div>}
             <div className="form-actions">
-              <button type="button" className="cancel-button" onClick={(e)=> setUpdatePass(updatepass ? false : true)}>{updatepass ? "Close change Password" : "Change Password"}</button>
+              <button type="button" className="cancel-button" onClick={(e) => setUpdatePass(updatepass ? false : true)}>{updatepass ? "Close change Password" : "Change Password"}</button>
               <button type="submit" className="save-button">Save</button>
               <button
                 type="button"
