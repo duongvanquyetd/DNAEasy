@@ -56,11 +56,15 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
 
     boolean existsByCustomer_PersonIdAndService_ServiceIdAndCurentStatusAppointmentIsIn(int customerPersonId, int serviceServiceId, Collection<String> curentStatusAppointments);
 
+
+    int countByService_ServiceIdAndCustomer_PersonId(int serviceServiceId, int customerPersonId);
+
     @Query("select count(a) from Appointment a where a.dateCollect between :start and :end and a.curentStatusAppointment='COMPLETED'")
     int countCompletedAppointmentsToday(@Param("start") LocalDateTime start,
                                          @Param("end") LocalDateTime end);
 
     List<Appointment> findAllByCurentStatusAppointmentAndDateCollectIsBetween(String status,LocalDateTime start,LocalDateTime end);
+
 
 
 

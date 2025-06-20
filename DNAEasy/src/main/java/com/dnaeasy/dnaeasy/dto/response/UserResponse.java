@@ -20,6 +20,7 @@ public class UserResponse {
     private String email;
     private Work_hour work_hour;
     private RoleName rolename;
+    private String typeLogin;
 
 
 }

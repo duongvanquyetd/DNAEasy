@@ -15,6 +15,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AppointmentResponse {
+    private int serviceId;
     private int appointmentId;
     private String serviceName;
     private String typeService;

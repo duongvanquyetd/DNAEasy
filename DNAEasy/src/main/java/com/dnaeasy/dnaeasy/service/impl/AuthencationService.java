@@ -11,6 +11,7 @@ import com.dnaeasy.dnaeasy.enums.GenderEnum;
 import com.dnaeasy.dnaeasy.enums.RoleName;
 import com.dnaeasy.dnaeasy.mapper.UserMapper;
 import com.dnaeasy.dnaeasy.responsity.IsInvalidateToken;
+import com.dnaeasy.dnaeasy.responsity.IsPersonTesting;
 import com.dnaeasy.dnaeasy.responsity.IsUserResponsity;
 import com.dnaeasy.dnaeasy.service.IsAuthencationService;
 import com.nimbusds.jose.*;
@@ -107,6 +108,26 @@ public class AuthencationService implements IsAuthencationService {
         }
 
         return new IntrospectResponse(true);
+    }
+
+    @Override
+    public AuthenctionResponse LoginWithGoogle(UserCreateRequest request) {
+        AuthenctionResponse response = new AuthenctionResponse();
+        Person person ;
+        if(personResponsity.findByUsername(request.getUsername()) != null) {
+          person = personResponsity.findByUsername(request.getUsername());
+        }
+        else {
+            person = userMapper.PersonRequestToPerson(request);
+            person.setRolename(RoleName.CUSTOMER);
+            person.setTypeLogin("Gmail");
+            person = personResponsity.save(person);
+
+        }
+
+        response.setToken(generateToken(person));
+        response.setRolename(person.getRolename());
+        return  response;
     }
 
     public String generateToken(Person peroson) {

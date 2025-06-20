@@ -26,6 +26,7 @@ public interface AppointmentMapper {
     @Mapping(target = "paymentAmount" , source = "payment.paymentAmount")
     @Mapping(target = "typeService" ,source = "service.typeService")
     @Mapping(target = "paymentStatus",source = "payment.paymentStatus")
+    @Mapping(target = "serviceId" ,source  ="service.serviceId")
     AppointmentResponse AppointmentCreateResponse(Appointment appointment);
     default List<AppointmentTrackingResponse> AppointmentTrackingToList(Appointment appointment) {
       List<AppointmentTrackingResponse> list = new ArrayList<>();

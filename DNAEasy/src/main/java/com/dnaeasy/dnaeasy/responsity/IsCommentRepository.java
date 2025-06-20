@@ -39,4 +39,5 @@ public interface IsCommentRepository extends JpaRepository<Comment, Integer> {
     boolean existsByServiceAndCustomer(Service service, Person customer);
 
 
+    int countByService_ServiceIdAndCustomer_PersonId(int serviceServiceId, int customerPersonId);
 }

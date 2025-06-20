@@ -1,9 +1,11 @@
 package com.dnaeasy.dnaeasy.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -16,7 +18,7 @@ public class SecurityConfig {
 
     public String[] URL = {"/api/auth/*", "/api/payment/*","/api/comments/*","/api/blog","/api/blog/*"
 
-    ,"/api/service","/api/payment/*","/api/comments/*","/api/auth/*","/api/service","/api/service/*","/api/service/*","/api/email/*"};
+    ,"/api/service","/api/payment/*","/api/comments/*","/api/auth/*","/api/service","/api/service/*","/api/service/*","/api/email/*","/oauth2/**","/api/auth/**"};
 
     @Autowired
     private CustomJwtDecoder jwtDecoder;
@@ -29,14 +31,24 @@ public class SecurityConfig {
 
 
 //là cái link sau localhost://8080 nha
-        httpSecurity.authorizeHttpRequests(request ->
-                request.requestMatchers(HttpMethod.POST, URL).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/user/get").hasAnyAuthority("SCOPE_ADMIN")
-                        .requestMatchers(HttpMethod.OPTIONS, URL).permitAll()
-                        .requestMatchers(HttpMethod.GET, URL).permitAll()
-                        .anyRequest().authenticated()
+        httpSecurity.authorizeHttpRequests(request -> {
+            request.requestMatchers(HttpMethod.POST, URL).permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/user/get").hasAnyAuthority("SCOPE_ADMIN")
+                    .requestMatchers(HttpMethod.OPTIONS, URL).permitAll()
+                    .requestMatchers(HttpMethod.GET, URL).permitAll()
+                    .requestMatchers(URL).permitAll()
+                    .anyRequest().authenticated();
 
-        );
+
+        } )
+                .oauth2Login(auth -> auth
+                        .defaultSuccessUrl("/api/auth/login/google", true)
+
+                );
+
+
+
+
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
         httpSecurity.oauth2ResourceServer(oth2 ->
