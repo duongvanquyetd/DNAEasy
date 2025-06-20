@@ -73,14 +73,20 @@ public class UserService implements IsUserService {
                 throw new BadRequestException("Email is already in use");
             }
         }
-        if (!p.getPhone().equals(userUpdateResquest.getPhone())) {
-            if (personResponsity.findByPhone(userUpdateResquest.getPhone()) >= 1) {
-                throw new BadRequestException(" Phone number is already in use");
+
+
+        if(p.getTypeLogin() == null)
+        {
+            if (!passwordEncoder.matches(userUpdateResquest.getOldpassword(), p.getPassword())) {
+                throw new BadRequestException("Password Wrong");
+            }
+            if (!p.getPhone().equals(userUpdateResquest.getPhone())) {
+                if (personResponsity.findByPhone(userUpdateResquest.getPhone()) >= 1) {
+                    throw new BadRequestException(" Phone number is already in use");
+                }
             }
         }
-        if (!passwordEncoder.matches(userUpdateResquest.getOldpassword(), p.getPassword())) {
-            throw new BadRequestException("Password Wrong");
-        }
+
 
 
         p.setCity(userUpdateResquest.getCity());

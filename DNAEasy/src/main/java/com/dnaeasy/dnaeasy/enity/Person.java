@@ -22,37 +22,33 @@ public class Person {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int personId;
-    @Column(unique = true, nullable = false)
-    @Pattern(
-            regexp = "^0(3|5|7|8|9)[0-9]{8}$",
-            message = "Phone number is invalid. Must be 10 digits and start with 03, 05, 07, 08, or 09"
-    )
+//    @Column(unique = true, nullable = false)
+//    @Pattern(
+//            regexp = "^0(3|5|7|8|9)[0-9]{8}$",
+//            message = "Phone number is invalid. Must be 10 digits and start with 03, 05, 07, 08, or 09"
+//    )  => check tren FE khi dangki vi khi dang nhap gg ko co truong phone neu de nhu nay thi dang ki vao no se loi
     private String phone;
     @Nationalized
     @Column(nullable = false)
     private String name;
-    @NotBlank(message = "password not empty")
 
-    @Column(nullable = false)
 //    @Pattern(regexp = "^(?=.*[A-Za-z]).{6,16}$",message = "Password must be 6-16 characters and contain at least one letter")
     private String password;
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+//    @Column(nullable = false)
     private GenderEnum gender;
     @Enumerated(EnumType.STRING)
     private Work_hour work_hour;
     @Nationalized
-    @Column(nullable = false)
     private String streets;
     @Nationalized
-    @Column(nullable = false)
     private String city;
     @Nationalized
-    @Column(nullable = false)
+
     private String district;
     @Enumerated(EnumType.STRING)
     private RoleName rolename;
-
+    private String typeLogin;
     private String avatarUrl;
     @Column(nullable = false, unique = true)
     private String username;

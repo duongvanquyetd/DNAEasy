@@ -22,4 +22,5 @@ public interface IsUserService {
 
     String updateUser(UserUpdateResquest userUpdateResques);
     void deleteUser(int id);
+
 }

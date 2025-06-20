@@ -52,4 +52,6 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
     boolean existsByCustomer_PersonIdAndService_ServiceId(Integer customerId, Integer serviceId);
 
     boolean existsByCustomer_PersonIdAndService_ServiceIdAndCurentStatusAppointmentIsIn(int customerPersonId, int serviceServiceId, Collection<String> curentStatusAppointments);
+
+    int countByService_ServiceIdAndCustomer_PersonId(int serviceServiceId, int customerPersonId);
 }
