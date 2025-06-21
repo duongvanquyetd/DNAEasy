@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Logo from './image/logo/Logo.jpg';
 
 import { Logout } from '../service/login';
@@ -59,6 +59,11 @@ const Header = () => {
     navigate('/ManageService');
     setIsDropdownOpen(false);
   };
+  const handleManagerAssignStaff = () => {
+    navigate('/assign-staff');
+    setIsDropdownOpen(false);
+  };
+
 
   const handleLogout = () => {
     const token = { token: localStorage.getItem("token") }
@@ -80,16 +85,22 @@ const Header = () => {
       height: '100px', // Ensure consistent height
     }}>
       <div style={styles.logo}>
-        <img src={Logo} alt="DNAEASY Logo" style={styles.image} />
+        <Link to="/">
+          <img src={Logo} alt="DNAEASY Logo" style={styles.image} />
+        </Link>
       </div>
 
       <nav style={styles.nav}>
-
-        {['Home', 'Service', 'Blog', 'YourAppointment', 'HistoryBooking'].map((item, index) => (
-
-          <a
-            key={item}
-            href={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '')}`}
+        {[
+          { name: 'Home', path: '/' },
+          { name: 'Service', path: '/service' },
+          { name: 'Blog', path: '/blog' },
+          { name: 'Your Appointment', path: '/yourappointment' },
+          { name: 'History Booking', path: '/historybooking' }
+        ].map((item, index) => (
+          <Link
+            key={item.name}
+            to={item.path}
             style={{
               ...styles.navLink,
               animationDelay: `${index * 0.1}s`,
@@ -105,9 +116,9 @@ const Header = () => {
               e.target.style.textShadow = 'none';
             }}
           >
-            {item}
+            {item.name}
             <span style={styles.navUnderline}></span>
-          </a>
+          </Link>
         ))}
       </nav>
 
@@ -143,6 +154,7 @@ const Header = () => {
                   <>  
                   <button style={styles.dropdownItem} onClick={handleManagerBlog}>⚙️ Manage Blog</button>
                   <button style={styles.dropdownItem} onClick={handleManagerService}>⚙️ Manage Service</button>
+                  <button style={styles.dropdownItem} onClick={handleManagerAssignStaff}>🧑‍🔬 Phân công nhân viên</button>
 </>
                 )}
 
@@ -155,8 +167,8 @@ const Header = () => {
         ) : (
           <>
             <div style={styles.authButtons}>
-              <a href='/user/login' style={styles.loginBtn}>Login</a>
-              <a href='/user/register' style={styles.registerBtn}>Register</a>
+              <Link to='/user/login' style={styles.loginBtn}>Login</Link>
+              <Link to='/user/register' style={styles.registerBtn}>Register</Link>
             </div>
 
           </>
