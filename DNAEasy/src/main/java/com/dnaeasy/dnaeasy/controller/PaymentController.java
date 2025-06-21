@@ -66,8 +66,13 @@ public class PaymentController {
         paymentService.ConfirmPaidCash(appointment);
         return ResponseEntity.ok("Payment successful");
     }
-@GetMapping("/revenuetoday")
-    public ResponseEntity<BigDecimal> getRevenueToday(){
-        return ResponseEntity.ok(paymentService.totalRevenueToday());
+//    @GetMapping("/revenuetoday")
+//    public ResponseEntity<BigDecimal> getRevenueToday(){
+//        return ResponseEntity.ok(paymentService.totalRevenueToday());
+//    }
+
+    @GetMapping("/renue-yesterday")
+    public ResponseEntity<Double> getRenueYesterday(){
+        return ResponseEntity.ok(paymentService.findAllByPaymentYesterday());
     }
 }

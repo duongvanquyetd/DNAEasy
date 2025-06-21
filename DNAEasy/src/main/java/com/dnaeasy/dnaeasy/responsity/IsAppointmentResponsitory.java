@@ -63,9 +63,11 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
     int countCompletedAppointmentsToday(@Param("start") LocalDateTime start,
                                          @Param("end") LocalDateTime end);
 
-    List<Appointment> findAllByCurentStatusAppointmentAndDateCollectIsBetween(String status,LocalDateTime start,LocalDateTime end);
-
-
+    List<Appointment> findAllByCurentStatusAppointmentAndDateCollectBetween(
+            String currentStatusAppointment,
+            LocalDateTime start,
+            LocalDateTime end
+    );
 
 
 
