@@ -4,10 +4,13 @@ import com.dnaeasy.dnaeasy.dto.request.AppointmentCreateRequest;
 import com.dnaeasy.dnaeasy.dto.request.StatusUpdateAppointment;
 import com.dnaeasy.dnaeasy.dto.response.AppointCreateResponse;
 import com.dnaeasy.dnaeasy.dto.response.AppointmentResponse;
+import com.dnaeasy.dnaeasy.dto.response.SummaryTodayResponse;
+import com.dnaeasy.dnaeasy.dto.response.SummaryYesterdayResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IsAppointmentService {
 
@@ -20,6 +23,8 @@ public interface IsAppointmentService {
     List<AppointmentResponse> getAppoinmentinprocess();
     List<AppointmentResponse> getAppoinmentFofStaff_Lab();
     List<AppointmentResponse> getAppoinmentFofStaff_Reception();
-    int getCompletedAppointmentsToday();
-    List<AppointmentResponse> getAppointmentYesterday();
+//    int getCompletedAppointmentsToday();
+    Map<String, SummaryTodayResponse> getTodaySummary();
+//    List<AppointmentResponse> getAppointmentYesterday();
+    Map<String, SummaryYesterdayResponse> getYesterdaySummary();
 }

@@ -2,9 +2,7 @@ package com.dnaeasy.dnaeasy.service.impl;
 
 import com.dnaeasy.dnaeasy.dto.request.AppointmentCreateRequest;
 import com.dnaeasy.dnaeasy.dto.request.StatusUpdateAppointment;
-import com.dnaeasy.dnaeasy.dto.response.AppointCreateResponse;
-import com.dnaeasy.dnaeasy.dto.response.AppointmentResponse;
-import com.dnaeasy.dnaeasy.dto.response.SampleResponse;
+import com.dnaeasy.dnaeasy.dto.response.*;
 import com.dnaeasy.dnaeasy.enity.*;
 import com.dnaeasy.dnaeasy.enums.PaymentMehtod;
 import com.dnaeasy.dnaeasy.enums.RoleName;
@@ -27,7 +25,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,6 +52,8 @@ public class AppointmentService implements IsAppointmentService {
     CloudinaryUtil cloudinaryUtil;
     @Autowired
     IsSystemConfigRepo isSystemConfigRepo;
+    @Autowired
+    private IsPaymentResponsitory isPaymentResponsitory;
 
 
     @Override
@@ -343,6 +345,8 @@ public class AppointmentService implements IsAppointmentService {
     }
 
 
+
+
     public Work_hour Work_hour(LocalDateTime dateCollect) {
         int hour = dateCollect.getHour();
 
@@ -363,24 +367,42 @@ public class AppointmentService implements IsAppointmentService {
         return null;
     }
 
-    @Override
-    public int getCompletedAppointmentsToday() {
-        LocalDateTime startDay = LocalDateTime.now().toLocalDate().atStartOfDay();
-        LocalDateTime endDay = startDay.plusDays(1);
-        return isAppointmentResponsitory.countCompletedAppointmentsToday(startDay, endDay);
-    }
+//    @Override
+//    public int getCompletedAppointmentsToday() {
+//        LocalDateTime startDay = LocalDateTime.now().toLocalDate().atStartOfDay();
+//        LocalDateTime endDay = startDay.plusDays(1);
+//        return isAppointmentResponsitory.countCompletedAppointmentsToday(startDay, endDay);
+//    }
 
     @Override
-    public List<AppointmentResponse> getAppointmentYesterday() {
-        LocalDateTime startDay = LocalDateTime.now().minusDays(1).toLocalDate().atStartOfDay();
-        LocalDateTime endDay = LocalDateTime.now().toLocalDate().atStartOfDay().minusNanos(1);
+    public Map<String, SummaryTodayResponse> getTodaySummary() {
+        LocalDateTime start = LocalDateTime.now().toLocalDate().atStartOfDay();
+        LocalDateTime end = start.plusDays(1);
 
-        List<Appointment> listAppointmentYesterday = isAppointmentResponsitory.findAllByCurentStatusAppointmentAndDateCollectIsBetween("COMPLTED",startDay,endDay);
-
-        return listAppointmentYesterday.stream()
-                .map(appointmentMapper::AppointmentCreateResponse)
-                .collect(Collectors.toList());
+        int totalAppointment = isAppointmentResponsitory.countCompletedAppointmentsToday(start, end);
+        BigDecimal revenue = isPaymentResponsitory.getTodayRevenueToday();
+        Map<String,SummaryTodayResponse> summary = new HashMap<>();
+        SummaryTodayResponse today = new SummaryTodayResponse(revenue,totalAppointment);
+        summary.put("hôm nay", today);
+        return summary;
     }
 
+    public Map<String, SummaryYesterdayResponse> getYesterdaySummary() {
+        LocalDateTime start = LocalDateTime.now().minusDays(1).toLocalDate().atStartOfDay();
+        LocalDateTime end = LocalDateTime.now().toLocalDate().atStartOfDay().minusNanos(1);
 
+        List<Appointment> listAppointment = isAppointmentResponsitory
+                .findAllByCurentStatusAppointmentAndDateCollectBetween("COMPLETED", start, end);
+        List<Payment> listPayment = isPaymentResponsitory.findAllByPaymentStatusIsTrueAndPaymentDateIsBetween(start, end);
+
+        SummaryYesterdayResponse summary = new SummaryYesterdayResponse(
+                BigDecimal.valueOf(listPayment.stream().
+                        mapToDouble(p -> p.getPaymentAmount().doubleValue())
+                        .sum()),listAppointment.size());
+
+        Map<String, SummaryYesterdayResponse> result = new HashMap<>();
+        result.put("hôm qua", summary);
+        return result;
+
+    }
 }
