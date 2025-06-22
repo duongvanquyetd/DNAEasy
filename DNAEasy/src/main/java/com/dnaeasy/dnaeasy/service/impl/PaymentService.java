@@ -218,7 +218,7 @@ public class PaymentService implements IsPaymentService {
     public BigDecimal totalRevenueToday() {
         BigDecimal revenue = isPaymentResponsitory.getTodayRevenueToday();
         return revenue != null ? revenue : BigDecimal.ZERO;
-
+    }
     public Double findAllByPaymentYesterday() {
         LocalDateTime start = LocalDateTime.now().minusDays(1).toLocalDate().atStartOfDay();
         LocalDateTime end = LocalDateTime.now().toLocalDate().atStartOfDay().minusNanos(1);

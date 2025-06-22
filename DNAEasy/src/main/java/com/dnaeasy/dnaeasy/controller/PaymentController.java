@@ -74,7 +74,7 @@ public class PaymentController {
     @GetMapping("/revenuetoday")
     public ResponseEntity<BigDecimal> getRevenueToday() {
         return ResponseEntity.ok(paymentService.totalRevenueToday());
-
+    }
 
     @GetMapping("/renue-yesterday")
     public ResponseEntity<Double> getRenueYesterday(){

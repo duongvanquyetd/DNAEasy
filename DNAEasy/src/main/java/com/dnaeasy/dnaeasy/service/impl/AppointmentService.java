@@ -481,7 +481,7 @@ public class AppointmentService implements IsAppointmentService {
             }
             return false;
         }
-    }
+
 
 //    @Override
 //    public int getCompletedAppointmentsToday() {

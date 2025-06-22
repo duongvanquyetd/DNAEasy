@@ -39,7 +39,7 @@ public interface IsAppointmentService {
 
 
 //    int getCompletedAppointmentsToday();
-    Map<String, SummaryTodayResponse> getTodaySummary();
+ Map<String, SummaryTodayResponse> getTodaySummary();
 //    List<AppointmentResponse> getAppointmentYesterday();
     Map<String, SummaryYesterdayResponse> getYesterdaySummary();
 
