@@ -1,19 +1,20 @@
 package com.dnaeasy.dnaeasy.controller;
 
 import com.dnaeasy.dnaeasy.dto.request.AppointmentCreateRequest;
+import com.dnaeasy.dnaeasy.dto.request.StaticRequest;
 import com.dnaeasy.dnaeasy.dto.request.StatusUpdateAppointment;
-import com.dnaeasy.dnaeasy.dto.response.AppointCreateResponse;
-import com.dnaeasy.dnaeasy.dto.response.AppointmentResponse;
-import com.dnaeasy.dnaeasy.dto.response.SummaryTodayResponse;
-import com.dnaeasy.dnaeasy.dto.response.SummaryYesterdayResponse;
+import com.dnaeasy.dnaeasy.dto.response.*;
 import com.dnaeasy.dnaeasy.service.impl.AppointmentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -65,5 +66,18 @@ public class AppointmentController {
     public ResponseEntity<Map<String, SummaryYesterdayResponse>> getAppointmentYesterday(){
         Map<String, SummaryYesterdayResponse> summary = appointmentService.getYesterdaySummary();
         return ResponseEntity.ok(summary);
+    }
+
+    @GetMapping("/statistics")
+    public ResponseEntity<StaticReponse> getByDate(@RequestBody StaticRequest request) {
+
+        StaticReponse response = appointmentService.getStaticByDate(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/topservice")
+    public ResponseEntity<List<TopServiceReponse>> getTopService(@RequestBody StaticRequest request) {
+        List<TopServiceReponse> reponse = appointmentService.findTopService(request);
+        return ResponseEntity.ok(reponse);
     }
 }

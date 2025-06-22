@@ -1,14 +1,13 @@
 package com.dnaeasy.dnaeasy.service;
 
 import com.dnaeasy.dnaeasy.dto.request.AppointmentCreateRequest;
+import com.dnaeasy.dnaeasy.dto.request.StaticRequest;
 import com.dnaeasy.dnaeasy.dto.request.StatusUpdateAppointment;
-import com.dnaeasy.dnaeasy.dto.response.AppointCreateResponse;
-import com.dnaeasy.dnaeasy.dto.response.AppointmentResponse;
-import com.dnaeasy.dnaeasy.dto.response.SummaryTodayResponse;
-import com.dnaeasy.dnaeasy.dto.response.SummaryYesterdayResponse;
+import com.dnaeasy.dnaeasy.dto.response.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -27,4 +26,6 @@ public interface IsAppointmentService {
     Map<String, SummaryTodayResponse> getTodaySummary();
 //    List<AppointmentResponse> getAppointmentYesterday();
     Map<String, SummaryYesterdayResponse> getYesterdaySummary();
+    StaticReponse getStaticByDate(StaticRequest request);
+    List<TopServiceReponse> findTopService(StaticRequest request);
 }

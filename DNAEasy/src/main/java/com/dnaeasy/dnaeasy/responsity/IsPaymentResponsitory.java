@@ -4,6 +4,7 @@ import com.dnaeasy.dnaeasy.enity.Appointment;
 import com.dnaeasy.dnaeasy.enity.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -22,9 +23,9 @@ public interface IsPaymentResponsitory extends JpaRepository<Payment, Integer> {
     @Query(value = """
     select sum(p.payment_amount) from payment p join  appoinment a on a.appointment_id = p.apppointment_id
     where p.payment_status = 1 and a.curent_status_appointment = 'COMPLETED'
-    AND CAST(p.pay_date AS DATE) = CAST(GETDATE() AS DATE)""",
-            nativeQuery = true)
-    BigDecimal getTodayRevenueToday();
+    and p.pay_date between :startDate and :endDate
+    """, nativeQuery = true)
+    BigDecimal getTodayRevenueToday(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 //    @Query(value = """
 // SELECT SUM(p.payment_amount)
 //    FROM payment p
