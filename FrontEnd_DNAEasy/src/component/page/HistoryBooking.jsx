@@ -1,18 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { GetHistoryAppointment } from '../../service/appointment';
-import { GetSampleByAppointmentId } from '../../service/sample';
 import { GetResultByAppointmentId } from '../../service/result';
 import { GetPaymentStatus, PayToview, UpdatePaymentStatus } from '../../service/payment';
-import api from '../../service/api';
 import '../css/HistoryBooking.css'; // Ensure this points to the CSS file with the new class names
 import Header from '../Header.jsx';
 import Footer from '../Footer.jsx';
 import { CanComment } from '../../service/Comment.js';
+import HardResultModal from './HardResultModal.jsx';
+import { CanConfirm, UpdateHardResult } from '../../service/hardresult.js';
+
 
 export const HistoryBooking = () => {
     const [historyBooking, setHistoryBooking] = useState([]);
     const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
     const rolename = localStorage.getItem('rolename') ? localStorage.getItem('rolename') : null;
+    const [createHardResult, setCreateHardResult] = useState(false);
+    const [showUploadForm, setShowUploadForm] = useState(false);
+    const [imageFile, setImageFile] = useState(null);
+
 
     useEffect(() => {
         const fetchHistoryBooking = async () => {
@@ -20,11 +25,15 @@ export const HistoryBooking = () => {
                 const appointmentData = await GetHistoryAppointment();
                 const fullAppointments = await Promise.all(
                     appointmentData.data.map(async (appointment) => {
-                        const [result, status,cancomment] = await Promise.all([
+                        const [result, status, cancomment] = await Promise.all([
                             GetResultByAppointmentId({ appoinmentId: appointment.appointmentId }),
                             GetPaymentStatus(appointment.appointmentId),
                             CanComment(appointment.serviceId),
+
                         ]);
+                        // Lấy hardresultID từ kết quả trả về
+                        const hardresultID = result.data?.[0]?.hardresultID;
+                        const canconfirm = hardresultID ? await CanConfirm(hardresultID) : { data: null };
 
                         return {
                             ...appointment,
@@ -32,9 +41,12 @@ export const HistoryBooking = () => {
                             result: result.data || [],
                             status: status.data,
                             cancomment: cancomment.data,
+                            trackingReuslt: result.data && result.data[0] && result.data[0].tracking ? result.data[0].tracking : '',
+                            canconfirm: canconfirm.data
                         };
                     })
                 );
+
 
                 setHistoryBooking(fullAppointments);
                 console.log("History booking data fetched successfully:", fullAppointments);
@@ -57,20 +69,10 @@ export const HistoryBooking = () => {
             });
     }
 
-    function handleCash(booking) {
-        const Updatepayment = {
-            appointmentId: booking.appointmentId,
-            paymentMehtod: "Cash"
-        };
-        UpdatePaymentStatus(Updatepayment).then((response) => {
-            console.log("update", response.data);
-            window.location.reload();
-        }).catch((error) => {
-            console.log(error.data);
-        });
-    }
+
 
     const formatDate = (date) => new Date(date).toLocaleString();
+
 
     return (
         <>
@@ -195,30 +197,76 @@ export const HistoryBooking = () => {
                                                     <p className="detail-label">Ghi chú</p>
                                                     <p className="detail-value">{booking.note || 'Không có'}</p>
                                                 </div>
-                                                {booking.cancomment  && (
-                                                        <a href={`/service/${booking.serviceId}`} className="comment-button">
-                                                            Comment
-                                                        </a>
-                                                    )}
-                                        
-                                            </div>
 
+
+
+
+
+                                            </div>
+                                            <div style={{ display: "flex" }}>   {booking.cancomment && (
+                                                <a href={`/service/${booking.serviceId}`} className="comment-button">
+                                                    Comment
+                                                </a>
+                                            )}
+                                                {booking.canconfirm?.canConfirmHardResult
+
+                                                    && (
+
+                                                        <button
+                                                            className="comment-button"
+                                                            onClick={(e) => {
+                                                                setShowUploadForm(booking)
+                                                            }}
+                                                        >
+                                                            {booking.canconfirm.nextStatus}
+                                                        </button>
+
+
+                                                    )} 
+                                                    
+                                                     {showUploadForm && (
+                                                        <div className="overlay-upload">
+                                                            <div className="upload-box" onClick={(e) => e.stopPropagation()}>
+                                                                <label>Upload Image Confirm</label>
+                                                                <input
+                                                                    type="file"
+                                                                    accept="image/*"
+                                                                    required
+                                                                    onChange={(e) => setImageFile(e.target.files[0])}
+                                                                />
+                                                                <button onClick={() => {
+                                                                    if (!imageFile) return alert("Please select an image.");
+                                                                    const formData = new FormData();
+                                                                    console.log(showUploadForm)
+                                                                    const update = {
+                                                                        statusName: showUploadForm.canconfirm.nextStatus,
+                                                                        hardresultID: showUploadForm.result[0].hardresultID
+
+                                                                    }
+                                                                    formData.append("hardresult", new Blob([JSON.stringify(update)], { type: "application/json" }))
+                                                                    formData.append("file", imageFile)
+                                                                    UpdateHardResult(formData).then((responsne) => {
+                                                                        console.log("Update Sucessfully", responsne.data)
+                                                                        window.location.reload();
+
+                                                                    }).catch((error) => {
+                                                                        console.log("error", error)
+                                                                    })
+
+                                                                    setShowUploadForm(false);
+                                                                }}>
+                                                                    Upload
+                                                                </button>
+                                                            </div>
+
+
+                                                        </div>
+                                                    )}
+                                                    </div>  
+                                                    
 
                                         </div>
-                                        {rolename === "STAFF_RECEPTION" && (
-                                            <div className="staff-section">
-                                                <button
-                                                    onClick={() => handleCash(booking)}
-                                                    className="cash-button"
-                                                >
-                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                                                    </svg>
-                                                    Thanh toán bằng tiền mặt
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
+                                         </div>
                                     {selectedAppointmentId === booking.appointmentId && (
                                         <div className="expanded-details">
                                             {!booking.status && rolename === "CUSTOMER" && booking.curentStatusAppointment === "COMPLETE" ? (
@@ -256,17 +304,18 @@ export const HistoryBooking = () => {
                                                             <h4 className="method-title">Phương thức thanh toán</h4>
                                                         </div>
 
-                                                        <p style={{display:"flex",justifyContent:"center"}} >
-                                                            
-                                                            
-                                                            
-                                                            {booking.paymentMethod === 'Cash' || booking.paymentMethod === 'VNPay'  ? (
-                                                                <img src={booking.paymentMethod==='VNPay' ? "https://s-vnba-cdn.aicms.vn/vnba-media/23/8/16/vnpay-logo_64dc3da9d7a11.jpg":"https://www.creativefabrica.com/wp-content/uploads/2021/09/15/Money-finance-cash-payment-icon-Graphics-17346742-1.jpg"} alt={booking.paymentMethod} style={{ maxWidth: '150px' }} />
+                                                        <p style={{ display: "flex", justifyContent: "center" }} >
+
+
+
+                                                            {booking.paymentMethod === 'Cash' || booking.paymentMethod === 'VNPay' ? (
+                                                                <img src={booking.paymentMethod === 'VNPay' ? "https://s-vnba-cdn.aicms.vn/vnba-media/23/8/16/vnpay-logo_64dc3da9d7a11.jpg" : "https://www.creativefabrica.com/wp-content/uploads/2021/09/15/Money-finance-cash-payment-icon-Graphics-17346742-1.jpg"} alt={booking.paymentMethod} style={{ maxWidth: '150px' }} />
 
                                                             ) : (
                                                                 <span className="method-value">{booking.paymentMethod}</span>
                                                             )}
                                                         </p>
+                                                        <p style={{ display: "flex", justifyContent: "center", color: "orangered", fontSize: "20px" }}> {booking.paymentAmount.toLocaleString('vi-VN')} VND</p>
                                                     </div>
                                                     <div className="tracking-grid">
                                                         <div className="tracking-section">
@@ -347,7 +396,7 @@ export const HistoryBooking = () => {
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        <div className="tracking-section full-width">
+                                                        <div className="tracking-section">
                                                             <div className="tracking-header">
                                                                 <div className="tracking-icon result">
                                                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -359,7 +408,7 @@ export const HistoryBooking = () => {
                                                             {booking.result && booking.result.length > 0 ? (
                                                                 <div className="space-y-4">
                                                                     {booking.result.map((res, idx) => (
-                                                                        <div key={idx} className="tracking-item full-width">
+                                                                        <div key={idx} className="tracking-item">
                                                                             <div className="status-dot result"></div>
                                                                             <div className="status-content full-width">
                                                                                 <p className="status-name"><strong>Người lấy mẫu:</strong> {res.nameOfPerson}</p>
@@ -386,12 +435,38 @@ export const HistoryBooking = () => {
                                                                                                 Tải xuống
                                                                                             </a>
 
+
                                                                                         </div>
                                                                                     </div>
                                                                                 )}
+
+
+
                                                                             </div>
+
                                                                         </div>
+
                                                                     ))}
+                                                                    {rolename === "CUSTOMER" && booking.result[0].hardresultID === null && (
+
+                                                                        <button
+                                                                            className="receive-hard-result-btn"
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation(); // Ngăn sự kiện lan truyền lên các phần tử cha
+                                                                                setCreateHardResult(true);
+                                                                            }}
+                                                                        >
+                                                                            Receive Hard Result
+                                                                        </button>
+
+
+                                                                    )}
+
+                                                                    <HardResultModal
+                                                                        isOpen={createHardResult}
+                                                                        onClose={() => { setCreateHardResult(false) }}
+                                                                        resultlist={booking.result}></HardResultModal>
+
                                                                 </div>
                                                             ) : (
                                                                 <div className="no-tracking">
@@ -404,6 +479,47 @@ export const HistoryBooking = () => {
                                                                 </div>
                                                             )}
                                                         </div>
+                                                        <div className="tracking-section">
+                                                            <div className="tracking-header">
+                                                                <div className="tracking-icon sample">
+                                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                                                    </svg>
+                                                                </div>
+                                                                <h4 className="tracking-title">Tiến trình xử lý kết quả</h4>
+                                                            </div>
+                                                            {booking.trackingReuslt && booking.trackingReuslt.length > 0 ? (
+                                                                <div className="space-y-4">
+                                                                    {booking.trackingReuslt.map((item, index) => (
+                                                                        <div key={index} className="tracking-item">
+                                                                            <div className="status-dot sample"></div>
+                                                                            <div className="status-content">
+                                                                                <p className="status-name">{item.statusName}</p>
+                                                                                <p className="status-date">{formatDate(item.trackingdate)}</p>
+                                                                                {item.imgUrl && (
+                                                                                    <img
+                                                                                        src={item.imgUrl}
+                                                                                        alt={`Tracking ${index}`}
+                                                                                        className="tracking-image"
+                                                                                    />
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            ) : (
+                                                                <div className="no-tracking">
+                                                                    <div className="icon-container">
+                                                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                                        </svg>
+                                                                    </div>
+                                                                    <p>Không có dữ liệu tiến trình Result</p>
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+
                                                     </div>
                                                 </div>
                                             )}

@@ -16,7 +16,8 @@ const UserProfile = () => {
     GetMyInfor().then((response) => {
       setUser(response.data)
       console.log("Response Data User", response.data)
-      setAddress(response.data.address.split(","));
+      const addr = response.data.address.split(",");
+      setAddress( addr[0] === 'null' ? '' : addr);
       setLoading(false);
     }).catch((error) => {
       if (error.response && error.response.status === 401) {

@@ -18,3 +18,7 @@ export const VNPay_Return = ()=>
 {
     return api.get("/payment/vnpay-callback");
 }
+
+export const  CreateRefund = (appoinment) =>{
+    return api.post("payment/create",appoinment)
+}

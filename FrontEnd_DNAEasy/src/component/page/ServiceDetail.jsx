@@ -424,7 +424,7 @@ const ServiceDetail = () => {
                   >
                     {service.serviceName}
                   </h1>
-                  <p
+                  {/* <p
                     style={{
                       fontSize: "18px",
                       color: "#6b7280",
@@ -432,7 +432,7 @@ const ServiceDetail = () => {
                     }}
                   >
                     {service.serviceDescription || "No description available."}
-                  </p>
+                  </p> */}
                 </div>
 
                 <div

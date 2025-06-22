@@ -18,5 +18,8 @@ export const GetHistoryAppointment = () => {
     return api.get(`/appointment/getAllCompleteFlowCurrentUser`);
 }
 export const GetAppointmetnForStaff_reception = () => {
-    return api.get("/appointment/getforStaffReception")
+    return api.get("/appointment/getforStaffReception");
+}
+export const CanRefund = (appointmentId) => {
+    return api.get(`/appointment/canrefund/${appointmentId}`);
 }

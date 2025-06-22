@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { GetAppointmetnForStaff_Lab, GetAppointmetnForStaff_reception, GetYourAppointmentInProcess, ProcesstheAppointment, UpdateStatusAppointment } from '../../service/appointment';
+import { CanRefund, GetAppointmetnForStaff_Lab, GetAppointmetnForStaff_reception, GetYourAppointmentInProcess, ProcesstheAppointment, UpdateStatusAppointment } from '../../service/appointment';
 import { AllowConfimAppointment, ConfirmSample, CreateSampleByAppointmentID, GetSampleByAppointmentId } from '../../service/sample';
 import { GetcurentOrderProcess } from '../../service/processtesting';
 import { CreateResult, UpdateResult } from '../../service/result';
@@ -7,6 +7,7 @@ import { ConfirmPaidByCash, PayAgaint, UpdatePaymentStatus } from '../../service
 import '../css/YourAppointment.css'; // Ensure this points to the CSS file
 import Header from '../Header.jsx';
 import Footer from '../Footer.jsx';
+import TransactionModal from './TransactionModal.jsx';
 
 export const YourAppointment = () => {
   const [appointments, setAppointments] = useState([]);
@@ -20,7 +21,7 @@ export const YourAppointment = () => {
   const [cancelForm, setCancelForm] = useState('');
   const [cancelNote, setCancelNote] = useState('');
   const [typeService, setTypeService] = useState('');
-
+    const [refunForm, setRefunForm] = useState("");
   const rolename = localStorage.getItem('rolename') ? localStorage.getItem('rolename') : null;
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export const YourAppointment = () => {
           appointmentsData = res?.data || [];
         } else if (rolename != null && rolename === "STAFF_RECEPTION") {
           const res = await GetAppointmetnForStaff_reception();
-          console.log("STAFF_RECEPTION response:", res);
+          console.log("STAFF_RECEPTION response:", res.data);
           appointmentsData = res?.data || [];
         } else {
           const res = await GetYourAppointmentInProcess();
@@ -44,10 +45,11 @@ export const YourAppointment = () => {
 
         const fullAppointments = await Promise.all(
           appointmentsData.map(async (appointment) => {
-            const [processRes, confirmRes, orderProcess] = await Promise.all([
+            const [processRes, confirmRes, orderProcess, canrefund] = await Promise.all([
               ProcesstheAppointment(appointment.appointmentId),
               AllowConfimAppointment({ appointmentId: appointment.appointmentId }),
               GetcurentOrderProcess(appointment.appointmentId),
+              CanRefund(appointment.appointmentId),
             ]);
 
             return {
@@ -55,8 +57,8 @@ export const YourAppointment = () => {
               statusNames: processRes.data.statusNames,
               Confimed: confirmRes.data,
               orderProcess: orderProcess.data,
-              listStatusTime: appointment.listSample[0].sampleTracking
-
+              listStatusTime: appointment.listSample && appointment.listSample[0] && appointment.listSample[0].sampleTracking ? appointment.listSample[0].sampleTracking : null,
+              canrefund: canrefund.data
             };
           })
         );
@@ -123,7 +125,18 @@ export const YourAppointment = () => {
         alert("Lỗi cập nhật status");
       });
   }
-
+  function handleCashToView(booking) {
+        const Updatepayment = {
+            appointmentId: booking.appointmentId,
+            paymentMehtod: "Cash"
+        };
+        UpdatePaymentStatus(Updatepayment).then((response) => {
+            console.log("update", response.data);
+            window.location.reload();
+        }).catch((error) => {
+            console.log(error.data);
+        });
+    }
   return (
     <>
       <Header />
@@ -192,32 +205,38 @@ export const YourAppointment = () => {
                         </div>
 
                         {/* Hàng 2: Step time dưới đúng cột */}
-                        <div className="progress-steps progress-time-row">
-                          {appointment.statusNames.map((step, index) => {
-                            const matched = appointment.listStatusTime.find(s => s.nameStatus === step);
-                            const time = matched ? new Date(matched.sampleTrackingTime) : null;
 
-                            return (
-                              <div key={index} className="step-time-box">
-                                {time ? (
-                                  <>
-                                    <div className="time-icon">🕒</div>
-                                    <div className="time-value">{time.toLocaleTimeString()}</div>
-                                    <div className="date-icon">📅</div>
-                                    <div className="date-value">{time.toLocaleDateString('vi-VN')}</div>
-                                  </>
-                                ) : (
-                                  <>
-                                    <div className="time-icon">🕒</div>
-                                    <div className="time-value">--:--:--</div>
-                                    <div className="date-icon">📅</div>
-                                    <div className="date-value">Chưa cập nhật</div>
-                                  </>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
+                        {appointment.listStatusTime && (
+
+                          <div className="progress-steps progress-time-row">
+                            {appointment.statusNames.map((step, index) => {
+                              const matched = appointment.listStatusTime.find(s => s.nameStatus === step);
+                              const time = matched ? new Date(matched.sampleTrackingTime) : null;
+
+                              return (
+                                <div key={index} className="step-time-box">
+                                  {time ? (
+                                    <>
+                                      <div className="time-icon">🕒</div>
+                                      <div className="time-value">{time.toLocaleTimeString()}</div>
+                                      <div className="date-icon">📅</div>
+                                      <div className="date-value">{time.toLocaleDateString('vi-VN')}</div>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <div className="time-icon">🕒</div>
+                                      <div className="time-value">--:--:--</div>
+                                      <div className="date-icon">📅</div>
+                                      <div className="date-value">Chưa cập nhật</div>
+                                    </>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+
+                        )}
+
                       </div>
 
 
@@ -260,7 +279,7 @@ export const YourAppointment = () => {
 
                       {/* Action Buttons */}
                       <div className="action-buttons">
-                        {(appointment.orderProcess === 0 || rolename === "STAFF_LAB" || rolename === "STAFF_TEST") && (
+                        {((appointment.orderProcess === 0 && rolename ==="CUSTOMER") || rolename === "STAFF_LAB" || rolename === "STAFF_TEST") && (
                           <button
                             className="btn cancel"
                             onClick={() => setCancelForm(appointment)}
@@ -301,7 +320,7 @@ export const YourAppointment = () => {
                           )
                         )}
 
-                        {appointment.paymentMethod.includes("Cash") && rolename === "STAFF_RECEPTION" && (
+                        {appointment.paymentMethod.includes("Cash") && rolename === "STAFF_RECEPTION" && appointment.curentStatusAppointment==="WAITING FOR PAYMENT" && (
                           <button
                             className="btn confirm"
                             onClick={() => handlePayToCash(appointment)}
@@ -312,7 +331,42 @@ export const YourAppointment = () => {
                             Xác nhận thanh toán
                           </button>
                         )}
+                             
+                              {rolename === "STAFF_RECEPTION" && appointment.curentStatusAppointment === "COMPLETE" ? (
+                        
+                            <button
+                              onClick={() => handleCashToView(appointment)}
+                              className="btn confirm"
+                            >
+                              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                              </svg>
+                              Thanh toán bằng tiền mặt to view result
+                            </button>
+                         
+                        ) : appointment.canrefund && (
+                        
+                            <button
+                              onClick={() => setRefunForm(true)}
+                              className="btn confirm"
+                            >
+                              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                              </svg>
+                              Refund for CANCLE
+                            </button>
+                         
+
+                        )}
+
+                        <TransactionModal
+                          isOpen={refunForm}
+                          onClose={() => setRefunForm(false)}
+                          booking={appointment}
+                        ></TransactionModal>
+
                       </div>
+                      
                     </div>
                   </div>
                 ))}
