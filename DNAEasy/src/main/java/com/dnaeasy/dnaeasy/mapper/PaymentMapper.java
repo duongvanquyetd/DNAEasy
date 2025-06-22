@@ -1,5 +1,6 @@
 package com.dnaeasy.dnaeasy.mapper;
 
+import com.dnaeasy.dnaeasy.dto.request.PaymentRefundRequest;
 import com.dnaeasy.dnaeasy.dto.response.PaymentResponse;
 import com.dnaeasy.dnaeasy.enity.Appointment;
 import com.dnaeasy.dnaeasy.enity.Payment;
@@ -11,4 +12,6 @@ public interface PaymentMapper {
 
     @Mapping(target = "staffConfirmName", source = "staffReception.name")
     PaymentResponse  PaymentToPaymentResponse(Payment payment);
+
+    Payment PaymentRefuntToPayment(PaymentRefundRequest request);
 }

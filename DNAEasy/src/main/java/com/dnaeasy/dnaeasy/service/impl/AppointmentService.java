@@ -1,8 +1,16 @@
 package com.dnaeasy.dnaeasy.service.impl;
 
+import com.dnaeasy.dnaeasy.dto.request.AppoinmetnAssignRequest;
 import com.dnaeasy.dnaeasy.dto.request.AppointmentCreateRequest;
 import com.dnaeasy.dnaeasy.dto.request.StatusUpdateAppointment;
+
+import com.dnaeasy.dnaeasy.dto.response.AppointCreateResponse;
+import com.dnaeasy.dnaeasy.dto.response.AppointmentResponse;
+import com.dnaeasy.dnaeasy.dto.response.SampleResponse;
+import com.dnaeasy.dnaeasy.dto.response.StaffResponse;
+
 import com.dnaeasy.dnaeasy.dto.response.*;
+
 import com.dnaeasy.dnaeasy.enity.*;
 import com.dnaeasy.dnaeasy.enums.PaymentMehtod;
 import com.dnaeasy.dnaeasy.enums.RoleName;
@@ -12,6 +20,7 @@ import com.dnaeasy.dnaeasy.exception.BadRequestException;
 import com.dnaeasy.dnaeasy.exception.ResourceNotFound;
 import com.dnaeasy.dnaeasy.mapper.AppointmentMapper;
 import com.dnaeasy.dnaeasy.mapper.SampleMapper;
+import com.dnaeasy.dnaeasy.mapper.UserMapper;
 import com.dnaeasy.dnaeasy.responsity.*;
 import com.dnaeasy.dnaeasy.service.IsAppointmentService;
 import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
@@ -22,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -53,7 +63,11 @@ public class AppointmentService implements IsAppointmentService {
     @Autowired
     IsSystemConfigRepo isSystemConfigRepo;
     @Autowired
-    private IsPaymentResponsitory isPaymentResponsitory;
+
+    UserMapper userMapper;
+    @Autowired
+    IsPaymentResponsitory isPaymentResponsitory;
+
 
 
     @Override
@@ -81,7 +95,7 @@ public class AppointmentService implements IsAppointmentService {
         payment.setPaymentStatus(false);
         BigDecimal amout = service.getServicePrice().divide(BigDecimal.valueOf(2));// them bang configSystem
         payment.setPaymentAmount(amout);
-
+        payment.setPaymentDate(LocalDateTime.now());
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Person person = isUserResponsity.findByUsername(username);
         // thêm bảng system config và thay mấy hashcode này thành giá trị trong bảngt
@@ -89,32 +103,32 @@ public class AppointmentService implements IsAppointmentService {
         SystemConfig hourclose = isSystemConfigRepo.findByName("hourclose");
         int hour_open = Integer.valueOf(houropen.getValue());
         int hour_close = Integer.valueOf(hourclose.getValue());
-
+        System.out.println(hour_open + " " + hour_close);
 
         if (!request.getTypeCollect().equals(SampleMethod.Self_collection)) {
-            if (request.getDateCollect().isBefore(LocalDateTime.now().plusHours(4)) || request.getDateCollect().getHour() < hour_open || request.getDateCollect().getHour() > hour_close) {
+            if (request.getDateCollect().isBefore(LocalDateTime.now().plusHours(4)) || request.getDateCollect().getHour() < hour_open || request.getDateCollect().getHour() >= hour_close) {
 
-                throw new BadRequestException("Date collect must be after now 4 hours and must be interval "+hour_open+" to "+hour_close);
+                throw new BadRequestException("Date collect must be after now 4 hours and must be interval " + hour_open + " to " + hour_close);
             }
         }
 
-        LocalDateTime stardate = request.getDateCollect().minusHours(2);
-        LocalDateTime enddate = request.getDateCollect().plusHours(6);
-        List<Person> stafflist = isUserResponsity.findStaffByWorkHour(stardate, enddate, Work_hour(request.getDateCollect()));
-        System.out.println(stafflist.size());
-
-        if (stafflist == null || stafflist.size() == 0) {
-            throw new BadRequestException("Appointment full in this time " + request.getDateCollect());
-        }
-
-        Person staff = stafflist.get(0);
+//        LocalDateTime stardate = request.getDateCollect().minusHours(2);
+//        LocalDateTime enddate = request.getDateCollect().plusHours(6);
+//        List<Person> stafflist = isUserResponsity.findStaffByWorkHour(stardate, enddate, Work_hour(request.getDateCollect()));
+//        System.out.println(stafflist.size());
+//
+//        if (stafflist == null || stafflist.size() == 0) {
+//            throw new BadRequestException("Appointment full in this time " + request.getDateCollect());
+//        }
+//
+//        Person staff = stafflist.get(0);
 
         Appointment appointment = appointmentMapper.AppointmentCreateRequestToAppointment(request);
         appointment.setService(service);
         appointment.setCustomer(person);
         appointment.setCurentStatusAppointment(firstStatus);
-        appointment.setStaff(staff);
-        appointment.setPayment(payment);
+
+        appointment.getPayment().add(payment);
         appointment.setAppointmnentTrackings(trackingList);
 
         for (AppointmnentTracking tracking : appointment.getAppointmnentTrackings()) {
@@ -127,7 +141,7 @@ public class AppointmentService implements IsAppointmentService {
         appointCreateResponse.setAppointmentId(appointment.getAppointmentId());
         if (payment.getPaymentMethod().equals(PaymentMehtod.VNPay)) {
 
-            appointCreateResponse.setPaymenturl(paymentService.paymentUrlVnpay(appointment.getAppointmentId(),httpServletRequest));
+            appointCreateResponse.setPaymenturl(paymentService.paymentUrlVnpay(appointment.getAppointmentId(), httpServletRequest));
         }
 
         return appointCreateResponse;
@@ -171,6 +185,7 @@ public class AppointmentService implements IsAppointmentService {
         List<String> list = new ArrayList<>();
         list.add("CANCLE");
         list.add("COMPLETE");
+        list.add("REFUNDED");
         if (p.getRolename().equals(RoleName.STAFF_TEST)) {
             appointmentList = isAppointmentResponsitory.findAllByStaffAndCurentStatusAppointmentIsIn(p, list);
         } else if (p.getRolename().equals(RoleName.STAFF_LAB)) {
@@ -187,25 +202,16 @@ public class AppointmentService implements IsAppointmentService {
             }
 
 
+        } else if (p.getRolename().equals(RoleName.STAFF_RECEPTION)) {
+            List<String> lis = new ArrayList<>();
+            lis.add("REFUNDED");
+            lis.add("COMPLETE");
+
+            List<Appointment> list1 = isAppointmentResponsitory.findALLByPayment_StaffReceptionAndCurentStatusAppointmentIsIn(p, lis);
+            appointmentList.addAll(list1);
 
 
-        } else if(p.getRolename().equals(RoleName.STAFF_RECEPTION))
-        {
-
-            List<String> ls = new ArrayList<>();ls.add("COMPLETE");
-            List<Appointment> list1 = isAppointmentResponsitory.findALByPayment_PaymentStatusAndCurentStatusAppointmentIsIn(false,ls);
-            for (Appointment appointment : list1) {
-
-                // them thoi gian hien tai phai sau thoi gian nay thi moi hien cai nay len
-                if(Work_hour(appointment.getDateCollect()).equals(p.getWork_hour()))
-                {
-                    appointmentList.add(appointment);
-                }
-            }
-        }
-        else
-
-        {
+        } else {
             appointmentList = isAppointmentResponsitory.findAllByCustomerAndCurentStatusAppointmentIsIn(p, list);
         }
 
@@ -246,25 +252,27 @@ public class AppointmentService implements IsAppointmentService {
         List<String> list = new ArrayList<>();
         list.add("CANCLE");
         list.add("COMPLETE");
+        list.add("REFUNDED");
+
 
         // staff lab cung nen hien nhung cai ma thuoc ve ca cua minh va nhung cai minh can confirm
-        if ( p.getRolename().equals(RoleName.STAFF_TEST)) {
-         List<Appointment> appointments   = isAppointmentResponsitory.findAllByStaffAndCurentStatusAppointmentNotIn(p, list);
+        if (p.getRolename().equals(RoleName.STAFF_TEST)) {
+            list.add("WAITING FOR PAYMENT");
+            List<Appointment> appointments = isAppointmentResponsitory.findAllByStaffAndCurentStatusAppointmentNotIn(p, list);
 
-         for (Appointment appointment : appointments) {
-             ProcessTesting processTesting = new ProcessTesting();
-             if (appointment.getSampelist().get(0).getCureStatusSample() == null) {
-                  processTesting = isProcessTesting.findByOrderProcessAndSampleMethod(1, appointment.getTypeCollect());
+            for (Appointment appointment : appointments) {
+                ProcessTesting processTesting = new ProcessTesting();
+                if (appointment.getSampelist().get(0).getCureStatusSample() == null) {
+                    processTesting = isProcessTesting.findByOrderProcessAndSampleMethod(1, appointment.getTypeCollect());
 
-             } else {
-                 ProcessTesting curent = isProcessTesting.findOrderProcessByStatusNameAndSampleMethod(appointment.getSampelist().get(0).getCureStatusSample(), appointment.getTypeCollect());
-                 processTesting = isProcessTesting.findByOrderProcessAndSampleMethod(curent.getOrderProcess() + 1, appointment.getTypeCollect());
-             }
-             if(p.getRolename().equals(processTesting.getPerson_confirm()))
-             {
-                 appointmentList.add(appointment);
-             }
-         }
+                } else {
+                    ProcessTesting curent = isProcessTesting.findOrderProcessByStatusNameAndSampleMethod(appointment.getSampelist().get(0).getCureStatusSample(), appointment.getTypeCollect());
+                    processTesting = isProcessTesting.findByOrderProcessAndSampleMethod(curent.getOrderProcess() + 1, appointment.getTypeCollect());
+                }
+                if (p.getRolename().equals(processTesting.getPerson_confirm())) {
+                    appointmentList.add(appointment);
+                }
+            }
 
         } else {
             appointmentList = isAppointmentResponsitory.findAllByCustomerAndCurentStatusAppointmentNotIn(p, list);
@@ -292,9 +300,9 @@ public class AppointmentService implements IsAppointmentService {
         List<String> list = new ArrayList<>();
         list.add("CANCLE");
         list.add("COMPLETE");
+        list.add("REFUNDED");
         List<Appointment> appointmentList = isAppointmentResponsitory.findAllByCurentStatusAppointmentNotIn(list);
         List<AppointmentResponse> appointmentResponseList = new ArrayList<>();
-
         for (Appointment appointment : appointmentList) {
 
             List<Sample> sampleList = appointment.getSampelist();
@@ -303,23 +311,20 @@ public class AppointmentService implements IsAppointmentService {
                 ProcessTesting pro = isProcessTesting.findByOrderProcessAndSampleMethod(curent.getOrderProcess() + 1, appointment.getTypeCollect());
 
                 if (pro.getPerson_confirm().equals(RoleName.STAFF_LAB)) {
-                        Work_hour work = Work_hour(appointment.getDateCollect());
-                        if(work.equals(p.getWork_hour()))
-                        {
-                            AppointmentResponse appointmentResponse = appointmentMapper.AppointmentCreateResponse(appointment);
-                            appointmentResponse.setListSample(sampleService.getbyAppoinment(appointment.getAppointmentId()));
+                    Work_hour work = Work_hour(appointment.getDateCollect());
+                    if (work.equals(p.getWork_hour())) {
+                        AppointmentResponse appointmentResponse = appointmentMapper.AppointmentCreateResponse(appointment);
+                        appointmentResponse.setListSample(sampleService.getbyAppoinment(appointment.getAppointmentId()));
 
-                            appointmentResponseList.add(appointmentResponse);
-                        }
+                        appointmentResponseList.add(appointmentResponse);
                     }
-
-                    //  appointmentResponseList.add(appointmentMapper.AppointmentCreateResponse(appointment));
-
                 }
+
+                //  appointmentResponseList.add(appointmentMapper.AppointmentCreateResponse(appointment));
 
             }
 
-
+        }
 
 
         return appointmentResponseList;
@@ -330,41 +335,152 @@ public class AppointmentService implements IsAppointmentService {
 
 
         String usename = SecurityContextHolder.getContext().getAuthentication().getName();
+        List<String> lists = new ArrayList<>();
+        lists.add("CANCLE");
+        lists.add("COMPLETE");
+        lists.add("WAITING FOR PAYMENT");
         Person p = isUserResponsity.findByUsername(usename);
-        List<Appointment>  list = isAppointmentResponsitory.findALLByPayment_PaymentMethodAndCurentStatusAppointment(PaymentMehtod.Cash ,"WAITING FOR PAYMENT");
+        List<Payment> listpayPayments = isPaymentResponsitory.findAllByPaymentStatusIsFalseAndExpenseIsFalseAndAppointment_CurentStatusAppointmentIsIn(lists);
         List<AppointmentResponse> appointmentResponseList = new ArrayList<>();
-        for (Appointment appointment : list) {
-            Work_hour work = Work_hour(appointment.getDateCollect());
-            if(work.equals(p.getWork_hour()))
-            {
-                appointmentResponseList.add(appointmentMapper.AppointmentCreateResponse(appointment));
-            }
+
+        List<Appointment> list = new ArrayList<>();
+        for (Payment payment : listpayPayments) {
+
+            list.add(payment.getAppointment());
+            System.out.println(list.size());
         }
 
+        for (Appointment appointment : list) {
+            System.out.println(appointment.getAppointmentId());
+            System.out.println(appointment.getDateCollect());
+            Work_hour work = Work_hour(appointment.getDateCollect());
+            System.out.println(work);
+
+
+            if (work.equals(p.getWork_hour())) {
+// tranh truong hop thanh toan bang tien mat no chua thanh toan ma da huy thi no se hien len tren ko hop ly
+                if (appointment.getCurentStatusAppointment().equals("CANCLE")) {
+                    if (appointment.getSampelist().size() > 0 && appointment.getSampelist().getFirst().getCureStatusSample() != null) {
+                        AppointmentResponse appointmentResponse = appointmentMapper.AppointmentCreateResponse(appointment);
+                        appointmentResponse.setListSample(sampleService.getbyAppoinment(appointment.getAppointmentId()));
+
+                        appointmentResponseList.add(appointmentResponse);
+                    }
+                } else {
+                    AppointmentResponse appointmentResponse = appointmentMapper.AppointmentCreateResponse(appointment);
+                    appointmentResponse.setListSample(sampleService.getbyAppoinment(appointment.getAppointmentId()));
+
+                    appointmentResponseList.add(appointmentResponse);
+                }
+
+
+            }
+
+
+
+        }
         return appointmentResponseList;
     }
 
 
+        public Work_hour Work_hour (LocalDateTime dateCollect){
+            int hour = dateCollect.getHour();
+
+            int minute = dateCollect.getMinute();
+
+            double hour_minute = hour + (minute / 100.0);
 
 
-    public Work_hour Work_hour(LocalDateTime dateCollect) {
-        int hour = dateCollect.getHour();
-
-        int minute = dateCollect.getMinute();
-
-        double hour_minute = hour + (minute / 100.0);
-
-
-        if (hour_minute >= 7 && hour_minute <= 9.3) {
-            return Work_hour.ca_1;
-        } else if (hour_minute > 9.3 && hour_minute <= 12) {
-            return Work_hour.ca_2;
-        } else if (hour_minute > 12 && hour_minute <= 14.3) {
-            return Work_hour.ca_3;
-        } else if (hour_minute > 14.3 && hour_minute <= 17) {
-            return Work_hour.ca_4;
+            if (hour_minute >= 7 && hour_minute <= 9.3) {
+                return Work_hour.ca_1;
+            } else if (hour_minute > 9.3 && hour_minute <= 12) {
+                return Work_hour.ca_2;
+            } else if (hour_minute > 12 && hour_minute <= 14.3) {
+                return Work_hour.ca_3;
+            } else if (hour_minute > 14.3 && hour_minute <= 17) {
+                return Work_hour.ca_4;
+            }
+            return null;
         }
-        return null;
+
+
+        @Override
+        public int getCompletedAppointmentsToday () {
+            LocalDateTime startDay = LocalDateTime.now().toLocalDate().atStartOfDay();
+            LocalDateTime endDay = startDay.plusDays(1);
+            return isAppointmentResponsitory.countCompletedAppointmentsToday(startDay, endDay);
+        }
+
+        @Override
+        public List<AppointmentResponse> getAppointmentYesterday () {
+            LocalDateTime startDay = LocalDateTime.now().minusDays(1).toLocalDate().atStartOfDay();
+            LocalDateTime endDay = LocalDateTime.now().toLocalDate().atStartOfDay().minusNanos(1);
+
+            List<Appointment> listAppointmentYesterday = isAppointmentResponsitory.findAllByCurentStatusAppointmentAndDateCollectIsBetween("COMPLTED", startDay, endDay);
+
+            return listAppointmentYesterday.stream()
+                    .map(appointmentMapper::AppointmentCreateResponse)
+                    .collect(Collectors.toList());
+        }
+
+        @Override
+        public List<AppointmentResponse> getAppointmnetForMangerShiftStaff () {
+
+            List<Appointment> appointments = isAppointmentResponsitory.findAllByStaffIsNull();
+            List<AppointmentResponse> appointmentResponseList = new ArrayList<>();
+            appointments.forEach((appointment) -> {
+                appointmentResponseList.add(appointmentMapper.AppointmentCreateResponse(appointment));
+
+            });
+            return appointmentResponseList;
+        }
+
+        @Override
+        public StaffResponse AssignStaffForApp (AppoinmetnAssignRequest request){
+            Appointment a = isAppointmentResponsitory.findById(request.getAppoinmetnId()).orElseThrow(() ->
+            {
+                throw new BadRequestException("Appointment with id " + request.getAppoinmetnId() + " not found");
+            });
+            Person staff = isUserResponsity.findByPersonId(request.getPersonId());
+            a.setStaff(staff);
+            staff.getAppointmentList().add(a);
+            isUserResponsity.save(staff);
+
+            return userMapper.PersonToStaffResponse(staff);
+        }
+
+        @Override
+        public List<StaffResponse> getStaffForAppointment ( int appointmentId){
+
+            Appointment a = isAppointmentResponsitory.findById(appointmentId).orElseThrow(() -> new BadRequestException("Appointment Not Found"));
+            LocalDate day = LocalDate.from(a.getDateCollect());
+            LocalDateTime startDay = day.atStartOfDay();
+            LocalDateTime endDay = startDay.plusDays(1);
+
+            List<Person> list = isUserResponsity.findStaffByWorkHour(startDay, endDay, Work_hour(a.getDateCollect()));
+            List<StaffResponse> staffResponseList = new ArrayList<>();
+            list.forEach((staff) -> {
+                staffResponseList.add(userMapper.PersonToStaffResponse(staff));
+            });
+            return staffResponseList;
+        }
+
+        @Override
+        public boolean CanRefund ( int appointmentId){
+
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            Person p = isUserResponsity.findByUsername(username);
+            Appointment appointment = isAppointmentResponsitory.findById(appointmentId).orElseThrow(() -> new BadRequestException("Appointment Not Found"));
+            Work_hour time = Work_hour(appointment.getDateCollect());
+
+            if (appointment.getSampelist() == null || appointment.getSampelist().size() == 0) {
+                return false;
+            }
+            if (time == p.getWork_hour() && p.getRolename().equals(RoleName.STAFF_RECEPTION) && appointment.getSampelist().getFirst().getCureStatusSample() != null && appointment.getCurentStatusAppointment().equals("CANCLE")) {
+                return true;
+            }
+            return false;
+        }
     }
 
 //    @Override
@@ -406,3 +522,4 @@ public class AppointmentService implements IsAppointmentService {
 
     }
 }
+

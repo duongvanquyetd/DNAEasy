@@ -2,10 +2,13 @@ package com.dnaeasy.dnaeasy.service.impl;
 
 import com.dnaeasy.dnaeasy.dto.request.UserCreateRequest;
 import com.dnaeasy.dnaeasy.dto.request.UserUpdateResquest;
+import com.dnaeasy.dnaeasy.dto.response.StaffResponse;
 import com.dnaeasy.dnaeasy.dto.response.UserResponse;
+import com.dnaeasy.dnaeasy.enity.Appointment;
 import com.dnaeasy.dnaeasy.enity.Person;
 import com.dnaeasy.dnaeasy.exception.BadRequestException;
 import com.dnaeasy.dnaeasy.mapper.UserMapper;
+import com.dnaeasy.dnaeasy.responsity.IsAppointmentResponsitory;
 import com.dnaeasy.dnaeasy.responsity.IsUserResponsity;
 import com.dnaeasy.dnaeasy.service.IsUserService;
 import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
@@ -26,7 +29,7 @@ public class UserService implements IsUserService {
     IsUserResponsity personResponsity;
     UserMapper userMapper;
     CloudinaryUtil cloudinaryUtil;
-
+    IsAppointmentResponsitory isAppointmentResponsitory;
 
     @Override
     public String checkUsernameEmailPhone(UserCreateRequest userCreateRequest) {
@@ -114,4 +117,6 @@ public class UserService implements IsUserService {
     public void deleteUser(int id) {
         personResponsity.deleteById(String.valueOf(id));
     }
+
+
 }

@@ -1,11 +1,16 @@
 package com.dnaeasy.dnaeasy.controller;
 
+import com.dnaeasy.dnaeasy.dto.request.AppoinmetnAssignRequest;
 import com.dnaeasy.dnaeasy.dto.request.AppointmentCreateRequest;
 import com.dnaeasy.dnaeasy.dto.request.StatusUpdateAppointment;
 import com.dnaeasy.dnaeasy.dto.response.AppointCreateResponse;
 import com.dnaeasy.dnaeasy.dto.response.AppointmentResponse;
+
+import com.dnaeasy.dnaeasy.dto.response.StaffResponse;
+
 import com.dnaeasy.dnaeasy.dto.response.SummaryTodayResponse;
 import com.dnaeasy.dnaeasy.dto.response.SummaryYesterdayResponse;
+
 import com.dnaeasy.dnaeasy.service.impl.AppointmentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -65,5 +70,24 @@ public class AppointmentController {
     public ResponseEntity<Map<String, SummaryYesterdayResponse>> getAppointmentYesterday(){
         Map<String, SummaryYesterdayResponse> summary = appointmentService.getYesterdaySummary();
         return ResponseEntity.ok(summary);
+    }
+    @GetMapping("/managershift")
+    public ResponseEntity<List<AppointmentResponse>> getManager(){
+        return ResponseEntity.ok(appointmentService.getAppointmnetForMangerShiftStaff());
+    }
+    @PostMapping("/assignStaff")
+    public ResponseEntity<StaffResponse>  assignStaffForApp(@RequestBody  AppoinmetnAssignRequest request)
+    {
+        return  ResponseEntity.ok(appointmentService.AssignStaffForApp(request));
+    }
+
+    @GetMapping("/staffs/{id}")
+    public ResponseEntity<List<StaffResponse>> getStaffs(@PathVariable("id") int id) {
+        return ResponseEntity.ok(appointmentService.getStaffForAppointment(id));
+    }
+
+    @GetMapping("/canrefund/{id}")
+    public ResponseEntity<Boolean> getCanRefund(@PathVariable("id") int id) {
+        return  ResponseEntity.ok(appointmentService.CanRefund(id));
     }
 }
