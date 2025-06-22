@@ -70,9 +70,16 @@ public class PaymentController {
         return ResponseEntity.ok("Payment successful");
     }
 
+
     @GetMapping("/revenuetoday")
     public ResponseEntity<BigDecimal> getRevenueToday() {
         return ResponseEntity.ok(paymentService.totalRevenueToday());
+
+
+    @GetMapping("/renue-yesterday")
+    public ResponseEntity<Double> getRenueYesterday(){
+        return ResponseEntity.ok(paymentService.findAllByPaymentYesterday());
+
     }
     @PostMapping("/create")
     public ResponseEntity<PaymentResponse> createPaymentRefund(@RequestPart("payment") PaymentRefundRequest paymentRefundRequest,@RequestPart("file") MultipartFile file) {

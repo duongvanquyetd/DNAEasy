@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public interface IsPaymentService {
     String paymentUrlVnpay(int appointmentid, HttpServletRequest request);
@@ -18,6 +19,10 @@ public interface IsPaymentService {
     String PayAgaint(int appointmentId,HttpServletRequest request);
     void ConfirmPaidCash(int appointmentId);
     VnpayResponse UrlReturnFE(HttpServletRequest request);
+
     BigDecimal totalRevenueToday();
     PaymentResponse CreatePaymentRefund(PaymentRefundRequest request, MultipartFile file    );
+
+    Double findAllByPaymentYesterday();
+
 }

@@ -7,7 +7,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigDecimal;
+
 import java.util.Collection;
+
+import java.time.LocalDateTime;
+
 import java.util.List;
 
 public interface IsPaymentResponsitory extends JpaRepository<Payment, Integer> {
@@ -25,7 +29,6 @@ public interface IsPaymentResponsitory extends JpaRepository<Payment, Integer> {
     where p.payment_status = 1 and a.curent_status_appointment = 'COMPLETED'
     AND CAST(p.pay_date AS DATE) = CAST(GETDATE() AS DATE)""",
             nativeQuery = true)
-
     BigDecimal getTodayRevenueToday();
     @Query("select p from Payment p where p.isExpense = false and p.appointment.appointmentId =:appointmentid")
     Payment findByAppointmentIdAndExpenseIsFalse(int appointmentid);
@@ -41,4 +44,7 @@ public interface IsPaymentResponsitory extends JpaRepository<Payment, Integer> {
 //      AND a.curent_status_appointment = 'COMPLETED'
 //      AND CAST(p.pay_date AS DATE) = CAST(GETDATE() AS DATE)
 //    """, nativeQuery = true)
+
+    List<Payment> findAllByPaymentStatusIsTrueAndPaymentDateIsBetween(LocalDateTime start, LocalDateTime end);
+
 }

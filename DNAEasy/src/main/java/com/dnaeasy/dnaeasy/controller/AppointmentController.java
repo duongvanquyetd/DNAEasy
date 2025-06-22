@@ -5,7 +5,12 @@ import com.dnaeasy.dnaeasy.dto.request.AppointmentCreateRequest;
 import com.dnaeasy.dnaeasy.dto.request.StatusUpdateAppointment;
 import com.dnaeasy.dnaeasy.dto.response.AppointCreateResponse;
 import com.dnaeasy.dnaeasy.dto.response.AppointmentResponse;
+
 import com.dnaeasy.dnaeasy.dto.response.StaffResponse;
+
+import com.dnaeasy.dnaeasy.dto.response.SummaryTodayResponse;
+import com.dnaeasy.dnaeasy.dto.response.SummaryYesterdayResponse;
+
 import com.dnaeasy.dnaeasy.service.impl.AppointmentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -15,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
+
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api/appointment")
@@ -54,13 +61,15 @@ public class AppointmentController {
     }
 
     @GetMapping("/countToday")
-    public ResponseEntity<Integer> countAppointmentsToday(){
-        return ResponseEntity.ok(appointmentService.getCompletedAppointmentsToday());
+    public ResponseEntity<Map<String, SummaryTodayResponse>> countAppointmentsToday(){
+        Map<String, SummaryTodayResponse> summary = appointmentService.getTodaySummary();
+        return ResponseEntity.ok(summary);
     }
 
     @GetMapping("/countYesterday")
-    public ResponseEntity<List<AppointmentResponse>> getAppointmentYesterday(){
-        return ResponseEntity.ok(appointmentService.getAppointmentYesterday());
+    public ResponseEntity<Map<String, SummaryYesterdayResponse>> getAppointmentYesterday(){
+        Map<String, SummaryYesterdayResponse> summary = appointmentService.getYesterdaySummary();
+        return ResponseEntity.ok(summary);
     }
     @GetMapping("/managershift")
     public ResponseEntity<List<AppointmentResponse>> getManager(){
