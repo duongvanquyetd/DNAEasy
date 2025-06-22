@@ -137,10 +137,8 @@ public class CommentService implements IsCommentService {
         stauts.add("COMPLETE");
 
         com.dnaeasy.dnaeasy.enity.Service service = serviceRepo.findByServiceId(serviceId);
-        int appointmnet = apptRepo.countByService_ServiceIdAndCustomer_PersonId(serviceId,person.getPersonId());
+        int appointmnet = apptRepo.countByService_ServiceIdAndCustomer_PersonIdAndCurentStatusAppointmentIsIn(serviceId,person.getPersonId(),stauts);
         int commnet = commentRepo.countByService_ServiceIdAndCustomer_PersonId(serviceId,person.getPersonId());
-
-//&& !commentRepo.existsByServiceAndCustomer(service, person
         return apptRepo.existsByCustomer_PersonIdAndService_ServiceIdAndCurentStatusAppointmentIsIn(person.getPersonId(), serviceId, stauts) && appointmnet > commnet;
     }
 

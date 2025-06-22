@@ -23,14 +23,14 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     private PaymentMehtod paymentMethod;
     private boolean paymentStatus;
-
+    private boolean isExpense;
     private String vnpay_code;
     @Lob
     @Column(columnDefinition = "TEXT")
     private String contenPayment;
     @Column(precision = 19, scale = 2)
     private BigDecimal paymentAmount;
-    @OneToOne( cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="apppointment_id")
     private Appointment appointment;
     @ManyToOne

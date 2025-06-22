@@ -1,14 +1,18 @@
 package com.dnaeasy.dnaeasy.mapper;
 
 import com.dnaeasy.dnaeasy.dto.request.ResultUpdateRequest;
+import com.dnaeasy.dnaeasy.dto.response.HardResultTrackingResponse;
 import com.dnaeasy.dnaeasy.dto.response.ResultCreateResponse;
 import com.dnaeasy.dnaeasy.dto.response.ResultResponse;
 import com.dnaeasy.dnaeasy.dto.response.ResultUpdateResponse;
+import com.dnaeasy.dnaeasy.enity.HardResult;
+import com.dnaeasy.dnaeasy.enity.HardResultTracking;
 import com.dnaeasy.dnaeasy.enity.Result;
 import com.dnaeasy.dnaeasy.enity.Sample;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -17,6 +21,7 @@ public interface ResultMapper {
 
     @Mapping(target = "relationName", expression = "java(getRelationName(result))")
     @Mapping(target = "samplecode",expression = "java(getsamplecode(result))")
+
     ResultCreateResponse resultToResponse(Result result);
 
     default String getRelationName(Result result) {
@@ -45,8 +50,24 @@ public interface ResultMapper {
     @Mapping(target = "samplecode",expression = "java(getsamplecode(result))")
     @Mapping(target = "staffName" ,source = "staff.name")
     @Mapping(target = "nameOfPerson",expression = "java(collectName(result))")
+    @Mapping(target = "hardresultID",source = "hardresult.id")
+    @Mapping(target="tracking",expression = "java(listTracking(result))")
     ResultResponse resultToResultResponse(Result result);
+    default List<HardResultTrackingResponse> listTracking(Result result) {
+        List<HardResultTrackingResponse> tracking = new ArrayList<HardResultTrackingResponse>();
 
+        if(result.getHardresult() != null){
+            for(HardResultTracking h : result.getHardresult().getListTracking()){
+                HardResultTrackingResponse trackingResponse = new HardResultTrackingResponse();
+                trackingResponse.setTrackingdate(h.getTrackingdate());
+                trackingResponse.setStatusName(h.getStatusName());
+                trackingResponse.setImgUrl(h.getImgUrl());
+                tracking.add(trackingResponse);
+            }
+        }
+
+        return tracking;
+    }
     default String collectName (Result result)
     {
         Set<Sample> sampleList = result.getSampelist();

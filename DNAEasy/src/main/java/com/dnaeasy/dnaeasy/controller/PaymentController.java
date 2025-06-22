@@ -1,6 +1,8 @@
 package com.dnaeasy.dnaeasy.controller;
 
+import com.dnaeasy.dnaeasy.dto.request.PaymentRefundRequest;
 import com.dnaeasy.dnaeasy.dto.request.PaymentUpdateResquest;
+import com.dnaeasy.dnaeasy.dto.response.PaymentResponse;
 import com.dnaeasy.dnaeasy.dto.response.VnpayResponse;
 import com.dnaeasy.dnaeasy.enity.*;
 import com.dnaeasy.dnaeasy.service.impl.PaymentService;
@@ -9,6 +11,7 @@ import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.math.BigDecimal;
@@ -66,8 +69,13 @@ public class PaymentController {
         paymentService.ConfirmPaidCash(appointment);
         return ResponseEntity.ok("Payment successful");
     }
-@GetMapping("/revenuetoday")
-    public ResponseEntity<BigDecimal> getRevenueToday(){
+
+    @GetMapping("/revenuetoday")
+    public ResponseEntity<BigDecimal> getRevenueToday() {
         return ResponseEntity.ok(paymentService.totalRevenueToday());
+    }
+    @PostMapping("/create")
+    public ResponseEntity<PaymentResponse> createPaymentRefund(@RequestPart("payment") PaymentRefundRequest paymentRefundRequest,@RequestPart("file") MultipartFile file) {
+        return ResponseEntity.ok(paymentService.CreatePaymentRefund(paymentRefundRequest,file));
     }
 }

@@ -64,9 +64,13 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
                                          @Param("end") LocalDateTime end);
 
     List<Appointment> findAllByCurentStatusAppointmentAndDateCollectIsBetween(String status,LocalDateTime start,LocalDateTime end);
+    @Query("select  a from Appointment  a where a.staff is null")
+    List<Appointment> findAllByStaffIsNull();
 
 
+    int countByService_ServiceIdAndCustomer_PersonIdAndCurentStatusAppointmentNotIn(int serviceServiceId, int customerPersonId, Collection<String> curentStatusAppointments);
 
+    int countByService_ServiceIdAndCustomer_PersonIdAndCurentStatusAppointmentIsIn(int serviceServiceId, int customerPersonId, Collection<String> curentStatusAppointments);
 
-
+    List<Appointment> findALLByPayment_PaymentMethodAndCurentStatusAppointmentIsIn(PaymentMehtod paymentPaymentMethod, Collection<String> curentStatusAppointments);
 }

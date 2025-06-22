@@ -15,7 +15,6 @@ public class SampleResponse {
     private int sampleid;
     private String sampleType;//mong tay/mau/ban chai.v.v.v..v
     private String samplecode;
-
     private String cureStatusSample;
     private String CCCD;
     private String relationName;
