@@ -32,8 +32,10 @@ const EditProfile = () => {
     GetMyInfor().then((response) => {
       setUser(response.data)
       console.log("Response Data User", response.data)
-      const address = response.data.address.split(",");
-      setAvatar(response.data.avatarUrl);
+      const addr =  response.data.address.split(",")
+      const address =!addr || addr === 'null' || addr === 'undefined' || addr[0] === 'null' ? '' : addr  ;
+     
+       setAvatar(response.data.avatarUrl);
       setFormData(
         {
           name: response.data.name,
@@ -223,54 +225,54 @@ const EditProfile = () => {
 
 
               {formData.typeLogin === null &&
-                
-                  (
-                    <>
-                  <div className="field">
-                    <label className="label">Password</label>
-                    <input
-                      type="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      className="input"
-                      required
-                    />
 
-                  </div>
-                  {updatepass && (
-                    <>
+                (
+                  <>
+                    <div className="field">
+                      <label className="label">Password</label>
+                      <input
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        className="input"
+                        required
+                      />
 
-                      <div className="field">
-                        <label className="label">New Password</label>
-                        <input
-                          type="password"
-                          name="newPassword"
-                          value={formData.newPassword}
-                          onChange={handleChange}
-                          className="input"
+                    </div>
+                    {updatepass && (
+                      <>
 
-                        />
+                        <div className="field">
+                          <label className="label">New Password</label>
+                          <input
+                            type="password"
+                            name="newPassword"
+                            value={formData.newPassword}
+                            onChange={handleChange}
+                            className="input"
 
-                      </div>
-                      <div className="field">
-                        <label className="label">Confirm New Password</label>
-                        <input
-                          type="password"
-                          name="confirmNewPassword"
-                          value={formData.confirmNewPassword}
-                          onChange={handleChange}
-                          className="input"
+                          />
 
-                        />
+                        </div>
+                        <div className="field">
+                          <label className="label">Confirm New Password</label>
+                          <input
+                            type="password"
+                            name="confirmNewPassword"
+                            value={formData.confirmNewPassword}
+                            onChange={handleChange}
+                            className="input"
 
-                      </div>
-                    </>
+                          />
 
-                  )
+                        </div>
+                      </>
 
-                  }
-                </>
+                    )
+
+                    }
+                  </>
 
                 )}
 

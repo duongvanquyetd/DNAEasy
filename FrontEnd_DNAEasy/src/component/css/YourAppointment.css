@@ -569,18 +569,18 @@
 
   /* Modal */
   .your-appointment .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    /* bg-black/50 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 50;
-  }
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-start; /* Sửa từ center thành flex-start */
+  justify-content: center;
+  z-index: 1000; /* Đảm bảo modal nổi trên header */
+  overflow-y: auto; /* Cho phép scroll nếu modal dài */
+}
 
   .your-appointment .modal-content {
     background: #ffffff;
@@ -600,7 +600,11 @@
     top: 37%; */
 
   }
-
+.your-appointment .modal-content,
+.your-appointment .modal-content.large {
+  margin-top: 80px; /* Đẩy modal xuống dưới header */
+  margin-bottom: 40px;
+}
   .your-appointment .modal-content.large {
     max-width: 48rem;
     /* max-w-2xl */

@@ -35,7 +35,8 @@ export const BookingServicePage = () => {
   useEffect(() => {
     GetMyInfor()
       .then((response) => {
-        setLocation(response.data?.address || '');
+        const addr = response.data.address.split(',');
+       setLocation(!addr || addr === 'null' || addr === 'undefined' || addr[0] === 'null' ? '' : response.data.address);
         setPhoneAppointment(response.data?.phone || '');
         setEmailAppointment(response.data?.email || '');
       })
@@ -93,11 +94,12 @@ export const BookingServicePage = () => {
         typeCollect,
         dateCollect,
         paymentMethod,
-        location,
+        location ,
         serviceid: Number(id),
         phoneAppointment,
         emailAppointment,
       };
+      console.log("booking",bookingDetails)
       CreateAppointment(bookingDetails)
         .then((response) => {
           setErrorHour('');
