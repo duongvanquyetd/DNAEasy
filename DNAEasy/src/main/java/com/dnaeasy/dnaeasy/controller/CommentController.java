@@ -3,12 +3,8 @@ package com.dnaeasy.dnaeasy.controller;
 
 import com.dnaeasy.dnaeasy.dto.request.CommentRequest;
 import com.dnaeasy.dnaeasy.dto.response.CommentReponse;
-import com.dnaeasy.dnaeasy.enity.Comment;
-import com.dnaeasy.dnaeasy.service.IsCommentService;
-import com.dnaeasy.dnaeasy.service.IsPersonService;
 import com.dnaeasy.dnaeasy.service.impl.CommentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;

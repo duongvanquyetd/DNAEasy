@@ -8,8 +8,10 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Nationalized;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,5 +75,9 @@ public class Person {
     private List<Notification> notifications = new ArrayList<>();
     @OneToMany(mappedBy = "staffReception")
     private List<Payment> paymentList = new ArrayList<>();
+
+    @Column(name = "created_date")
+    @CreationTimestamp
+    private LocalDateTime createdDate;
 
 }

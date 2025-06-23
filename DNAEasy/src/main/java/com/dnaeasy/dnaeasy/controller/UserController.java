@@ -1,6 +1,8 @@
 package com.dnaeasy.dnaeasy.controller;
 
+import com.dnaeasy.dnaeasy.dto.request.PersonRequest;
 import com.dnaeasy.dnaeasy.dto.request.UserUpdateResquest;
+import com.dnaeasy.dnaeasy.dto.response.UserReportReponse;
 import com.dnaeasy.dnaeasy.dto.response.UserResponse;
 import com.dnaeasy.dnaeasy.service.impl.UserService;
 import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
@@ -49,5 +51,10 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.ok().build();
    }
+    @GetMapping("/report")
+    public ResponseEntity<List<UserReportReponse>> getUserReport(@RequestBody PersonRequest request){
+        List<UserReportReponse> repone = userService.listUser(request);
+        return ResponseEntity.ok(repone);
+    }
 
 }

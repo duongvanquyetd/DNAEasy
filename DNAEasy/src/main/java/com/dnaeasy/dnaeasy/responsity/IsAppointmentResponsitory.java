@@ -6,7 +6,6 @@ import com.dnaeasy.dnaeasy.enity.Payment;
 import com.dnaeasy.dnaeasy.enity.Person;
 import com.dnaeasy.dnaeasy.enity.Sample;
 import com.dnaeasy.dnaeasy.enums.PaymentMehtod;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -65,7 +64,6 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
 
     int countCompletedAppointmentsToday(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
-
     @Query(value = """
         select top 10 s.service_name as name, count (a.appointment_id) as total
         from appoinment a join service s on a.service_id = s.service_id
@@ -76,25 +74,17 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
     List<TopServiceReponse> findTop10Service(@Param("start") Timestamp start,
                                              @Param("end") Timestamp end);
 
-  
-
-
     List<Appointment> findAllByCurentStatusAppointmentAndDateCollectIsBetween(String status,LocalDateTime start,LocalDateTime end);
     @Query("select  a from Appointment  a where a.staff is null")
     List<Appointment> findAllByStaffIsNull();
-
-
     int countByService_ServiceIdAndCustomer_PersonIdAndCurentStatusAppointmentNotIn(int serviceServiceId, int customerPersonId, Collection<String> curentStatusAppointments);
-
     List<Appointment> findAllByCurentStatusAppointmentAndDateCollectBetween(
             String currentStatusAppointment,
             LocalDateTime start,
             LocalDateTime end
     );
 
-
     int countByService_ServiceIdAndCustomer_PersonIdAndCurentStatusAppointmentIsIn(int serviceServiceId, int customerPersonId, Collection<String> curentStatusAppointments);
-
 
     List<Appointment> findALLByPayment_PaymentMethodAndCurentStatusAppointmentIsIn(PaymentMehtod paymentPaymentMethod, Collection<String> curentStatusAppointments);
 }
