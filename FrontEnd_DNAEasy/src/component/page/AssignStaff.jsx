@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LeftOutlined, UserAddOutlined, CheckCircleOutlined, CloseCircleOutlined, SearchOutlined, CalendarOutlined, UserOutlined } from '@ant-design/icons';
 import '../css/AssignStaff.css'; // Specific styles for this page
-import Header from '../Header';
+import DynamicHeader from '../DynamicHeader';
 import Footer from '../Footer';
 
 // ===== MOCK DATA (thay thế bằng API sau) =====
@@ -312,7 +312,7 @@ const AssignStaff = () => {
 
   return (
     <>
-      <Header />
+      <DynamicHeader />
       <div className="assign-staff-container">
         {/* Bảng cuộc hẹn */}
         <div className={`appointments-section ${selectedAppointment ? 'collapsed' : ''}`}>

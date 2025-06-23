@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Logo from './image/logo/Logo.jpg';
 
+
 import { Logout } from '../service/login';
 import { GetMyInfor } from '../service/user';
+
 
 const Header = () => {
   const navigate = useNavigate();
@@ -11,7 +13,9 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [user, setUser] = useState('');
   useEffect(() => {
-   
+
+
+
 
       if (localStorage.getItem("token")) {
         GetMyInfor().then((response) => {
@@ -19,7 +23,9 @@ const Header = () => {
           console.log("response infor user",response.data);
         })
 
+
       }
+
 
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -27,6 +33,7 @@ const Header = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -38,14 +45,17 @@ const Header = () => {
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
+
   const handleAvatarClick = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
+
 
   const handleViewProfile = () => {
     navigate('/user/profile');
     setIsDropdownOpen(false);
   };
+
 
   const handleAdminDashboard = () => {
     navigate('/admin/dashboard');
@@ -65,6 +75,8 @@ const Header = () => {
   };
 
 
+
+
   const handleLogout = () => {
     const token = { token: localStorage.getItem("token") }
     Logout(token).then(() => {
@@ -73,6 +85,7 @@ const Header = () => {
     });
     setIsDropdownOpen(false);
   };
+
 
   return (
     <header style={{
@@ -89,6 +102,7 @@ const Header = () => {
           <img src={Logo} alt="DNAEASY Logo" style={styles.image} />
         </Link>
       </div>
+
 
       <nav style={styles.nav}>
         {[
@@ -122,6 +136,7 @@ const Header = () => {
         ))}
       </nav>
 
+
       {user  ?
         (
           <div style={styles.avatarContainer} className="avatar-container">
@@ -134,6 +149,7 @@ const Header = () => {
               />
               <div style={styles.onlineIndicator}></div>
             </div>
+
 
             {isDropdownOpen && (
               <div style={{ ...styles.dropdown, animation: 'fadeInUp 0.3s ease' }}>
@@ -148,20 +164,17 @@ const Header = () => {
                 <button style={styles.dropdownItem} onClick={handleViewProfile}>👤 View Profile</button>
                 {user.rolename === "ADMIN" && (
 
+
                   <button style={styles.dropdownItem} onClick={handleAdminDashboard}>⚙️ Admin Dashboard</button>
                 )}
-                {user.rolename === "MANAGER" && (
-                  <>  
-                  <button style={styles.dropdownItem} onClick={handleManagerBlog}>⚙️ Manage Blog</button>
-                  <button style={styles.dropdownItem} onClick={handleManagerService}>⚙️ Manage Service</button>
-                  <button style={styles.dropdownItem} onClick={handleManagerAssignStaff}>🧑‍🔬 Phân công nhân viên</button>
-</>
-                )}
+
 
                 <button style={styles.dropdownItem} onClick={handleLogout}>🚪 Logout</button>
               </div>
             )}
           </div>
+
+
 
 
         ) : (
@@ -171,13 +184,16 @@ const Header = () => {
               <Link to='/user/register' style={styles.registerBtn}>Register</Link>
             </div>
 
+
           </>
+
 
         )
       }
     </header>
   );
 };
+
 
 const styles = {
   authButtons: {
@@ -207,6 +223,7 @@ const styles = {
     transition: 'all 0.3s ease',
     boxShadow: '0 4px 12px rgba(0, 184, 148, 0.2)',
   },
+
 
   header: {
     display: 'flex',
@@ -346,6 +363,8 @@ const styles = {
 };
 
 
+
+
 // Global CSS reset
 const globalCSS = `
   * {
@@ -365,11 +384,13 @@ const globalCSS = `
 
 `;
 
+
 // Inject CSS to head
 if (typeof document !== 'undefined') {
   const style = document.createElement('style');
   style.innerHTML = globalCSS;
   document.head.appendChild(style);
 }
+
 
 export default Header;

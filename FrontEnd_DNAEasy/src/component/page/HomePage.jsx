@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Image from '../../component/image/banner/family.jpg'; // Adjust the path as necessary
 import DNA from '../../component/image/banner/dna.jpg'; // Adjust the path as necessary
 import Doctor from '../../component/image/banner/doctor.jpg'; // Adjust the path as necessary
 import '../css/HomePage.css';
-import Header from '../Header.jsx'; 
+import DynamicHeader from '../DynamicHeader';
 import Footer from '../Footer.jsx';
 
   function Home() {
@@ -27,7 +27,7 @@ import Footer from '../Footer.jsx';
 
   return (
     <div className="app">
-      <Header />
+      <DynamicHeader />
       {/* Hero Section */}
       <section className="hero-image">
         <div className="hero-overlay"></div>
