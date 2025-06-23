@@ -43,11 +43,7 @@ public interface IsAppointmentService {
     boolean CanRefund(int appointmentId);
 
 
-//    int getCompletedAppointmentsToday();
  Map<String, SummaryTodayResponse> getTodaySummary();
-//    List<AppointmentResponse> getAppointmentYesterday();
-    Map<String, SummaryYesterdayResponse> getYesterdaySummary();
-
     StaticReponse getStaticByDate(StaticRequest request);
     List<TopServiceReponse> findTopService(StaticRequest request);
 

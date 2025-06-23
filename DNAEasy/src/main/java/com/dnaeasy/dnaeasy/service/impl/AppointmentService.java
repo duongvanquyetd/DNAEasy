@@ -508,24 +508,6 @@ public class AppointmentService implements IsAppointmentService {
         return summary;
     }
 
-    public Map<String, SummaryYesterdayResponse> getYesterdaySummary() {
-        LocalDateTime start = LocalDateTime.now().minusDays(1).toLocalDate().atStartOfDay();
-        LocalDateTime end = LocalDateTime.now().toLocalDate().atStartOfDay().minusNanos(1);
-
-        List<Appointment> listAppointment = isAppointmentResponsitory
-                .findAllByCurentStatusAppointmentAndDateCollectBetween("COMPLETED", start, end);
-        List<Payment> listPayment = isPaymentResponsitory.findAllByPaymentStatusIsTrueAndPaymentDateIsBetween(start, end);
-
-        SummaryYesterdayResponse summary = new SummaryYesterdayResponse(
-                BigDecimal.valueOf(listPayment.stream().
-                        mapToDouble(p -> p.getPaymentAmount().doubleValue())
-                        .sum()),listAppointment.size());
-
-        Map<String, SummaryYesterdayResponse> result = new HashMap<>();
-        result.put("hôm qua", summary);
-        return result;
-
-    }
 
     @Override
     public StaticReponse getStaticByDate(StaticRequest request) {

@@ -74,11 +74,6 @@ public class AppointmentController {
         return ResponseEntity.ok(summary);
     }
 
-    @GetMapping("/countYesterday")
-    public ResponseEntity<Map<String, SummaryYesterdayResponse>> getAppointmentYesterday(){
-        Map<String, SummaryYesterdayResponse> summary = appointmentService.getYesterdaySummary();
-        return ResponseEntity.ok(summary);
-    }
 
 
     @GetMapping("/statistics")
@@ -92,7 +87,7 @@ public class AppointmentController {
     public ResponseEntity<List<TopServiceReponse>> getTopService(@RequestBody StaticRequest request) {
         List<TopServiceReponse> reponse = appointmentService.findTopService(request);
         return ResponseEntity.ok(reponse);
-
+    }
     @GetMapping("/managershift")
     public ResponseEntity<List<AppointmentResponse>> getManager(){
         return ResponseEntity.ok(appointmentService.getAppointmnetForMangerShiftStaff());
