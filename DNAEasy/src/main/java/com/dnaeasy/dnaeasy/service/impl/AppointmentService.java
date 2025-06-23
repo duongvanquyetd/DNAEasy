@@ -2,6 +2,7 @@ package com.dnaeasy.dnaeasy.service.impl;
 
 import com.dnaeasy.dnaeasy.dto.request.AppoinmetnAssignRequest;
 import com.dnaeasy.dnaeasy.dto.request.AppointmentCreateRequest;
+import com.dnaeasy.dnaeasy.dto.request.StaticRequest;
 import com.dnaeasy.dnaeasy.dto.request.StatusUpdateAppointment;
 
 import com.dnaeasy.dnaeasy.dto.response.AppointCreateResponse;
@@ -27,10 +28,14 @@ import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+
+import java.sql.Timestamp;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -496,7 +501,7 @@ public class AppointmentService implements IsAppointmentService {
         LocalDateTime end = start.plusDays(1);
 
         int totalAppointment = isAppointmentResponsitory.countCompletedAppointmentsToday(start, end);
-        BigDecimal revenue = isPaymentResponsitory.getTodayRevenueToday();
+        BigDecimal revenue = isPaymentResponsitory.getTodayRevenueToday(start,end);
         Map<String,SummaryTodayResponse> summary = new HashMap<>();
         SummaryTodayResponse today = new SummaryTodayResponse(revenue,totalAppointment);
         summary.put("hôm nay", today);
@@ -520,6 +525,61 @@ public class AppointmentService implements IsAppointmentService {
         result.put("hôm qua", summary);
         return result;
 
+    }
+
+    @Override
+    public StaticReponse getStaticByDate(StaticRequest request) {
+        LocalDateTime start;
+        LocalDateTime end;
+
+        if(request.getDate() != null){
+            start = request.getDate().atStartOfDay();
+            end = request.getDate().atTime(23,59,59);
+        } else if (request.getMonth() != null && request.getYear() != null) {
+            LocalDate first = LocalDate.of(request.getYear(), request.getMonth(), 1);
+            LocalDate last = first.withDayOfMonth(first.lengthOfMonth());
+            start = first.atStartOfDay();
+            end = last.atTime(23, 59, 59);
+        }else if (request.getYear() != null) {
+            LocalDate firstDay = LocalDate.of(request.getYear(), 1, 1);
+            LocalDate lastDay = LocalDate.of(request.getYear(), 12, 31);
+            start = firstDay.atStartOfDay();
+            end = lastDay.atTime(23, 59, 59);
+        } else{
+            throw new IllegalArgumentException("You have to chose date or month or year!!!");
+        }
+
+        int totalBills = isAppointmentResponsitory.countCompletedAppointmentsToday(start, end);
+        BigDecimal revenue = isPaymentResponsitory.getTodayRevenueToday(start,end);
+        if(revenue==null) revenue=BigDecimal.ZERO;
+        return new StaticReponse(totalBills,revenue);
+    }
+
+    @Override
+    public List<TopServiceReponse> findTopService(StaticRequest request) {
+        LocalDateTime start;
+        LocalDateTime end;
+
+        if (request.getMonth() != null && request.getYear() != null) {
+            LocalDate firstDay = LocalDate.of(request.getYear(), request.getMonth(), 1);
+            LocalDate lastDay = firstDay.withDayOfMonth(firstDay.lengthOfMonth());
+            start = firstDay.atStartOfDay();
+            end = lastDay.atTime(23, 59, 59);
+        } else if (request.getYear() != null) {
+            LocalDate firstDay = LocalDate.of(request.getYear(), 1, 1);
+            LocalDate lastDay = LocalDate.of(request.getYear(), 12, 31);
+            start = firstDay.atStartOfDay();
+            end = lastDay.atTime(23, 59, 59);
+        } else {
+            // Nếu không truyền gì thì mặc định là lấy hết
+            start = LocalDate.of(2000, 1, 1).atStartOfDay();
+            end = LocalDate.now().atTime(23, 59, 59);
+        }
+
+        List<TopServiceReponse> rawData = isAppointmentResponsitory.findTop10Service(
+                Timestamp.valueOf(start), Timestamp.valueOf(end)
+        );
+        return rawData;
     }
 }
 
