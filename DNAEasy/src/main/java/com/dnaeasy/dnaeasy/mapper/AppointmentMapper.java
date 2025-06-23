@@ -5,9 +5,12 @@ import com.dnaeasy.dnaeasy.dto.response.AppointmentResponse;
 import com.dnaeasy.dnaeasy.dto.response.AppointmentTrackingResponse;
 import com.dnaeasy.dnaeasy.enity.Appointment;
 import com.dnaeasy.dnaeasy.enity.AppointmnentTracking;
+import com.dnaeasy.dnaeasy.enity.Payment;
+import com.dnaeasy.dnaeasy.enums.PaymentMehtod;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,13 +22,13 @@ public interface AppointmentMapper {
 
 
     @Mapping(target = "serviceName" ,source = "service.serviceName")
-    @Mapping(target = "paymentMethod",source = "payment.paymentMethod")
+    @Mapping(target = "paymentMethod",expression = "java(paymentMehtod(appointment))")
     @Mapping(target = "staffName",source = "staff.name")
     @Mapping(target = "customerName" ,source = "customer.name")
     @Mapping(target = "tracking",expression = "java(AppointmentTrackingToList(appointment))")
-    @Mapping(target = "paymentAmount" , source = "payment.paymentAmount")
+    @Mapping(target = "paymentAmount" , expression ="java(paymentAmount(appointment))")
     @Mapping(target = "typeService" ,source = "service.typeService")
-    @Mapping(target = "paymentStatus",source = "payment.paymentStatus")
+    @Mapping(target = "paymentStatus",expression = "java(paymentStatus(appointment))")
     @Mapping(target = "serviceId" ,source  ="service.serviceId")
     AppointmentResponse AppointmentCreateResponse(Appointment appointment);
     default List<AppointmentTrackingResponse> AppointmentTrackingToList(Appointment appointment) {
@@ -39,4 +42,35 @@ public interface AppointmentMapper {
         }
         return list;
     }
-}
+    default PaymentMehtod paymentMehtod(Appointment appointment) {
+
+       for(Payment p : appointment.getPayment()) {
+           if(!p.isExpense())
+           {
+               return  p.getPaymentMethod();
+           }
+       }
+        return null;
+    }
+    default boolean paymentStatus(Appointment appointment) {
+         for(Payment p : appointment.getPayment()) {
+            if(!p.isExpense())
+            {
+                return  p.isPaymentStatus();
+            }
+        }
+        return false;
+    }
+    default BigDecimal paymentAmount(Appointment appointment) {
+
+        for(Payment p : appointment.getPayment()) {
+            if(!p.isExpense())
+            {
+                return  p.getPaymentAmount();
+            }
+        }
+        return null;
+
+    }
+
+ }

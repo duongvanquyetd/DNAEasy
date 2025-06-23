@@ -32,5 +32,8 @@ public class Result {
             joinColumns = {@JoinColumn(name ="Result_id")},inverseJoinColumns = @JoinColumn(name = "Sample_Id")
     )
     private Set<Sample> sampelist = new HashSet<>();
+    @ManyToOne
+    @JoinColumn(name = "hardresult_id")
+    private HardResult hardresult;
 
 }

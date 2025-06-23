@@ -1,9 +1,8 @@
 package com.dnaeasy.dnaeasy.service.impl;
 
 import com.dnaeasy.dnaeasy.config.VnpayConfig;
+import com.dnaeasy.dnaeasy.dto.request.PaymentRefundRequest;
 import com.dnaeasy.dnaeasy.dto.request.PaymentUpdateResquest;
-import com.dnaeasy.dnaeasy.dto.request.SampleCreateRequest;
-import com.dnaeasy.dnaeasy.dto.request.StatusUpdateAppointment;
 import com.dnaeasy.dnaeasy.dto.response.PaymentResponse;
 import com.dnaeasy.dnaeasy.dto.response.VnpayResponse;
 import com.dnaeasy.dnaeasy.enity.Appointment;
@@ -11,25 +10,20 @@ import com.dnaeasy.dnaeasy.enity.AppointmnentTracking;
 import com.dnaeasy.dnaeasy.enity.Payment;
 import com.dnaeasy.dnaeasy.enity.Person;
 import com.dnaeasy.dnaeasy.enums.PaymentMehtod;
-import com.dnaeasy.dnaeasy.enums.SampleMethod;
-import com.dnaeasy.dnaeasy.exception.ResourceNotFound;
 import com.dnaeasy.dnaeasy.mapper.PaymentMapper;
 import com.dnaeasy.dnaeasy.responsity.IsAppointmentResponsitory;
 import com.dnaeasy.dnaeasy.responsity.IsPaymentResponsitory;
 import com.dnaeasy.dnaeasy.responsity.IsUserResponsity;
-import com.dnaeasy.dnaeasy.service.IsAppointmentService;
 import com.dnaeasy.dnaeasy.service.IsPaymentService;
-import com.dnaeasy.dnaeasy.service.IsUserService;
+import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
 import com.dnaeasy.dnaeasy.util.VnpayUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -41,18 +35,20 @@ public class PaymentService implements IsPaymentService {
     VnpayUtil vnpayUtil;
     @Autowired
     IsPaymentResponsitory isPaymentResponsitory;
-    //    @Autowired
-//    IsAppointmentResponsitory isAppointmentResponsitory;
+    @Autowired
+    IsAppointmentResponsitory isAppointmentResponsitory;
     @Autowired
     IsUserResponsity isUserResponsitory;
     @Autowired
     PaymentMapper paymentMapper;
+    @Autowired
+    CloudinaryUtil cloudinaryUtil;
 
     @Override
 
     public String paymentUrlVnpay(int appointmnetid, HttpServletRequest request) {
         Map<String, String> params = vnpayConfig.getVNPayConfig();
-        Payment payment = isPaymentResponsitory.findByAppointment_AppointmentId(appointmnetid);
+        Payment payment = isPaymentResponsitory.findByAppointmentIdAndExpenseIsFalse(appointmnetid);
         BigDecimal money = payment.getPaymentAmount().multiply(BigDecimal.valueOf(100));// mai mốt thay giá trị vào
         String value = String.valueOf(money);
         String val[] = value.split("\\.");
@@ -102,7 +98,7 @@ public class PaymentService implements IsPaymentService {
 
     public boolean StatusPayment(int appointmentId) {
 
-        Payment payment = isPaymentResponsitory.getPaymentByAppointment_AppointmentId(appointmentId);
+        Payment payment = isPaymentResponsitory.findByAppointmentIdAndExpenseIsFalse(appointmentId);
         return payment.isPaymentStatus();
 
     }
@@ -117,9 +113,9 @@ public class PaymentService implements IsPaymentService {
         appointmnentTracking.setStatusName("PAID_" + resquest.getPaymentMehtod());
         a.getAppointmnentTrackings().add(appointmnentTracking);
 
-        Payment payment = a.getPayment();
+        Payment payment = isPaymentResponsitory.findByAppointmentIdAndExpenseIsFalse(a.getAppointmentId());
         payment.setPaymentStatus(true);
-        payment.setPaymentAmount(a.getPayment().getPaymentAmount().multiply(BigDecimal.valueOf(2)));
+        payment.setPaymentAmount(payment.getPaymentAmount().multiply(BigDecimal.valueOf(2)));
         if (!payment.getPaymentMethod().equals(resquest.getPaymentMehtod())) {
             if (payment.getPaymentMethod().equals(PaymentMehtod.Cash)) {
                 payment.setPaymentMethod(PaymentMehtod.Cash_VNpay);
@@ -127,24 +123,25 @@ public class PaymentService implements IsPaymentService {
                 payment.setPaymentMethod(PaymentMehtod.VNPay_Cash);
             }
         }
-        a.setPayment(payment);
+        a.getPayment().add(payment);
 
         isPaymentResponsitory.save(payment);
-        return paymentMapper.PaymentToPaymentResponse(a.getPayment());
+        return paymentMapper.PaymentToPaymentResponse(payment);
     }
 
     @Override
     public String PayToviewResult(int appointmentId, HttpServletRequest request) {
         Appointment a = isPaymentResponsitory.findByAppointment_AppointmentId(appointmentId).getAppointment();
-        if (a.getPayment().getContenPayment().contains("haft")) {
-            a.getPayment().setContenPayment(a.getPayment().getContenPayment().replaceAll("haft", "full"));
+        Payment payment = isPaymentResponsitory.findByAppointmentIdAndExpenseIsFalse(a.getAppointmentId());
+        if (payment.getContenPayment().contains("haft")) {
+            a.getPayment().getFirst().setContenPayment(a.getPayment().getFirst().getContenPayment().replaceAll("haft", "full"));
 
-        } else if (a.getPayment().getContenPayment().contains("againt")) {
-            a.getPayment().setContenPayment(a.getPayment().getContenPayment().replaceAll("againt", "full"));
+        } else if (payment.getContenPayment().contains("againt")) {
+            payment.setContenPayment(payment.getContenPayment().replaceAll("againt", "full"));
         }
-
-
-        isPaymentResponsitory.save(a.getPayment());
+        payment.setAppointment(a);
+        a.getPayment().add(payment);
+        isPaymentResponsitory.save(payment);
         return paymentUrlVnpay(a.getAppointmentId(), request);
     }
 
@@ -152,9 +149,9 @@ public class PaymentService implements IsPaymentService {
     public String PayAgaint(int appointmentId, HttpServletRequest request) {
         Appointment a = isPaymentResponsitory.findByAppointment_AppointmentId(appointmentId).getAppointment();
 
-        a.getPayment().setContenPayment(a.getPayment().getContenPayment().replaceAll("haft", "againt"));
+        a.getPayment().getFirst().setContenPayment(a.getPayment().getFirst().getContenPayment().replaceAll("haft", "againt"));
 
-        isPaymentResponsitory.save(a.getPayment());
+        isPaymentResponsitory.save(a.getPayment().getFirst());
         return paymentUrlVnpay(a.getAppointmentId(), request);
     }
 
@@ -189,7 +186,6 @@ public class PaymentService implements IsPaymentService {
             a.getAppointmnentTrackings().add(appointmnentTracking);
 
 
-
             if (a.getCurentStatusAppointment().equalsIgnoreCase("WAITING FOR PAYMENT")) {
 
 
@@ -209,8 +205,7 @@ public class PaymentService implements IsPaymentService {
             payment.setAppointment(a);
             isPaymentResponsitory.save(payment);
 
-        }else
-        {
+        } else {
             response.setSuccess(false);
             response.setAppointmentId(a.getAppointmentId());
         }
@@ -219,6 +214,11 @@ public class PaymentService implements IsPaymentService {
     }
 
     @Override
+
+    public BigDecimal totalRevenueToday() {
+        BigDecimal revenue = isPaymentResponsitory.getTodayRevenueToday();
+        return revenue != null ? revenue : BigDecimal.ZERO;
+    }
     public Double findAllByPaymentYesterday() {
         LocalDateTime start = LocalDateTime.now().minusDays(1).toLocalDate().atStartOfDay();
         LocalDateTime end = LocalDateTime.now().toLocalDate().atStartOfDay().minusNanos(1);
@@ -226,6 +226,38 @@ public class PaymentService implements IsPaymentService {
         List<Payment> payments = isPaymentResponsitory.findAllByPaymentStatusIsTrueAndPaymentDateIsBetween(start, end);
 
         return payments.stream().mapToDouble(p-> p.getPaymentAmount().doubleValue()).sum();
+
+  }
+
+    @Override
+    public PaymentResponse CreatePaymentRefund(PaymentRefundRequest request, MultipartFile file) {
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Person person = isUserResponsitory.findByUsername(username);
+        Appointment a = isAppointmentResponsitory.findById(request.getAppointmentId()).orElseThrow(() -> new RuntimeException("appointmentId not found"));
+        Payment payment = paymentMapper.PaymentRefuntToPayment(request);
+        payment.setStaffReception(person);
+        payment.setExpense(true); // chi tien ra
+        payment.setPaymentDate(LocalDateTime.now());
+        person.getPaymentList().add(payment);
+        AppointmnentTracking appointmnentTracking = new AppointmnentTracking();
+        appointmnentTracking.setStatusName("Refund_" + payment.getPaymentMethod() + "(" + payment.getPaymentAmount() + ")");
+        try {
+            if(file != null) {
+                appointmnentTracking.setImageUrl(cloudinaryUtil.uploadImage(file));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        appointmnentTracking.setStatusDate(LocalDateTime.now());
+        appointmnentTracking.setAppointment(a);
+        a.setCurentStatusAppointment("REFUNDED");
+        a.getAppointmnentTrackings().add(appointmnentTracking);
+        a.getPayment().add(payment);
+        payment.setAppointment(a);
+        isAppointmentResponsitory.save(a);
+        return paymentMapper.PaymentToPaymentResponse(a.getPayment().getLast());
     }
 
 

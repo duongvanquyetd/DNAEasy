@@ -62,6 +62,7 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
     int countByService_ServiceIdAndCustomer_PersonId(int serviceServiceId, int customerPersonId);
 
     @Query("select count(a) from Appointment a where a.dateCollect between :start and :end and a.curentStatusAppointment='COMPLETED'")
+
     int countCompletedAppointmentsToday(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
     List<Appointment> findAllByCurentStatusAppointmentAndDateCollectBetween(String currentStatusAppointment, LocalDateTime start, LocalDateTime end);
@@ -76,4 +77,25 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
     List<TopServiceReponse> findTop10Service(@Param("start") Timestamp start,
                                              @Param("end") Timestamp end);
 
+  
+
+
+    List<Appointment> findAllByCurentStatusAppointmentAndDateCollectIsBetween(String status,LocalDateTime start,LocalDateTime end);
+    @Query("select  a from Appointment  a where a.staff is null")
+    List<Appointment> findAllByStaffIsNull();
+
+
+    int countByService_ServiceIdAndCustomer_PersonIdAndCurentStatusAppointmentNotIn(int serviceServiceId, int customerPersonId, Collection<String> curentStatusAppointments);
+
+    List<Appointment> findAllByCurentStatusAppointmentAndDateCollectBetween(
+            String currentStatusAppointment,
+            LocalDateTime start,
+            LocalDateTime end
+    );
+
+
+    int countByService_ServiceIdAndCustomer_PersonIdAndCurentStatusAppointmentIsIn(int serviceServiceId, int customerPersonId, Collection<String> curentStatusAppointments);
+
+
+    List<Appointment> findALLByPayment_PaymentMethodAndCurentStatusAppointmentIsIn(PaymentMehtod paymentPaymentMethod, Collection<String> curentStatusAppointments);
 }
