@@ -1,29 +1,31 @@
-// filepath: d:\ki 5\SWPBP\DNAEasy\FrontEnd_DNAEasy\src\component\page\ManageService.jsx
-import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, InputNumber, Space, message, Upload, Card, Row, Col, Statistic, Tag, Tooltip } from 'antd';
+
+import React, { useState, useEffect, use } from 'react';
+import { Table, Button, Modal, Form, Input, InputNumber, Space, message, Upload, Card, Row, Col, Statistic, Tag, Tooltip, Select } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, UploadOutlined, EyeOutlined, DollarOutlined, AppstoreOutlined, TrophyOutlined } from '@ant-design/icons';
 import DynamicHeader from '../DynamicHeader';
 import Footer from '../Footer';
 import '../css/ManageService.css';
 import { useNavigate } from 'react-router-dom';
-import { GetALlServies, getServiceById, Report, SearchAndGet } from '../../service/service';//, createService, updateService, deleteService
+import { ActiveSerive, CreateService, DeleteService, GetALlServies, getServiceById, Report, SearchAndGet, UpdateService } from '../../service/service';//, createService, updateService, deleteService
 
 const ManageService = () => {
   const [services, setServices] = useState([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
-  const [editingService, setEditingService] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [searchText, setSearchText] = useState('');
   const [totalServices, setTotalservice] = useState('');
   const [totalValue, setTotalValue] = useState('');
   const [averagePrice, setAvaragePrice] = useState('');
-
+  const [totalactive, setTotalactive] = useState('');
+  const [totalinactive, setTotalInActive] = useState('')
+  const [createform, setCreateForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const pagesize = 10;
   const [totalPages, setTotalPages] = useState(0);
   const [category, setCategory] = useState('');
+  const [edit, setEdit] = useState(false)
+  const [error, setError] = useState('');
+  const [removeUrls, setRemovedUrls] = useState([]);
+  const [active, setActive] = useState(true);
   // Fetch services on component mount
   useEffect(() => {
 
@@ -33,426 +35,309 @@ const ManageService = () => {
       setTotalservice(response.data.count)
       setTotalValue(response.data.totalamount)
       setAvaragePrice(response.data.avgamount)
+      setTotalInActive(response.data.inactive)
+      setTotalactive(response.data.active)
     })
     console.log('ManageService component mounted');
-    
+
   }, []);
 
   useEffect(() => {
 
-    SearchAndGet({ keywordSearch: searchQuery, keywordType: category }, currentPage, pagesize).then((response)=>{
+    SearchAndGet({ keywordSearch: searchQuery, keywordType: category }, currentPage, pagesize, active).then((response) => {
       setTotalPages(response.data.totalPages)
       setServices(response.data.content)
-      console.log("Response",response.data)
-    }).catch((error)=>{
-      console.log("Error",error)
-    },[currentPage,searchQuery,category])
+      console.log("Response", response.data)
+    }).catch((error) => {
+      console.log("Error", error)
+    })
 
 
-  },[currentPage,searchQuery,category])
-  // const fetchServices = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const response = await GetALlServies();
-  //     console.log('Services fetched:', response.data);
-  //     if (response.data) {
-  //       setServices(response.data);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error fetching services:', error);
-  //     message.error('Failed to fetch services');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-const renderPagination = () => {
-    if (totalPages <= 1) return null;
-    const pages = [];
-    const maxPagesToShow = totalPages;
-    const startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
-    const endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
-
-    if (startPage > 1) {
-      pages.push(<button key={1} className="paginationBtn" onClick={() => setCurrentPage(1)} aria-label="Go to first page">1</button>);
-      if (startPage > 2) pages.push(<span key="start-ellipsis">...</span>);
-    }
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(<button key={i} className={`paginationBtn ${currentPage === i ? 'active' : ''}`} onClick={() => setCurrentPage(i)} aria-label={`Go to page ${i}`} aria-current={currentPage === i ? 'page' : undefined}>{i}</button>);
-    }
-    if (endPage < totalPages) {
-      if (endPage < totalPages - 1) pages.push(<span key="end-ellipsis">...</span>);
-      pages.push(<button key={totalPages} className="paginationBtn" onClick={() => setCurrentPage(totalPages)} aria-label="Go to last page">{totalPages}</button>);
-    }
-    return pages;
-  };
-
-  const premiumServices = services.filter(service => (service.price || 0) > 1000000).length;
-
-  const columns = [
-    {
-      title: 'Service Name',
-      dataIndex: 'serviceName',
-      key: 'serviceName',
-      sorter: (a, b) => a.serviceName.localeCompare(b.serviceName),
-      render: (text, record) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-          }} />
-          <span style={{ fontWeight: 600, color: '#333' }}>{text}</span>
-        </div>
-      ),
-      filteredValue: searchText ? [searchText] : null,
-      onFilter: (value, record) =>
-        record.serviceName.toLowerCase().includes(value.toLowerCase()) ||
-        record.type.toLowerCase().includes(value.toLowerCase()),
-    },
-    {
-      title: 'Type',
-      dataIndex: 'type',
-      key: 'type',
-      render: (type) => (
-        <Tag
-          color="blue"
-          style={{
-            borderRadius: '6px',
-            fontWeight: 500,
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            border: 'none',
-            color: 'white'
-          }}
+  }, [currentPage, searchQuery, category, active])
+  const renderPagination = (total, current, setPage) => (
+    <div className="pagination">
+      {Array.from({ length: total }, (_, i) => i + 1).map((i) => (
+        <button
+          key={i}
+          className={`page-button ${i === current ? 'active' : ''}`}
+          onClick={() => setPage(i)}
         >
-          {type}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Price (VND)',
-      dataIndex: 'price',
-      key: 'price',
-      render: (price) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <DollarOutlined style={{ color: '#52c41a' }} />
-          <span style={{ fontWeight: 600, color: '#52c41a' }}>
-            {new Intl.NumberFormat('vi-VN').format(price)}
-          </span>
-        </div>
-      ),
-      sorter: (a, b) => a.price - b.price,
-    },
-    {
-      title: 'Status',
-      key: 'status',
-      render: (_, record) => (
-        <Tag
-          color="green"
-          style={{
-            borderRadius: '6px',
-            fontWeight: 500,
-            background: 'linear-gradient(135deg, #52c41a 0%, #389e0d 100%)',
-            border: 'none',
-            color: 'white'
-          }}
-        >
-          Active
-        </Tag>
-      ),
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (_, record) => (
-        <Space size="small">
-          <Tooltip title="View Details">
-            <Button
-              type="text"
-              icon={<EyeOutlined />}
-              style={{ color: '#667eea' }}
-            />
-          </Tooltip>
-          <Tooltip title="Edit Service">
-            <Button
-              type="primary"
-              icon={<EditOutlined />}
-              onClick={() => handleEdit(record)}
-              size="small"
-            >
-              Edit
-            </Button>
-          </Tooltip>
-          <Tooltip title="Delete Service">
-            <Button
-              danger
-              icon={<DeleteOutlined />}
-              onClick={() => handleDelete(record.id)}
-              size="small"
-            >
-              Delete
-            </Button>
-          </Tooltip>
-        </Space>
-      ),
-    },
-  ];
-
-  const handleAdd = () => {
-    console.log('Add button clicked');
-    setEditingService(null);
-    form.resetFields();
-    setIsModalVisible(true);
-  };
-
-  const handleEdit = (service) => {
-    setEditingService(service);
-    form.setFieldsValue(service);
-    setIsModalVisible(true);
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      await deleteService(id);
-      message.success('Service deleted successfully');
-      setServices(services.filter(service => service.id !== id));
-    } catch (error) {
-      console.error('Error deleting service:', error);
-      message.error('Failed to delete service');
-    }
-  };
-
-  const handleModalOk = () => {
-    form.validateFields()
-      .then(async (values) => {
-        setLoading(true);
-        try {
-          if (editingService) {
-            // Update existing service
-            const response = await updateService(editingService.id, values);
-            if (response.data) {
-              const updatedService = response.data;
-              setServices(services.map(service =>
-                service.id === editingService.id ? updatedService : service
-              ));
-              message.success('Service updated successfully');
-            }
-          } else {
-            // Create new service
-            const response = await createService(values);
-            if (response.data) {
-              const newService = response.data;
-              setServices([...services, newService]);
-              message.success('Service created successfully');
-            }
-          }
-          setIsModalVisible(false);
-          form.resetFields();
-        } catch (error) {
-          console.error('Error saving service:', error);
-          message.error('Operation failed');
-        } finally {
-          setLoading(false);
-        }
-      });
-  };
-
-  return (
-    <div className="manage-service">
-      <DynamicHeader />
-      <div className="manage-service-content">
-        <div className="debug-text">
-          Service Management Dashboard
-        </div>
-
-        {/* Statistics Cards */}
-        <Row gutter={[16, 16]} style={{ marginBottom: '2rem' }}>
-          <Col xs={24} sm={12} lg={6}>
-            <Card
-              style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '16px'
-              }}
-            >
-              <Statistic
-                title={<span style={{ color: 'white', fontSize: '14px' }}>Total Services</span>}
-                value={totalServices}
-                prefix={<AppstoreOutlined style={{ color: '#667eea' }} />}
-                valueStyle={{ color: 'white', fontSize: '24px', fontWeight: 'bold' }}
-              />
-            </Card>
-
-             <section className="filterSection">
-          <form className="searchBar" onSubmit={(e)=>{ e.preventDefault(); handlsearch(); }} >
-            <input type="text" placeholder="What are you looking for?" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} aria-label="Search services" />
-            <select name="category" aria-label="Select category" onChange={(e) => setCategory(e.target.value)} value={category}>
-              <option value="">All Services</option>
-              <option value="civil">Civil Services</option>
-              <option value="legal">Legal Services</option>
-            </select>
-            <button type="submit" className="searchBtn" aria-label="Search">Search</button>
-          </form>
-        </section>
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card
-              style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '16px'
-              }}
-            >
-              <Statistic
-                title={<span style={{ color: 'white', fontSize: '14px' }}>Total Value</span>}
-                value={totalValue}
-                prefix={<DollarOutlined style={{ color: '#52c41a' }} />}
-                formatter={(value) => new Intl.NumberFormat('vi-VN').format(value)}
-                valueStyle={{ color: 'white', fontSize: '24px', fontWeight: 'bold' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card
-              style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '16px'
-              }}
-            >
-              <Statistic
-                title={<span style={{ color: 'white', fontSize: '14px' }}>Average Price</span>}
-                value={averagePrice}
-                prefix={<DollarOutlined style={{ color: '#faad14' }} />}
-                formatter={(value) => new Intl.NumberFormat('vi-VN').format(Math.round(value))}
-                valueStyle={{ color: 'white', fontSize: '24px', fontWeight: 'bold' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card
-              style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '16px'
-              }}
-            >
-              <Statistic
-                title={<span style={{ color: 'white', fontSize: '14px' }}>Premium Services</span>}
-                value={premiumServices}
-                prefix={<TrophyOutlined style={{ color: '#ff6b6b' }} />}
-                valueStyle={{ color: 'white', fontSize: '24px', fontWeight: 'bold' }}
-              />
-            </Card>
-          </Col>
-        </Row>
-
-        <div className="manage-service-header debug-header">
-          <h1>Manage Services</h1>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={handleAdd}
-            className="add-service-btn"
-          >
-            Add New Service
-          </Button>
-        </div>
-
-        <Table
-          columns={columns}
-          dataSource={services}
-          rowKey="id"
-          loading={loading}
-          pagination={{
-            pageSize: 10,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} services`,
-          }}
-        />
-
-        <Modal
-          title={editingService ? "Edit Service" : "Add New Service"}
-          open={isModalVisible}
-          onOk={handleModalOk}
-          onCancel={() => setIsModalVisible(false)}
-          confirmLoading={loading}
-          width={800}
-          okText={editingService ? "Update" : "Create"}
-          cancelText="Cancel"
-        >
-          <Form
-            form={form}
-            layout="vertical"
-          >
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item
-                  name="serviceName"
-                  label="Service Name"
-                  rules={[{ required: true, message: 'Please input the service name!' }]}
-                >
-                  <Input placeholder="Enter service name" />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  name="type"
-                  label="Type"
-                  rules={[{ required: true, message: 'Please input the type!' }]}
-                >
-                  <Input placeholder="Enter service type" />
-                </Form.Item>
-              </Col>
-            </Row>
-
-            <Form.Item
-              name="price"
-              label="Price (VND)"
-              rules={[{ required: true, message: 'Please input the price!' }]}
-            >
-              <InputNumber
-                className="full-width-input"
-                placeholder="Enter price"
-                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                parser={value => value.replace(/\$\s?|(,*)/g, '')}
-                min={0}
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="description"
-              label="Description"
-              rules={[{ required: true, message: 'Please input the description!' }]}
-            >
-              <Input.TextArea rows={4} placeholder="Enter service description" />
-            </Form.Item>
-
-            <Form.Item
-              name="images"
-              label="Images"
-            >
-              <Upload
-                listType="picture-card"
-                multiple
-                beforeUpload={() => false}
-              >
-                <div>
-                  <PlusOutlined />
-                  <div className="upload-text">Upload</div>
-                </div>
-              </Upload>
-            </Form.Item>
-          </Form>
-        </Modal>
-      </div>
-      <Footer />
+          {i}
+        </button>
+      ))}
     </div>
+  );
+
+
+  function handleActive(id) {
+    ActiveSerive(id).then((response) => {
+      console.log("Acctive Successfully", response.data);
+       setSearchQuery((pre) => pre + " ")
+    }).catch((error) => {
+      console.log("Error", error)
+    })
+  }
+
+  function handleDelete(id) {
+    DeleteService(id).then((response) => {
+      console.log("Delete SuccessFully", response.data)
+      setSearchQuery((pre) => pre + " ")
+    }).catch((error) => {
+      console.log("Error", error)
+    })
+  }
+
+  function handleCreateAndEdit(values) {
+
+    const formdata = new FormData();
+    const createService = {
+
+      serviceName: values.serviceName,
+      serviceDescription: values.description,
+      servicePrice: values.price,
+      typeService: values.typeService,
+      sample_count: values.sampleCount
+
+    }
+    formdata.append("service", new Blob([JSON.stringify(createService)], { type: "application/json" }))
+    if (values.imageUrls) {
+      values.imageUrls.forEach(file => {
+        formdata.append("file", file.originFileObj); // vi dung thu vien ant nen .originFileObj moi la File that su duoi BE moi nhan dc
+      });
+    }
+    console.log("Create data", createService)
+    console.log("Image service", values.imageUrls)
+    if (edit) {
+
+      formdata.append("removeimg", new Blob([JSON.stringify(removeUrls)], { type: "application/json" }))
+      UpdateService(edit.serviceId, formdata).then((response) => {
+        console.log("Update SuccessFully ", response.data)
+        setEdit(false);
+        setSearchQuery((pre) => pre + " ")
+        setCreateForm(false);       // Ẩn form
+        form.resetFields();
+        setError('');
+
+      }).catch((error) => {
+        console.log("Erorr", error.response?.data?.error)
+        setError(error.response?.data?.error)
+      })
+    }
+    else {
+      CreateService(formdata).then((response) => {
+        console.log("Create Service Succesfully ", response.data)
+        setCurrentPage(totalPages)
+        setCreateForm(false);       // Ẩn form
+        form.resetFields();
+        setError('');
+      }).catch((error) => {
+        console.log("Erorr", error.response?.data?.error)
+        setError(error.response?.data?.error)
+      })
+    }
+
+
+  }
+  return (
+    <div>
+      <div>
+        <p> Total Service:{totalServices}</p>
+        <p>Total Service Active:{totalactive}</p>
+        <p>Total Service InActive:{totalinactive}</p>
+        <p>TotalPrice:{averagePrice}VND</p>
+        <p>AvragePrice:{totalValue}VND</p>
+
+      </div>
+      <section className="filterSection">
+        <form className="searchBar" onSubmit={(e) => { e.preventDefault(); }} >
+          <input type="text" placeholder="What are you looking for?" value={searchQuery.trim()} onChange={(e) => {setSearchQuery(e.target.value);setCurrentPage(1)}} aria-label="Search services" />
+          <select name="category" aria-label="Select category" onChange={(e) => setCategory(e.target.value)} value={category}>
+            <option value="">All Services</option>
+            <option value="civil">Civil Services</option>
+            <option value="legal">Legal Services</option>
+          </select>
+          <button type="submit" className="searchBtn" aria-label="Search">Search</button>
+        </form>
+      </section>
+
+      <button onClick={() => {setActive(true),setCurrentPage(1)}}>Active Service</button>
+      <button onClick={() => {setActive(false),setCurrentPage(1)}}>InActive Service</button>
+
+     
+      <button  onClick={() => setCreateForm(true)}>Create Service  </button>
+      {
+        services && services.length > 0 && (
+          <table className="service-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Service Name</th>
+                <th>Type</th>
+                <th>Number Sample</th>
+                <th>Price (VND)</th>
+                <th>Action</th>
+
+                {/* Thêm các cột khác nếu cần */}
+              </tr>
+            </thead>
+            <tbody>
+              {services.map((service, idx) => (
+                <tr key={service.serviceId || idx}>
+                  <td>
+                    {service.imageUrls && service.imageUrls.length > 0 ? (
+                      <img
+                        src={service.imageUrls[0]}
+                        alt={service.serviceName}
+                        style={{ width: 80, height: 50, objectFit: 'cover', borderRadius: 6 }}
+                      />
+                    ) : (
+                      <img
+                        src="https://th.bing.com/th/id/OIP.2G6puRqr2qcbzxoMVpdVHwHaEO?r=0&o=7&rm=3&rs=1&pid=ImgDetMain"
+                        alt="default"
+                        style={{ width: 80, height: 50, objectFit: 'cover', borderRadius: 6, opacity: 0.5 }}
+                      />
+                    )}
+                  </td>
+                  <td>{service.serviceName}</td>
+                  <td>{service.typeService}</td>
+                  <td>{service.sample_count}</td>
+                  <td>{service.price?.toLocaleString('vi-VN') || ''}</td>
+                  <td>
+                    {service.active ? (
+                      <button onClick={() => handleDelete(service.serviceId)
+                      } >delete</button>
+
+                    ) : (
+                      <button onClick={ ()=> handleActive(service.serviceId)}>Active</button>
+
+                    )}
+
+                    <button onClick={() => {
+                      setEdit(service);
+                      setCreateForm(true);
+                      form.setFieldsValue({
+                        serviceName: service.serviceName,
+                        typeService: service.typeService,
+                        price: service.price,
+                        description: service.serviceDescription,
+                        sampleCount: service.sample_count,
+                        imageUrls: service.imageUrls.map((url, idx) => ({
+                          uid: `${idx}`,
+                          name: url.split('/').pop(),
+                          status: 'done',
+                          url: url
+                        }))
+                      });
+                    }}>Edit</button>
+
+                  </td>
+                  {/* Thêm các trường khác nếu cần */}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )
+      }
+      <Modal
+        title={edit ? "Edit Service " : "Create New Service"}
+        visible={createform}
+        onCancel={() => {
+          setCreateForm(false);
+          form.resetFields();
+          setEdit(false);
+          setError('');
+        }}
+        onOk={() => form.submit()} // Khi bấm OK thì gửi form
+        okText={edit ? "Edit" : "Create"}
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={(values) => {
+            console.log("Form data:", values);
+            handleCreateAndEdit(values);
+          }}
+        >
+
+          <Form.Item
+            label="Service Name"
+            name="serviceName"
+            rules={[{ required: true, message: 'Please enter the service name' }]}
+          >
+            <Input />
+          </Form.Item>
+
+
+          <Form.Item
+            label="Type of Service"
+            name="typeService"
+            rules={[{ required: true, message: 'Please select the type' }]}
+          >
+            <Select placeholder="Select a type">
+              <Select.Option value="civil">Civil</Select.Option>
+              <Select.Option value="legal">Legal</Select.Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="Price (VND)"
+            name="price"
+            rules={[{ required: true, message: 'Please enter the price' }]}
+          >
+            <InputNumber min={0} style={{ width: '100%' }} />
+          </Form.Item>
+
+          <Form.Item
+            label="Description"
+            name="description"
+            rules={[{ required: true, message: 'Please enter the description' }]}
+          >
+            <Input.TextArea rows={3} />
+          </Form.Item>
+
+          <Form.Item
+            label="Sample Count"
+            name="sampleCount"
+            rules={[{ required: true, message: 'Please enter sample count' }]}
+          >
+            <InputNumber min={1} style={{ width: '100%' }} />
+          </Form.Item>
+
+          <Form.Item
+            label="Upload Images"
+            name="imageUrls"
+            valuePropName="fileList"
+            getValueFromEvent={(e) => Array.isArray(e) ? e : e?.fileList}
+            rules={[{ required: !edit ? true : false, message: 'Please upload at least one image' }]}
+          >
+            <Upload
+              listType="picture-card"
+              multiple
+              beforeUpload={() => false}
+              onRemove={(file) => {
+                if (!file.originFileObj) {
+                  setRemovedUrls(prev => [...prev, file.url]);
+                }
+                return true;
+              }}
+            >
+              <div>
+                <UploadOutlined />
+                <div>Upload</div>
+              </div>
+            </Upload>
+
+
+          </Form.Item>
+          {error && (
+            <Form.Item>
+              <div style={{ color: 'red' }}>{error}</div>
+            </Form.Item>
+          )}
+        </Form>
+      </Modal>
+      {renderPagination(totalPages, currentPage, setCurrentPage)}
+    </div >
   );
 };
 
