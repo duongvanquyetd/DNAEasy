@@ -8,6 +8,7 @@ import org.hibernate.annotations.Nationalized;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
 @Data
 @Entity
 @Table(name = "Service")
@@ -20,16 +21,16 @@ public class Service {
     @Lob
     @Column(columnDefinition = "TEXT")
     private String serviceDescription;
-    @Column( precision = 19, scale = 2)
+    @Column(precision = 19, scale = 2)
     private BigDecimal servicePrice;
-
     private String typeService;
-
-    @OneToMany(mappedBy = "service",cascade = CascadeType.ALL, orphanRemoval = true)
+    @Column(name = "active", nullable = false, columnDefinition = "BIT DEFAULT 1")
+    private boolean active = true;
+    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ServiceImage> serviceImageList = new ArrayList<>();
-    @OneToMany(mappedBy = "service",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Appointment> appointmentsList = new ArrayList<>();
-    @OneToMany(mappedBy = "service",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
 

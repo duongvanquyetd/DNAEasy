@@ -21,4 +21,19 @@ public interface IsServiceResponsitory extends JpaRepository<Service, Long> {
     BigDecimal totalprice();
     @Query("select  (sum (s.servicePrice)/count(*))from Service  s ")
     BigDecimal avgamount();
+
+    Page<Service> findByTypeServiceContainingIgnoreCaseAndServiceNameContainingAndActive(String typeService, String serviceName, boolean active,Pageable pageable);
+
+    Page<Service> findByServiceNameContainingIgnoreCaseAndActive(String serviceName, boolean active, Pageable pageable);
+
+    Page<Service> findByTypeServiceContainingIgnoreCaseAndActive(String typeService, boolean active, Pageable pageable);
+
+
+    Page<Service> findAllByActive(boolean active, Pageable pageable);
+
+    Service findByServiceNameContainingIgnoreCaseAndActive(String serviceName, boolean active);
+
+    int countByServiceNameAndActive(String serviceName, boolean active);
+
+    long countByActive(boolean active);
 }
