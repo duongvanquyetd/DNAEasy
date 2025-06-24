@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class PaymentRefundRequest {
     private int appointmentId;
+    private String paycode;
     private PaymentMehtod paymentMethod;
     private String contenPayment;
     private BigDecimal paymentAmount;

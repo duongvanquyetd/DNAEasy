@@ -21,7 +21,7 @@ public interface ResultMapper {
 
     @Mapping(target = "relationName", expression = "java(getRelationName(result))")
     @Mapping(target = "samplecode",expression = "java(getsamplecode(result))")
-
+    @Mapping(target = "name",expression = "java(getName(result))")
     ResultCreateResponse resultToResponse(Result result);
 
     default String getRelationName(Result result) {
@@ -29,6 +29,10 @@ public interface ResultMapper {
         Set<Sample> sampleList = result.getSampelist();
         String relationName = "";
         for (Sample sample : sampleList) {
+            if(sample.getPersonTest().getRelationName() == null)
+            {
+                return null;
+            }
             relationName += sample.getPersonTest().getRelationName() + "-";
         }
 
@@ -42,6 +46,15 @@ public interface ResultMapper {
 
         }
         return sampleCode.substring(0, sampleCode.length() - 1);
+    }
+    default  String getName(Result result) {
+        Set<Sample> sampleList = result.getSampelist();
+        String name = "";
+        for (Sample sample : sampleList) {
+            name += sample.getPersonTest().getName() + "-";
+
+        }
+        return name.substring(0, name.length() - 1);
     }
     ResultUpdateResponse resultToUpdateResponse(Result result);
     Result UpdateRequestToResult(ResultUpdateRequest resultUpdateRequest);

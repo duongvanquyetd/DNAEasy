@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 public class StaffResponse {
     private String personId;
+    private String name;
     private String phone;
     private GenderEnum gender;
     private String address;//city + streets + city

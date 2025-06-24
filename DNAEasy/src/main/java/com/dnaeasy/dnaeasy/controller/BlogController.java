@@ -7,6 +7,9 @@ import com.dnaeasy.dnaeasy.enity.BlogImage;
 import com.dnaeasy.dnaeasy.service.impl.BlogService;
 import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -83,10 +86,11 @@ public class BlogController {
         return ResponseEntity.ok("Deleted blog");
     }
     @PostMapping("/find")
-    public ResponseEntity<List<BlogResponse>> findBlog(@RequestBody SearchRequest request) {
+    public ResponseEntity<Page<BlogResponse>> findBlog(@RequestParam("page") int page, @RequestParam("size") int size, @RequestBody SearchRequest request) {
 
+        Pageable pageable1 = PageRequest.of(page-1,size);
 
-        return  ResponseEntity.ok(blogService.findbyNameAndType(request));
+        return  ResponseEntity.ok(blogService.findbyNameAndType(request,pageable1));
     }
 
     @GetMapping("{id}")

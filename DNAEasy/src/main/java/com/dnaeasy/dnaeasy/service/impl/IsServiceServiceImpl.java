@@ -2,6 +2,7 @@ package com.dnaeasy.dnaeasy.service.impl;
 
 import com.dnaeasy.dnaeasy.dto.request.SearchRequest;
 import com.dnaeasy.dnaeasy.dto.request.ServiceCreateRequest;
+import com.dnaeasy.dnaeasy.dto.response.ManagerServiceReponse;
 import com.dnaeasy.dnaeasy.dto.response.ServiceResponse;
 import com.dnaeasy.dnaeasy.enity.Service;
 import com.dnaeasy.dnaeasy.enity.ServiceImage;
@@ -133,6 +134,18 @@ public class IsServiceServiceImpl implements IsServiceService {
 
 
         return responses;
+    }
+
+    @Override
+    public ManagerServiceReponse report() {
+
+
+        ManagerServiceReponse reponse = new ManagerServiceReponse();
+        reponse.setCount(serviceRepo.count());
+        reponse.setTotalamount(serviceRepo.totalprice());
+        reponse.setAvgamount(serviceRepo.avgamount());
+
+        return reponse;
     }
 
     private ServiceResponse convertToResponse(Service s) {

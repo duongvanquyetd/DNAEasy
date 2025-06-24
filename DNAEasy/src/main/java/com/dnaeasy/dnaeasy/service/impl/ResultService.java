@@ -50,6 +50,21 @@ public class ResultService implements IsResultService {
         Person staff = isUserResponsity.findByUsername(username);
         List<ResultCreateResponse> resultCreateRespons = new ArrayList<>();
         List<Sample> samples = a.getSampelist();
+        if (samples.size() == 1) {
+
+
+            ProcessTesting status = isProcessTesting.findOrderProcessByStatusNameAndSampleMethod(samples.getFirst().getCureStatusSample(), a.getTypeCollect());
+            ProcessTesting p = isProcessTesting.findByOrderProcessAndSampleMethod(status.getOrderProcess() + 1, a.getTypeCollect());
+            Result result = new Result();
+            result.setCurentStatusResult(p.getStatusName());
+            result.getSampelist().addAll(a.getSampelist());
+            result.setStaff(staff);
+            result.setResultTime(LocalDateTime.now());
+            samples.getFirst().getResult().add(result);
+            resultCreateRespons.add(resultMapper.resultToResponse(isResultResponsitory.save(result)));
+        }
+else{
+
         for (int i = 0; i < samples.size(); i++) {
             for (int j = i + 1; j < samples.size(); j++) {
                 Sample s1 = samples.get(i);
@@ -64,21 +79,19 @@ public class ResultService implements IsResultService {
                     ProcessTesting p = isProcessTesting.findByOrderProcessAndSampleMethod(status.getOrderProcess() + 1, a.getTypeCollect());
                     result.setCurentStatusResult(p.getStatusName());
                     result.getSampelist().addAll(sampleList);
-
                     result.setStaff(staff);
                     s1.getResult().add(result);
                     s2.getResult().add(result);
-                    isResultResponsitory.save(result);
-                    resultCreateRespons.add(resultMapper.resultToResponse(result));
+                    resultCreateRespons.add(resultMapper.resultToResponse(isResultResponsitory.save(result)));
                 }
             }
+        }
         }
         return resultCreateRespons;
     }
 
     @Override
     public List<ResultUpdateResponse> UpdateResult(List<ResultUpdateRequest> request) {
-
 
 
         List<ResultUpdateResponse> responses = new ArrayList<>();
@@ -107,20 +120,18 @@ public class ResultService implements IsResultService {
         newAppointment.setNote(appointment.getNote());
 
 
-        Result a =isResultResponsitory.findResultsByResultId(request.get(0).getResultId());
+        Result a = isResultResponsitory.findResultsByResultId(request.get(0).getResultId());
         Appointment appointment1 = a.getSampelist().iterator().next().getAppointment();
         Person customer = appointment1.getCustomer();
 
-        try
-        {
+        try {
             emailSender.SendMail(customer.getEmail());
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             new RuntimeException(e);
         }
 
 
-        appointmentService.UpdateStatusAppoinment(newAppointment,null);
+        appointmentService.UpdateStatusAppoinment(newAppointment, null);
         return responses;
     }
 

@@ -3,6 +3,8 @@ package com.dnaeasy.dnaeasy.service;
 import com.dnaeasy.dnaeasy.dto.request.BlogCreateRequest;
 import com.dnaeasy.dnaeasy.dto.request.SearchRequest;
 import com.dnaeasy.dnaeasy.dto.response.BlogResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -16,7 +18,7 @@ public interface IsBlogService {
 
     String ApproveBlog(int blogid);
     void DeleteBlog(int blogid);
-    List<BlogResponse> findbyNameAndType(SearchRequest searchRequest);
+    Page<BlogResponse> findbyNameAndType(SearchRequest searchRequest, Pageable pageable);
     BlogResponse getBlogByID(int id);
 
 }

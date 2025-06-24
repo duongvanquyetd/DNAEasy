@@ -26,6 +26,8 @@ import com.dnaeasy.dnaeasy.service.IsAppointmentService;
 import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -67,7 +69,6 @@ public class AppointmentService implements IsAppointmentService {
     UserMapper userMapper;
     @Autowired
     IsPaymentResponsitory isPaymentResponsitory;
-
 
 
     @Override
@@ -377,110 +378,116 @@ public class AppointmentService implements IsAppointmentService {
             }
 
 
-
         }
         return appointmentResponseList;
     }
 
 
-        public Work_hour Work_hour (LocalDateTime dateCollect){
-            int hour = dateCollect.getHour();
+    public Work_hour Work_hour(LocalDateTime dateCollect) {
+        int hour = dateCollect.getHour();
 
-            int minute = dateCollect.getMinute();
+        int minute = dateCollect.getMinute();
 
-            double hour_minute = hour + (minute / 100.0);
+        double hour_minute = hour + (minute / 100.0);
 
 
-            if (hour_minute >= 7 && hour_minute <= 9.3) {
-                return Work_hour.ca_1;
-            } else if (hour_minute > 9.3 && hour_minute <= 12) {
-                return Work_hour.ca_2;
-            } else if (hour_minute > 12 && hour_minute <= 14.3) {
-                return Work_hour.ca_3;
-            } else if (hour_minute > 14.3 && hour_minute <= 17) {
-                return Work_hour.ca_4;
-            }
-            return null;
+        if (hour_minute >= 7 && hour_minute <= 9.3) {
+            return Work_hour.ca_1;
+        } else if (hour_minute > 9.3 && hour_minute <= 12) {
+            return Work_hour.ca_2;
+        } else if (hour_minute > 12 && hour_minute <= 14.3) {
+            return Work_hour.ca_3;
+        } else if (hour_minute > 14.3 && hour_minute <= 17) {
+            return Work_hour.ca_4;
         }
+        return null;
+    }
 
 
-        @Override
-        public int getCompletedAppointmentsToday () {
-            LocalDateTime startDay = LocalDateTime.now().toLocalDate().atStartOfDay();
-            LocalDateTime endDay = startDay.plusDays(1);
-            return isAppointmentResponsitory.countCompletedAppointmentsToday(startDay, endDay);
-        }
+    @Override
+    public int getCompletedAppointmentsToday() {
+        LocalDateTime startDay = LocalDateTime.now().toLocalDate().atStartOfDay();
+        LocalDateTime endDay = startDay.plusDays(1);
+        return isAppointmentResponsitory.countCompletedAppointmentsToday(startDay, endDay);
+    }
 
-        @Override
-        public List<AppointmentResponse> getAppointmentYesterday () {
-            LocalDateTime startDay = LocalDateTime.now().minusDays(1).toLocalDate().atStartOfDay();
-            LocalDateTime endDay = LocalDateTime.now().toLocalDate().atStartOfDay().minusNanos(1);
+    @Override
+    public List<AppointmentResponse> getAppointmentYesterday() {
+        LocalDateTime startDay = LocalDateTime.now().minusDays(1).toLocalDate().atStartOfDay();
+        LocalDateTime endDay = LocalDateTime.now().toLocalDate().atStartOfDay().minusNanos(1);
 
-            List<Appointment> listAppointmentYesterday = isAppointmentResponsitory.findAllByCurentStatusAppointmentAndDateCollectIsBetween("COMPLTED", startDay, endDay);
+        List<Appointment> listAppointmentYesterday = isAppointmentResponsitory.findAllByCurentStatusAppointmentAndDateCollectIsBetween("COMPLTED", startDay, endDay);
 
-            return listAppointmentYesterday.stream()
-                    .map(appointmentMapper::AppointmentCreateResponse)
-                    .collect(Collectors.toList());
-        }
+        return listAppointmentYesterday.stream()
+                .map(appointmentMapper::AppointmentCreateResponse)
+                .collect(Collectors.toList());
+    }
 
-        @Override
-        public List<AppointmentResponse> getAppointmnetForMangerShiftStaff () {
+    @Override
+    public Page<AppointmentResponse> getAppointmnetForMangerShiftStaff(Pageable pageable) {
+        Page<Appointment> appointments = isAppointmentResponsitory.findForMangerAssign(pageable);
 
-            List<Appointment> appointments = isAppointmentResponsitory.findAllByStaffIsNull();
-            List<AppointmentResponse> appointmentResponseList = new ArrayList<>();
-            appointments.forEach((appointment) -> {
-                appointmentResponseList.add(appointmentMapper.AppointmentCreateResponse(appointment));
+        List<AppointmentResponse> appointmentResponseList = new ArrayList<>();
+        return appointments.map(appointmentMapper::AppointmentCreateResponse);
+    }
 
-            });
-            return appointmentResponseList;
-        }
-
-        @Override
-        public StaffResponse AssignStaffForApp (AppoinmetnAssignRequest request){
-            Appointment a = isAppointmentResponsitory.findById(request.getAppoinmetnId()).orElseThrow(() ->
-            {
-                throw new BadRequestException("Appointment with id " + request.getAppoinmetnId() + " not found");
-            });
-            Person staff = isUserResponsity.findByPersonId(request.getPersonId());
-            a.setStaff(staff);
+    @Override
+    public AppointmentResponse AssignStaffForApp(AppoinmetnAssignRequest request) {
+        Appointment a = isAppointmentResponsitory.findById(request.getAppoinmetnId()).orElseThrow(() ->
+        {
+            throw new BadRequestException("Appointment with id " + request.getAppoinmetnId() + " not found");
+        });
+        Person staff = isUserResponsity.findByPersonId(request.getPersonId());
+        a.setStaff(staff);
+        if(staff != null) // chuc nang huy assign staff
+        {
             staff.getAppointmentList().add(a);
             isUserResponsity.save(staff);
-
-            return userMapper.PersonToStaffResponse(staff);
+        }
+        else {
+            isAppointmentResponsitory.save(a);
         }
 
-        @Override
-        public List<StaffResponse> getStaffForAppointment ( int appointmentId){
 
-            Appointment a = isAppointmentResponsitory.findById(appointmentId).orElseThrow(() -> new BadRequestException("Appointment Not Found"));
-            LocalDate day = LocalDate.from(a.getDateCollect());
-            LocalDateTime startDay = day.atStartOfDay();
-            LocalDateTime endDay = startDay.plusDays(1);
 
-            List<Person> list = isUserResponsity.findStaffByWorkHour(startDay, endDay, Work_hour(a.getDateCollect()));
-            List<StaffResponse> staffResponseList = new ArrayList<>();
-            list.forEach((staff) -> {
-                staffResponseList.add(userMapper.PersonToStaffResponse(staff));
-            });
-            return staffResponseList;
+        return appointmentMapper.AppointmentCreateResponse(a);
+    }
+
+    @Override
+    public Page<StaffResponse> getStaffForAppointment(int appointmentId, String keyword, Pageable pageable) {
+
+        Appointment a = isAppointmentResponsitory.findById(appointmentId).orElseThrow(() -> new BadRequestException("Appointment Not Found"));
+        LocalDate day = LocalDate.from(a.getDateCollect());
+        LocalDateTime startDay = day.atStartOfDay();
+        LocalDateTime endDay = startDay.plusDays(1);
+        Page<Person> list = null;
+        if(keyword == null || keyword.trim().isEmpty())
+        {
+            list  = isUserResponsity.findStaffByWorkHour(startDay, endDay, Work_hour(a.getDateCollect()), pageable);
+
+        }else
+        {
+            list = isUserResponsity.findStaffByWorkHourWithKeyWord(startDay,endDay,Work_hour(a.getDateCollect()),pageable,keyword);
         }
+        return list.map(userMapper::PersonToStaffResponse);
+    }
 
-        @Override
-        public boolean CanRefund ( int appointmentId){
+    @Override
+    public boolean CanRefund(int appointmentId) {
 
-            String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            Person p = isUserResponsity.findByUsername(username);
-            Appointment appointment = isAppointmentResponsitory.findById(appointmentId).orElseThrow(() -> new BadRequestException("Appointment Not Found"));
-            Work_hour time = Work_hour(appointment.getDateCollect());
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Person p = isUserResponsity.findByUsername(username);
+        Appointment appointment = isAppointmentResponsitory.findById(appointmentId).orElseThrow(() -> new BadRequestException("Appointment Not Found"));
+        Work_hour time = Work_hour(appointment.getDateCollect());
 
-            if (appointment.getSampelist() == null || appointment.getSampelist().size() == 0) {
-                return false;
-            }
-            if (time == p.getWork_hour() && p.getRolename().equals(RoleName.STAFF_RECEPTION) && appointment.getSampelist().getFirst().getCureStatusSample() != null && appointment.getCurentStatusAppointment().equals("CANCLE")) {
-                return true;
-            }
+        if (appointment.getSampelist() == null || appointment.getSampelist().size() == 0) {
             return false;
         }
+        if (time == p.getWork_hour() && p.getRolename().equals(RoleName.STAFF_RECEPTION) && appointment.getSampelist().getFirst().getCureStatusSample() != null && appointment.getCurentStatusAppointment().equals("CANCLE")) {
+            return true;
+        }
+        return false;
+    }
 
 
 //    @Override
@@ -497,8 +504,8 @@ public class AppointmentService implements IsAppointmentService {
 
         int totalAppointment = isAppointmentResponsitory.countCompletedAppointmentsToday(start, end);
         BigDecimal revenue = isPaymentResponsitory.getTodayRevenueToday();
-        Map<String,SummaryTodayResponse> summary = new HashMap<>();
-        SummaryTodayResponse today = new SummaryTodayResponse(revenue,totalAppointment);
+        Map<String, SummaryTodayResponse> summary = new HashMap<>();
+        SummaryTodayResponse today = new SummaryTodayResponse(revenue, totalAppointment);
         summary.put("hôm nay", today);
         return summary;
     }
@@ -514,7 +521,7 @@ public class AppointmentService implements IsAppointmentService {
         SummaryYesterdayResponse summary = new SummaryYesterdayResponse(
                 BigDecimal.valueOf(listPayment.stream().
                         mapToDouble(p -> p.getPaymentAmount().doubleValue())
-                        .sum()),listAppointment.size());
+                        .sum()), listAppointment.size());
 
         Map<String, SummaryYesterdayResponse> result = new HashMap<>();
         result.put("hôm qua", summary);
