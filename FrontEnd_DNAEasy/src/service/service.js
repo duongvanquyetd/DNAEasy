@@ -8,24 +8,27 @@ export const getServiceById = (id) => {
     return axios.get(`http://localhost:8080/api/service/${id}`);
 }
 
-export const SearchAndGet = (search,page,size) => {
-    return axios.post(`http://localhost:8080/api/service/search?size=${size}&page=${page}`,search);
+export const SearchAndGet = (search,page,size,active) => {
+    return axios.post(`http://localhost:8080/api/service/search?size=${size}&page=${page}&active=${active}`,search);
 }
 
 
 //CRUD
-// export const createService = (serviceData) => {
-//     return axios.post('http://localhost:8080/api/service', serviceData);
-// }
+export const CreateService = (serviceData) => {
+    return api.post("/service/create",serviceData)
+}
 
-// export const updateService = (id, serviceData) => {
-//     return axios.put(`http://localhost:8080/api/service/${id}`, serviceData);
-// }
+export const UpdateService = (id, serviceData) => {
+    return api.put(`/service/update/${id}`, serviceData);
+}
 
-// export const deleteService = (id) => {
-//     return axios.delete(`http://localhost:8080/api/service/${id}`);
-// }
-
+export const DeleteService = (id) => {
+    return  api.delete(`/service/delete/${id}`)
+}
 export const Report=()=>{
     return api.get('/service/report')
+}
+export const ActiveSerive=(id)=>{
+
+    return api.post(`/service/active/${id}`)
 }
