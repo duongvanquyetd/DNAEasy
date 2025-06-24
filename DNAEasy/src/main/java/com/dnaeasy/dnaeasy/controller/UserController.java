@@ -1,13 +1,17 @@
 package com.dnaeasy.dnaeasy.controller;
 
 import com.dnaeasy.dnaeasy.dto.request.PersonRequest;
+import com.dnaeasy.dnaeasy.dto.request.UserFilterRequest;
+import com.dnaeasy.dnaeasy.dto.request.UserUpdateRequest;
 import com.dnaeasy.dnaeasy.dto.request.UserUpdateResquest;
+import com.dnaeasy.dnaeasy.dto.response.UserFilterRespone;
 import com.dnaeasy.dnaeasy.dto.response.UserReportReponse;
 import com.dnaeasy.dnaeasy.dto.response.UserResponse;
 import com.dnaeasy.dnaeasy.service.impl.UserService;
 import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -57,4 +61,19 @@ public class UserController {
         return ResponseEntity.ok(repone);
     }
 
+    @GetMapping("/fliter")
+    public ResponseEntity<List<UserFilterRespone>> filterUser(@RequestBody UserFilterRequest request){
+        List<UserFilterRespone> filter = userService.filterUser(request);
+        return ResponseEntity.ok(filter);
+    }
+
+    @PutMapping("/update-user")
+    public ResponseEntity<String> updateUser(@RequestBody UserUpdateRequest request) {
+        try {
+            userService.updateUser(request);
+            return ResponseEntity.ok("Cập nhật thành công!");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
 }

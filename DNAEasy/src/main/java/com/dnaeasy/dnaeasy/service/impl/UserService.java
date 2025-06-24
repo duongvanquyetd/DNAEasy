@@ -1,13 +1,13 @@
 package com.dnaeasy.dnaeasy.service.impl;
 
-import com.dnaeasy.dnaeasy.dto.request.PersonRequest;
-import com.dnaeasy.dnaeasy.dto.request.UserCreateRequest;
-import com.dnaeasy.dnaeasy.dto.request.UserUpdateResquest;
+import com.dnaeasy.dnaeasy.dto.request.*;
 import com.dnaeasy.dnaeasy.dto.response.StaffResponse;
+import com.dnaeasy.dnaeasy.dto.response.UserFilterRespone;
 import com.dnaeasy.dnaeasy.dto.response.UserReportReponse;
 import com.dnaeasy.dnaeasy.dto.response.UserResponse;
 import com.dnaeasy.dnaeasy.enity.Appointment;
 import com.dnaeasy.dnaeasy.enity.Person;
+import com.dnaeasy.dnaeasy.enums.RoleName;
 import com.dnaeasy.dnaeasy.exception.BadRequestException;
 import com.dnaeasy.dnaeasy.mapper.UserMapper;
 import com.dnaeasy.dnaeasy.responsity.IsAppointmentResponsitory;
@@ -23,8 +23,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -156,4 +158,52 @@ public class UserService implements IsUserService {
                         p.getCreatedDate().toLocalDate()
                 )).collect(Collectors.toList());
     }
+
+    @Override
+    public List<UserFilterRespone> filterUser(UserFilterRequest request) {
+        List<Person> person = personResponsity.findAll();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate from = request.getCreatedDateform() != null
+                ? LocalDate.parse(request.getCreatedDateform(), formatter)
+                : null;
+
+        LocalDate to = request.getCreatedDateTo() != null
+                ? LocalDate.parse(request.getCreatedDateTo(), formatter)
+                : null;
+
+        List<Person> filtered = person.stream()
+                .filter(p -> request.getName() == null || p.getName().toLowerCase().contains(request.getName().toLowerCase()))
+                .filter(p -> request.getRolename() == null || (p.getRolename() != null && p.getRolename().equals(request.getRolename())))
+                .filter(p -> request.getActive() == null || p.getActive().equals(request.getActive()))
+                .filter(p ->from == null || (p.getCreatedDate() != null && !p.getCreatedDate().toLocalDate().isBefore(from)))
+                .filter(p -> to == null || (p.getCreatedDate() != null && !p.getCreatedDate().toLocalDate().isAfter(to)))
+                .collect(Collectors.toList());
+
+        return filtered.stream()
+                .map(p -> new UserFilterRespone(
+                        p.getName(),
+                        p.getRolename().toString(),
+                        p.getActive(),
+                        p.getCreatedDate() != null ? p.getCreatedDate().toString() : null
+                )).collect(Collectors.toList());
+    }
+
+
+    @Override
+    public void updateUser(UserUpdateRequest request) {
+        Person person = personResponsity.findById(String.valueOf(request.getPersonId()))
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
+
+        if (request.getActive() != null) {
+            person.setActive(request.getActive());
+        }
+
+        if (request.getRole() != null) {
+            person.setRolename(RoleName.valueOf(request.getRole()));
+        }
+
+        personResponsity.save(person);
+    }
+
 }

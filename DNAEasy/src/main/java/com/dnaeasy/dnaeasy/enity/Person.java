@@ -80,4 +80,6 @@ public class Person {
     @CreationTimestamp
     private LocalDateTime createdDate;
 
+    @Column(name = "active")
+    private Boolean active;
 }
