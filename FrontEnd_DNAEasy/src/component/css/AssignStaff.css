@@ -466,4 +466,182 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+}
+
+/* Tab styles for assignment */
+.assign-staff-tabs {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  justify-content: flex-start;
+}
+.assign-staff-tabs button {
+  background: #F1F5F9;
+  color: #312E81;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 28px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px -4px rgba(49,46,129,0.06);
+  outline: none;
+}
+.assign-staff-tabs button:hover {
+  background: #E0E7FF;
+  color: #1E293B;
+}
+.assign-staff-tabs .tab-active {
+  background: #312E81;
+  color: #fff;
+  box-shadow: 0 4px 16px -6px rgba(49,46,129,0.15);
+}
+
+/* Responsive for tabs */
+@media (max-width: 600px) {
+  .assign-staff-tabs {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .assign-staff-tabs button {
+    width: 100%;
+    padding: 10px 0;
+    font-size: 0.95rem;
+  }
+}
+
+/* Bố cục tổng thể */
+.assign-staff-root {
+  min-height: 100vh;
+  background: #F8FAFC;
+  font-family: 'Inter', sans-serif;
+}
+.assign-staff-header {
+  text-align: center;
+  margin-top: 48px;
+  margin-bottom: 24px;
+}
+.assign-staff-header h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #312E81;
+  margin-bottom: 10px;
+  letter-spacing: 0.5px;
+}
+.assign-staff-desc {
+  color: #64748B;
+  font-size: 1.15rem;
+  margin-bottom: 0;
+}
+.assign-staff-tabs-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+.assign-staff-main {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 48px;
+  max-width: 1300px;
+  margin: 0 auto 60px auto;
+  position: relative;
+}
+.card {
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 8px 40px -10px rgba(49,46,129,0.13);
+  padding: 40px 32px 32px 32px;
+  position: relative;
+  min-width: 400px;
+}
+.appointments-section {
+  flex: 1 1 520px;
+  min-width: 350px;
+  max-width: 650px;
+  z-index: 1;
+  transition: filter 0.3s;
+}
+.appointments-section.blurred {
+  filter: blur(2.5px) grayscale(0.2) brightness(0.97);
+  pointer-events: none;
+  user-select: none;
+}
+.assign-staff-table-wrapper {
+  margin-top: 28px;
+}
+/* Overlay và panel phân công */
+.assign-staff-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(30, 41, 59, 0.25);
+  z-index: 100;
+  animation: fadeInOverlay 0.3s;
+}
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.assign-staff-panel {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%) translateX(0);
+  width: 420px;
+  max-width: 95vw;
+  z-index: 101;
+  box-shadow: -12px 0 40px -10px rgba(49,46,129,0.15);
+  animation: slideInPanel 0.35s cubic-bezier(0.4,0,0.2,1);
+  border-radius: 24px 0 0 24px;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  padding: 40px 32px 32px 32px;
+}
+@keyframes slideInPanel {
+  from { transform: translateY(-50%) translateX(80px); opacity: 0; }
+  to { transform: translateY(-50%) translateX(0); opacity: 1; }
+}
+.assign-staff-panel .back-button {
+  margin-bottom: 24px;
+  font-size: 1.08rem;
+  background: #F1F5F9;
+  color: #312E81;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 22px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.assign-staff-panel .back-button:hover {
+  background: #E0E7FF;
+  color: #1E293B;
+}
+@media (max-width: 900px) {
+  .assign-staff-main {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+    padding: 18px 6vw;
+  }
+  .assign-staff-panel, .card {
+    min-width: 320px;
+    max-width: 98vw;
+    padding: 18px 6vw;
+    border-radius: 18px;
+  }
+  .assign-staff-panel {
+    position: fixed;
+    left: 0; right: 0; top: 0; bottom: 0;
+    transform: none;
+    border-radius: 18px;
+    min-width: 320px;
+    animation: slideInPanelMobile 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+  @keyframes slideInPanelMobile {
+    from { transform: translateY(40px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
 } 

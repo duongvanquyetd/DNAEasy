@@ -13,7 +13,7 @@ const mockAppointments = [
     phone: '0909123456',
     date: '2024-07-01',
     time: '09:00',
-    typeSample: 'Home_collection',
+    typeSample: 'Home_collection', // Lấy mẫu tại nhà
     status: 'Chưa phân công',
   },
   {
@@ -26,6 +26,48 @@ const mockAppointments = [
     typeSample: 'Home_collection',
     status: 'Đã phân công',
     assignedStaff: 'Lê Văn Nhân',
+  },
+  {
+    id: 3,
+    customerName: 'Phạm Quốc C',
+    address: '789 Điện Biên Phủ, Q.Bình Thạnh',
+    phone: '0909888777',
+    date: '2024-07-03',
+    time: '10:30',
+    typeSample: 'Hospital_collection', // Lấy mẫu tại bệnh viện
+    status: 'Chưa phân công',
+  },
+  {
+    id: 4,
+    customerName: 'Lê Thị D',
+    address: 'Bệnh viện Chợ Rẫy',
+    phone: '0911222333',
+    date: '2024-07-04',
+    time: '08:00',
+    typeSample: 'Hospital_collection',
+    status: 'Đã phân công',
+    assignedStaff: 'Phạm Thị Mai',
+  },
+  {
+    id: 5,
+    customerName: 'Ngô Văn E',
+    address: '234 Pasteur, Q.3',
+    phone: '0933444555',
+    date: '2024-07-05',
+    time: '15:00',
+    typeSample: 'Self_collection', // Gửi kit test đến nhà
+    status: 'Chưa phân công',
+  },
+  {
+    id: 6,
+    customerName: 'Đặng Thị F',
+    address: '567 Lê Văn Sỹ, Q.Phú Nhuận',
+    phone: '0944555666',
+    date: '2024-07-06',
+    time: '11:00',
+    typeSample: 'Self_collection',
+    status: 'Đã phân công',
+    assignedStaff: 'Nguyễn Xuân Việt',
   },
 ];
 
@@ -85,6 +127,7 @@ const AssignStaff = () => {
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [stagedStaff, setStagedStaff] = useState(null);
   const [staffSearchText, setStaffSearchText] = useState('');
+  const [activeTab, setActiveTab] = useState('Home_collection'); // Tab hiện tại
 
   // Simulate API fetch
   useEffect(() => {
@@ -153,11 +196,16 @@ const AssignStaff = () => {
     staff.phone.includes(staffSearchText)
   );
 
-  const renderAppointmentTableBody = () => {
+  // Lọc các cuộc hẹn theo tab đang chọn
+  const filteredAppointments = appointments.filter(
+    (appt) => appt.typeSample === activeTab
+  );
+
+  const renderAppointmentTableBody = (appointmentsList) => {
     if (isLoading) {
       return Array.from({ length: 3 }).map((_, index) => <SkeletonRow key={index} columns={5} />);
     }
-    if (appointments.length === 0) {
+    if (appointmentsList.length === 0) {
       return (
         <tr>
           <td colSpan="5">
@@ -169,7 +217,7 @@ const AssignStaff = () => {
         </tr>
       );
     }
-    return appointments.map((appt, index) => (
+    return appointmentsList.map((appt, index) => (
       <tr 
         key={appt.id} 
         onClick={() => handleSelectAppointment(appt)}
@@ -311,48 +359,72 @@ const AssignStaff = () => {
   };
 
   return (
-    <>
+    <div className="assign-staff-root">
       <DynamicHeader />
-      <div className="assign-staff-container">
-        {/* Bảng cuộc hẹn */}
-        <div className={`appointments-section ${selectedAppointment ? 'collapsed' : ''}`}>
-          <h2>List Appointment</h2>
-          <table className="custom-table">
-            <thead>
-              <tr>
-                <th>Khách hàng</th>
-                <th>Địa chỉ</th>
-                <th>Ngày giờ</th>
-                <th>Trạng thái</th>
-                <th>Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {renderAppointmentTableBody()}
-            </tbody>
-          </table>
+      <div className="assign-staff-header">
+        <h1>Phân công nhân viên lấy mẫu & gửi kit</h1>
+        <p className="assign-staff-desc">Quản lý và phân công nhân viên cho các cuộc hẹn lấy mẫu tại nhà, tại viện hoặc gửi kit test đến khách hàng.</p>
+      </div>
+      <div className="assign-staff-tabs-wrapper">
+        <div className="assign-staff-tabs">
+          <button
+            className={activeTab === 'Home_collection' ? 'tab-active' : ''}
+            onClick={() => setActiveTab('Home_collection')}
+          >
+            Lấy mẫu tại nhà
+          </button>
+          <button
+            className={activeTab === 'Hospital_collection' ? 'tab-active' : ''}
+            onClick={() => setActiveTab('Hospital_collection')}
+          >
+            Lấy mẫu tại viện
+          </button>
+          <button
+            className={activeTab === 'Self_collection' ? 'tab-active' : ''}
+            onClick={() => setActiveTab('Self_collection')}
+          >
+            Gửi kit test
+          </button>
         </div>
-
-        {/* Bảng nhân viên */}
-        {selectedAppointment && (
-          <div className="staff-section">
-            <button className="ant-btn back-button" onClick={handleBack}>
-              <LeftOutlined /> Quay lại
-            </button>
-            <h3>
-              {selectedAppointment.status === 'Chưa phân công' ? 'Chọn nhân viên' : 'Chi tiết phân công'}
-            </h3>
-            <div className="appointment-details">
-              <span>Khách hàng: <b>{selectedAppointment.customerName}</b></span>
-              <span>Địa chỉ: <b>{selectedAppointment.address}</b></span>
-              <span>Thời gian: <b>{`${selectedAppointment.date} ${selectedAppointment.time}`}</b></span>
-            </div>
-            {renderStaffPanel()}
+      </div>
+      <div className="assign-staff-main">
+        <div className={`appointments-section card ${selectedAppointment ? 'blurred' : ''}`}> 
+          <h2>Danh sách cuộc hẹn</h2>
+          <div className="assign-staff-table-wrapper">
+            <table className="custom-table">
+              <thead>
+                <tr>
+                  <th>Khách hàng</th>
+                  <th>Địa chỉ</th>
+                  <th>Thời gian</th>
+                  <th>Trạng thái</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody>{renderAppointmentTableBody(filteredAppointments)}</tbody>
+            </table>
           </div>
+        </div>
+        {selectedAppointment && (
+          <>
+            <div className="assign-staff-overlay" onClick={handleBack}></div>
+            <div className="assign-staff-panel card">
+              <button className="back-button" onClick={handleBack}>
+                <LeftOutlined /> Quay lại
+              </button>
+              <div className="appointment-details">
+                <span><b>Khách hàng:</b> {selectedAppointment.customerName}</span><br />
+                <span><b>Địa chỉ:</b> {selectedAppointment.address}</span><br />
+                <span><b>Thời gian:</b> {selectedAppointment.date} {selectedAppointment.time}</span><br />
+                <span><b>Loại:</b> {selectedAppointment.typeSample === 'Home_collection' ? 'Lấy mẫu tại nhà' : selectedAppointment.typeSample === 'Hospital_collection' ? 'Lấy mẫu tại viện' : 'Gửi kit test'}</span>
+              </div>
+              {renderStaffPanel()}
+            </div>
+          </>
         )}
       </div>
       <Footer />
-    </>
+    </div>
   );
 };
 
