@@ -222,51 +222,51 @@ export const HistoryBooking = () => {
                                                         </button>
 
 
-                                                    )} 
-                                                    
-                                                     {showUploadForm && (
-                                                        <div className="overlay-upload">
-                                                            <div className="upload-box" onClick={(e) => e.stopPropagation()}>
-                                                                <label>Upload Image Confirm</label>
-                                                                <input
-                                                                    type="file"
-                                                                    accept="image/*"
-                                                                    required
-                                                                    onChange={(e) => setImageFile(e.target.files[0])}
-                                                                />
-                                                                <button onClick={() => {
-                                                                    if (!imageFile) return alert("Please select an image.");
-                                                                    const formData = new FormData();
-                                                                    console.log(showUploadForm)
-                                                                    const update = {
-                                                                        statusName: showUploadForm.canconfirm.nextStatus,
-                                                                        hardresultID: showUploadForm.result[0].hardresultID
-
-                                                                    }
-                                                                    formData.append("hardresult", new Blob([JSON.stringify(update)], { type: "application/json" }))
-                                                                    formData.append("file", imageFile)
-                                                                    UpdateHardResult(formData).then((responsne) => {
-                                                                        console.log("Update Sucessfully", responsne.data)
-                                                                        window.location.reload();
-
-                                                                    }).catch((error) => {
-                                                                        console.log("error", error)
-                                                                    })
-
-                                                                    setShowUploadForm(false);
-                                                                }}>
-                                                                    Upload
-                                                                </button>
-                                                            </div>
-
-
-                                                        </div>
                                                     )}
-                                                    </div>  
-                                                    
+
+                                                {showUploadForm && (
+                                                    <div className="overlay-upload">
+                                                        <div className="upload-box" onClick={(e) => e.stopPropagation()}>
+                                                            <label>Upload Image Confirm</label>
+                                                            <input
+                                                                type="file"
+                                                                accept="image/*"
+                                                                required
+                                                                onChange={(e) => setImageFile(e.target.files[0])}
+                                                            />
+                                                            <button onClick={() => {
+                                                                if (!imageFile) return alert("Please select an image.");
+                                                                const formData = new FormData();
+                                                                console.log(showUploadForm)
+                                                                const update = {
+                                                                    statusName: showUploadForm.canconfirm.nextStatus,
+                                                                    hardresultID: showUploadForm.result[0].hardresultID
+
+                                                                }
+                                                                formData.append("hardresult", new Blob([JSON.stringify(update)], { type: "application/json" }))
+                                                                formData.append("file", imageFile)
+                                                                UpdateHardResult(formData).then((responsne) => {
+                                                                    console.log("Update Sucessfully", responsne.data)
+                                                                    window.location.reload();
+
+                                                                }).catch((error) => {
+                                                                    console.log("error", error)
+                                                                })
+
+                                                                setShowUploadForm(false);
+                                                            }}>
+                                                                Upload
+                                                            </button>
+                                                        </div>
+
+
+                                                    </div>
+                                                )}
+                                            </div>
+
 
                                         </div>
-                                         </div>
+                                    </div>
                                     {selectedAppointmentId === booking.appointmentId && (
                                         <div className="expanded-details">
                                             {!booking.status && rolename === "CUSTOMER" && booking.curentStatusAppointment === "COMPLETE" ? (
@@ -412,9 +412,16 @@ export const HistoryBooking = () => {
                                                                             <div className="status-dot result"></div>
                                                                             <div className="status-content full-width">
                                                                                 <p className="status-name"><strong>Người lấy mẫu:</strong> {res.nameOfPerson}</p>
-                                                                                <p className="status-name"><strong>Quan hệ:</strong> {res.relationName}</p>
+                                                                                {res.relationName && (
+
+                                                                                    <p className="status-name"><strong>Quan hệ:</strong> {res.relationName}</p>
+                                                                                )}
+
                                                                                 <p className="status-name"><strong>Mã mẫu:</strong> {res.samplecode}</p>
-                                                                                <p className="status-name"><strong>Kết luận:</strong> {res.conclustionResult}</p>
+                                                                                {res.relationName && (
+
+                                                                                    <p className="status-name"><strong>Kết luận:</strong> {res.conclustionResult}</p>
+                                                                                )}
                                                                                 <p className="status-date"><strong>Có kết quả:</strong> {formatDate(res.resultTime)}</p>
                                                                                 {res.resulFilePDF && (
                                                                                     <div className="mt-33 w-full">

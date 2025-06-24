@@ -21,7 +21,7 @@ export const YourAppointment = () => {
   const [cancelForm, setCancelForm] = useState('');
   const [cancelNote, setCancelNote] = useState('');
   const [typeService, setTypeService] = useState('');
-    const [refunForm, setRefunForm] = useState("");
+  const [refunForm, setRefunForm] = useState("");
   const rolename = localStorage.getItem('rolename') ? localStorage.getItem('rolename') : null;
 
   useEffect(() => {
@@ -126,17 +126,17 @@ export const YourAppointment = () => {
       });
   }
   function handleCashToView(booking) {
-        const Updatepayment = {
-            appointmentId: booking.appointmentId,
-            paymentMehtod: "Cash"
-        };
-        UpdatePaymentStatus(Updatepayment).then((response) => {
-            console.log("update", response.data);
-            window.location.reload();
-        }).catch((error) => {
-            console.log(error.data);
-        });
-    }
+    const Updatepayment = {
+      appointmentId: booking.appointmentId,
+      paymentMehtod: "Cash"
+    };
+    UpdatePaymentStatus(Updatepayment).then((response) => {
+      console.log("update", response.data);
+      window.location.reload();
+    }).catch((error) => {
+      console.log(error.data);
+    });
+  }
   return (
     <>
       <Header />
@@ -248,7 +248,7 @@ export const YourAppointment = () => {
                         </div>
                         <div className="info-item">
                           <div className="info-label">Nhân viên</div>
-                          <div className="info-value">{appointment.staffName}</div>
+                          <div className="info-value">{appointment.staffName ? appointment.staffName : "is assigning"}</div>
                         </div>
                         <div className="info-item">
                           <div className="info-label">Ngày lấy mẫu</div>
@@ -279,7 +279,7 @@ export const YourAppointment = () => {
 
                       {/* Action Buttons */}
                       <div className="action-buttons">
-                        {((appointment.orderProcess === 0 && rolename ==="CUSTOMER") || rolename === "STAFF_LAB" || rolename === "STAFF_TEST") && (
+                        {((appointment.orderProcess === 0 && rolename === "CUSTOMER") || rolename === "STAFF_LAB" || rolename === "STAFF_TEST") && (
                           <button
                             className="btn cancel"
                             onClick={() => setCancelForm(appointment)}
@@ -320,7 +320,7 @@ export const YourAppointment = () => {
                           )
                         )}
 
-                        {appointment.paymentMethod.includes("Cash") && rolename === "STAFF_RECEPTION" && appointment.curentStatusAppointment==="WAITING FOR PAYMENT" && (
+                        {appointment.paymentMethod.includes("Cash") && rolename === "STAFF_RECEPTION" && appointment.curentStatusAppointment === "WAITING FOR PAYMENT" && (
                           <button
                             className="btn confirm"
                             onClick={() => handlePayToCash(appointment)}
@@ -331,31 +331,31 @@ export const YourAppointment = () => {
                             Xác nhận thanh toán
                           </button>
                         )}
-                             
-                              {rolename === "STAFF_RECEPTION" && appointment.curentStatusAppointment === "COMPLETE" ? (
-                        
-                            <button
-                              onClick={() => handleCashToView(appointment)}
-                              className="btn confirm"
-                            >
-                              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                              </svg>
-                              Thanh toán bằng tiền mặt to view result
-                            </button>
-                         
+
+                        {rolename === "STAFF_RECEPTION" && appointment.curentStatusAppointment === "COMPLETE" ? (
+
+                          <button
+                            onClick={() => handleCashToView(appointment)}
+                            className="btn confirm"
+                          >
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            Thanh toán bằng tiền mặt to view result
+                          </button>
+
                         ) : appointment.canrefund && (
-                        
-                            <button
-                              onClick={() => setRefunForm(true)}
-                              className="btn confirm"
-                            >
-                              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                              </svg>
-                              Refund for CANCLE
-                            </button>
-                         
+
+                          <button
+                            onClick={() => setRefunForm(true)}
+                            className="btn confirm"
+                          >
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            Refund for CANCLE
+                          </button>
+
 
                         )}
 
@@ -366,7 +366,7 @@ export const YourAppointment = () => {
                         ></TransactionModal>
 
                       </div>
-                      
+
                     </div>
                   </div>
                 ))}
@@ -557,12 +557,13 @@ export const YourAppointment = () => {
                         const fileArray = [];
 
                         resultform.forEach((result, index) => {
+                        
                           const resultId = result.resultId;
-                          const conclusionResult = e.target[`conclusionResult-${index}`].value.trim();
+                          const conclusionResult = result.relationName ? e.target[`conclusionResult-${index}`].value.trim():null;
                           const fileInput = e.target[`file-${index}`];
                           const file = fileInput.files[0];
-
-                          if (!file || !conclusionResult) {
+                           
+                          if (!file || (result.relationName  && !conclusionResult)) {
                             setErrorResult("Please enter all field");
                             return;
                           }
@@ -599,7 +600,12 @@ export const YourAppointment = () => {
                     >
                       {resultform.map((result, index) => (
                         <div key={result.resultId} className="mb-4 border-bottom pb-3">
-                          <p><strong>Quan hệ:</strong> {result.relationName}</p>
+
+                          {result.relationName  && (
+                            <p><strong>Quan hệ:</strong> {result.relationName}</p>
+
+                          )}
+
                           <p><strong>Mã mẫu:</strong> {result.samplecode}</p>
                           <div className="mb-2">
                             <label className="form-label">Tải file kết quả</label>
@@ -610,19 +616,22 @@ export const YourAppointment = () => {
                               required
                             />
                           </div>
+                          {result.relationName  && (
+                            <div className="mb-2">
+                              <label className="form-label">Kết luận</label>
+                              <select
+                                name={`conclusionResult-${index}`}
+                                className="form-select"
+                                required
+                              >
+                                <option value="">-- Chọn kết luận --</option>
+                                <option value="Consanguineous">Consanguineous (Cùng huyết thống)</option>
+                                <option value="Not Consanguineous">Not Consanguineous (Không cùng huyết thống)</option>
+                              </select>
+                            </div>
 
-                          <div className="mb-2">
-                            <label className="form-label">Kết luận</label>
-                            <select
-                              name={`conclusionResult-${index}`}
-                              className="form-select"
-                              required
-                            >
-                              <option value="">-- Chọn kết luận --</option>
-                              <option value="Consanguineous">Consanguineous (Cùng huyết thống)</option>
-                              <option value="Not Consanguineous">Not Consanguineous (Không cùng huyết thống)</option>
-                            </select>
-                          </div>
+                          )}
+
                         </div>
                       ))}
                       <p><strong>{errorResult && <div className='text-danger' > {errorResult}</div>}</strong></p>
@@ -666,13 +675,14 @@ export const YourAppointment = () => {
                           sampleId: sample.sampleid,
                           cccd: typeService === "legal" ? e.target[`cccd-${index}`].value.trim() : null,
                           name: e.target[`name-${index}`].value.trim(),
-                          relationName: e.target[`relationName-${index}`].value.trim(),
+
+                          relationName: sampleform.length > 1 ? e.target[`relationName-${index}`].value.trim() : null,
                           sampleType: e.target[`sampleType-${index}`].value,
                           nextStatusName: nextStatus,
                         };
 
-                        if (!sampleUpdate.name || !sampleUpdate.relationName || !sampleUpdate.sampleType) {
-                          setErrorSample("Không được để trống các trường bắt buộc.");
+                        if (!sampleUpdate.name || (sampleform.length > 1 && !sampleUpdate.relationName) || !sampleUpdate.sampleType) {
+                          setErrorSample("Please input all field");
                           return;
                         }
 
@@ -730,16 +740,22 @@ export const YourAppointment = () => {
                             required
                           />
                         </div>
-                        <div className="form-group">
-                          <label className="form-label">Quan hệ</label>
-                          <input
-                            type="text"
-                            name={`relationName-${index}`}
-                            defaultValue={sample.relationName || ''}
-                            className="form-control"
-                            required
-                          />
-                        </div>
+
+                        {sampleform.length > 1 && (
+
+                          <div className="form-group">
+                            <label className="form-label">Quan hệ</label>
+                            <input
+                              type="text"
+                              name={`relationName-${index}`}
+                              defaultValue={sample.relationName || ''}
+                              className="form-control"
+                              required
+                            />
+                          </div>
+
+                        )}
+
                         <div className="form-group">
                           <label className="form-label">Loại mẫu</label>
                           <select

@@ -17,8 +17,7 @@ import AdminDashboard from './component/page/AdminDashboard';
 import BlogDetail from './component/page/BlogDetail.jsx';
 import ManageBlog from './component/page/ManageBlog';
 import ManageService from './component/page/ManageService';
-import AssignStaff from './component/page/AssignStaff';
-
+import { AssignStaff } from './component/page/AssignStaff.jsx';
 
 
 
