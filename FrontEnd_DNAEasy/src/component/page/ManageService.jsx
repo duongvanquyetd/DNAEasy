@@ -26,6 +26,9 @@ const ManageService = () => {
   const [error, setError] = useState('');
   const [removeUrls, setRemovedUrls] = useState([]);
   const [active, setActive] = useState(true);
+  const [viewContent, setViewContent] = useState(null);
+
+
   // Fetch services on component mount
   useEffect(() => {
 
@@ -72,7 +75,7 @@ const ManageService = () => {
   function handleActive(id) {
     ActiveSerive(id).then((response) => {
       console.log("Acctive Successfully", response.data);
-       setSearchQuery((pre) => pre + " ")
+      setSearchQuery((pre) => pre + " ")
     }).catch((error) => {
       console.log("Error", error)
     })
@@ -150,7 +153,7 @@ const ManageService = () => {
       </div>
       <section className="filterSection">
         <form className="searchBar" onSubmit={(e) => { e.preventDefault(); }} >
-          <input type="text" placeholder="What are you looking for?" value={searchQuery.trim()} onChange={(e) => {setSearchQuery(e.target.value);setCurrentPage(1)}} aria-label="Search services" />
+          <input type="text" placeholder="What are you looking for?" value={searchQuery.trim()} onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1) }} aria-label="Search services" />
           <select name="category" aria-label="Select category" onChange={(e) => setCategory(e.target.value)} value={category}>
             <option value="">All Services</option>
             <option value="civil">Civil Services</option>
@@ -160,11 +163,11 @@ const ManageService = () => {
         </form>
       </section>
 
-      <button onClick={() => {setActive(true),setCurrentPage(1)}}>Active Service</button>
-      <button onClick={() => {setActive(false),setCurrentPage(1)}}>InActive Service</button>
+      <button onClick={() => { setActive(true), setCurrentPage(1) }}>Active Service</button>
+      <button onClick={() => { setActive(false), setCurrentPage(1) }}>InActive Service</button>
 
-     
-      <button  onClick={() => setCreateForm(true)}>Create Service  </button>
+
+      <button onClick={() => setCreateForm(true)}>Create Service  </button>
       {
         services && services.length > 0 && (
           <table className="service-table">
@@ -174,6 +177,7 @@ const ManageService = () => {
                 <th>Service Name</th>
                 <th>Type</th>
                 <th>Number Sample</th>
+                <th>Description</th>
                 <th>Price (VND)</th>
                 <th>Action</th>
 
@@ -192,7 +196,7 @@ const ManageService = () => {
                       />
                     ) : (
                       <img
-                        src="https://th.bing.com/th/id/OIP.2G6puRqr2qcbzxoMVpdVHwHaEO?r=0&o=7&rm=3&rs=1&pid=ImgDetMain"
+                        src="https://th.bing.com/th/id/OIP.TdX9D7lAgnLjiFIgHvflfAHaHa?r=0&rs=1&pid=ImgDetMain&cb=idpwebpc2"
                         alt="default"
                         style={{ width: 80, height: 50, objectFit: 'cover', borderRadius: 6, opacity: 0.5 }}
                       />
@@ -201,6 +205,12 @@ const ManageService = () => {
                   <td>{service.serviceName}</td>
                   <td>{service.typeService}</td>
                   <td>{service.sample_count}</td>
+                  <td>
+                    <Tooltip title="View Conten">
+                      <EyeOutlined onClick={() => setViewContent(service)} style={{ cursor: 'pointer', fontSize: 18 }} />
+                    </Tooltip>
+                  </td>
+
                   <td>{service.price?.toLocaleString('vi-VN') || ''}</td>
                   <td>
                     {service.active ? (
@@ -208,7 +218,7 @@ const ManageService = () => {
                       } >delete</button>
 
                     ) : (
-                      <button onClick={ ()=> handleActive(service.serviceId)}>Active</button>
+                      <button onClick={() => handleActive(service.serviceId)}>Active</button>
 
                     )}
 
@@ -247,6 +257,7 @@ const ManageService = () => {
           setEdit(false);
           setError('');
         }}
+        width={1000}
         onOk={() => form.submit()} // Khi bấm OK thì gửi form
         okText={edit ? "Edit" : "Create"}
       >
@@ -292,7 +303,13 @@ const ManageService = () => {
             name="description"
             rules={[{ required: true, message: 'Please enter the description' }]}
           >
-            <Input.TextArea rows={3} />
+            <Input.TextArea
+              rows={6}
+              autoSize={{ minRows: 6, maxRows: 20 }}
+              maxLength={5000}
+              showCount
+              placeholder="Input Description Service....."
+            />
           </Form.Item>
 
           <Form.Item
@@ -336,6 +353,23 @@ const ManageService = () => {
           )}
         </Form>
       </Modal>
+      <Modal
+        title={
+          <h2 style={{ color: '#1890ff', margin: 0 }}>
+            {viewContent?.serviceName}
+          </h2>
+        }
+        visible={!!viewContent}
+        onCancel={() => setViewContent(null)}
+        footer={null}
+        width={1000}
+        bodyStyle={{ maxHeight: '80vh', overflowY: 'auto' }}
+      >
+        <p style={{ whiteSpace: 'pre-line', fontSize: '18px', lineHeight: '1.8' }}>
+          {viewContent?.serviceDescription}
+        </p>
+      </Modal>
+
       {renderPagination(totalPages, currentPage, setCurrentPage)}
     </div >
   );

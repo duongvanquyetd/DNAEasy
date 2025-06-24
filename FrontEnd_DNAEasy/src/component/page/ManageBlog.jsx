@@ -1,270 +1,377 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Space, message, Card, Row, Col, Statistic, Tag, Tooltip } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, UserOutlined, CalendarOutlined, AppstoreOutlined } from '@ant-design/icons';
+
+import React, { useState, useEffect, use } from 'react';
+import { Table, Button, Modal, Form, Input, InputNumber, Space, message, Upload, Card, Row, Col, Statistic, Tag, Tooltip, Select } from 'antd';
+import { EditOutlined, DeleteOutlined, PlusOutlined, UploadOutlined, EyeOutlined, DollarOutlined, AppstoreOutlined, TrophyOutlined } from '@ant-design/icons';
 import DynamicHeader from '../DynamicHeader';
 import Footer from '../Footer';
-import '../css/ManageBlog.css';
+import '../css/ManageService.css';
 import { useNavigate } from 'react-router-dom';
-import { GetALlBlog } from '../../service/Blog';
+import { ActiveBlog, CreateBlog, DeleteBlogs, MangerReportBlog, SearchByTitleAndCatagery, UpdateBlog } from '../../service/Blog';
 
 const ManageBlog = () => {
   const [blogs, setBlogs] = useState([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
-  const [editingBlog, setEditingBlog] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [searchText, setSearchText] = useState('');
 
-  // Fetch blogs on component mount
+
+
+  const [totalactive, setTotalactive] = useState('');
+  const [totalinactive, setTotalInActive] = useState('')
+
+  const [createform, setCreateForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pagesize = 4;
+  const [totalPages, setTotalPages] = useState(0);
+  const [category, setCategory] = useState('');
+  const [edit, setEdit] = useState(false)
+  const [error, setError] = useState('');
+  const [removeUrls, setRemovedUrls] = useState([]);
+  const [active, setActive] = useState(true);
+  const [viewContent, setViewContent] = useState(null);
   useEffect(() => {
-    fetchBlogs();
+    MangerReportBlog().then((response) => {
+      console.log("Manager Report Blog",response.data)
+      setTotalInActive(response.data.totalblogActive)
+      setTotalactive(response.data.totalblogInactive)
+    }).catch((error)=>{
+      console.log("Error get Report Blog",error)
+    })
   }, []);
 
-  const fetchBlogs = async () => {
-    setLoading(true);
-    try {
-      const response = await GetALlBlog();
-      if (response.data) {
-        setBlogs(response.data);
-      }
-    } catch (error) {
-      message.error('Failed to fetch blogs');
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
 
-  // Statistics
-  const totalBlogs = blogs.length;
-  const totalAuthors = new Set(blogs.map(blog => blog.author || '-')).size;
-  const latestBlog = blogs.reduce((latest, blog) => {
-    if (!latest) return blog;
-    return new Date(blog.date || blog.publishDate) > new Date(latest.date || latest.publishDate) ? blog : latest;
-  }, null);
+    SearchByTitleAndCatagery({ keywordSearch: searchQuery, keywordType: category }, currentPage, pagesize, active).then((response) => {
+      setTotalPages(response.data.totalPages)
+      setBlogs(response.data.content)
+      console.log("Response", response.data)
+    }).catch((error) => {
+      console.log("Error", error)
+    })
 
-  const columns = [
-    {
-      title: 'TITLE',
-      dataIndex: 'title',
-      key: 'title',
-      sorter: (a, b) => (a.title || '').localeCompare(b.title || ''),
-      render: (text) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }} />
-          <span style={{ fontWeight: 600, color: '#333' }}>{text || <span style={{ color: '#bbb' }}>—</span>}</span>
-        </div>
-      ),
-      filteredValue: searchText ? [searchText] : null,
-      onFilter: (value, record) => (record.title || '').toLowerCase().includes(value.toLowerCase()),
-    },
-    {
-      title: 'AUTHOR',
-      dataIndex: 'author',
-      key: 'author',
-      render: (author) => (
-        <Tag color="blue" style={{ borderRadius: '6px', fontWeight: 500, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: 'none', color: 'white' }}>{author || <span style={{ color: '#fff' }}>—</span>}</Tag>
-      ),
-    },
-    {
-      title: 'PUBLISHED DATE',
-      dataIndex: 'publishDate',
-      key: 'publishDate',
-      sorter: (a, b) => new Date(a.publishDate || 0) - new Date(b.publishDate || 0),
-      render: (date) => date ? new Date(date).toLocaleDateString() : <span style={{ color: '#bbb' }}>—</span>,
-    },
-    {
-      title: 'ACTIONS',
-      key: 'actions',
-      render: (_, record) => (
-        <Space size="small">
-          <Tooltip title="Edit Blog">
-            <Button 
-              type="primary" 
-              icon={<EditOutlined />} 
-              onClick={() => handleEdit(record)}
-              size="small"
-              style={{ minWidth: 80, fontWeight: 600 }}
-            >
-              Edit
-            </Button>
-          </Tooltip>
-          <Tooltip title="Delete Blog">
-            <Button 
-              danger 
-              icon={<DeleteOutlined />} 
-              onClick={() => handleDelete(record.id || record.blogId)}
-              size="small"
-              style={{ minWidth: 80, fontWeight: 600 }}
-            >
-              Delete
-            </Button>
-          </Tooltip>
-        </Space>
-      ),
-    },
-  ];
 
-  const handleAdd = () => {
-    setEditingBlog(null);
-    form.resetFields();
-    setIsModalVisible(true);
-  };
-
-  const handleEdit = (blog) => {
-    setEditingBlog(blog);
-    form.setFieldsValue(blog);
-    setIsModalVisible(true);
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      // TODO: Add your delete API call here
-      message.success('Blog deleted successfully');
-      setBlogs(blogs.filter(blog => (blog.id || blog.blogId) !== id));
-    } catch (error) {
-      message.error('Failed to delete blog');
-    }
-  };
-
-  const handleModalOk = () => {
-    form.validateFields()
-      .then(async (values) => {
-        setLoading(true);
-        try {
-          if (editingBlog) {
-            // TODO: Add your update API call here
-            const updatedBlog = { ...editingBlog, ...values };
-            setBlogs(blogs.map(blog => (blog.id || blog.blogId) === (editingBlog.id || editingBlog.blogId) ? updatedBlog : blog));
-            message.success('Blog updated successfully');
-          } else {
-            // TODO: Add your create API call here
-            const newBlog = {
-              id: Date.now(),
-              ...values,
-              publishDate: new Date().toISOString(),
-            };
-            setBlogs([...blogs, newBlog]);
-            message.success('Blog created successfully');
-          }
-          setIsModalVisible(false);
-          form.resetFields();
-        } catch (error) {
-          message.error('Operation failed');
-        } finally {
-          setLoading(false);
-        }
-      });
-  };
-
-  return (
-    <div className="manage-blog">
-      <DynamicHeader />
-      <div className="manage-blog-content">
-        <div className="debug-text">Blog Management Dashboard</div>
-        {/* Statistics Cards */}
-        <Row gutter={[16, 16]} style={{ marginBottom: '2rem' }}>
-          <Col xs={24} sm={12} lg={6}>
-            <Card style={{ background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '16px' }}>
-              <Statistic
-                title={<span style={{ color: 'white', fontSize: '14px' }}>Total Blogs</span>}
-                value={totalBlogs}
-                prefix={<AppstoreOutlined style={{ color: '#667eea' }} />}
-                valueStyle={{ color: 'white', fontSize: '24px', fontWeight: 'bold' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card style={{ background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '16px' }}>
-              <Statistic
-                title={<span style={{ color: 'white', fontSize: '14px' }}>Total Authors</span>}
-                value={totalAuthors}
-                prefix={<UserOutlined style={{ color: '#52c41a' }} />}
-                valueStyle={{ color: 'white', fontSize: '24px', fontWeight: 'bold' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card style={{ background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '16px' }}>
-              <Statistic
-                title={<span style={{ color: 'white', fontSize: '14px' }}>Latest Blog</span>}
-                value={latestBlog ? latestBlog.title : 'N/A'}
-                prefix={<CalendarOutlined style={{ color: '#faad14' }} />}
-                valueStyle={{ color: 'white', fontSize: '18px', fontWeight: 'bold', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-              />
-            </Card>
-          </Col>
-        </Row>
-        <div className="manage-blog-header debug-header">
-          <h1>Manage Blogs</h1>
-          <Button 
-            type="primary" 
-            icon={<PlusOutlined />} 
-            onClick={handleAdd}
-            className="add-service-btn"
-            style={{ fontWeight: 600, fontSize: 16 }}
-          >
-            Add New Blog
-          </Button>
-        </div>
-        <Table 
-          columns={columns} 
-          dataSource={blogs}
-          rowKey={record => record.id || record.blogId}
-          loading={loading}
-          pagination={{
-            pageSize: 10,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} blogs`,
-          }}
-        />
-        <Modal
-          title={editingBlog ? "Edit Blog" : "Add New Blog"}
-          open={isModalVisible}
-          onOk={handleModalOk}
-          onCancel={() => setIsModalVisible(false)}
-          confirmLoading={loading}
-          width={800}
-          okText={editingBlog ? "Update" : "Create"}
-          cancelText="Cancel"
-          className="manage-service-modal"
+  }, [currentPage, searchQuery, category, active])
+  const renderPagination = (total, current, setPage) => (
+    <div className="pagination">
+      {Array.from({ length: total }, (_, i) => i + 1).map((i) => (
+        <button
+          key={i}
+          className={`page-button ${i === current ? 'active' : ''}`}
+          onClick={() => setPage(i)}
         >
-          <Form
-            form={form}
-            layout="vertical"
-          >
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item
-                  name="title"
-                  label="Title"
-                  rules={[{ required: true, message: 'Please input the title!' }]}
-                >
-                  <Input placeholder="Enter blog title" />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  name="author"
-                  label="Author"
-                  rules={[{ required: true, message: 'Please input the author!' }]}
-                >
-                  <Input placeholder="Enter author name" />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Form.Item
-              name="content"
-              label="Content"
-              rules={[{ required: true, message: 'Please input the content!' }]}
-            >
-              <Input.TextArea rows={4} placeholder="Enter blog content" />
-            </Form.Item>
-          </Form>
-        </Modal>
-      </div>
-      <Footer />
+          {i}
+        </button>
+      ))}
     </div>
+  );
+
+
+  function handleActive(id) {
+    ActiveBlog(id).then((response) => {
+      console.log("Acctive Successfully", response.data);
+      setSearchQuery((pre) => pre + " ")
+    }).catch((error) => {
+      console.log("Error", error)
+    })
+  }
+
+  function handleDelete(id) {
+    DeleteBlogs(id).then((response) => {
+      console.log("Delete SuccessFully", response.data)
+      setSearchQuery((pre) => pre + " ")
+    }).catch((error) => {
+      console.log("Error", error)
+    })
+  }
+
+  function handleCreateAndEdit(values) {
+
+    const formdata = new FormData();
+    const createBlogs = {
+
+      blogTitle: values.blogTitle,
+      blogContent: values.blogContent,
+      blogType: values.blogType,
+
+
+    }
+    formdata.append("blog", new Blob([JSON.stringify(createBlogs)], { type: "application/json" }))
+    if (values.imageUrls) {
+      values.imageUrls.forEach(file => {
+        formdata.append("file", file.originFileObj); // vi dung thu vien ant nen .originFileObj moi la File that su duoi BE moi nhan dc
+      });
+    }
+    console.log("Create data", createBlogs)
+    console.log("Image service", values.imageUrls)
+    if (edit) {
+
+      formdata.append("removeimg", new Blob([JSON.stringify(removeUrls)], { type: "application/json" }))
+      UpdateBlog(edit.blogId, formdata).then((response) => {
+        console.log("Update SuccessFully ", response.data)
+        setEdit(false);
+        setSearchQuery((pre) => pre + " ")
+        setCreateForm(false);       // Ẩn form
+        form.resetFields();
+        setError('');
+
+      }).catch((error) => {
+        console.log("Erorr", error.response?.data?.error)
+        setError(error.response?.data?.error)
+      })
+    }
+    else {
+      CreateBlog(formdata).then((response) => {
+        console.log("Create Service Succesfully ", response.data)
+        setCurrentPage(totalPages)
+        setCreateForm(false);       // Ẩn form
+        form.resetFields();
+        setError('');
+      }).catch((error) => {
+        console.log("Erorr", error.response?.data?.error)
+        setError(error.response?.data?.error)
+      })
+    }
+
+
+  }
+  return (
+    <div>
+      <div>
+        <p> Total Blog:{totalactive + totalinactive}</p>
+        <p>Total Service Active:{totalactive}</p>
+        <p>Total Service InActive:{totalinactive}</p>
+
+
+      </div>
+
+
+      <section className="blogFilter">
+        <form className="blogSearchBar" onSubmit={(e) => {
+          e.preventDefault();
+          setCurrentPage(1);
+        }}>
+          <input
+            type="text"
+            placeholder="Search blog posts..."
+            onChange={(e) => setSearchQuery(e.target.value)}
+            aria-label="Search blog posts"
+          />
+          <select
+            name="category"
+            aria-label="Select blog category"
+            onChange={(e) => { setCategory(e.target.value); }}
+            value={category || ''}
+          >
+            <option value="">All Categories</option>
+            {blogs.length > 0 && (
+              blogs.map((blog) => (
+                <option key={blog.blogType} value={blog.blogType}>
+                  {blog.blogType}
+                </option>
+              ))
+
+            )}
+
+
+          </select>
+          <button type="submit" className="blogSearchBar button" aria-label="Search">
+            Search
+          </button>
+        </form>
+      </section>
+      <button onClick={() => { setActive(true), setCurrentPage(1) }}>Active Blogs</button>
+      <button onClick={() => { setActive(false), setCurrentPage(1) }}>InActive Blogs</button>
+
+
+      <button onClick={() => setCreateForm(true)}>Create Blog  </button>
+      {
+        blogs && blogs.length > 0 && (
+          <table className="service-table">
+            <thead>
+              <tr>
+                <th>Blogs image</th>
+                <th>Blog Name</th>
+                <th>Blog type</th>
+                <th>Blog content</th>
+                <th>Create Date</th>
+                <th>Action</th>
+
+                {/* Thêm các cột khác nếu cần */}
+              </tr>
+            </thead>
+            <tbody>
+              {blogs.map((blog, idx) => (
+                <tr key={blog.blogId || idx}>
+                  <td>
+                    {blog.blogimage && blog.blogimage.length > 0 ? (
+                      <img
+                        src={blog.blogimage[0]}
+                        alt={blog.blogTitle}
+                        style={{ width: 80, height: 50, objectFit: 'cover', borderRadius: 6 }}
+                      />
+                    ) : (
+                      <img
+                        src="https://th.bing.com/th/id/OIP.TdX9D7lAgnLjiFIgHvflfAHaHa?r=0&rs=1&pid=ImgDetMain&cb=idpwebpc2"
+                        alt="default"
+                        style={{ width: 80, height: 50, objectFit: 'cover', borderRadius: 6, opacity: 0.5 }}
+                      />
+                    )}
+                  </td>
+                  <td>{blog.blogTitle}</td>
+                  <td>{blog.blogType}</td>
+                  <td>
+                    <Tooltip title="View Content">
+                      <EyeOutlined onClick={() => setViewContent(blog)} style={{ cursor: 'pointer', fontSize: 18 }} />
+                    </Tooltip>
+                  </td>
+
+                  <td>{blog.createDate}</td>
+
+                  <td>
+                    {blog.active ? (
+                      <button onClick={() => handleDelete(blog.blogId)
+                      } >Delete</button>
+
+                    ) : (
+                      <button onClick={() => handleActive(blog.blogId)}>Active</button>
+
+                    )}
+
+                    <button onClick={() => {
+                      setEdit(blog);
+                      setCreateForm(true);
+                      form.setFieldsValue({
+
+                        blogTitle: blog.blogTitle,
+                        blogContent: blog.blogContent,
+                        blogType: blog.blogType,
+
+                        imageUrls: blog.blogimage.map((url, idx) => ({
+                          uid: `${idx}`,
+                          name: url.split('/').pop(),
+                          status: 'done',
+                          url: url
+                        }))
+                      });
+                    }}>Edit</button>
+
+                  </td>
+                  {/* Thêm các trường khác nếu cần */}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )
+      }
+      <Modal
+        title={edit ? "Edit Service " : "Create New Service"}
+        visible={createform}
+        onCancel={() => {
+          setCreateForm(false);
+          form.resetFields();
+          setEdit(false);
+          setError('');
+        }}
+        width={1000}
+        onOk={() => form.submit()} // Khi bấm OK thì gửi form
+        okText={edit ? "Edit" : "Create"}
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={(values) => {
+            console.log("Form data:", values);
+            handleCreateAndEdit(values);
+          }}
+        >
+
+          <Form.Item
+            label="Blog  Title"
+            name="blogTitle"
+            rules={[{ required: true, message: 'Please enter the Blog title' }]}
+          >
+            <Input />
+          </Form.Item>
+
+
+          <Form.Item
+            label="Blog Type"
+            name="blogType"
+            rules={[{ required: true, message: 'Please select the Blog type' }]}
+          >
+            <Input />
+          </Form.Item>
+
+
+
+          <Form.Item
+            label="Blog Content"
+            name="blogContent"
+            rules={[{ required: true, message: 'Please enter the Blog Content' }]}
+          >
+            <Input.TextArea
+              rows={6}
+              autoSize={{ minRows: 6, maxRows: 20 }}
+              maxLength={5000}
+              showCount
+              placeholder="Input content Blog....."
+            />
+          </Form.Item>
+
+
+
+          <Form.Item
+            label="Upload Images"
+            name="imageUrls"
+            valuePropName="fileList"
+            getValueFromEvent={(e) => Array.isArray(e) ? e : e?.fileList}
+            rules={[{ required: !edit ? true : false, message: 'Please upload at least one image' }]}
+          >
+            <Upload
+              listType="picture-card"
+              multiple
+              beforeUpload={() => false}
+              onRemove={(file) => {
+                if (!file.originFileObj) {
+                  setRemovedUrls(prev => [...prev, file.url]);
+                }
+                return true;
+              }}
+            >
+              <div>
+                <UploadOutlined />
+                <div>Upload</div>
+              </div>
+            </Upload>
+
+
+          </Form.Item>
+          {error && (
+            <Form.Item>
+              <div style={{ color: 'red' }}>{error}</div>
+            </Form.Item>
+          )}
+        </Form>
+      </Modal>
+      <Modal
+        title={
+          <h2 style={{ color: '#1890ff', margin: 0 }}>
+            {viewContent?.blogTitle}
+          </h2>
+        }
+        visible={!!viewContent}
+        onCancel={() => setViewContent(null)}
+        footer={null}
+        width={1200}
+        bodyStyle={{ maxHeight: '80vh', overflowY: 'auto' }}
+      >
+        <p style={{ whiteSpace: 'pre-line', fontSize: '18px', lineHeight: '1.8' }}>
+          {viewContent?.blogContent}
+        </p>
+      </Modal>
+
+
+      {renderPagination(totalPages, currentPage, setCurrentPage)}
+    </div >
   );
 };
 
