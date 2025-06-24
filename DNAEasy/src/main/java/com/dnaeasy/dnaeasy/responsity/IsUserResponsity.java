@@ -3,6 +3,8 @@ package com.dnaeasy.dnaeasy.responsity;
 import com.dnaeasy.dnaeasy.enity.Person;
 import com.dnaeasy.dnaeasy.enums.Work_hour;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -44,8 +46,14 @@ public interface IsUserResponsity extends JpaRepository<Person, String> {
 
     Person findByPersonId(int personId);
 
-    @Query("Select  p from Person p where p.rolename = 'STAFF_TEST' and p.work_hour =:workHour and p.personId not in (Select a.staff.personId from Appointment a where (a.dateCollect between :starday and :endday) and a.curentStatusAppointment not in ('COMPLETE','CANCLE') and a.staff.work_hour  =:workHour )")
-    List<Person> findStaffByWorkHour(LocalDateTime starday , LocalDateTime endday, Work_hour workHour) ;
+
+    @Query("Select  p from Person p where p.rolename = 'STAFF_TEST' and p.work_hour =:workHour and p.personId not in (Select a.staff.personId from Appointment a where (a.dateCollect between :starday and :endday) and a.curentStatusAppointment not in ('COMPLETE','CANCLE','REFUNDED') and a.staff.work_hour  =:workHour )")
+    Page<Person> findStaffByWorkHour(LocalDateTime starday , LocalDateTime endday, Work_hour workHour, Pageable pageable) ;
+    @Query("Select  p from Person p where p.rolename = 'STAFF_TEST' and p.work_hour =:workHour and p.personId not in (Select a.staff.personId from Appointment a where (a.dateCollect between :starday and :endday) and a.curentStatusAppointment not in ('COMPLETE','CANCLE','REFUNDED') and a.staff.work_hour  =:workHour ) and (lower(p.name) like lower( concat('%',:keyword,'%')) or lower(concat(p.streets,',',p.district,',',p.city ) ) like lower( concat('%',:keyword,'%')) )")
+    Page<Person> findStaffByWorkHourWithKeyWord(LocalDateTime starday , LocalDateTime endday, Work_hour workHour, Pageable pageable,String keyword) ;
+
+   
 
     List<Person> findAllByCreatedDateBetweenOrderByCreatedDateDesc(LocalDateTime start, LocalDateTime end);
+
 }

@@ -24,7 +24,7 @@ public class PersonTest {
 
     @Pattern(regexp = "^0(0[1-9]|[1-8][0-9]|9[0-6])\\d{9}$" ,message ="CCCD must be star 001-096 and have  12 digits" )
     public String CCCD;
-    @NotBlank( message = "relationName Not empty")
+
     public String relationName;
     @OneToOne(mappedBy = "personTest")
     public Sample sample;

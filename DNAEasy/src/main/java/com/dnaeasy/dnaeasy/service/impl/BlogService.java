@@ -13,6 +13,8 @@ import com.dnaeasy.dnaeasy.responsity.IsBlogResponsity;
 import com.dnaeasy.dnaeasy.responsity.IsUserResponsity;
 import com.dnaeasy.dnaeasy.service.IsBlogService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -106,29 +108,23 @@ public class BlogService implements IsBlogService {
     }
 
     @Override
-    public List<BlogResponse> findbyNameAndType(SearchRequest request) {
+    public Page<BlogResponse> findbyNameAndType(SearchRequest request, Pageable page) {
 
 
-        List<Blog> blogList = new ArrayList<>();
+        Page<Blog> blogList = null;
 
-        if (request.getKeywordType() != null && request.getKeywordSearch() != null) {
-            blogList = isBlogResponsity.findByBlogTitleContainsIgnoreCaseAndBlogTypeContainingIgnoreCase(request.getKeywordSearch(), request.getKeywordType());
-        } else if (request.getKeywordSearch() == null && request.getKeywordType() != null) {
-            blogList = isBlogResponsity.findByBlogType(request.getKeywordType());
-        } else if (request.getKeywordType() == null && request.getKeywordSearch() != null) {
-            blogList = isBlogResponsity.findByBlogTitle(request.getKeywordSearch());
+        if (request.getKeywordType() != null && !request.getKeywordType().trim().isEmpty() && request.getKeywordSearch() != null && !request.getKeywordSearch().trim().isEmpty()) {
+            blogList = isBlogResponsity.findByBlogTitleContainsIgnoreCaseAndBlogTypeContainingIgnoreCase(request.getKeywordSearch(), request.getKeywordType(), page);
+        } else if (request.getKeywordSearch().trim().isEmpty() &&  !request.getKeywordType().trim().isEmpty()) {
+            blogList = isBlogResponsity.findByBlogType(request.getKeywordType(), page);
+        } else if (!request.getKeywordSearch().trim().isEmpty() &&  request.getKeywordType().trim().isEmpty()) {
+            blogList = isBlogResponsity.findByBlogTitleContainsIgnoreCase(request.getKeywordSearch(), page);
+        } else {
+            blogList = isBlogResponsity.findAll(page);
         }
-        else {
-            blogList = isBlogResponsity.findAll();
-        }
 
 
-        List<BlogResponse> blogResponseList = new ArrayList<>();
-        blogList.forEach(blog -> {
-            BlogResponse blogResponse = blogMapper.BlogToBlogResponse(blog);
-            blogResponseList.add(blogResponse);
-        });
-        return blogResponseList;
+        return blogList.map(blogMapper::BlogToBlogResponse);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.dnaeasy.dnaeasy.controller;
 
 import com.dnaeasy.dnaeasy.dto.request.SearchRequest;
 import com.dnaeasy.dnaeasy.dto.request.ServiceCreateRequest;
+import com.dnaeasy.dnaeasy.dto.response.ManagerServiceReponse;
 import com.dnaeasy.dnaeasy.dto.response.ServiceResponse;
 import com.dnaeasy.dnaeasy.enity.Service;
 import com.dnaeasy.dnaeasy.enity.ServiceImage;
@@ -89,7 +90,14 @@ public class ServiceController {
 
         Pageable pageable = PageRequest.of(page-1, size);
 
+
        return ResponseEntity.ok(serviceService.search(request, pageable));
+    }
+    @GetMapping ("/report")
+    public ResponseEntity<ManagerServiceReponse> ManagerReport() {
+
+
+        return ResponseEntity.ok(serviceService.report());
     }
 
 
