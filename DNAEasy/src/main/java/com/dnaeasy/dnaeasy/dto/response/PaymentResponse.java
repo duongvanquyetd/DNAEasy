@@ -21,5 +21,6 @@ public class PaymentResponse {
     private String contenPayment;
     private BigDecimal paymentAmount;
     private String staffConfirmName;
+    private String paycode;
 
 }

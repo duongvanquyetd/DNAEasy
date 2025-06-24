@@ -2,6 +2,7 @@ package com.dnaeasy.dnaeasy.controller;
 
 import com.dnaeasy.dnaeasy.dto.request.SearchRequest;
 import com.dnaeasy.dnaeasy.dto.request.ServiceCreateRequest;
+import com.dnaeasy.dnaeasy.dto.response.ManagerServiceReponse;
 import com.dnaeasy.dnaeasy.dto.response.ServiceResponse;
 import com.dnaeasy.dnaeasy.enity.Service;
 import com.dnaeasy.dnaeasy.enity.ServiceImage;
@@ -34,18 +35,9 @@ public class ServiceController {
     public ResponseEntity<ServiceResponse> create(
             @RequestPart("service") ServiceCreateRequest request,
             @RequestPart("file") List<MultipartFile> files
-    ) throws IOException {
-        List<ServiceImage> imgs = new ArrayList<>();
-        for (MultipartFile file : files) {
-            ServiceImage img = new ServiceImage();
-            img.setServiceImageName(file.getOriginalFilename());
-            img.setServiceImagePath(cloudinaryUtil.uploadImage(file));
-            imgs.add(img);
-        }
-        request.setServiceImageList(imgs);
-        Service created = serviceService.create(request);
-        return ResponseEntity.ok(serviceService.getById((long) created.getServiceId())
-        );
+    )  {
+        return ResponseEntity.ok(serviceService.create(request,files));
+
     }
 
     @GetMapping
@@ -62,18 +54,12 @@ public class ServiceController {
     public ResponseEntity<ServiceResponse> update(
             @PathVariable Long id,
             @RequestPart("service") ServiceCreateRequest request,
-            @RequestPart("file") List<MultipartFile> files
+            @RequestPart(value = "file",required = false) List<MultipartFile> files,
+            @RequestPart(value = "removeimg",required = false) List<String> removeimg
     ) throws IOException {
-        List<ServiceImage> imgs = new ArrayList<>();
-        for (MultipartFile file : files) {
-            ServiceImage img = new ServiceImage();
-            img.setServiceImageName(file.getOriginalFilename());
-            img.setServiceImagePath(cloudinaryUtil.uploadImage(file));
-            imgs.add(img);
-        }
-        request.setServiceImageList(imgs);
-        serviceService.update(id, request);
-        return ResponseEntity.ok(serviceService.getById(id));
+
+
+        return ResponseEntity.ok(serviceService.update(id,request,files,removeimg));
     }
 
     @DeleteMapping("/delete/{id}")
@@ -85,11 +71,24 @@ public class ServiceController {
     @PostMapping("/search")
     public ResponseEntity<Page<ServiceResponse>> search(@RequestBody SearchRequest request,
                                                         @RequestParam("page") int page,
-                                                        @RequestParam("size") int size) {
+                                                        @RequestParam("size") int size,
+                                                        @RequestParam("active") boolean active) {
 
         Pageable pageable = PageRequest.of(page-1, size);
 
-       return ResponseEntity.ok(serviceService.search(request, pageable));
+
+       return ResponseEntity.ok(serviceService.search(request, pageable,active));
+    }
+    @GetMapping ("/report")
+    public ResponseEntity<ManagerServiceReponse> ManagerReport() {
+
+
+        return ResponseEntity.ok(serviceService.report());
+    }
+    @PostMapping("/active/{id}")
+    public ResponseEntity<ServiceResponse> Active(@PathVariable Long id) {
+
+        return  ResponseEntity.ok(serviceService.Active(id));
     }
 
 

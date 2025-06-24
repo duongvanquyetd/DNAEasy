@@ -19,5 +19,7 @@ public class ServiceResponse {
     private String serviceDescription;
     private BigDecimal price;
     private String typeService;
-    List<String> imageUrls; // Danh sách URL ảnh trả về cho client
+    List<String> imageUrls;
+    private boolean active;// Danh sách URL ảnh trả về cho client
+    private int sample_count;
 }

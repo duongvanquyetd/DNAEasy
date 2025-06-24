@@ -3,6 +3,7 @@ package com.dnaeasy.dnaeasy.enity;
 import com.dnaeasy.dnaeasy.enums.BlogStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,10 +21,11 @@ public class Blog {
     private String blogTitle;
     @Lob
     private String blogContent;
-
-    private boolean blogStatus;
     private String blogType;
     private LocalDateTime createDate;
+
+    @Column(name = "active", nullable = false, columnDefinition = "BIT DEFAULT 1")
+    private boolean active = true;
     @ManyToOne
     @JoinColumn(name="staff_id")
     private Person staff;

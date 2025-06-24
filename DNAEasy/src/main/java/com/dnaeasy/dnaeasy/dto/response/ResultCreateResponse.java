@@ -13,5 +13,6 @@ public class ResultCreateResponse {
     private int resultId;
     private String relationName;
     private String samplecode;
+    private String name;
 
 }

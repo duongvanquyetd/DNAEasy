@@ -20,13 +20,8 @@ public class BlogResponse {
     private String blogTitle;
 
     private String blogContent;
-
-    private boolean blogStatus;
     private String blogType;
-
-
-    private String staffName;
-
     List<String> blogimage;
     private LocalDateTime createDate;
+    private  boolean active;
 }

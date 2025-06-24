@@ -24,7 +24,7 @@ public class Payment {
     private PaymentMehtod paymentMethod;
     private boolean paymentStatus;
     private boolean isExpense;
-    private String vnpay_code;
+    private String paycode;
     @Lob
     @Column(columnDefinition = "TEXT")
     private String contenPayment;

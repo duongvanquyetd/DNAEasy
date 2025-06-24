@@ -100,6 +100,8 @@ public class SampleService implements IsSampleService {
             }
 
         } else {
+
+
             ProcessTesting curent = isProcessTesting.findOrderProcessByStatusNameAndSampleMethod(sampleList.get(0).getCureStatusSample(), appointment.getTypeCollect());
             ProcessTesting p = isProcessTesting.findByOrderProcessAndSampleMethod(curent.getOrderProcess() + 1, appointment.getTypeCollect());
             if (person.getRolename().equals(p.getPerson_confirm())) {

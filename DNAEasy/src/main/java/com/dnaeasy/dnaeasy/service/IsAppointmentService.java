@@ -16,6 +16,8 @@ import com.dnaeasy.dnaeasy.dto.response.SummaryTodayResponse;
 import com.dnaeasy.dnaeasy.dto.response.SummaryYesterdayResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
@@ -37,9 +39,9 @@ public interface IsAppointmentService {
     int getCompletedAppointmentsToday();
     List<AppointmentResponse> getAppointmentYesterday();
 
-    List<AppointmentResponse> getAppointmnetForMangerShiftStaff();
-    StaffResponse AssignStaffForApp(AppoinmetnAssignRequest request);
-    List<StaffResponse> getStaffForAppointment(int appointmentId);
+    Page<AppointmentResponse> getAppointmnetForMangerShiftStaff(Pageable pageable);
+    AppointmentResponse AssignStaffForApp(AppoinmetnAssignRequest request);
+    Page<StaffResponse> getStaffForAppointment(int appointmentId,String keyword,Pageable pageable);
     boolean CanRefund(int appointmentId);
 
 
