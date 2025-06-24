@@ -1,8 +1,10 @@
 package com.dnaeasy.dnaeasy.service.impl;
 
+import com.dnaeasy.dnaeasy.dto.request.PersonRequest;
 import com.dnaeasy.dnaeasy.dto.request.UserCreateRequest;
 import com.dnaeasy.dnaeasy.dto.request.UserUpdateResquest;
 import com.dnaeasy.dnaeasy.dto.response.StaffResponse;
+import com.dnaeasy.dnaeasy.dto.response.UserReportReponse;
 import com.dnaeasy.dnaeasy.dto.response.UserResponse;
 import com.dnaeasy.dnaeasy.enity.Appointment;
 import com.dnaeasy.dnaeasy.enity.Person;
@@ -19,8 +21,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @AllArgsConstructor
@@ -78,8 +83,7 @@ public class UserService implements IsUserService {
         }
 
 
-        if(p.getTypeLogin() == null)
-        {
+        if (p.getTypeLogin() == null) {
             if (!passwordEncoder.matches(userUpdateResquest.getOldpassword(), p.getPassword())) {
                 throw new BadRequestException("Password Wrong");
             }
@@ -91,12 +95,11 @@ public class UserService implements IsUserService {
         }
 
 
-
         p.setCity(userUpdateResquest.getCity());
         p.setName(userUpdateResquest.getName());
         p.setPhone(userUpdateResquest.getPhone());
         p.setEmail(userUpdateResquest.getEmail());
-        if(userUpdateResquest.getAvatarUrl() != null) {
+        if (userUpdateResquest.getAvatarUrl() != null) {
             p.setAvatarUrl(userUpdateResquest.getAvatarUrl());
         }
 
@@ -118,5 +121,39 @@ public class UserService implements IsUserService {
         personResponsity.deleteById(String.valueOf(id));
     }
 
+    @Override
+    public List<UserReportReponse> listUser(PersonRequest request) {
+        LocalDateTime start;
+        LocalDateTime end;
 
+        if (request.getDate() != null) {
+            start = request.getDate().atStartOfDay();
+            end = request.getDate().atTime(23, 59, 59);
+        } else if (request.getMonth() != null) {
+            LocalDate first = LocalDate.of(request.getYear(), request.getMonth(), 1);
+            LocalDate last = first.withDayOfMonth(first.lengthOfMonth());
+            start = first.atStartOfDay();
+            end = last.atTime(23, 59, 59);
+        } else if (request.getYear() != null) {
+            LocalDate first = LocalDate.of(request.getMonth(), 1, 1);
+            LocalDate last = first.withDayOfMonth(first.lengthOfMonth());
+            start = first.atStartOfDay();
+            end = last.atTime(23, 59, 59);
+        } else {
+            start = LocalDate.of(2000, 1, 1).atStartOfDay();
+            end = LocalDate.now().atTime(23, 59, 59);
+        }
+
+        return personResponsity.findAllByCreatedDateBetweenOrderByCreatedDateDesc(start, end).stream()
+                .map(p -> new UserReportReponse(
+                        p.getPersonId(),
+                        p.getName(),
+                        p.getDistrict(),
+                        p.getEmail(),
+                        p.getCity(),
+                        p.getPhone(),
+                        p.getRolename().toString(),
+                        p.getCreatedDate().toLocalDate()
+                )).collect(Collectors.toList());
+    }
 }

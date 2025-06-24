@@ -2,7 +2,11 @@ package com.dnaeasy.dnaeasy.service;
 
 import com.dnaeasy.dnaeasy.dto.request.AppoinmetnAssignRequest;
 import com.dnaeasy.dnaeasy.dto.request.AppointmentCreateRequest;
+import com.dnaeasy.dnaeasy.dto.request.StaticRequest;
 import com.dnaeasy.dnaeasy.dto.request.StatusUpdateAppointment;
+
+import com.dnaeasy.dnaeasy.dto.response.*;
+
 import com.dnaeasy.dnaeasy.dto.response.AppointCreateResponse;
 import com.dnaeasy.dnaeasy.dto.response.AppointmentResponse;
 
@@ -16,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -40,9 +45,8 @@ public interface IsAppointmentService {
     boolean CanRefund(int appointmentId);
 
 
-//    int getCompletedAppointmentsToday();
  Map<String, SummaryTodayResponse> getTodaySummary();
-//    List<AppointmentResponse> getAppointmentYesterday();
-    Map<String, SummaryYesterdayResponse> getYesterdaySummary();
+    StaticReponse getStaticByDate(StaticRequest request);
+    List<TopServiceReponse> findTopService(StaticRequest request);
 
 }

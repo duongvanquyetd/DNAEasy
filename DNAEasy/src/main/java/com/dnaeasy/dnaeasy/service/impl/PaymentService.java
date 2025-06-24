@@ -217,7 +217,7 @@ public class PaymentService implements IsPaymentService {
     @Override
 
     public BigDecimal totalRevenueToday() {
-        BigDecimal revenue = isPaymentResponsitory.getTodayRevenueToday();
+        BigDecimal revenue = isPaymentResponsitory.getTodayRevenueToday(LocalDateTime.now().minusDays(1),LocalDateTime.now());
         return revenue != null ? revenue : BigDecimal.ZERO;
     }
     public Double findAllByPaymentYesterday() {
