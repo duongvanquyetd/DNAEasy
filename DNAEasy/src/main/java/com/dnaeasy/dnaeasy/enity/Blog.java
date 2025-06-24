@@ -21,8 +21,6 @@ public class Blog {
     private String blogTitle;
     @Lob
     private String blogContent;
-
-    private boolean blogStatus;
     private String blogType;
     private LocalDateTime createDate;
 
