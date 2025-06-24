@@ -37,28 +37,51 @@ const Blog = () => {
   const [category, setCategory] = useState('');
 
   const [currentPage, setCurrentPage] = useState(1);
-  const blogsPerPage = 6;
+  const pagesize = 5;
+  const [totalpage, setTotalPages] = useState(0);
 
 
-  useEffect(() => {
-    fetchBlogs();
-  }, []); // Run once on mount, data is static
+// Reset page về 1 khi thay đổi keyword / category
+useEffect(() => {
+  setCurrentPage(1);
+}, [searchQuery, category]);
 
-  const fetchBlogs = async () => {
-    try {
-      setLoading(true);
-      const response = await GetALlBlog(); // Fetch blogs from the service
-      setBlogs(response.data || []); // Handle potential undefined data
-
-      console.log('Fetched blogs:', response.data); // Log the fetched data for debugging
+// Gọi API khi có thay đổi trang / filter
+useEffect(() => {
+  setLoading(true);
+  SearchByTitleAndCatagery(
+    { keywordSearch: searchQuery, keywordType: category },
+    currentPage,
+    pagesize
+  )
+    .then((response) => {
+      setBlogs(response.data.content);
+      setTotalPages(response.data.totalPages);
       setError(null);
-    } catch (error) {
-      console.error('Error fetching blogs:', error);
-      setError('Failed to load blogs. Please try again later.');
-    } finally {
-      setLoading(false);
-    }
-  };
+    })
+    .catch((error) => {
+      console.error('Error searching blogs:', error);
+      setError('Failed to search blogs. Please try again later.');
+    })
+    .finally(() => setLoading(false));
+}, [searchQuery, category, currentPage]);
+
+
+  // const fetchBlogs = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const response = await GetALlBlog(); // Fetch blogs from the service
+  //     setBlogs(response.data || []); // Handle potential undefined data
+
+  //     console.log('Fetched blogs:', response.data); // Log the fetched data for debugging
+  //     setError(null);
+  //   } catch (error) {
+  //     console.error('Error fetching blogs:', error);
+  //     setError('Failed to load blogs. Please try again later.');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
 
 
@@ -71,74 +94,19 @@ const Blog = () => {
 
 
 
-  const renderPagination = () => {
-    const pages = [];
-    const maxPagesToShow = 5;
-    const startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
-    const endPage = Math.min(5, 1 + maxPagesToShow - 1);
-
-    if (startPage > 1) {
-      pages.push(
-        <button
-          key={1}
-          className="blogPageBtn"
-          onClick={() => setCurrentPage(1)}
-          aria-label="Go to first page"
-        >
-          1
-        </button>
-      );
-      if (startPage > 2) pages.push(<span key="start-ellipsis" className="blogPageEllipsis">...</span>);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
+  const renderPagination = (total, current) => (
+    <div className="pagination">
+      {Array.from({ length: total }, (_, i) => i + 1).map((i) => (
         <button
           key={i}
-          className={`blogPageBtn ${currentPage === i ? 'active' : ''}`}
+          className={`page-button ${i === current ? 'active' : ''}`}
           onClick={() => setCurrentPage(i)}
-          aria-label={`Go to page ${i}`}
-          aria-current={currentPage === i ? 'page' : undefined}
         >
           {i}
         </button>
-      );
-    }
-
-    if (endPage < 5) {
-      if (endPage < 5 - 1) pages.push(<span key="end-ellipsis" className="blogPageEllipsis">...</span>);
-      pages.push(
-        <button
-          key={5}
-          className="blogPageBtn"
-          onClick={() => setCurrentPage(5)}
-          aria-label="Go to last page"
-        >
-          {5}
-        </button>
-      );
-    }
-
-    return pages;
-  };
-  function SearchApi(e) {
-    e.preventDefault(); // Prevent default form submission
-
-
-
-    // Append the search query to the FormData object
-    // Log the search query for debugging
-    SearchByTitleAndCatagery({ keywordSearch: searchQuery, keywordType: category }).then((response) => {
-      console.log('Search results:', response.data); // Log the search results for debugging
-      setBlogs(response.data.length === 0 ? blogs : response.data); // Update blogs with search results or keep original if no results
-      setCurrentPage(1); // Reset to first page after search
-
-    }).catch((error) => {
-      console.error('Error searching blogs:', error);
-      setError('Failed to search blogs. Please try again later.');
-    });
-
-  }
+      ))}
+    </div>
+  );
   return (
     <ErrorBoundary>
       <div className="blogContainer">
@@ -159,7 +127,10 @@ const Blog = () => {
         </section>
 
         <section className="blogFilter">
-          <form className="blogSearchBar">
+          <form className="blogSearchBar" onSubmit={(e) => {
+            e.preventDefault();
+            setCurrentPage(1);
+          }}>
             <input
               type="text"
               placeholder="Search blog posts..."
@@ -182,9 +153,9 @@ const Blog = () => {
 
               )}
 
-             
+
             </select>
-            <button type="submit" className="blogSearchBar button" onClick={SearchApi} aria-label="Search">
+            <button type="submit" className="blogSearchBar button" aria-label="Search">
               Search
             </button>
           </form>
@@ -192,7 +163,7 @@ const Blog = () => {
 
         {loading ? (
           <div className="blogLoading">
-            {Array.from({ length: blogsPerPage }).map((_, index) => (
+            {Array.from({ length: totalpage }).map((_, index) => (
               <div key={index} className="blogSkeleton">
                 <div className="blogSkeletonImage"></div>
                 <div className="blogSkeletonText"></div>
@@ -205,7 +176,7 @@ const Blog = () => {
           <div className="blogError">
             <p>{error}</p>
             <button
-              onClick={fetchBlogs}
+
               className="blogRetry"
               aria-label="Retry loading blogs"
             >
@@ -236,7 +207,7 @@ const Blog = () => {
           </section>
         )}
 
-        <section className="blogPageNav">{renderPagination()}</section>
+        <section className="blogPageNav">{renderPagination(totalpage, currentPage)}</section>
 
         <Footer />
       </div>

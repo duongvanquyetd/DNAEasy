@@ -6,7 +6,7 @@ import Header from '../Header';
 import Footer from '../Footer';
 import '../css/ManageService.css';
 import { useNavigate } from 'react-router-dom';
-import { GetALlServies, getServiceById } from '../../service/service';//, createService, updateService, deleteService
+import { GetALlServies, getServiceById, Report, SearchAndGet } from '../../service/service';//, createService, updateService, deleteService
 
 const ManageService = () => {
   const [services, setServices] = useState([]);
@@ -15,33 +15,77 @@ const ManageService = () => {
   const [editingService, setEditingService] = useState(null);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState('');
+  const [totalServices, setTotalservice] = useState('');
+  const [totalValue, setTotalValue] = useState('');
+  const [averagePrice, setAvaragePrice] = useState('');
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pagesize = 10;
+  const [totalPages, setTotalPages] = useState(0);
+  const [category, setCategory] = useState('');
   // Fetch services on component mount
   useEffect(() => {
+
+
+    Report().then((response) => {
+      console.log(response.data)
+      setTotalservice(response.data.count)
+      setTotalValue(response.data.totalamount)
+      setAvaragePrice(response.data.avgamount)
+    })
     console.log('ManageService component mounted');
-    fetchServices();
+    
   }, []);
 
-  const fetchServices = async () => {
-    setLoading(true);
-    try {
-      const response = await GetALlServies();
-      console.log('Services fetched:', response.data);
-      if (response.data) {
-        setServices(response.data);
-      }
-    } catch (error) {
-      console.error('Error fetching services:', error);
-      message.error('Failed to fetch services');
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+
+    SearchAndGet({ keywordSearch: searchQuery, keywordType: category }, currentPage, pagesize).then((response)=>{
+      setTotalPages(response.data.totalPages)
+      setServices(response.data.content)
+      console.log("Response",response.data)
+    }).catch((error)=>{
+      console.log("Error",error)
+    },[currentPage,searchQuery,category])
+
+
+  },[currentPage,searchQuery,category])
+  // const fetchServices = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await GetALlServies();
+  //     console.log('Services fetched:', response.data);
+  //     if (response.data) {
+  //       setServices(response.data);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching services:', error);
+  //     message.error('Failed to fetch services');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+const renderPagination = () => {
+    if (totalPages <= 1) return null;
+    const pages = [];
+    const maxPagesToShow = totalPages;
+    const startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+    const endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+    if (startPage > 1) {
+      pages.push(<button key={1} className="paginationBtn" onClick={() => setCurrentPage(1)} aria-label="Go to first page">1</button>);
+      if (startPage > 2) pages.push(<span key="start-ellipsis">...</span>);
     }
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(<button key={i} className={`paginationBtn ${currentPage === i ? 'active' : ''}`} onClick={() => setCurrentPage(i)} aria-label={`Go to page ${i}`} aria-current={currentPage === i ? 'page' : undefined}>{i}</button>);
+    }
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) pages.push(<span key="end-ellipsis">...</span>);
+      pages.push(<button key={totalPages} className="paginationBtn" onClick={() => setCurrentPage(totalPages)} aria-label="Go to last page">{totalPages}</button>);
+    }
+    return pages;
   };
 
-  // Calculate statistics
-  const totalServices = services.length;
-  const totalValue = services.reduce((sum, service) => sum + (service.price || 0), 0);
-  const averagePrice = totalServices > 0 ? totalValue / totalServices : 0;
   const premiumServices = services.filter(service => (service.price || 0) > 1000000).length;
 
   const columns = [
@@ -52,17 +96,17 @@ const ManageService = () => {
       sorter: (a, b) => a.serviceName.localeCompare(b.serviceName),
       render: (text, record) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ 
-            width: '8px', 
-            height: '8px', 
-            borderRadius: '50%', 
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' 
+          <div style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
           }} />
           <span style={{ fontWeight: 600, color: '#333' }}>{text}</span>
         </div>
       ),
       filteredValue: searchText ? [searchText] : null,
-      onFilter: (value, record) => 
+      onFilter: (value, record) =>
         record.serviceName.toLowerCase().includes(value.toLowerCase()) ||
         record.type.toLowerCase().includes(value.toLowerCase()),
     },
@@ -71,10 +115,10 @@ const ManageService = () => {
       dataIndex: 'type',
       key: 'type',
       render: (type) => (
-        <Tag 
-          color="blue" 
-          style={{ 
-            borderRadius: '6px', 
+        <Tag
+          color="blue"
+          style={{
+            borderRadius: '6px',
             fontWeight: 500,
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             border: 'none',
@@ -103,10 +147,10 @@ const ManageService = () => {
       title: 'Status',
       key: 'status',
       render: (_, record) => (
-        <Tag 
-          color="green" 
-          style={{ 
-            borderRadius: '6px', 
+        <Tag
+          color="green"
+          style={{
+            borderRadius: '6px',
             fontWeight: 500,
             background: 'linear-gradient(135deg, #52c41a 0%, #389e0d 100%)',
             border: 'none',
@@ -123,15 +167,15 @@ const ManageService = () => {
       render: (_, record) => (
         <Space size="small">
           <Tooltip title="View Details">
-            <Button 
-              type="text" 
+            <Button
+              type="text"
               icon={<EyeOutlined />}
               style={{ color: '#667eea' }}
             />
           </Tooltip>
           <Tooltip title="Edit Service">
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               icon={<EditOutlined />}
               onClick={() => handleEdit(record)}
               size="small"
@@ -140,8 +184,8 @@ const ManageService = () => {
             </Button>
           </Tooltip>
           <Tooltip title="Delete Service">
-            <Button 
-              danger 
+            <Button
+              danger
               icon={<DeleteOutlined />}
               onClick={() => handleDelete(record.id)}
               size="small"
@@ -188,7 +232,7 @@ const ManageService = () => {
             const response = await updateService(editingService.id, values);
             if (response.data) {
               const updatedService = response.data;
-              setServices(services.map(service => 
+              setServices(services.map(service =>
                 service.id === editingService.id ? updatedService : service
               ));
               message.success('Service updated successfully');
@@ -220,13 +264,13 @@ const ManageService = () => {
         <div className="debug-text">
           Service Management Dashboard
         </div>
-        
+
         {/* Statistics Cards */}
         <Row gutter={[16, 16]} style={{ marginBottom: '2rem' }}>
           <Col xs={24} sm={12} lg={6}>
-            <Card 
-              style={{ 
-                background: 'rgba(255, 255, 255, 0.1)', 
+            <Card
+              style={{
+                background: 'rgba(255, 255, 255, 0.1)',
                 backdropFilter: 'blur(20px)',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
                 borderRadius: '16px'
@@ -239,11 +283,23 @@ const ManageService = () => {
                 valueStyle={{ color: 'white', fontSize: '24px', fontWeight: 'bold' }}
               />
             </Card>
+
+             <section className="filterSection">
+          <form className="searchBar" onSubmit={(e)=>{ e.preventDefault(); handlsearch(); }} >
+            <input type="text" placeholder="What are you looking for?" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} aria-label="Search services" />
+            <select name="category" aria-label="Select category" onChange={(e) => setCategory(e.target.value)} value={category}>
+              <option value="">All Services</option>
+              <option value="civil">Civil Services</option>
+              <option value="legal">Legal Services</option>
+            </select>
+            <button type="submit" className="searchBtn" aria-label="Search">Search</button>
+          </form>
+        </section>
           </Col>
           <Col xs={24} sm={12} lg={6}>
-            <Card 
-              style={{ 
-                background: 'rgba(255, 255, 255, 0.1)', 
+            <Card
+              style={{
+                background: 'rgba(255, 255, 255, 0.1)',
                 backdropFilter: 'blur(20px)',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
                 borderRadius: '16px'
@@ -259,9 +315,9 @@ const ManageService = () => {
             </Card>
           </Col>
           <Col xs={24} sm={12} lg={6}>
-            <Card 
-              style={{ 
-                background: 'rgba(255, 255, 255, 0.1)', 
+            <Card
+              style={{
+                background: 'rgba(255, 255, 255, 0.1)',
                 backdropFilter: 'blur(20px)',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
                 borderRadius: '16px'
@@ -277,9 +333,9 @@ const ManageService = () => {
             </Card>
           </Col>
           <Col xs={24} sm={12} lg={6}>
-            <Card 
-              style={{ 
-                background: 'rgba(255, 255, 255, 0.1)', 
+            <Card
+              style={{
+                background: 'rgba(255, 255, 255, 0.1)',
                 backdropFilter: 'blur(20px)',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
                 borderRadius: '16px'
@@ -297,8 +353,8 @@ const ManageService = () => {
 
         <div className="manage-service-header debug-header">
           <h1>Manage Services</h1>
-          <Button 
-            type="primary" 
+          <Button
+            type="primary"
             icon={<PlusOutlined />}
             onClick={handleAdd}
             className="add-service-btn"
@@ -307,8 +363,8 @@ const ManageService = () => {
           </Button>
         </div>
 
-        <Table 
-          columns={columns} 
+        <Table
+          columns={columns}
           dataSource={services}
           rowKey="id"
           loading={loading}
@@ -354,7 +410,7 @@ const ManageService = () => {
                 </Form.Item>
               </Col>
             </Row>
-            
+
             <Form.Item
               name="price"
               label="Price (VND)"
@@ -368,7 +424,7 @@ const ManageService = () => {
                 min={0}
               />
             </Form.Item>
-            
+
             <Form.Item
               name="description"
               label="Description"
@@ -376,7 +432,7 @@ const ManageService = () => {
             >
               <Input.TextArea rows={4} placeholder="Enter service description" />
             </Form.Item>
-            
+
             <Form.Item
               name="images"
               label="Images"

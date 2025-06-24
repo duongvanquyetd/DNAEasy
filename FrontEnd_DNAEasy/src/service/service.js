@@ -1,4 +1,5 @@
 import axios from 'axios';
+import api from './api';
 
 export const GetALlServies = () => {
     return axios.get('http://localhost:8080/api/service');
@@ -24,3 +25,7 @@ export const SearchAndGet = (search,page,size) => {
 // export const deleteService = (id) => {
 //     return axios.delete(`http://localhost:8080/api/service/${id}`);
 // }
+
+export const Report=()=>{
+    return api.get('/service/report')
+}
