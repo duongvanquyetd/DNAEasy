@@ -23,3 +23,12 @@ export const GetAppointmetnForStaff_reception = () => {
 export const CanRefund = (appointmentId) => {
     return api.get(`/appointment/canrefund/${appointmentId}`);
 }
+
+export const GetAppointForManagerAssign=(page,size)=>{
+
+
+    return api.get("/appointment/managershift?"+"page="+page+"&size="+size)
+}
+export const AssignForAppoint=(AssigneStaff)=>{
+    return api.post("/appointment/assignStaff",AssigneStaff)
+} 
