@@ -13,4 +13,6 @@ public class ManagerServiceReponse {
     private long count;
     private BigDecimal totalamount;
     private BigDecimal avgamount;
+    private long active;
+    private long inactive;
 }
