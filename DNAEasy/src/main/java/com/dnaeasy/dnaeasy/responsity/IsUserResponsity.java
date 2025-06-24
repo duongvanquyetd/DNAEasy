@@ -2,8 +2,10 @@ package com.dnaeasy.dnaeasy.responsity;
 
 import com.dnaeasy.dnaeasy.enity.Person;
 import com.dnaeasy.dnaeasy.enums.Work_hour;
+import jakarta.transaction.Transactional;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -42,10 +44,38 @@ public interface IsUserResponsity extends JpaRepository<Person, String> {
     @Query("Select count(*) from Person p where  p.phone = :phone ")
     int findByPhone(String phone);
 
-    Person findByPersonId(int personId);
+    Person  findByPersonId(int personId);
 
     @Query("Select  p from Person p where p.rolename = 'STAFF_TEST' and p.work_hour =:workHour and p.personId not in (Select a.staff.personId from Appointment a where (a.dateCollect between :starday and :endday) and a.curentStatusAppointment not in ('COMPLETE','CANCLE') and a.staff.work_hour  =:workHour )")
     List<Person> findStaffByWorkHour(LocalDateTime starday , LocalDateTime endday, Work_hour workHour) ;
 
     List<Person> findAllByCreatedDateBetweenOrderByCreatedDateDesc(LocalDateTime start, LocalDateTime end);
+
+    List<Person> findAllByNameContainingAndRolenameAndActive(String name, String rolename, Boolean active);
+
+    @Query("""
+    SELECT p FROM Person p
+    WHERE (:name IS NULL OR p.name LIKE %:name%)
+      AND (:rolename IS NULL OR p.rolename = :rolename)
+      AND (:active IS NULL OR p.active = :active)
+      AND (:createdDateFrom IS NULL OR p.createdDate >= :createdDateFrom)
+      AND (:createdDateTo IS NULL OR p.createdDate <= :createdDateTo)
+    ORDER BY p.createdDate DESC
+""")
+    List<Person> filterUsers(
+            @Param("name") String name,
+            @Param("rolename") String rolename,
+            @Param("active") Boolean active,
+            @Param("createdDateFrom") LocalDateTime createdDateFrom,
+            @Param("createdDateTo") LocalDateTime createdDateTo
+    );
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE Person p SET p.active = :active WHERE p.personId = :personId")
+    void updateActiveByPersonId(@Param("personId") int personId, @Param("active") Boolean active);
+
+
+
 }
+

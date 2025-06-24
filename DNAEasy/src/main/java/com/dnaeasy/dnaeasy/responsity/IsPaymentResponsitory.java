@@ -27,26 +27,17 @@ public interface IsPaymentResponsitory extends JpaRepository<Payment, Integer> {
 
     @Query(value = """
     select sum(p.payment_amount) from payment p join  appoinment a on a.appointment_id = p.apppointment_id
-    where p.payment_status = 1 and a.curent_status_appointment = 'COMPLETED'
-
+    where p.payment_status = 1 and is_expense = 0 and  a.curent_status_appointment = 'COMPLETED'
     and p.pay_date between :startDate and :endDate
     """, nativeQuery = true)
     BigDecimal getTodayRevenueToday(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+
    @Query("select p from Payment p where p.isExpense = false and p.appointment.appointmentId =:appointmentid")
     Payment findByAppointmentIdAndExpenseIsFalse(int appointmentid);
 
     @Query("select p from Payment p where p.paymentStatus = false and p.isExpense = false and p.appointment.curentStatusAppointment  in (:appointmentCurentStatusAppointments)")
     List<Payment> findAllByPaymentStatusIsFalseAndExpenseIsFalseAndAppointment_CurentStatusAppointmentIsIn( Collection<String> appointmentCurentStatusAppointments);
-
-
-//    @Query(value = """
-// SELECT SUM(p.payment_amount)
-//    FROM payment p
-//    JOIN appoinment a ON a.appoinmentId = p.appoinmentId
-//    WHERE p.payment_status = 1
-//      AND a.curent_status_appointment = 'COMPLETED'
-//      AND CAST(p.pay_date AS DATE) = CAST(GETDATE() AS DATE)
-//    """, nativeQuery = true)
 
     List<Payment> findAllByPaymentStatusIsTrueAndPaymentDateIsBetween(LocalDateTime start, LocalDateTime end);
 
