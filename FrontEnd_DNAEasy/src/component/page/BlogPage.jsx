@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Card, Row, Col } from 'antd';
-import DynamicHeader from '../DynamicHeader';
+import Header from '../Header';
 import Footer from '../Footer';
 import '../css/Blog.css'; // Ensure this points to the CSS file with the new class names
-import { GetALlBlog, SearchByTitleAndCatagery } from '../../service/Blog';
+import {  SearchByTitleAndCatagery } from '../../service/Blog';
 
 const ErrorBoundary = ({ children }) => {
   const [hasError, setHasError] = useState(false);
@@ -42,18 +41,19 @@ const Blog = () => {
   const [totalpage, setTotalPages] = useState(0);
 
 
-// Reset page về 1 khi thay đổi keyword / category
+
 useEffect(() => {
   setCurrentPage(1);
 }, [searchQuery, category]);
 
-// Gọi API khi có thay đổi trang / filter
+
 useEffect(() => {
   setLoading(true);
   SearchByTitleAndCatagery(
     { keywordSearch: searchQuery, keywordType: category },
     currentPage,
-    pagesize
+    pagesize,
+    true
   )
     .then((response) => {
       setBlogs(response.data.content);
@@ -66,24 +66,6 @@ useEffect(() => {
     })
     .finally(() => setLoading(false));
 }, [searchQuery, category, currentPage]);
-
-
-  // const fetchBlogs = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const response = await GetALlBlog(); // Fetch blogs from the service
-  //     setBlogs(response.data || []); // Handle potential undefined data
-
-  //     console.log('Fetched blogs:', response.data); // Log the fetched data for debugging
-  //     setError(null);
-  //   } catch (error) {
-  //     console.error('Error fetching blogs:', error);
-  //     setError('Failed to load blogs. Please try again later.');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
 
 
   const handleBlogClick = useCallback(
@@ -111,7 +93,7 @@ useEffect(() => {
   return (
     <ErrorBoundary>
       <div className="blogContainer">
-        <DynamicHeader />
+        <Header />
         <section className="blogBanner">
           <div className="blogBannerContent">
             <div className="blogBannerText">

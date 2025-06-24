@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Card, Row, Col, Button } from 'antd';
-import DynamicHeader from '../DynamicHeader';
+import Header from '../Header';
 import Footer from '../Footer';
 import '../css/Service.css'; // Ensure this points to the CSS file with the new class names
 import { SearchAndGet } from '../../service/service';
@@ -67,9 +66,10 @@ const Service = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const servicesPerPage = 9;
   const [totalPages, setTotalPages] = useState(0);
+  const [category, setCategory] = useState('');
   const [search, setSearch] = useState('');
 
-  const [category, setCategory] = useState('');
+  
 
 
   useEffect(() => {
@@ -83,7 +83,7 @@ const Service = () => {
       setLoading(true);
       // Reset to first page on new search
       console.log('Fetching services with:', { keywordSearch: searchQuery, keywordType: category, currentPage, servicesPerPage });
-      const response = await SearchAndGet({ keywordSearch: searchQuery, keywordType: category }, currentPage, servicesPerPage);
+      const response = await SearchAndGet({ keywordSearch: searchQuery, keywordType: category }, currentPage, servicesPerPage,true);
       console.log('Fetched services:', response.data);
       setServices(response.data.content);
       setTotalPages(response.data.totalPages);
@@ -138,7 +138,7 @@ const Service = () => {
   return (
     <ErrorBoundary>
       <div className="servicePage">
-        <DynamicHeader />
+        <Header />
         <section className="banner">
           <div className="bannerContent">
             <div className="bannerText">
