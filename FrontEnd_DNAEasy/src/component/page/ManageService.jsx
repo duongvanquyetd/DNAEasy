@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, InputNumber, Space, message, Upload, Card, Row, Col, Statistic, Tag, Tooltip } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, UploadOutlined, EyeOutlined, DollarOutlined, AppstoreOutlined, TrophyOutlined } from '@ant-design/icons';
-import Header from '../Header';
+import DynamicHeader from '../DynamicHeader';
 import Footer from '../Footer';
 import '../css/ManageService.css';
 import { useNavigate } from 'react-router-dom';
@@ -259,7 +259,7 @@ const renderPagination = () => {
 
   return (
     <div className="manage-service">
-      <Header />
+      <DynamicHeader />
       <div className="manage-service-content">
         <div className="debug-text">
           Service Management Dashboard

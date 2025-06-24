@@ -1,8 +1,10 @@
 // src/component/page/AssignStaff.jsx
 import React, { useState, useEffect } from 'react';
+
 import { AssignForAppoint, GetAppointForManagerAssign } from '../../service/appointment';
 import { GetStaffForAppoint } from '../../service/user';
 import '../css/AssignStaff.css';
+
 
 export const AssignStaff = () => {
   const [appointments, setAppointments] = useState([]);
@@ -127,8 +129,10 @@ export const AssignStaff = () => {
             ))}
           </tbody>
         </table>
+
         {renderPagination(totalPages, currentPage, setCurrentPage)}
       </div>
+
 
       <div className={`staff-section-panel${selectedAppointment ? ' open' : ''}`}>
         {selectedAppointment && (

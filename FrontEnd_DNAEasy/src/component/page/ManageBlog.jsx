@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, Space, message, Card, Row, Col, Statistic, Tag, Tooltip } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, UserOutlined, CalendarOutlined, AppstoreOutlined } from '@ant-design/icons';
-import Header from '../Header';
+import DynamicHeader from '../DynamicHeader';
 import Footer from '../Footer';
 import '../css/ManageBlog.css';
 import { useNavigate } from 'react-router-dom';
@@ -158,7 +158,7 @@ const ManageBlog = () => {
 
   return (
     <div className="manage-blog">
-      <Header />
+      <DynamicHeader />
       <div className="manage-blog-content">
         <div className="debug-text">Blog Management Dashboard</div>
         {/* Statistics Cards */}

@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import Header from '../Header';
+import { Card, Row, Col, Button } from 'antd';
+import DynamicHeader from '../DynamicHeader';
 import Footer from '../Footer';
 import '../css/Service.css'; // Ensure this points to the CSS file with the new class names
 import { SearchAndGet } from '../../service/service';
@@ -137,7 +138,7 @@ const Service = () => {
   return (
     <ErrorBoundary>
       <div className="servicePage">
-        <Header />
+        <DynamicHeader />
         <section className="banner">
           <div className="bannerContent">
             <div className="bannerText">

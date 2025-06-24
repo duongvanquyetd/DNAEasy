@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import Header from '../Header';
+import { Card, Row, Col } from 'antd';
+import DynamicHeader from '../DynamicHeader';
 import Footer from '../Footer';
 import '../css/Blog.css'; // Ensure this points to the CSS file with the new class names
 import { GetALlBlog, SearchByTitleAndCatagery } from '../../service/Blog';
@@ -110,7 +111,7 @@ useEffect(() => {
   return (
     <ErrorBoundary>
       <div className="blogContainer">
-        <Header />
+        <DynamicHeader />
         <section className="blogBanner">
           <div className="blogBannerContent">
             <div className="blogBannerText">
