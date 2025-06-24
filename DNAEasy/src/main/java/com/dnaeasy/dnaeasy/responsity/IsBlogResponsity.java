@@ -19,4 +19,20 @@ public interface IsBlogResponsity extends JpaRepository<Blog, Integer>
     Page<Blog> findByBlogTitleContainsIgnoreCaseAndBlogTypeContainingIgnoreCase(String blogTitle, String blogType,Pageable pageable);
 
     Page<Blog> findByBlogTitleContainsIgnoreCase(String blogTitle, Pageable pageable);
+
+    Page<Blog> findByBlogTitleContainsIgnoreCaseAndBlogTypeContainingIgnoreCaseAndActive(String blogTitle, String blogType, boolean active, Pageable pageable);
+
+    Page<Blog> findByBlogTypeAndActive(String blogType, boolean active, Pageable pageable);
+
+    Page<Blog> findByBlogTitleContainsIgnoreCaseAndActive(String blogTitle, boolean active, Pageable pageable);
+
+    Page<Blog> findAllByActive(boolean active, Pageable pageable);
+
+    long countByActive(boolean active);
+
+
+
+    double countByBlogTitle(String blogTitle);
+
+
 }

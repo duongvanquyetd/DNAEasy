@@ -15,5 +15,5 @@ public class BlogCreateRequest {
     private String blogTitle;
     private String blogContent;
     private String blogType;
-    List<BlogImage> blogImages;
+
 }
