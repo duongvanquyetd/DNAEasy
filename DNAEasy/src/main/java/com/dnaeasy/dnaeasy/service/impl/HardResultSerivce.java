@@ -6,6 +6,8 @@ import com.dnaeasy.dnaeasy.dto.response.CanConfirmHardResultRespone;
 import com.dnaeasy.dnaeasy.dto.response.HardResultCreateResponse;
 import com.dnaeasy.dnaeasy.dto.response.HardResultResponse;
 import com.dnaeasy.dnaeasy.enity.*;
+import com.dnaeasy.dnaeasy.enums.RoleName;
+import com.dnaeasy.dnaeasy.enums.TypeReciveResult;
 import com.dnaeasy.dnaeasy.mapper.HardResultMapper;
 import com.dnaeasy.dnaeasy.responsity.IsHardReusltRepo;
 import com.dnaeasy.dnaeasy.responsity.IsProcessShipResult;
@@ -30,78 +32,94 @@ public class HardResultSerivce implements IsHardResultSevice {
     IsResultResponsitory resultResponsitory;
     @Autowired
     CloudinaryUtil cloudinaryUtil;
-   @Autowired
-   IsProcessShipResult isprocessShipResult;
-   @Autowired
+    @Autowired
+    IsProcessShipResult isprocessShipResult;
+    @Autowired
     IsUserResponsity isuserResponsity;
+    @Autowired
+    NotificationService notificationService;
 
     @Override
     public HardResultCreateResponse CreateHardResult(HardResultCreateRequest request) {
 
         HardResult hs = hardResultMapper.hardCreatetoHardResult(request);
 
-        for(Integer i : request.getResultid())
-        {
-            Result r  = resultResponsitory.findResultsByResultId(i);
+        for (Integer i : request.getResultid()) {
+            Result r = resultResponsitory.findResultsByResultId(i);
             r.setHardresult(hs);
             hs.getListResult().add(r);
         }
+        HardResult  saved = isHardReusltRepo.save(hs);
+//notificaion
+        Person p = isuserResponsity.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        notificationService.createNotification(saved.getListResult().get(0).getStaff(), "Let prepare Hard Result for customer " + p.getName() + "  booked at " + saved.getListResult().get(0).getSampelist().iterator().next().getAppointment().getDateCollect());
 
-        return hardResultMapper.hardCreatetoHardResultCreateResponse(isHardReusltRepo.save(hs));
+
+        //notificaion
+        return hardResultMapper.hardCreatetoHardResultCreateResponse(saved);
     }
 
     @Override
     public HardResultResponse updateHardResult(UpdatehardReusltRequest request, MultipartFile file) {
 
-        HardResult hs = isHardReusltRepo.findById(request.getHardresultID()).orElseThrow(()->new RuntimeException("Hard Result Not Found"));
+        HardResult hs = isHardReusltRepo.findById(request.getHardresultID()).orElseThrow(() -> new RuntimeException("Hard Result Not Found"));
 
         HardResultTracking hrt = new HardResultTracking();
         hrt.setStatusName(request.getStatusName());
         hrt.setTrackingdate(LocalDateTime.now());
 
-        try
-        {
-            if(file != null)
-            {
+        try {
+            if (file != null) {
                 hrt.setImgUrl(cloudinaryUtil.uploadImage(file));
             }
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         hrt.setHardresult(hs);
         hs.setCurentStatus(request.getStatusName());
         hs.getListTracking().add(hrt);
 
+        //Notification
+        Person p = isuserResponsity.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+
+        if(hs.getType().equals(TypeReciveResult.AT_HOME) && p.getRolename().equals(RoleName.STAFF_LAB))
+        {
+            Appointment a = hs.getListResult().get(0).getSampelist().iterator().next().getAppointment();
+            notificationService.createNotification(a.getCustomer(), "The results have been delivered to the shipping department, so please be careful when calling.");;
+        }
+        else if (hs.getType().equals(TypeReciveResult.AT_HOSPITAL) && p.getRolename().equals(RoleName.STAFF_LAB))
+        {
+            Appointment a = hs.getListResult().get(0).getSampelist().iterator().next().getAppointment();
+            notificationService.createNotification(a.getCustomer(), "You recived resulted ");
+        }
+
+        //Notification
+
         return hardResultMapper.hardUpdatetoHardResult(isHardReusltRepo.save(hs));
     }
 
     @Override
     public CanConfirmHardResultRespone CanConfirm(Long hardResultId) {
-       HardResult hs = isHardReusltRepo.findById(hardResultId).orElseThrow(()->new RuntimeException("Hard Result Not Found"));
-       CanConfirmHardResultRespone canCf = new CanConfirmHardResultRespone();
-       String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        HardResult hs = isHardReusltRepo.findById(hardResultId).orElseThrow(() -> new RuntimeException("Hard Result Not Found"));
+        CanConfirmHardResultRespone canCf = new CanConfirmHardResultRespone();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Person p = isuserResponsity.findByUsername(username);
         ProcessShipResult psr = null;
-       if(hs.getCurentStatus() == null)
-       {
-            psr = isprocessShipResult.findALlByTypeAndOrderProcess(hs.getType(),1);
+        if (hs.getCurentStatus() == null) {
+            psr = isprocessShipResult.findALlByTypeAndOrderProcess(hs.getType(), 1);
 
 
-       }else {
-           ProcessShipResult order = isprocessShipResult.findALlByTypeAndStatusName(hs.getType(),hs.getCurentStatus());
-            psr = isprocessShipResult.findALlByTypeAndOrderProcess(hs.getType(),order.getOrderProcess()+1);
+        } else {
+            ProcessShipResult order = isprocessShipResult.findALlByTypeAndStatusName(hs.getType(), hs.getCurentStatus());
+            psr = isprocessShipResult.findALlByTypeAndOrderProcess(hs.getType(), order.getOrderProcess() + 1);
 
-       }
-        if(psr != null)
-        {
+        }
+        if (psr != null) {
             canCf.setNextStatus(psr.getStatusName());
-            if(psr.getPermision().equals(p.getRolename()))
-            {
-               canCf.setCanConfirmHardResult(true);
+            if (psr.getPermision().equals(p.getRolename())) {
+                canCf.setCanConfirmHardResult(true);
 
-            }
-            else {
+            } else {
                 canCf.setCanConfirmHardResult(false);
             }
 
