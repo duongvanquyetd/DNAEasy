@@ -13,18 +13,6 @@ export const SearchAndGet = (search,page,size) => {
 }
 
 
-//CRUD
-// export const createService = (serviceData) => {
-//     return axios.post('http://localhost:8080/api/service', serviceData);
-// }
-
-// export const updateService = (id, serviceData) => {
-//     return axios.put(`http://localhost:8080/api/service/${id}`, serviceData);
-// }
-
-// export const deleteService = (id) => {
-//     return axios.delete(`http://localhost:8080/api/service/${id}`);
-// }
 
 export const Report=()=>{
     return api.get('/service/report')
