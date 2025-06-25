@@ -12,8 +12,6 @@ export const SearchAndGet = (search,page,size,active) => {
     return axios.post(`http://localhost:8080/api/service/search?size=${size}&page=${page}&active=${active}`,search);
 }
 
-
-//CRUD
 export const CreateService = (serviceData) => {
     return api.post("/service/create",serviceData)
 }

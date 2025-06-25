@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import HeaderManager from './HeaderManager';
 import { GetMyInfor } from '../service/user';
-
+// file này dùng để chuyển nhận header tùy theo role của user 
 const DynamicHeader = () => {
   const [userRole, setUserRole] = useState('');
   const [isLoading, setIsLoading] = useState(true);

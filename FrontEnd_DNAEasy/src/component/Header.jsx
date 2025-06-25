@@ -1,31 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Logo from './image/logo/Logo.jpg';
-
+import { BellOutlined } from '@ant-design/icons';
 
 import { Logout } from '../service/login';
 import { GetMyInfor } from '../service/user';
-
 
 const Header = () => {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [user, setUser] = useState('');
+
   useEffect(() => {
-
-
-
-
-      if (localStorage.getItem("token")) {
-        GetMyInfor().then((response) => {
-          setUser(response.data)
-          console.log("response infor user",response.data);
-        })
-
-
-      }
-
+    if (localStorage.getItem("token")) {
+      GetMyInfor().then((response) => {
+        setUser(response.data)
+        console.log("response infor user",response.data);
+      })
+    }
 
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -33,7 +26,6 @@ const Header = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -45,37 +37,19 @@ const Header = () => {
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
-
   const handleAvatarClick = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
-
 
   const handleViewProfile = () => {
     navigate('/user/profile');
     setIsDropdownOpen(false);
   };
 
-
   const handleAdminDashboard = () => {
     navigate('/admin/dashboard');
     setIsDropdownOpen(false);
   };
-  const handleManagerBlog = () => {
-    navigate('/ManageBlog');
-    setIsDropdownOpen(false);
-  };
-  const handleManagerService = () => {
-    navigate('/ManageService');
-    setIsDropdownOpen(false);
-  };
-  const handleManagerAssignStaff = () => {
-    navigate('/assign-staff');
-    setIsDropdownOpen(false);
-  };
-
-
-
 
   const handleLogout = () => {
     const token = { token: localStorage.getItem("token") }
@@ -86,7 +60,6 @@ const Header = () => {
     setIsDropdownOpen(false);
   };
 
-
   return (
     <header style={{
       ...styles.header,
@@ -95,14 +68,13 @@ const Header = () => {
       boxShadow: isScrolled ? '0 8px 32px rgba(0, 0, 0, 0.1)' : '0 2px 20px rgba(0, 0, 0, 0.05)',
       transform: isScrolled ? 'translateY(-2px)' : 'translateY(0)',
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      height: '100px', // Ensure consistent height
+      height: '100px',
     }}>
       <div style={styles.logo}>
         <Link to="/">
           <img src={Logo} alt="DNAEASY Logo" style={styles.image} />
         </Link>
       </div>
-
 
       <nav style={styles.nav}>
         {[
@@ -136,9 +108,9 @@ const Header = () => {
         ))}
       </nav>
 
-
-      {user  ?
-        (
+      {user && user.rolename !== 'GUEST' ? (
+        <div style={{display: 'flex', alignItems: 'center', gap: '18px'}}>
+          {/* Avatar */}
           <div style={styles.avatarContainer} className="avatar-container">
             <div style={styles.avatarWrapper}>
               <img
@@ -149,8 +121,6 @@ const Header = () => {
               />
               <div style={styles.onlineIndicator}></div>
             </div>
-
-
             {isDropdownOpen && (
               <div style={{ ...styles.dropdown, animation: 'fadeInUp 0.3s ease' }}>
                 <div style={styles.dropdownHeader}>
@@ -163,37 +133,24 @@ const Header = () => {
                 <div style={styles.dropdownDivider}></div>
                 <button style={styles.dropdownItem} onClick={handleViewProfile}>👤 View Profile</button>
                 {user.rolename === "ADMIN" && (
-
-
                   <button style={styles.dropdownItem} onClick={handleAdminDashboard}>⚙️ Admin Dashboard</button>
                 )}
-
-
                 <button style={styles.dropdownItem} onClick={handleLogout}>🚪 Logout</button>
               </div>
             )}
           </div>
-
-
-
-
-        ) : (
-          <>
-            <div style={styles.authButtons}>
-              <Link to='/user/login' style={styles.loginBtn}>Login</Link>
-              <Link to='/user/register' style={styles.registerBtn}>Register</Link>
-            </div>
-
-
-          </>
-
-
-        )
-      }
+        </div>
+      ) : (
+        <>
+          <div style={styles.authButtons}>
+            <Link to='/user/login' style={styles.loginBtn}>Login</Link>
+            <Link to='/user/register' style={styles.registerBtn}>Register</Link>
+          </div>
+        </>
+      )}
     </header>
   );
 };
-
 
 const styles = {
   authButtons: {
@@ -223,7 +180,6 @@ const styles = {
     transition: 'all 0.3s ease',
     boxShadow: '0 4px 12px rgba(0, 184, 148, 0.2)',
   },
-
 
   header: {
     display: 'flex',
@@ -362,9 +318,6 @@ const styles = {
   },
 };
 
-
-
-
 // Global CSS reset
 const globalCSS = `
   * {
@@ -381,9 +334,7 @@ const globalCSS = `
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
   }
-
 `;
-
 
 // Inject CSS to head
 if (typeof document !== 'undefined') {
@@ -391,6 +342,5 @@ if (typeof document !== 'undefined') {
   style.innerHTML = globalCSS;
   document.head.appendChild(style);
 }
-
 
 export default Header;

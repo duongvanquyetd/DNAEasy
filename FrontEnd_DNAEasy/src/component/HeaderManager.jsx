@@ -79,33 +79,36 @@ const HeaderManager = () => {
         ))}
       </nav>
       {user ? (
-        <div className="header-manager-avatar-container">
-          <div className="header-manager-avatar-wrapper">
-            <div
-              className="header-manager-avatar"
-              onClick={handleAvatarClick}
-            >
-              <img
-                src={user.avatarUrl}
-                alt="User Avatar"
-              />
-            </div>
-            <div className="header-manager-online-indicator"></div>
-          </div>
-          {isDropdownOpen && (
-            <div className="header-manager-dropdown">
-              <div className="header-manager-dropdown-header">
-                <img src={user.avatarUrl} alt="User" className="header-manager-dropdown-avatar" />
-                <div className="header-manager-user-info">
-                  <div className="header-manager-user-name">{user.name}</div>
-                  <div className="header-manager-user-role">{user.rolename}</div>
-                </div>
+        <div style={{display: 'flex', alignItems: 'center', gap: '18px'}}>
+          {/* Avatar */}
+          <div className="header-manager-avatar-container">
+            <div className="header-manager-avatar-wrapper">
+              <div
+                className="header-manager-avatar"
+                onClick={handleAvatarClick}
+              >
+                <img
+                  src={user.avatarUrl}
+                  alt="User Avatar"
+                />
               </div>
-              <div className="header-manager-dropdown-divider"></div>
-              <button className="header-manager-dropdown-item" onClick={handleViewProfile}>👤 View Profile</button>
-              <button className="header-manager-dropdown-item" onClick={handleLogout}>🚪 Logout</button>
+              <div className="header-manager-online-indicator"></div>
             </div>
-          )}
+            {isDropdownOpen && (
+              <div className="header-manager-dropdown">
+                <div className="header-manager-dropdown-header">
+                  <img src={user.avatarUrl} alt="User" className="header-manager-dropdown-avatar" />
+                  <div className="header-manager-user-info">
+                    <div className="header-manager-user-name">{user.name}</div>
+                    <div className="header-manager-user-role">{user.rolename}</div>
+                  </div>
+                </div>
+                <div className="header-manager-dropdown-divider"></div>
+                <button className="header-manager-dropdown-item" onClick={handleViewProfile}>👤 View Profile</button>
+                <button className="header-manager-dropdown-item" onClick={handleLogout}>🚪 Logout</button>
+              </div>
+            )}
+          </div>
         </div>
       ) : null}
     </header>
