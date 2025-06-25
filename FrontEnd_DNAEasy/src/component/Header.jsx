@@ -11,13 +11,6 @@ const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [user, setUser] = useState('');
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-
-  // Mock notifications
-  const notifications = [
-    { id: 1, text: 'Bạn có lịch hẹn mới.' },
-    { id: 2, text: 'Kết quả xét nghiệm đã sẵn sàng.' },
-  ];
 
   useEffect(() => {
     if (localStorage.getItem("token")) {
@@ -36,10 +29,8 @@ const Header = () => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (!event.target.closest('.avatar-container') &&
-          !event.target.closest('.header-bell-container')) {
+      if (!event.target.closest('.avatar-container')) {
         setIsDropdownOpen(false);
-        setIsNotificationOpen(false);
       }
     };
     document.addEventListener('click', handleClickOutside);
@@ -119,30 +110,6 @@ const Header = () => {
 
       {user && user.rolename !== 'GUEST' ? (
         <div style={{display: 'flex', alignItems: 'center', gap: '18px'}}>
-          {/* Bell icon */}
-          <div className="header-bell-container" style={{position: 'relative'}}>
-            <BellOutlined
-              style={{ fontSize: 28, color: '#3730A3', cursor: 'pointer' }}
-              onClick={e => { e.stopPropagation(); setIsNotificationOpen(!isNotificationOpen); }}
-            />
-            {/* Notification badge */}
-            {notifications.length > 0 && (
-              <span style={{position: 'absolute', top: 2, right: 2, background: '#E11D48', color: '#fff', borderRadius: '50%', fontSize: 11, width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, border: '2px solid #fff'}}> {notifications.length} </span>
-            )}
-            {/* Notification popup */}
-            {isNotificationOpen && (
-              <div className="header-manager-notification-popup">
-                <div className="header-manager-notification-title">Thông báo</div>
-                <ul className="header-manager-notification-list">
-                  {notifications.length === 0 ? (
-                    <li className="header-manager-notification-empty">Không có thông báo mới.</li>
-                  ) : notifications.map(n => (
-                    <li key={n.id} className="header-manager-notification-item">{n.text}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
           {/* Avatar */}
           <div style={styles.avatarContainer} className="avatar-container">
             <div style={styles.avatarWrapper}>
