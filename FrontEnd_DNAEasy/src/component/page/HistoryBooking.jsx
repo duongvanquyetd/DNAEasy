@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { GetHistoryAppointment } from '../../service/appointment';
 import { GetResultByAppointmentId } from '../../service/result';
-import { GetPaymentStatus, PayToview, UpdatePaymentStatus } from '../../service/payment';
-import '../css/HistoryBooking.css'; // Ensure this points to the CSS file with the new class names
+import { GetPaymentStatus, PayToview } from '../../service/payment';
+import '../css/HistoryBooking.css';
 import Header from '../Header.jsx';
 import Footer from '../Footer.jsx';
 import { CanComment } from '../../service/Comment.js';
 import HardResultModal from './HardResultModal.jsx';
 import { CanConfirm, UpdateHardResult } from '../../service/hardresult.js';
 
-
 export const HistoryBooking = () => {
     const [historyBooking, setHistoryBooking] = useState([]);
+    const [filteredBookings, setFilteredBookings] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
     const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
-    const rolename = localStorage.getItem('rolename') ? localStorage.getItem('rolename') : null;
+    const rolename = localStorage.getItem('rolename') || null;
     const [createHardResult, setCreateHardResult] = useState(false);
     const [showUploadForm, setShowUploadForm] = useState(false);
     const [imageFile, setImageFile] = useState(null);
-
 
     useEffect(() => {
         const fetchHistoryBooking = async () => {
@@ -29,9 +29,7 @@ export const HistoryBooking = () => {
                             GetResultByAppointmentId({ appoinmentId: appointment.appointmentId }),
                             GetPaymentStatus(appointment.appointmentId),
                             CanComment(appointment.serviceId),
-
                         ]);
-                        // Lấy hardresultID từ kết quả trả về
                         const hardresultID = result.data?.[0]?.hardresultID;
                         const canconfirm = hardresultID ? await CanConfirm(hardresultID) : { data: null };
 
@@ -46,19 +44,25 @@ export const HistoryBooking = () => {
                         };
                     })
                 );
-
-
                 setHistoryBooking(fullAppointments);
-                console.log("History booking data fetched successfully:", fullAppointments);
+                setFilteredBookings(fullAppointments);
             } catch (error) {
                 console.error('Error fetching history booking:', error);
             }
         };
-
         fetchHistoryBooking();
     }, []);
 
-    function handleVnpay(appointmentId) {
+    useEffect(() => {
+        const filtered = historyBooking.filter(booking =>
+            booking.serviceName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            booking.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            booking.appointmentId.toString().includes(searchQuery)
+        );
+        setFilteredBookings(filtered);
+    }, [searchQuery, historyBooking]);
+
+    const handleVnpay = (appointmentId) => {
         PayToview(appointmentId)
             .then((response) => {
                 window.location.href = response.data;
@@ -67,37 +71,44 @@ export const HistoryBooking = () => {
                 console.error("Error fetching payment data:", error);
                 alert("Có lỗi xảy ra khi lấy thông tin thanh toán.");
             });
-    }
-
-
+    };
 
     const formatDate = (date) => new Date(date).toLocaleString();
-
 
     return (
         <>
             <Header />
             <div className="history-booking">
-                <header>
+                <header className="header-bg">
                     <div className="header-container">
-                        <h1>Lịch Sử Đặt Lịch Hẹn</h1>
-                        <p>Quản lý và theo dõi các lịch hẹn xét nghiệm của bạn một cách dễ dàng</p>
+                        <h1 className="header-title">Lịch Sử Đặt Lịch Hẹn</h1>
+                        <p className="header-subtitle">Theo dõi và quản lý các lịch hẹn xét nghiệm một cách dễ dàng</p>
                     </div>
                 </header>
-                <main>
-                    {historyBooking.length === 0 ? (
+                <main className="main-container">
+                    <div className="search-container">
+                        <input
+                            type="text"
+                            placeholder="Tìm kiếm theo dịch vụ, khách hàng hoặc mã lịch hẹn..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="search-input"
+                        />
+                        <svg className="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    {filteredBookings.length === 0 ? (
                         <div className="no-bookings">
-                            <div className="icon-container">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                            </div>
-                            <h3>Chưa có lịch hẹn</h3>
-                            <p>Hiện tại bạn chưa có lịch hẹn xét nghiệm nào.</p>
+                            <svg className="no-bookings-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <h3 className="no-bookings-title">Chưa có lịch hẹn</h3>
+                            <p className="no-bookings-text">Không tìm thấy lịch hẹn nào khớp với tìm kiếm của bạn.</p>
                         </div>
                     ) : (
                         <div className="booking-list">
-                            {historyBooking.map((booking, index) => (
+                            {filteredBookings.map((booking, index) => (
                                 <div
                                     key={booking.appointmentId}
                                     className={`booking-card ${selectedAppointmentId === booking.appointmentId ? 'selected' : ''}`}
@@ -109,431 +120,220 @@ export const HistoryBooking = () => {
                                 >
                                     <div className="card-header">
                                         <div className="header-content">
-                                            <div className="flex items-center gap-4">
-                                                <div className="index-circle">{index + 1}</div>
-                                                <div className="service-info">
-                                                    <h3 className="service-name">{booking.serviceName}</h3>
-                                                    <span className="service-type">{booking.typeService}</span>
-                                                </div>
+                                            <div className="service-info">
+                                                <span className="index-circle">{index + 1}</span>
+                                                <h3 className="service-name">{booking.serviceName}</h3>
+                                                <span className="service-type">{booking.typeService}</span>
                                             </div>
-                                            <div className="flex flex-col items-end gap-2">
+                                            <div className="status-info">
                                                 <span className={`status ${booking.status ? 'paid' : 'unpaid'}`}>
                                                     {booking.curentStatusAppointment || (booking.status ? "Đã thanh toán" : "Chưa thanh toán")}
                                                 </span>
-                                                <div className="toggle-details">
+                                                <span className="toggle-details">
                                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                                                     </svg>
-                                                    Xem chi tiết
-                                                </div>
+                                                </span>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div className="card-body">
-                                        <div className="details-grid">
-                                            <div className="detail-item">
-                                                <div className="detail-icon customer">
-                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <p className="detail-label">Khách hàng</p>
-                                                    <p className="detail-value">{booking.customerName}</p>
-                                                </div>
-                                            </div>
-                                            <div className="detail-item">
-                                                <div className="detail-icon date">
-                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <p className="detail-label">Ngày lấy mẫu</p>
-                                                    <p className="detail-value">{formatDate(booking.dateCollect)}</p>
-                                                </div>
-                                            </div>
-                                            <div className="detail-item">
-                                                <div className="detail-icon location">
-                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <p className="detail-label">Địa điểm</p>
-                                                    <p className="detail-value">{booking.location}</p>
-                                                </div>
-                                            </div>
-                                            <div className="detail-item">
-                                                <div className="detail-icon email">
-                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <p className="detail-label">Email</p>
-                                                    <p className="detail-value">{booking.emailAppointment}</p>
-                                                </div>
-                                            </div>
-                                            <div className="detail-item">
-                                                <div className="detail-icon phone">
-                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <p className="detail-label">Số điện thoại</p>
-                                                    <p className="detail-value">{booking.phoneAppointment}</p>
-                                                </div>
-                                            </div>
-                                            <div className="detail-item">
-                                                <div className="detail-icon note">
-                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <p className="detail-label">Ghi chú</p>
-                                                    <p className="detail-value">{booking.note || 'Không có'}</p>
-                                                </div>
-
-
-
-
-
-                                            </div>
-                                            <div style={{ display: "flex" }}>   {booking.cancomment && (
-                                                <a href={`/service/${booking.serviceId}`} className="comment-button">
-                                                    Comment
-                                                </a>
-                                            )}
-                                                {booking.canconfirm?.canConfirmHardResult
-
-                                                    && (
-
-                                                        <button
-                                                            className="comment-button"
-                                                            onClick={(e) => {
-                                                                setShowUploadForm(booking)
-                                                            }}
-                                                        >
-                                                            {booking.canconfirm.nextStatus}
-                                                        </button>
-
-
-                                                    )}
-
-                                                {showUploadForm && (
-                                                    <div className="overlay-upload">
-                                                        <div className="upload-box" onClick={(e) => e.stopPropagation()}>
-                                                            <label>Upload Image Confirm</label>
-                                                            <input
-                                                                type="file"
-                                                                accept="image/*"
-                                                                required
-                                                                onChange={(e) => setImageFile(e.target.files[0])}
-                                                            />
-                                                            <button onClick={() => {
-                                                                if (!imageFile) return alert("Please select an image.");
-                                                                const formData = new FormData();
-                                                                console.log(showUploadForm)
-                                                                const update = {
-                                                                    statusName: showUploadForm.canconfirm.nextStatus,
-                                                                    hardresultID: showUploadForm.result[0].hardresultID
-
-                                                                }
-                                                                formData.append("hardresult", new Blob([JSON.stringify(update)], { type: "application/json" }))
-                                                                formData.append("file", imageFile)
-                                                                UpdateHardResult(formData).then((responsne) => {
-                                                                    console.log("Update Sucessfully", responsne.data)
-                                                                    window.location.reload();
-
-                                                                }).catch((error) => {
-                                                                    console.log("error", error)
-                                                                })
-
-                                                                setShowUploadForm(false);
-                                                            }}>
-                                                                Upload
-                                                            </button>
-                                                        </div>
-
-
-                                                    </div>
-                                                )}
-                                            </div>
-
-
+                                        <div className="date-info">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            <span>{formatDate(booking.dateCollect)}</span>
+                                        </div>
+                                        <div className="detail-item">
+                                            <span className="detail-label">Kết luận:</span>
+                                            <span className="detail-value">{booking.result[0]?.conclustionResult || 'Chưa có kết quả'}</span>
                                         </div>
                                     </div>
                                     {selectedAppointmentId === booking.appointmentId && (
-                                        <div className="expanded-details">
+                                        <div className="card-body">
+                                            <div className="details-grid">
+                                                <div className="detail-item">
+                                                    <span className="detail-label">Khách hàng:</span>
+                                                    <span className="detail-value">{booking.customerName}</span>
+                                                </div>
+                                                <div className="detail-item">
+                                                    <span className="detail-label">Địa điểm:</span>
+                                                    <span className="detail-value">{booking.location}</span>
+                                                </div>
+                                                <div className="detail-item">
+                                                    <span className="detail-label">Email:</span>
+                                                    <span className="detail-value">{booking.emailAppointment}</span>
+                                                </div>
+                                                <div className="detail-item">
+                                                    <span className="detail-label">Số điện thoại:</span>
+                                                    <span className="detail-value">{booking.phoneAppointment}</span>
+                                                </div>
+                                                <div className="detail-item">
+                                                    <span className="detail-label">Ghi chú:</span>
+                                                    <span className="detail-value">{booking.note || 'Không có'}</span>
+                                                </div>
+                                                <div className="detail-item">
+                                                    {booking.cancomment && (
+                                                        <a href={`/service/${booking.serviceId}`} className="comment-button">
+                                                            Comment
+                                                        </a>
+                                                    )}
+                                                    {booking.canconfirm?.canConfirmHardResult && (
+                                                        <button
+                                                            className="comment-button"
+                                                            onClick={() => setShowUploadForm(booking)}
+                                                        >
+                                                            {booking.canconfirm.nextStatus}
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
                                             {!booking.status && rolename === "CUSTOMER" && booking.curentStatusAppointment === "COMPLETE" ? (
                                                 <div className="payment-warning">
-                                                    <div className="warning-content">
-                                                        <div className="warning-icon">
-                                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                                                            </svg>
-                                                        </div>
-                                                        <div>
-                                                            <h4 className="warning-title">Cần thanh toán</h4>
-                                                            <p className="warning-text">Vui lòng thanh toán để hoàn tất quy trình.</p>
-                                                            <button
-                                                                onClick={() => handleVnpay(booking.appointmentId)}
-                                                                className="vnpay-button"
-                                                            >
-                                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                                                                </svg>
-                                                                Thanh toán bằng VNPay
-                                                            </button>
-                                                        </div>
+                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                                    </svg>
+                                                    <div>
+                                                        <h4>Cần thanh toán</h4>
+                                                        <p>Vui lòng thanh toán để hoàn tất quy trình.</p>
+                                                        <button onClick={() => handleVnpay(booking.appointmentId)} className="vnpay-button">
+                                                            Thanh toán bằng VNPay
+                                                        </button>
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <div className="space-y-6">
-                                                    <div className="payment-method">
-                                                        <div className="method-header">
-                                                            <div className="method-icon">
-                                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                                                                </svg>
-                                                            </div>
-                                                            <h4 className="method-title">Phương thức thanh toán</h4>
-                                                        </div>
-
-                                                        <p style={{ display: "flex", justifyContent: "center" }} >
-
-
-
-                                                            {booking.paymentMethod === 'Cash' || booking.paymentMethod === 'VNPay' ? (
-                                                                <img src={booking.paymentMethod === 'VNPay' ? "https://s-vnba-cdn.aicms.vn/vnba-media/23/8/16/vnpay-logo_64dc3da9d7a11.jpg" : "https://www.creativefabrica.com/wp-content/uploads/2021/09/15/Money-finance-cash-payment-icon-Graphics-17346742-1.jpg"} alt={booking.paymentMethod} style={{ maxWidth: '150px' }} />
-
-                                                            ) : (
-                                                                <span className="method-value">{booking.paymentMethod}</span>
-                                                            )}
-                                                        </p>
-                                                        <p style={{ display: "flex", justifyContent: "center", color: "orangered", fontSize: "20px" }}> {booking.paymentAmount.toLocaleString('vi-VN')} VND</p>
-                                                    </div>
-                                                    <div className="tracking-grid">
-                                                        <div className="tracking-section">
-                                                            <div className="tracking-header">
-                                                                <div className="tracking-icon appointment">
-                                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                                                    </svg>
-                                                                </div>
-                                                                <h4 className="tracking-title">Tiến trình lịch hẹn</h4>
-                                                            </div>
-                                                            {booking.tracking && booking.tracking.length > 0 ? (
-                                                                <div className="space-y-4">
-                                                                    {booking.tracking.map((item, index) => (
-                                                                        <div key={index} className="tracking-item">
-                                                                            <div className="status-dot appointment"></div>
-                                                                            <div className="status-content">
-                                                                                <p className="status-name">{item.statusName}</p>
-                                                                                <p className="status-date">{formatDate(item.statusDate)}</p>
-                                                                                {item.imageUrl && (
-                                                                                    <img
-                                                                                        src={item.imageUrl}
-                                                                                        alt={`Tracking ${index}`}
-                                                                                        className="tracking-image"
-                                                                                    />
-                                                                                )}
-                                                                            </div>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
-                                                            ) : (
-                                                                <div className="no-tracking">
-                                                                    <div className="icon-container">
-                                                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                                        </svg>
-                                                                    </div>
-                                                                    <p>Không có dữ liệu tiến trình</p>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                        <div className="tracking-section">
-                                                            <div className="tracking-header">
-                                                                <div className="tracking-icon sample">
-                                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                                                                    </svg>
-                                                                </div>
-                                                                <h4 className="tracking-title">Tiến trình xử lý mẫu</h4>
-                                                            </div>
-                                                            {booking.trackingSample && booking.trackingSample.length > 0 ? (
-                                                                <div className="space-y-4">
-                                                                    {booking.trackingSample.map((item, index) => (
-                                                                        <div key={index} className="tracking-item">
-                                                                            <div className="status-dot sample"></div>
-                                                                            <div className="status-content">
-                                                                                <p className="status-name">{item.nameStatus}</p>
-                                                                                <p className="status-date">{formatDate(item.sampleTrackingTime)}</p>
-                                                                                {item.imageUrl && (
-                                                                                    <img
-                                                                                        src={item.imageUrl}
-                                                                                        alt={`Tracking ${index}`}
-                                                                                        className="tracking-image"
-                                                                                    />
-                                                                                )}
-                                                                            </div>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
-                                                            ) : (
-                                                                <div className="no-tracking">
-                                                                    <div className="icon-container">
-                                                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                                        </svg>
-                                                                    </div>
-                                                                    <p>Không có dữ liệu tiến trình mẫu</p>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                        <div className="tracking-section">
-                                                            <div className="tracking-header">
-                                                                <div className="tracking-icon result">
-                                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                                    </svg>
-                                                                </div>
-                                                                <h4 className="tracking-title">Kết quả xét nghiệm</h4>
-                                                            </div>
-                                                            {booking.result && booking.result.length > 0 ? (
-                                                                <div className="space-y-4">
-                                                                    {booking.result.map((res, idx) => (
-                                                                        <div key={idx} className="tracking-item">
-                                                                            <div className="status-dot result"></div>
-                                                                            <div className="status-content full-width">
-                                                                                <p className="status-name"><strong>Người lấy mẫu:</strong> {res.nameOfPerson}</p>
-                                                                                {res.relationName && (
-
-                                                                                    <p className="status-name"><strong>Quan hệ:</strong> {res.relationName}</p>
-                                                                                )}
-
-                                                                                <p className="status-name"><strong>Mã mẫu:</strong> {res.samplecode}</p>
-                                                                                {res.relationName && (
-
-                                                                                    <p className="status-name"><strong>Kết luận:</strong> {res.conclustionResult}</p>
-                                                                                )}
-                                                                                <p className="status-date"><strong>Có kết quả:</strong> {formatDate(res.resultTime)}</p>
-                                                                                {res.resulFilePDF && (
-                                                                                    <div className="mt-33 w-full">
-                                                                                        <img style={{ maxWidth: '800px' }}
-                                                                                            src={res.resulFilePDF}
-
-                                                                                            alt="Kết quả PDF"
-                                                                                            className="tracking-image result-image w-full"
-                                                                                        />
-                                                                                        <div>
-                                                                                            <a
-                                                                                                href={res.resulFilePDF.replace('/upload/', '/upload/fl_attachment/')}
-                                                                                                className="download-button"
-                                                                                            >
-                                                                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="inline-block w-5 h-5 mr-2">
-                                                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                                                                                </svg>
-                                                                                                Tải xuống
-                                                                                            </a>
-
-
-                                                                                        </div>
-                                                                                    </div>
-                                                                                )}
-
-
-
-                                                                            </div>
-
-                                                                        </div>
-
-                                                                    ))}
-                                                                    {rolename === "CUSTOMER" && booking.result[0].hardresultID === null && (
-
-                                                                        <button
-                                                                            className="receive-hard-result-btn"
-                                                                            onClick={(e) => {
-                                                                                e.stopPropagation(); // Ngăn sự kiện lan truyền lên các phần tử cha
-                                                                                setCreateHardResult(true);
-                                                                            }}
-                                                                        >
-                                                                            Receive Hard Result
-                                                                        </button>
-
-
-                                                                    )}
-
-                                                                    <HardResultModal
-                                                                        isOpen={createHardResult}
-                                                                        onClose={() => { setCreateHardResult(false) }}
-                                                                        resultlist={booking.result}></HardResultModal>
-
-                                                                </div>
-                                                            ) : (
-                                                                <div className="no-tracking">
-                                                                    <div className="icon-container">
-                                                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                                        </svg>
-                                                                    </div>
-                                                                    <p>Chưa có kết quả.</p>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                        <div className="tracking-section">
-                                                            <div className="tracking-header">
-                                                                <div className="tracking-icon sample">
-                                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                                                                    </svg>
-                                                                </div>
-                                                                <h4 className="tracking-title">Tiến trình xử lý kết quả</h4>
-                                                            </div>
-                                                            {booking.trackingReuslt && booking.trackingReuslt.length > 0 ? (
-                                                                <div className="space-y-4">
-                                                                    {booking.trackingReuslt.map((item, index) => (
-                                                                        <div key={index} className="tracking-item">
-                                                                            <div className="status-dot sample"></div>
-                                                                            <div className="status-content">
-                                                                                <p className="status-name">{item.statusName}</p>
-                                                                                <p className="status-date">{formatDate(item.trackingdate)}</p>
-                                                                                {item.imgUrl && (
-                                                                                    <img
-                                                                                        src={item.imgUrl}
-                                                                                        alt={`Tracking ${index}`}
-                                                                                        className="tracking-image"
-                                                                                    />
-                                                                                )}
-                                                                            </div>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
-                                                            ) : (
-                                                                <div className="no-tracking">
-                                                                    <div className="icon-container">
-                                                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                                        </svg>
-                                                                    </div>
-                                                                    <p>Không có dữ liệu tiến trình Result</p>
-                                                                </div>
-                                                            )}
-                                                        </div>
-
-
-                                                    </div>
+                                                <div className="payment-info">
+                                                    <h4>Phương thức thanh toán</h4>
+                                                    <p>
+                                                        {booking.paymentMethod === 'VNPay' ? (
+                                                            <img src="https://s-vnba-cdn.aicms.vn/vnba-media/23/8/16/vnpay-logo_64dc3da9d7a11.jpg" alt="VNPay" className="payment-logo" />
+                                                        ) : booking.paymentMethod === 'Cash' ? (
+                                                            <img src="https://www.creativefabrica.com/wp-content/uploads/2021/09/15/Money-finance-cash-payment-icon-Graphics-17346742-1.jpg" alt="Cash" className="payment-logo" />
+                                                        ) : (
+                                                            booking.paymentMethod
+                                                        )}
+                                                    </p>
+                                                    <p className="payment-amount">{booking.paymentAmount?.toLocaleString('vi-VN')} VNĐ</p>
                                                 </div>
                                             )}
+                                            <div className="tracking-grid">
+                                                <div className="tracking-section">
+                                                    <h4>Tiến trình lịch hẹn</h4>
+                                                    {booking.tracking?.length > 0 ? (
+                                                        booking.tracking.map((track, idx) => (
+                                                            <div key={idx} className="tracking-item">
+                                                                <span className="status-dot appointment" />
+                                                                <div>
+                                                                    <p>{track.statusName}</p>
+                                                                    <span>{formatDate(track.statusDate)}</span>
+                                                                    {track.imageUrl && <img src={track.imageUrl} alt="Track" className="tracking-image" />}
+                                                                </div>
+                                                            </div>
+                                                        ))
+                                                    ) : (
+                                                        <p>Không có dữ liệu.</p>
+                                                    )}
+                                                </div>
+                                                <div className="tracking-section">
+                                                    <h4>Tiến trình xử lý mẫu</h4>
+                                                    {booking.trackingSample?.length > 0 ? (
+                                                        booking.trackingSample.map((track, idx) => (
+                                                            <div key={idx} className="tracking-item">
+                                                                <span className="status-dot sample" />
+                                                                <div>
+                                                                    <p>{track.nameStatus}</p>
+                                                                    <span>{formatDate(track.sampleTrackingTime)}</span>
+                                                                    {track.imageUrl && <img src={track.imageUrl} alt="Track" className="tracking-image" />}
+                                                                </div>
+                                                            </div>
+                                                        ))
+                                                    ) : (
+                                                        <p>Không có dữ liệu.</p>
+                                                    )}
+                                                </div>
+                                                <div className="tracking-section">
+                                                    <h4>Kết quả xét nghiệm</h4>
+                                                    {booking.result?.length > 0 ? (
+                                                        booking.result.map((res, idx) => (
+                                                            <div key={idx} className="tracking-item">
+                                                                <span className="status-dot result" />
+                                                                <div>
+                                                                    <p><strong>Người lấy mẫu:</strong> {res.nameOfPerson}</p>
+                                                                    {res.relationName && <p><strong>Quan hệ:</strong> {res.relationName}</p>}
+                                                                    <p><strong>Mã mẫu:</strong> {res.samplecode}</p>
+                                                                    {res.conclustionResult && <p><strong>Kết luận:</strong> {res.conclustionResult}</p>}
+                                                                    <p><strong>Có kết quả:</strong> {formatDate(res.resultTime)}</p>
+                                                                    {res.resulFilePDF && (
+                                                                        <>
+                                                                            <img src={res.resulFilePDF} alt="Kết quả PDF" className="result-image" />
+                                                                            <a href={res.resulFilePDF.replace('/upload/', '/upload/fl_attachment/')} className="download-button">
+                                                                                Tải xuống
+                                                                            </a>
+                                                                        </>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        ))
+                                                    ) : (
+                                                        <p>Chưa có kết quả.</p>
+                                                    )}
+                                                    {rolename === "CUSTOMER" && booking.result[0]?.hardresultID === null && (
+                                                        <button
+                                                            className="receive-hard-result-btn"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setCreateHardResult(true);
+                                                            }}
+                                                        >
+                                                            Receive Hard Result
+                                                        </button>
+                                                    )}
+                                                    <HardResultModal
+                                                        isOpen={createHardResult}
+                                                        onClose={() => setCreateHardResult(false)}
+                                                        resultlist={booking.result}
+                                                    />
+                                                </div>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
                             ))}
+                        </div>
+                    )}
+                    {showUploadForm && (
+                        <div className="overlay-upload">
+                            <div className="upload-box">
+                                <h3>Upload Image Confirm</h3>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    required
+                                    onChange={(e) => setImageFile(e.target.files[0])}
+                                    className="upload-input"
+                                />
+                                <button
+                                    onClick={() => {
+                                        if (!imageFile) return alert("Vui lòng chọn ảnh.");
+                                        const formData = new FormData();
+                                        const update = {
+                                            statusName: showUploadForm.canconfirm.nextStatus,
+                                            hardresultID: showUploadForm.result[0].hardresultID
+                                        };
+                                        formData.append("hardresult", new Blob([JSON.stringify(update)], { type: "application/json" }));
+                                        formData.append("file", imageFile);
+                                        UpdateHardResult(formData)
+                                            .then(() => {
+                                                window.location.reload();
+                                            })
+                                            .catch((error) => {
+                                                console.error("Error:", error);
+                                            });
+                                        setShowUploadForm(false);
+                                    }}
+                                    className="upload-button"
+                                >
+                                    Upload
+                                </button>
+                            </div>
                         </div>
                     )}
                 </main>
