@@ -78,7 +78,7 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
                 WHERE s.cureStatusSample IS NULL
             )
         )
-        AND a.curentStatusAppointment NOT IN ('CANCLE', 'COMPLETE', 'REFUNDED')
+        AND a.curentStatusAppointment NOT IN ('CANCLE', 'COMPLETE', 'REFUNDED','WAITING FOR PAYMENT')
         order by a.dateCollect desc 
 """)
     Page<Appointment> findForMangerAssign(Pageable pageable);

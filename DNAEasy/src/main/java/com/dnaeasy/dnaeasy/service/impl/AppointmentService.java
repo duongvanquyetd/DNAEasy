@@ -70,10 +70,11 @@ public class AppointmentService implements IsAppointmentService {
     @Autowired
     IsSystemConfigRepo isSystemConfigRepo;
     @Autowired
-
     UserMapper userMapper;
     @Autowired
     IsPaymentResponsitory isPaymentResponsitory;
+    @Autowired
+    NotificationService notificationService;
 
 
     @Override
@@ -432,7 +433,7 @@ public class AppointmentService implements IsAppointmentService {
     public Page<AppointmentResponse> getAppointmnetForMangerShiftStaff(Pageable pageable) {
         Page<Appointment> appointments = isAppointmentResponsitory.findForMangerAssign(pageable);
 
-        List<AppointmentResponse> appointmentResponseList = new ArrayList<>();
+
         return appointments.map(appointmentMapper::AppointmentCreateResponse);
     }
 
@@ -444,15 +445,23 @@ public class AppointmentService implements IsAppointmentService {
         });
         Person staff = isUserResponsity.findByPersonId(request.getPersonId());
         a.setStaff(staff);
-        if(staff != null) // chuc nang huy assign staff
+        if (staff != null) // chuc nang huy assign staff
         {
+//notification
+            String code = "";
+            for(Sample s : a.getSampelist())
+            {
+                code+=s.getSamplecode()+"-";
+            }
+
+            notificationService.createNotification(staff, "You have appointment at " + a.getDateCollect() + "  in " + a.getLocation() + "(" + a.getTypeCollect() + "). "+" Let prepare "+a.getService().getSample_count()+" .kit test with sample code is "+code.substring(0, code.length()-1));
+
+//notification
             staff.getAppointmentList().add(a);
             isUserResponsity.save(staff);
-        }
-        else {
+        } else {
             isAppointmentResponsitory.save(a);
         }
-
 
 
         return appointmentMapper.AppointmentCreateResponse(a);
@@ -466,13 +475,11 @@ public class AppointmentService implements IsAppointmentService {
         LocalDateTime startDay = day.atStartOfDay();
         LocalDateTime endDay = startDay.plusDays(1);
         Page<Person> list = null;
-        if(keyword == null || keyword.trim().isEmpty())
-        {
-            list  = isUserResponsity.findStaffByWorkHour(startDay, endDay, Work_hour(a.getDateCollect()), pageable);
+        if (keyword == null || keyword.trim().isEmpty()) {
+            list = isUserResponsity.findStaffByWorkHour(startDay, endDay, Work_hour(a.getDateCollect()), pageable);
 
-        }else
-        {
-            list = isUserResponsity.findStaffByWorkHourWithKeyWord(startDay,endDay,Work_hour(a.getDateCollect()),pageable,keyword);
+        } else {
+            list = isUserResponsity.findStaffByWorkHourWithKeyWord(startDay, endDay, Work_hour(a.getDateCollect()), pageable, keyword);
         }
         return list.map(userMapper::PersonToStaffResponse);
     }
@@ -509,9 +516,9 @@ public class AppointmentService implements IsAppointmentService {
 
         int totalAppointment = isAppointmentResponsitory.countCompletedAppointmentsToday(start, end);
 
-        BigDecimal revenue = isPaymentResponsitory.getTodayRevenueToday(start,end);
-        Map<String,SummaryTodayResponse> summary = new HashMap<>();
-        SummaryTodayResponse today = new SummaryTodayResponse(revenue,totalAppointment);
+        BigDecimal revenue = isPaymentResponsitory.getTodayRevenueToday(start, end);
+        Map<String, SummaryTodayResponse> summary = new HashMap<>();
+        SummaryTodayResponse today = new SummaryTodayResponse(revenue, totalAppointment);
 
         summary.put("hôm nay", today);
         return summary;
@@ -523,28 +530,28 @@ public class AppointmentService implements IsAppointmentService {
         LocalDateTime start;
         LocalDateTime end;
 
-        if(request.getDate() != null){
+        if (request.getDate() != null) {
             start = request.getDate().atStartOfDay();
-            end = request.getDate().atTime(23,59,59);
+            end = request.getDate().atTime(23, 59, 59);
         } else if (request.getMonth() != null && request.getYear() != null) {
             LocalDate first = LocalDate.of(request.getYear(), request.getMonth(), 1);
             LocalDate last = first.withDayOfMonth(first.lengthOfMonth());
             start = first.atStartOfDay();
             end = last.atTime(23, 59, 59);
-        }else if (request.getYear() != null) {
+        } else if (request.getYear() != null) {
             LocalDate firstDay = LocalDate.of(request.getYear(), 1, 1);
             LocalDate lastDay = LocalDate.of(request.getYear(), 12, 31);
             start = firstDay.atStartOfDay();
             end = lastDay.atTime(23, 59, 59);
-        } else{
+        } else {
             throw new IllegalArgumentException("You have to chose date or month or year!!!");
         }
 
 
         int totalBills = isAppointmentResponsitory.countCompletedAppointmentsToday(start, end);
-        BigDecimal revenue = isPaymentResponsitory.getTodayRevenueToday(start,end);
-        if(revenue==null) revenue=BigDecimal.ZERO;
-        return new StaticReponse(totalBills,revenue);
+        BigDecimal revenue = isPaymentResponsitory.getTodayRevenueToday(start, end);
+        if (revenue == null) revenue = BigDecimal.ZERO;
+        return new StaticReponse(totalBills, revenue);
     }
 
 

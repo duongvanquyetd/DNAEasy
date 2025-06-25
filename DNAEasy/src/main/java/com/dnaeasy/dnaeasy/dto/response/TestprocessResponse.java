@@ -1,5 +1,6 @@
 package com.dnaeasy.dnaeasy.dto.response;
 
+import com.dnaeasy.dnaeasy.enums.RoleName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,4 +12,5 @@ public class TestprocessResponse {
     private boolean isallowCofirmation;
     private String nextStatus;
     private String formfor;
+    private RoleName role;
 }
