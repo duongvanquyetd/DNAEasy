@@ -237,7 +237,7 @@ export const AssignStaff = () => {
                 <input
                   type="text"
                   className="search-input"
-                  placeholder="Search by name..."
+                  placeholder="Search by name or address..."
                   value={searchKey}
                   onChange={(e) => {
                     setSearchKey(e.target.value);
