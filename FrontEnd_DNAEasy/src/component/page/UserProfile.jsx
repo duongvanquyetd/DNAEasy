@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../Header.jsx';
+import HeaderManager from '../HeaderManager.jsx';
 import Footer from '../Footer.jsx';
 import backgroundImage from '../image/background/background.jpg';
 import '../css/UserProfile.css';
@@ -10,7 +11,7 @@ const UserProfile = () => {
   const [address, setAddress] = useState([]);
   const [user, setUser] = useState('');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error] = useState(null);
   const navigater = useNavigate();
   useEffect(() => {
     GetMyInfor().then((response) => {
@@ -33,7 +34,7 @@ const UserProfile = () => {
   };
 
   if (loading) {
-    return (
+    return (   
       <div className="page">
         <Header />
         <main className="main">
@@ -60,7 +61,7 @@ const UserProfile = () => {
   if (error) {
     return (
       <div className="page">
-        <Header />
+        {user && user.rolename === 'MANAGER' ? <HeaderManager /> : <Header />}
         <main className="main">
           <div className="profile-container">
             <div className="profile-title">Error</div>
@@ -76,10 +77,9 @@ const UserProfile = () => {
 
   return (
     <div className="page">
-      <Header />
+         {user.rolename && user.rolename.toLowerCase() === 'manager' ? <HeaderManager /> : <Header />}
       <main className="main" style={{ backgroundImage: `url(${backgroundImage})` }}>
         <div className="profile-container">
-
           <div className="avatar"><img style={{ width: "100%" }} src={user.avatarUrl} ></img></div>
           <div className="detail">Detail</div>
           <div className="field">
