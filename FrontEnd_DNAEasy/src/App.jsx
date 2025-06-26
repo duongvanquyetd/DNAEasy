@@ -42,7 +42,7 @@ function App() {
         <Route path="/HistoryBooking" element={<HistoryBooking />} />
         <Route path="/AdminDashboard" element={<AdminDashboard />} />
         <Route path="/ManageBlog" element={<ManageBlog />} />
-        <Route path="/ManagerService" element={<ManageService />} />
+        <Route path="/ManageService" element={<ManageService />} />
         <Route path="/assign-staff" element={<AssignStaff />} />
        
         <Route path="*" element={<div>404 - Page Not Found</div>} />
