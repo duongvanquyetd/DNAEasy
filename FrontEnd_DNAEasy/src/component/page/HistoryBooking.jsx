@@ -12,19 +12,25 @@ import { CanConfirm, UpdateHardResult } from '../../service/hardresult.js';
 export const HistoryBooking = () => {
     const [historyBooking, setHistoryBooking] = useState([]);
     const [filteredBookings, setFilteredBookings] = useState([]);
-    const [searchQuery, setSearchQuery] = useState('');
+ 
     const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
     const rolename = localStorage.getItem('rolename') || null;
     const [createHardResult, setCreateHardResult] = useState(false);
     const [showUploadForm, setShowUploadForm] = useState(false);
     const [imageFile, setImageFile] = useState(null);
-
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 2;// maii mot sua thanh 5 booking 1 trang
+    const [totalPages, setTotalPages] = useState(0);
+    const [keysearch, setkeysearch] = useState('');
     useEffect(() => {
         const fetchHistoryBooking = async () => {
             try {
-                const appointmentData = await GetHistoryAppointment();
+                const response = await GetHistoryAppointment(currentPage,pageSize,keysearch);
+                const appointmentData = response.data.content;
+                console.log("Response data",response.data)
+                setTotalPages(response.data.totalPages)
                 const fullAppointments = await Promise.all(
-                    appointmentData.data.map(async (appointment) => {
+                    appointmentData.map(async (appointment) => {
                         const [result, status, cancomment] = await Promise.all([
                             GetResultByAppointmentId({ appoinmentId: appointment.appointmentId }),
                             GetPaymentStatus(appointment.appointmentId),
@@ -51,16 +57,16 @@ export const HistoryBooking = () => {
             }
         };
         fetchHistoryBooking();
-    }, []);
+    }, [currentPage,keysearch]);
 
-    useEffect(() => {
-        const filtered = historyBooking.filter(booking =>
-            booking.serviceName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            booking.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            booking.appointmentId.toString().includes(searchQuery)
-        );
-        setFilteredBookings(filtered);
-    }, [searchQuery, historyBooking]);
+    // useEffect(() => {
+    //     const filtered = historyBooking.filter(booking =>
+    //         booking.serviceName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    //         booking.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    //         booking.appointmentId.toString().includes(searchQuery)
+    //     );
+    //     setFilteredBookings(filtered);
+    // }, [searchQuery, historyBooking]);
 
     const handleVnpay = (appointmentId) => {
         PayToview(appointmentId)
@@ -74,7 +80,19 @@ export const HistoryBooking = () => {
     };
 
     const formatDate = (date) => new Date(date).toLocaleString();
-
+    const renderPagination = (total, current, setPage) => (
+        <div className="pagination">
+            {Array.from({ length: total }, (_, i) => i + 1).map((i) => (
+                <button
+                    key={i}
+                    className={`page-button ${i === current ? 'active' : ''}`}
+                    onClick={() => setPage(i)}
+                >
+                    {i}
+                </button>
+            ))}
+        </div>
+    );
     return (
         <>
             <Header />
@@ -86,17 +104,34 @@ export const HistoryBooking = () => {
                     </div>
                 </header>
                 <main className="main-container">
-                    <div className="search-container">
-                        <input
-                            type="text"
-                            placeholder="Tìm kiếm theo dịch vụ, khách hàng hoặc mã lịch hẹn..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="search-input"
-                        />
-                        <svg className="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
+                    <div className='search-bar-wrapper'>
+                        <form
+                            className="search-bar-form"
+                            onSubmit={e => {
+                                e.preventDefault();
+                                setCurrentPage(1);
+                            }}
+                        >
+                            <input
+                                type="text"
+                                placeholder="Tìm kiếm lịch hẹn..."
+                                value={keysearch}
+                                onChange={e => {
+                                    setkeysearch(e.target.value);
+                                    setCurrentPage(1);
+                                }}
+                                className="search-input"
+                            />
+                            <button type="submit" className="searchBtn">
+                                <span className="search-icon" aria-hidden="true">
+                                    <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                                        <circle cx="11" cy="11" r="8" />
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                    </svg>
+                                </span>
+                                Tìm kiếm
+                            </button>
+                        </form>
                     </div>
                     {filteredBookings.length === 0 ? (
                         <div className="no-bookings">
@@ -337,6 +372,7 @@ export const HistoryBooking = () => {
                         </div>
                     )}
                 </main>
+                {renderPagination(totalPages, currentPage, setCurrentPage)}
             </div>
             <Footer />
         </>

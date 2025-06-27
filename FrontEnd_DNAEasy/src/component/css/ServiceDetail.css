@@ -888,3 +888,23 @@
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
 }
 
+/* Add to ServiceDetail.css */
+.detail-star-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.detail-star-inline .star {
+  color: #e5e7eb;
+  font-size: 1.5rem;
+  margin-right: 2px;
+}
+.detail-star-inline .star.filled {
+  color: #f59e0b;
+}
+.detail-star-inline .feedback-count {
+  color: #64748b;
+  font-size: 1.1rem;
+  margin-left: 8px;
+  font-weight: 500;
+}

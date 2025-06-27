@@ -130,6 +130,7 @@ const Footer = () => {
                 {index < 2 && <span style={styles.separator}>•</span>}
               </React.Fragment>
             ))}
+            
           </div>
         </div>
       </div>

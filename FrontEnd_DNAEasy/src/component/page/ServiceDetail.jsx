@@ -6,13 +6,13 @@ import Header from '../Header';
 import Footer from '../Footer';
 import '../css/ServiceDetail.css';
 import { GetFeedbacksByServiceId, AddFeedback } from '../../service/mockFeedbackAPI';
-import { getServiceById } from '../../service/service';
+import { getServiceById, ServiceReportCommnent } from '../../service/service';
 import { CanComment, createComment, getCommentsByServiceId } from '../../service/Comment';
 
 
 
 
- const FeedbackImages = ({ feedback }) => {
+const FeedbackImages = ({ feedback }) => {
   const [selectedImg, setSelectedImg] = useState(null);
 
   return (
@@ -234,7 +234,10 @@ const ServiceDetail = () => {
     technology: "Illumina Global Screening Array",
     coverage: "Whole genome analysis"
   }
-
+  const [serviceReport, setServiceReport] = useState({
+    numberOfStar: 0,
+    numberOfCommnent: 0
+  })
 
   useEffect(() => {
     const fetchService = async () => {
@@ -247,7 +250,16 @@ const ServiceDetail = () => {
         } else {
           setCanComment(false);
         }
+        ServiceReportCommnent(serviceId).then((response) => {
+          console.log("Service Comment Report", response.data)
+          setServiceReport({
+            numberOfStar: response.data.star,
+            numberOfCommnent: response.data.numberFeedback
+          })
 
+        }).catch((eror) => {
+          console.log("Eror", eror)
+        })
 
         const response = await getServiceById(serviceId);
         console.log('Fetched service:', response.data); // Log the fetched data for debugging
@@ -256,6 +268,8 @@ const ServiceDetail = () => {
         }
         setService(response.data);
         setError(null);
+
+
       } catch (error) {
         console.error('Error fetching service:', error);
         setError('Failed to load service details. Please try again later.');
@@ -330,14 +344,14 @@ const ServiceDetail = () => {
         commentContent: newFeedback.comment,
         rating: newFeedback.rating,
       };
-     console.log('Feedback data:', feedbackData);
-     console.log('File array:', fileArray);
+      console.log('Feedback data:', feedbackData);
+      console.log('File array:', fileArray);
       formdata.append('comment', new Blob([JSON.stringify(feedbackData)], { type: 'application/json' }));
 
       fileArray.forEach((file) => {
         formdata.append("file", file);
       });
-     
+
       createComment(formdata).then((response) => {
         console.log('Feedback submitted successfully:', response.data);
         window.location.reload(); // Reload the page to fetch new feedbacks
@@ -419,10 +433,26 @@ const ServiceDetail = () => {
                       fontWeight: "bold",
                       color: "#1e40af",
                       marginBottom: "16px",
-                      lineHeight: "1.2"
+                      lineHeight: "1.2",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "16px"
                     }}
                   >
                     {service.serviceName}
+                    <span className="detail-star-inline">
+                      {Array.from({ length: 5 }).map((_, idx) => (
+                        <span
+                          key={idx}
+                          className={`star${idx < serviceReport.numberOfStar ? " filled" : ""}`}
+                        >
+                          ★
+                        </span>
+                      ))}
+                      <span className="feedback-count">
+                        ({serviceReport.numberOfCommnent})
+                      </span>
+                    </span>
                   </h1>
                   {/* <p
                     style={{
@@ -603,7 +633,7 @@ const ServiceDetail = () => {
                         type="file"
                         accept="image/*"
                         multiple
-                        
+
                         onChange={handleImageChange}
                       />
                     </div>
@@ -688,7 +718,7 @@ const ServiceDetail = () => {
                       </div>
                     ))}
 
-                   
+
                   </div>
                 )}
               </div>

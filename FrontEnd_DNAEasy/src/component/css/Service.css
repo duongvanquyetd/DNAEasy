@@ -496,3 +496,99 @@
   margin: 10px 0 5px;
   text-align: center;
 }
+
+.sortSection {
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.sortOptions {
+  display: flex;
+  gap: 10px;
+}
+
+.sortBtn {
+  background-color: #f1f1f1;
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sortBtn:hover {
+  background-color: #ddd;
+}
+
+.sortBtn.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+/* Add to ServiceDetail.css */
+.detail-star-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+.detail-star-inline .star {
+  color: #e5e7eb;
+  font-size: 1.5rem;
+  margin-right: 2px;
+}
+.detail-star-inline .star.filled {
+  color: #f59e0b;
+}
+.detail-star-inline .feedback-count {
+  color: #64748b;
+  font-size: 1.1rem;
+  margin-left: 8px;
+  font-weight: 500;
+}
+.sortSection {
+  margin: 20px 0 0 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: #fff;
+  padding: 18px 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #2563eb11;
+}
+
+.sortLabel {
+  color: #2563eb;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.sortOptions {
+  display: flex;
+  gap: 10px;
+}
+
+.sortBtn {
+  background-color: #f1f5ff;
+  border: 1.5px solid #2563eb33;
+  padding: 7px 18px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #2563eb;
+  font-size: 1rem;
+  transition: background 0.18s, color 0.18s, border 0.18s;
+}
+
+.sortBtn.active,
+.sortBtn:hover {
+  background-color: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+

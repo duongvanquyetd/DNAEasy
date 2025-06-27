@@ -51,6 +51,7 @@ const ManageBlog = () => {
       setLoading(false);
     }).catch(() => {
       message.error('Lỗi khi tải dữ liệu!');
+      setLoading(false);
     });
   }, [currentPage, searchQuery, category, active]);
 
@@ -178,10 +179,10 @@ const ManageBlog = () => {
               <div className="manage-subtitle">
                 Thêm, chỉnh sửa, tìm kiếm và quản lý các bài viết blog một cách dễ dàng, chuyên nghiệp.
               </div>
-                <QuestionCircleOutlined onClick={() => setHelpModal(true)} 
-              style={{color: '#2563eb', fontSize: 22, cursor: 'pointer', transition: 'color 0.2s'}} 
-              className="subtitle-help-icon"
-              title="Hướng dẫn sử dụng"/>
+              <QuestionCircleOutlined onClick={() => setHelpModal(true)} 
+                style={{color: '#2563eb', fontSize: 22, cursor: 'pointer', transition: 'color 0.2s'}} 
+                className="subtitle-help-icon"
+                title="Hướng dẫn sử dụng"/>
             </div>
           </div>
         </div>

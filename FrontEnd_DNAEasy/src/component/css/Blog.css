@@ -711,3 +711,37 @@
     font-size: 1.2rem;
   }
 }
+
+
+.sortSection {
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.sortOptions {
+  display: flex;
+  gap: 10px;
+}
+
+.sortBtn {
+  background-color: #f1f1f1;
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sortBtn:hover {
+  background-color: #ddd;
+}
+
+.sortBtn.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
