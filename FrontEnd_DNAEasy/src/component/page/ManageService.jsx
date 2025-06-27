@@ -177,30 +177,6 @@ const ManageService = () => {
     }
   }
 
-//   function getSortedServices() {
-//     let sorted = [...services];
-//     if (sortConfig.key) {
-//       sorted.sort((a, b) => {
-//         let aValue = a[sortConfig.key];
-//         let bValue = b[sortConfig.key];
-//         if (typeof aValue === 'string') aValue = aValue.toLowerCase();
-//         if (typeof bValue === 'string') bValue = bValue.toLowerCase();
-//         if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
-//         if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
-//         return 0;
-//       });
-//     }
-//     return sorted;
-//   }
-
-//   function handleSort(key) {
-//     setSortConfig(prev => {
-//       if (prev.key === key) {
-//         return { key, direction: prev.direction === 'asc' ? 'desc' : 'asc' };
-//       }
-//       return { key, direction: 'asc' };
-//     });
-//   }
 
   return (
     <div className="manage-service-main-content">
@@ -327,7 +303,7 @@ const ManageService = () => {
           
               </thead>
               <tbody>
-                {getSortedServices().map((service, idx) => (
+                {services.map((service, idx) => (
                   <tr key={service.serviceId || idx} className="service-row">
                     <td>
                       {service.imageUrls && service.imageUrls.length > 0 ? (
@@ -371,9 +347,10 @@ const ManageService = () => {
                 ))}
               </tbody>
             </table>
-          </Spin>
+          
         )
       }
+      <div>
       <Modal
         title={edit ? "Edit Service " : "Create New Service"}
         visible={createform}
@@ -524,7 +501,7 @@ const ManageService = () => {
           <li><b>Hỗ trợ:</b> Bấm <QuestionCircleOutlined style={{color:'#2563eb'}}/> để xem hướng dẫn này bất cứ lúc nào.</li>
         </ul>
       </Modal>
-
+         </div>
       {renderPagination(totalPages, currentPage, setCurrentPage)}
       <Footer />
     </div>
