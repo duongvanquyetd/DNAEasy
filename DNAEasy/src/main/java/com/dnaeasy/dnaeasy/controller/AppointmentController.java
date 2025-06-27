@@ -25,6 +25,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import org.springframework.http.ResponseEntity;
@@ -53,26 +54,35 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.createAppointment(appointment,request));
     }
     @GetMapping("/getAllCompleteFlowCurrentUser")
-    public ResponseEntity<List<AppointmentResponse>> getAllFlowCurrentUser() {
-        return ResponseEntity.ok(appointmentService.getAllFlowCurentUser());
+    public ResponseEntity<Page<AppointmentResponse>> getAllFlowCurrentUser(@RequestParam("page") int page,
+                                                                           @RequestParam("size") int size,
+                                                                           @RequestParam("keysearch") String keysearch) {
+        Pageable pagable = PageRequest.of(page-1, size, Sort.by("dateCollect").descending());
+        return ResponseEntity.ok(appointmentService.getAllFlowCurentUser(keysearch,pagable));
     }
     @GetMapping("/getALl")
     public ResponseEntity<List<AppointmentResponse>> getAll() {
         return ResponseEntity.ok(appointmentService.getAll());
     }
     @GetMapping("/getAppointmentInprocess")
-    public ResponseEntity<List<AppointmentResponse>> getAppointmentInprocess() {
-        return ResponseEntity.ok(appointmentService.getAppoinmentinprocess());
-    }
-    @GetMapping("/getForStaffLab")
-    public ResponseEntity<List<AppointmentResponse>> getForStaffLab() {
-        return ResponseEntity.ok(appointmentService.getAppoinmentFofStaff_Lab());
-    }
+    public ResponseEntity<Page<AppointmentResponse>> getAppointmentInprocess( @RequestParam("page") int page,
+                                                                              @RequestParam("size") int size,
+                                                                              @RequestParam("keysearch") String keysearch
 
-    @GetMapping("/getforStaffReception")
-    public ResponseEntity<List<AppointmentResponse>> getForStaffReception() {
-        return  ResponseEntity.ok(appointmentService.getAppoinmentFofStaff_Reception());
+    ) {
+        Pageable pagable = PageRequest.of(page-1, size, Sort.by("createdate").descending());
+
+        return ResponseEntity.ok(appointmentService.getAppoinmentinprocess(keysearch.trim(),pagable));
     }
+//    @GetMapping("/getForStaffLab")
+//    public ResponseEntity<List<AppointmentResponse>> getForStaffLab() {
+//        return ResponseEntity.ok(appointmentService.getAppoinmentFofStaff_Lab());
+//    }
+//
+//    @GetMapping("/getforStaffReception")
+//    public ResponseEntity<List<AppointmentResponse>> getForStaffReception() {
+//        return  ResponseEntity.ok(appointmentService.getAppoinmentFofStaff_Reception());
+//    }
 
     @GetMapping("/countToday")
     public ResponseEntity<Map<String, SummaryTodayResponse>> countAppointmentsToday(){

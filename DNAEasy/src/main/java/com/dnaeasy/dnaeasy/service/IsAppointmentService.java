@@ -15,6 +15,7 @@ import com.dnaeasy.dnaeasy.dto.response.StaffResponse;
 import com.dnaeasy.dnaeasy.dto.response.SummaryTodayResponse;
 import com.dnaeasy.dnaeasy.dto.response.SummaryYesterdayResponse;
 
+import com.dnaeasy.dnaeasy.enity.Appointment;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,11 +31,11 @@ public interface IsAppointmentService {
 
     AppointmentResponse UpdateStatusAppoinment(StatusUpdateAppointment request, MultipartFile file);
 
-    List<AppointmentResponse> getAllFlowCurentUser();
+    Page<AppointmentResponse> getAllFlowCurentUser(String keyserch,Pageable pageable);
     List<AppointmentResponse> getAll();
-    List<AppointmentResponse> getAppoinmentinprocess();
-    List<AppointmentResponse> getAppoinmentFofStaff_Lab();
-    List<AppointmentResponse> getAppoinmentFofStaff_Reception();
+    Page<AppointmentResponse> getAppoinmentinprocess(String keyserch,Pageable pageable);
+//    List<AppointmentResponse> getAppoinmentFofStaff_Lab();
+//    List<AppointmentResponse> getAppoinmentFofStaff_Reception();
 
     int getCompletedAppointmentsToday();
     List<AppointmentResponse> getAppointmentYesterday();
@@ -48,5 +49,8 @@ public interface IsAppointmentService {
  Map<String, SummaryTodayResponse> getTodaySummary();
     StaticReponse getStaticByDate(StaticRequest request);
     List<TopServiceReponse> findTopService(StaticRequest request);
+
+
+
 
 }

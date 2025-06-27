@@ -100,29 +100,30 @@ public class SampleService implements IsSampleService {
 //            return testprocessResponse;
 //        }
 
-
+        ProcessTesting p = null;
         if (sampleList.get(0).getCureStatusSample() == null) {
-            ProcessTesting p = isProcessTesting.findByOrderProcessAndSampleMethod(1, appointment.getTypeCollect());
+             p = isProcessTesting.findByOrderProcessAndSampleMethod(1, appointment.getTypeCollect());
 
             // ty kiem tra tiep xem ngay hom nay co phai ngay dat lich khong neu phai thi moi cho sua status
             if (person.getRolename().equals(p.getPerson_confirm())) {
                 testprocessResponse.setIsallowCofirmation(true);
                 testprocessResponse.setNextStatus(p.getStatusName());
                 testprocessResponse.setFormfor(p.getFormfor());
-                testprocessResponse.setRole(p.getPerson_confirm());//
+
             }
 
         } else {
             ProcessTesting curent = isProcessTesting.findOrderProcessByStatusNameAndSampleMethod(sampleList.get(0).getCureStatusSample(), appointment.getTypeCollect());
-            ProcessTesting p = isProcessTesting.findByOrderProcessAndSampleMethod(curent.getOrderProcess() + 1, appointment.getTypeCollect());
+             p = isProcessTesting.findByOrderProcessAndSampleMethod(curent.getOrderProcess() + 1, appointment.getTypeCollect());
             if (person.getRolename().equals(p.getPerson_confirm())) {
                 testprocessResponse.setIsallowCofirmation(true);
                 testprocessResponse.setNextStatus(p.getStatusName());
                 testprocessResponse.setFormfor(p.getFormfor());
-                testprocessResponse.setRole(p.getPerson_confirm());//
+
             }
 
         }
+        testprocessResponse.setRole(p.getPerson_confirm());//
         return testprocessResponse;
 
     }
@@ -205,6 +206,7 @@ public class SampleService implements IsSampleService {
             String user = SecurityContextHolder.getContext().getAuthentication().getName();
             Person p = isUserResponsity.findByUsername(user);
             TestprocessResponse tp = isAllowCofirmation(new SampleCreateRequest(appointid));
+            System.out.println("Test process"+tp);
             Appointment a = isAppointmentResponsitory.findById(appointid).orElseThrow(() -> new ResourceNotFound("Appointment not found"));
             if (p.getRolename().equals(RoleName.CUSTOMER)) {
                 if (tp.getRole().equals(RoleName.STAFF_TEST)) {

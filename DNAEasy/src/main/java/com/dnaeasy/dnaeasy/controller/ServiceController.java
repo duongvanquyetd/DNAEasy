@@ -3,6 +3,7 @@ package com.dnaeasy.dnaeasy.controller;
 import com.dnaeasy.dnaeasy.dto.request.SearchRequest;
 import com.dnaeasy.dnaeasy.dto.request.ServiceCreateRequest;
 import com.dnaeasy.dnaeasy.dto.response.ManagerServiceReponse;
+import com.dnaeasy.dnaeasy.dto.response.ServiceCommentResponse;
 import com.dnaeasy.dnaeasy.dto.response.ServiceResponse;
 import com.dnaeasy.dnaeasy.enity.Service;
 import com.dnaeasy.dnaeasy.enity.ServiceImage;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,8 +37,8 @@ public class ServiceController {
     public ResponseEntity<ServiceResponse> create(
             @RequestPart("service") ServiceCreateRequest request,
             @RequestPart("file") List<MultipartFile> files
-    )  {
-        return ResponseEntity.ok(serviceService.create(request,files));
+    ) {
+        return ResponseEntity.ok(serviceService.create(request, files));
 
     }
 
@@ -54,12 +56,12 @@ public class ServiceController {
     public ResponseEntity<ServiceResponse> update(
             @PathVariable Long id,
             @RequestPart("service") ServiceCreateRequest request,
-            @RequestPart(value = "file",required = false) List<MultipartFile> files,
-            @RequestPart(value = "removeimg",required = false) List<String> removeimg
+            @RequestPart(value = "file", required = false) List<MultipartFile> files,
+            @RequestPart(value = "removeimg", required = false) List<String> removeimg
     ) throws IOException {
 
 
-        return ResponseEntity.ok(serviceService.update(id,request,files,removeimg));
+        return ResponseEntity.ok(serviceService.update(id, request, files, removeimg));
     }
 
     @DeleteMapping("/delete/{id}")
@@ -72,24 +74,41 @@ public class ServiceController {
     public ResponseEntity<Page<ServiceResponse>> search(@RequestBody SearchRequest request,
                                                         @RequestParam("page") int page,
                                                         @RequestParam("size") int size,
-                                                        @RequestParam("active") boolean active) {
+                                                        @RequestParam("active") boolean active,
+                                                        @RequestParam("sortcolumn") String sortcolumn,
+                                                        @RequestParam("sortmode") String mode) {
+        Pageable pageable = null;
+        if (!sortcolumn.equals("null")) {
+            if (mode.equals("asc")) {
+                pageable = PageRequest.of(page - 1, size, Sort.by(sortcolumn).ascending());
+            } else {
+                pageable = PageRequest.of(page - 1, size, Sort.by(sortcolumn).descending());
+            }
 
-        Pageable pageable = PageRequest.of(page-1, size);
+        } else {
+            pageable = PageRequest.of(page - 1, size);
+        }
 
 
-       return ResponseEntity.ok(serviceService.search(request, pageable,active));
+        return ResponseEntity.ok(serviceService.search(request, pageable, active));
     }
-    @GetMapping ("/report")
+
+    @GetMapping("/report")
     public ResponseEntity<ManagerServiceReponse> ManagerReport() {
 
 
         return ResponseEntity.ok(serviceService.report());
     }
+
     @PostMapping("/active/{id}")
     public ResponseEntity<ServiceResponse> Active(@PathVariable Long id) {
 
-        return  ResponseEntity.ok(serviceService.Active(id));
+        return ResponseEntity.ok(serviceService.Active(id));
     }
 
+    @GetMapping("/starAndNumber/{id}")
+    public ResponseEntity<ServiceCommentResponse> StarAndNumber(@PathVariable int id) {
+        return ResponseEntity.ok(serviceService.getNumberCommnentAndStar(id));
+    }
 
 }
