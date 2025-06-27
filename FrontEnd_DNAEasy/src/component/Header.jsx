@@ -47,7 +47,7 @@ const Header = () => {
   };
 
   const handleAdminDashboard = () => {
-    navigate('/admin/dashboard');
+    navigate('/AdminDashboard');
     setIsDropdownOpen(false);
   };
 
