@@ -27,6 +27,7 @@ import com.dnaeasy.dnaeasy.service.IsAppointmentService;
 import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +40,13 @@ import java.math.BigDecimal;
 
 import java.sql.Timestamp;
 
+
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -583,59 +591,124 @@ public class AppointmentService implements IsAppointmentService {
 
     @Override
     public StaticReponse getStaticByDate(StaticRequest request) {
-        LocalDateTime start;
-        LocalDateTime end;
+        LocalDateTime start, end;
 
-        if (request.getDate() != null) {
-            start = request.getDate().atStartOfDay();
-            end = request.getDate().atTime(23, 59, 59);
+        DateTimeFormatter yearMonthFormatter = DateTimeFormatter.ofPattern("yyyy-MM");
+        DateTimeFormatter yearFormatter = DateTimeFormatter.ofPattern("yyyy");
+
+        if (request.getStartDate() != null && request.getEndDate() != null) {
+            // ✅ Lọc theo khoảng ngày (giữ nguyên)
+            start = request.getStartDate().atStartOfDay();
+            end = request.getEndDate().atTime(23, 59, 59);
+
+        } else if (request.getStartPeriod() != null && request.getEndPeriod() != null) {
+            // 🆕 Lọc theo khoảng tháng hoặc năm
+            if (request.getStartPeriod().length() == 7 && request.getEndPeriod().length() == 7) {
+                // Khoảng theo tháng: "yyyy-MM"
+                YearMonth ymStart = YearMonth.parse(request.getStartPeriod(), yearMonthFormatter);
+                YearMonth ymEnd = YearMonth.parse(request.getEndPeriod(), yearMonthFormatter);
+                start = ymStart.atDay(1).atStartOfDay();
+                end = ymEnd.atEndOfMonth().atTime(23, 59, 59);
+
+            } else if (request.getStartPeriod().length() == 4 && request.getEndPeriod().length() == 4) {
+                // Khoảng theo năm: "yyyy"
+                Year yStart = Year.parse(request.getStartPeriod(), yearFormatter);
+                Year yEnd = Year.parse(request.getEndPeriod(), yearFormatter);
+                start = yStart.atMonth(1).atDay(1).atStartOfDay();
+                end = yEnd.atMonth(12).atEndOfMonth().atTime(23, 59, 59);
+            } else {
+                throw new IllegalArgumentException("Invalid startPeriod/endPeriod format (must be yyyy or yyyy-MM)");
+            }
+
+        } else if (request.getDate() != null && request.getMonth() != null && request.getYear() != null) {
+            LocalDate d = LocalDate.of(request.getYear(), request.getMonth(), request.getDate());
+            start = d.atStartOfDay();
+            end = d.atTime(23, 59, 59);
+
         } else if (request.getMonth() != null && request.getYear() != null) {
-            LocalDate first = LocalDate.of(request.getYear(), request.getMonth(), 1);
-            LocalDate last = first.withDayOfMonth(first.lengthOfMonth());
-            start = first.atStartOfDay();
-            end = last.atTime(23, 59, 59);
+            LocalDate d = LocalDate.of(request.getYear(), request.getMonth(), 1);
+            start = d.atStartOfDay();
+            end = d.withDayOfMonth(d.lengthOfMonth()).atTime(23, 59, 59);
+
         } else if (request.getYear() != null) {
-            LocalDate firstDay = LocalDate.of(request.getYear(), 1, 1);
-            LocalDate lastDay = LocalDate.of(request.getYear(), 12, 31);
-            start = firstDay.atStartOfDay();
-            end = lastDay.atTime(23, 59, 59);
+            start = LocalDate.of(request.getYear(), 1, 1).atStartOfDay();
+            end = LocalDate.of(request.getYear(), 12, 31).atTime(23, 59, 59);
+
         } else {
-            throw new IllegalArgumentException("You have to chose date or month or year!!!");
+            throw new IllegalArgumentException("Please provide valid date info");
+
         }
 
 
         int totalBills = isAppointmentResponsitory.countCompletedAppointmentsToday(start, end);
         BigDecimal revenue = isPaymentResponsitory.getTodayRevenueToday(start, end);
         if (revenue == null) revenue = BigDecimal.ZERO;
-        return new StaticReponse(totalBills, revenue);
+
+        BigDecimal expense = isPaymentResponsitory.getTotalExpense(start, end); // cần viết hàm này
+        if (expense == null) expense = BigDecimal.ZERO;
+
+        BigDecimal remain = revenue.subtract(expense);
+        StaticReponse response = new StaticReponse();
+        response.setTotalBills(totalBills);
+        response.setRevenue(revenue);
+        response.setTotalExpense(expense);
+        response.setRemain(remain);
+        return new StaticReponse(totalBills, revenue, expense, remain);
+
     }
 
 
     @Override
     public List<TopServiceReponse> findTopService(StaticRequest request) {
-        LocalDateTime start;
-        LocalDateTime end;
+        LocalDateTime start, end;
 
-        if (request.getMonth() != null && request.getYear() != null) {
-            LocalDate firstDay = LocalDate.of(request.getYear(), request.getMonth(), 1);
-            LocalDate lastDay = firstDay.withDayOfMonth(firstDay.lengthOfMonth());
-            start = firstDay.atStartOfDay();
-            end = lastDay.atTime(23, 59, 59);
+        DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("yyyy-MM");
+        DateTimeFormatter yearFormatter = DateTimeFormatter.ofPattern("yyyy");
+
+        if (request.getStartDate() != null && request.getEndDate() != null) {
+            start = request.getStartDate().atStartOfDay();
+            end = request.getEndDate().atTime(23, 59, 59);
+
+        } else if (request.getStartPeriod() != null && request.getEndPeriod() != null) {
+            if (request.getStartPeriod().length() == 7 && request.getEndPeriod().length() == 7) {
+                // khoảng tháng
+                YearMonth ymStart = YearMonth.parse(request.getStartPeriod(), monthFormatter);
+                YearMonth ymEnd = YearMonth.parse(request.getEndPeriod(), monthFormatter);
+                start = ymStart.atDay(1).atStartOfDay();
+                end = ymEnd.atEndOfMonth().atTime(23, 59, 59);
+            } else if (request.getStartPeriod().length() == 4 && request.getEndPeriod().length() == 4) {
+                // khoảng năm
+                Year yStart = Year.parse(request.getStartPeriod(), yearFormatter);
+                Year yEnd = Year.parse(request.getEndPeriod(), yearFormatter);
+                start = yStart.atMonth(1).atDay(1).atStartOfDay();
+                end = yEnd.atMonth(12).atEndOfMonth().atTime(23, 59, 59);
+            } else {
+                throw new IllegalArgumentException("startPeriod or endPeriod must be 'yyyy' or 'yyyy-MM'");
+            }
+
+        } else if (request.getDate() != null && request.getMonth() != null && request.getYear() != null) {
+            LocalDate d = LocalDate.of(request.getYear(), request.getMonth(), request.getDate());
+            start = d.atStartOfDay();
+            end = d.atTime(23, 59, 59);
+
+        } else if (request.getMonth() != null && request.getYear() != null) {
+            LocalDate d = LocalDate.of(request.getYear(), request.getMonth(), 1);
+            start = d.atStartOfDay();
+            end = d.withDayOfMonth(d.lengthOfMonth()).atTime(23, 59, 59);
+
         } else if (request.getYear() != null) {
-            LocalDate firstDay = LocalDate.of(request.getYear(), 1, 1);
-            LocalDate lastDay = LocalDate.of(request.getYear(), 12, 31);
-            start = firstDay.atStartOfDay();
-            end = lastDay.atTime(23, 59, 59);
+            start = LocalDate.of(request.getYear(), 1, 1).atStartOfDay();
+            end = LocalDate.of(request.getYear(), 12, 31).atTime(23, 59, 59);
+
         } else {
-            // Nếu không truyền gì thì mặc định là lấy hết
-            start = LocalDate.of(2000, 1, 1).atStartOfDay();
-            end = LocalDate.now().atTime(23, 59, 59);
+            throw new IllegalArgumentException("Please provide valid date or period input");
         }
 
-        List<TopServiceReponse> rawData = isAppointmentResponsitory.findTop10Service(
-                Timestamp.valueOf(start), Timestamp.valueOf(end)
+        return isAppointmentResponsitory.findTop10Service(
+                Timestamp.valueOf(start),
+                Timestamp.valueOf(end)
         );
-        return rawData;
+
     }
 }
 

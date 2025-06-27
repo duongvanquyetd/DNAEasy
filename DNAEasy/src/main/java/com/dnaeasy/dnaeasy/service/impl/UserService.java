@@ -174,7 +174,9 @@ public class UserService implements IsUserService {
 
         List<Person> filtered = person.stream()
                 .filter(p -> request.getName() == null || p.getName().toLowerCase().contains(request.getName().toLowerCase()))
-                .filter(p -> request.getRolename() == null || (p.getRolename() != null && p.getRolename().equals(request.getRolename())))
+                .filter(p -> request.getRolename() == null ||
+                        (p.getRolename() != null &&
+                                p.getRolename().toString().toLowerCase().contains(request.getRolename())))
                 .filter(p -> request.getActive() == null || p.getActive().equals(request.getActive()))
                 .filter(p ->from == null || (p.getCreatedDate() != null && !p.getCreatedDate().toLocalDate().isBefore(from)))
                 .filter(p -> to == null || (p.getCreatedDate() != null && !p.getCreatedDate().toLocalDate().isAfter(to)))

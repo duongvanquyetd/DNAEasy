@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -135,14 +136,19 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
     int countCompletedAppointmentsToday(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
     @Query(value = """
-                select top 10 s.service_name as name, count (a.appointment_id) as total
-                from appoinment a join service s on a.service_id = s.service_id
-                where a.curent_status_appointment = 'COMPLETED' 
-                AND a.date_collect BETWEEN :start AND :end
-                group by s.service_name order by total DESC
-            """, nativeQuery = true)
-    List<TopServiceReponse> findTop10Service(@Param("start") Timestamp start,
-                                             @Param("end") Timestamp end);
+
+        select top 10 s.service_name as name, count (a.appointment_id) as total
+        from appoinment a join service s on a.service_id = s.service_id
+        where a.curent_status_appointment = 'COMPLETED' 
+        AND a.date_collect BETWEEN :startDate AND :endDate
+        group by s.service_name order by total DESC
+    """, nativeQuery = true)
+    List<TopServiceReponse> findTop10Service(@Param("startDate") Timestamp start,
+                                             @Param("endDate") Timestamp end
+    );
+
+
+
 
     List<Appointment> findAllByCurentStatusAppointmentAndDateCollectIsBetween(String status, LocalDateTime start, LocalDateTime end);
 

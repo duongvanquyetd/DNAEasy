@@ -10,8 +10,11 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class StaticRequest {
-    private LocalDate date;
+    private Integer date;
     private Integer month;
     private Integer year;
-
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private String startPeriod;
+    private String endPeriod;
 }
