@@ -76,18 +76,19 @@ public class AppointmentController {
 
 
 
-    @GetMapping("/statistics")
+    @PostMapping("/statistics")
     public ResponseEntity<StaticReponse> getByDate(@RequestBody StaticRequest request) {
 
         StaticReponse response = appointmentService.getStaticByDate(request);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/topservice")
+    @PostMapping("/topservice")
     public ResponseEntity<List<TopServiceReponse>> getTopService(@RequestBody StaticRequest request) {
         List<TopServiceReponse> reponse = appointmentService.findTopService(request);
         return ResponseEntity.ok(reponse);
     }
+
     @GetMapping("/managershift")
     public ResponseEntity<List<AppointmentResponse>> getManager(){
         return ResponseEntity.ok(appointmentService.getAppointmnetForMangerShiftStaff());

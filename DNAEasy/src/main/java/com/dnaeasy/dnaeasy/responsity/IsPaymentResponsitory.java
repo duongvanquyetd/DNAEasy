@@ -31,6 +31,8 @@ public interface IsPaymentResponsitory extends JpaRepository<Payment, Integer> {
     and p.pay_date between :startDate and :endDate
     """, nativeQuery = true)
     BigDecimal getTodayRevenueToday(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+    @Query("SELECT SUM(p.paymentAmount) FROM Payment p WHERE p.isExpense = true AND p.paymentDate BETWEEN :start AND :end")
+    BigDecimal getTotalExpense(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
 
    @Query("select p from Payment p where p.isExpense = false and p.appointment.appointmentId =:appointmentid")

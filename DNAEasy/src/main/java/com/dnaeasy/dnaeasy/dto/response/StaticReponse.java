@@ -13,4 +13,6 @@ import java.math.BigDecimal;
 public class StaticReponse {
     private int totalBills;
     private BigDecimal revenue;
+    private BigDecimal totalExpense;
+    private BigDecimal remain;
 }

@@ -61,7 +61,7 @@ public class UserController {
         return ResponseEntity.ok(repone);
     }
 
-    @GetMapping("/fliter")
+    @PostMapping("/filter")
     public ResponseEntity<List<UserFilterRespone>> filterUser(@RequestBody UserFilterRequest request){
         List<UserFilterRespone> filter = userService.filterUser(request);
         return ResponseEntity.ok(filter);
