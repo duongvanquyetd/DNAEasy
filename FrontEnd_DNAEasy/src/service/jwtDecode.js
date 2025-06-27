@@ -14,7 +14,7 @@ export const IsTokenAboutToExpire = (token) => {
     //   expiresIn: decoded.exp - now,
     // });
 
-    return decoded.exp - now < 10;
+    return decoded.exp - now < 60;
   } catch (err) {
     return false;
   }

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import Header from '../Header';
 import Footer from '../Footer';
 import '../css/Service.css'; // Ensure this points to the CSS file with the new class names
-import { SearchAndGet } from '../../service/service';
+import { SearchAndGet, ServiceReportCommnent } from '../../service/service';
 
 
 
@@ -12,6 +12,7 @@ import { SearchAndGet } from '../../service/service';
 const ServiceImageCarouselService = ({ imageUrls = [], serviceName }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const intervalRef = useRef(null);
+
 
   useEffect(() => {
     if (imageUrls.length <= 1) return;
@@ -58,7 +59,8 @@ const ErrorBoundary = ({ children }) => {
 
 const Service = () => {
   const navigate = useNavigate();
-
+  const [sortColumn, setSortColumn] = useState(null);
+  const [modesort, setModeSort] = useState("asc")
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -68,24 +70,45 @@ const Service = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [category, setCategory] = useState('');
   const [search, setSearch] = useState('');
+  const [serviceReport, setServiceReport] = useState({
+    numberOfStar: 0,
+    numberOfCommnent: 0
+  })
 
-  
+
+
 
 
   useEffect(() => {
     fetchServices();
 
-  }, [currentPage, servicesPerPage, searchQuery, category]); // Thêm category vào dependencies
+  }, [currentPage, servicesPerPage, searchQuery, category, sortColumn, modesort]); // Thêm category vào dependencies
 
   const fetchServices = useCallback(async () => {
 
     try {
       setLoading(true);
       // Reset to first page on new search
-      console.log('Fetching services with:', { keywordSearch: searchQuery, keywordType: category, currentPage, servicesPerPage });
-      const response = await SearchAndGet({ keywordSearch: searchQuery, keywordType: category }, currentPage, servicesPerPage,true);
-      console.log('Fetched services:', response.data);
-      setServices(response.data.content);
+      console.log('Fetching services with:', { keywordSearch: searchQuery, keywordType: category, currentPage, servicesPerPage }, sortColumn, modesort);
+      const response = await SearchAndGet({ keywordSearch: searchQuery, keywordType: category }, currentPage, servicesPerPage, true, sortColumn, modesort);
+
+      const fullservice = await Promise.all(
+        response.data.content.map(async (s) => {
+          const rs = await ServiceReportCommnent(s.serviceId);
+
+          console.log("r", rs.data)
+          return {
+
+            ...s,
+            star: rs.data.star,
+            numberOfComment: rs.data.numberFeedback
+          }
+
+        }
+        )
+      )
+      console.log('Fetched services:', fullservice);
+      setServices(fullservice);
       setTotalPages(response.data.totalPages);
       setError(null);
       setSearch('');
@@ -97,7 +120,7 @@ const Service = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, servicesPerPage, searchQuery, category]);
+  }, [currentPage, servicesPerPage, searchQuery, category, sortColumn, modesort]);
 
 
   const handleBookingClick = useCallback((serviceId) => {
@@ -106,9 +129,9 @@ const Service = () => {
   }, [navigate]);
 
   function handlsearch() {
-    
+
     setCurrentPage(1);
-     
+
 
   }
 
@@ -134,7 +157,6 @@ const Service = () => {
   };
 
 
-
   return (
     <ErrorBoundary>
       <div className="servicePage">
@@ -150,7 +172,7 @@ const Service = () => {
         </section>
 
         <section className="filterSection">
-          <form className="searchBar" onSubmit={(e)=>{ e.preventDefault(); handlsearch(); }} >
+          <form className="searchBar" onSubmit={(e) => { e.preventDefault(); handlsearch(); }} >
             <input type="text" placeholder="What are you looking for?" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} aria-label="Search services" />
             <select name="category" aria-label="Select category" onChange={(e) => setCategory(e.target.value)} value={category}>
               <option value="">All Services</option>
@@ -160,6 +182,40 @@ const Service = () => {
             <button type="submit" className="searchBtn" aria-label="Search">Search</button>
           </form>
         </section>
+        <section className="sortSection">
+          <span className="sortLabel">Sort by:</span>
+          <div className="sortOptions">
+            <button
+              className={`sortBtn ${sortColumn === null ? 'active' : ''}`}
+              onClick={() => {
+                setSortColumn(null);
+                setModeSort(modesort === 'asc' ? 'desc' : 'asc');
+              }}
+            >
+              Default {sortColumn === null && (modesort === 'asc' ? '▲' : '▼')}
+            </button>
+            <button
+              className={`sortBtn ${sortColumn === 'servicePrice' ? 'active' : ''}`}
+              onClick={() => {
+                setSortColumn('servicePrice');
+                setModeSort(sortColumn === 'servicePrice' && modesort === 'asc' ? 'desc' : 'asc');
+              }}
+            >
+              Price {sortColumn === 'servicePrice' && (modesort === 'asc' ? '▲' : '▼')}
+            </button>
+            <button
+              className={`sortBtn ${sortColumn === 'serviceName' ? 'active' : ''}`}
+              onClick={() => {
+                setSortColumn('serviceName');
+                setModeSort(sortColumn === 'serviceName' && modesort === 'asc' ? 'desc' : 'asc');
+              }}
+            >
+              Service Name {sortColumn === 'serviceName' && (modesort === 'asc' ? '▲' : '▼')}
+            </button>
+          </div>
+        </section>
+
+
 
         {loading ? (
           <div className="loadingState">
@@ -187,8 +243,25 @@ const Service = () => {
             {services.map((service) => (
 
               <div key={service.serviceId} className="serviceCard">
+
                 <ServiceImageCarouselService imageUrls={service.imageUrls} serviceName={service.serviceName} />
-                <p className="serviceName">{service.serviceName}</p>
+                <p className="serviceName">{service.serviceName}
+
+
+                  <span className="detail-star-inline">
+                    {Array.from({ length: 5 }).map((_, idx) => (
+                      <span
+                        key={idx}
+                        className={`star${idx < service.star ? " filled" : ""}`}
+                      >
+                        ★
+                      </span>
+                    ))}
+                    <span className="feedback-count">
+                      ({service.numberOfComment})
+                    </span>
+                  </span>
+                </p>
                 <p className="price">{new Intl.NumberFormat('vi-VN').format(service.price)} VND</p>
                 <button className="bookingBtn" onClick={() => handleBookingClick(service.serviceId)} aria-label={`Book ${service.serviceName}`}>Book Now</button>
               </div>

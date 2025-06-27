@@ -26,10 +26,15 @@ const ManageService = () => {
   const [removeUrls, setRemovedUrls] = useState([]);
   const [active, setActive] = useState(true);
   const [viewContent, setViewContent] = useState(null);
+
+  const [sortColumn,setSortColumn] = useState(null);
+  const [modesort,setModeSort]  =useState("asc")
+
   const [confirmModal, setConfirmModal] = useState({ open: false, type: '', service: null });
   const [helpModal, setHelpModal] = useState(false);
-  const [sortConfig, setSortConfig] = useState({ key: '', direction: '' });
+
   const [loading, setLoading] = useState(false);
+
 
   // Fetch services on component mount
   useEffect(() => {
@@ -45,8 +50,10 @@ const ManageService = () => {
   }, []);
 
   useEffect(() => {
-    setLoading(true);
-    SearchAndGet({ keywordSearch: searchQuery, keywordType: category }, currentPage, pagesize, active).then((response) => {
+
+
+    SearchAndGet({ keywordSearch: searchQuery, keywordType: category }, currentPage, pagesize, active,sortColumn,modesort).then((response) => {
+
       setTotalPages(response.data.totalPages)
       setServices(response.data.content)
       setLoading(false);
@@ -54,7 +61,10 @@ const ManageService = () => {
       setLoading(false);
       message.error('Lỗi khi tải dữ liệu!');
     })
-  }, [currentPage, searchQuery, category, active])
+
+
+
+  }, [currentPage, searchQuery, category, active,sortColumn,modesort])
 
   const renderPagination = (total, current, setPage) => (
     <div className="pagination">
@@ -80,7 +90,17 @@ const ManageService = () => {
   }
 
   function handleDelete(id) {
+
+    DeleteService(id).then((response) => {
+      console.log("Delete SuccessFully", response.data)
+      setSearchQuery((pre) => pre + " ")
+    }).catch((error) => {
+      console.log("Error", error)
+    })
+    
+
     setConfirmModal({ open: true, type: 'delete', service: services.find(s => s.serviceId === id) });
+
   }
 
   function handleEdit(service) {
@@ -157,30 +177,30 @@ const ManageService = () => {
     }
   }
 
-  function getSortedServices() {
-    let sorted = [...services];
-    if (sortConfig.key) {
-      sorted.sort((a, b) => {
-        let aValue = a[sortConfig.key];
-        let bValue = b[sortConfig.key];
-        if (typeof aValue === 'string') aValue = aValue.toLowerCase();
-        if (typeof bValue === 'string') bValue = bValue.toLowerCase();
-        if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
-        if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
-        return 0;
-      });
-    }
-    return sorted;
-  }
+//   function getSortedServices() {
+//     let sorted = [...services];
+//     if (sortConfig.key) {
+//       sorted.sort((a, b) => {
+//         let aValue = a[sortConfig.key];
+//         let bValue = b[sortConfig.key];
+//         if (typeof aValue === 'string') aValue = aValue.toLowerCase();
+//         if (typeof bValue === 'string') bValue = bValue.toLowerCase();
+//         if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+//         if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+//         return 0;
+//       });
+//     }
+//     return sorted;
+//   }
 
-  function handleSort(key) {
-    setSortConfig(prev => {
-      if (prev.key === key) {
-        return { key, direction: prev.direction === 'asc' ? 'desc' : 'asc' };
-      }
-      return { key, direction: 'asc' };
-    });
-  }
+//   function handleSort(key) {
+//     setSortConfig(prev => {
+//       if (prev.key === key) {
+//         return { key, direction: prev.direction === 'asc' ? 'desc' : 'asc' };
+//       }
+//       return { key, direction: 'asc' };
+//     });
+//   }
 
   return (
     <div className="manage-service-main-content">
@@ -200,6 +220,22 @@ const ManageService = () => {
           </div>
         </div>
       </div>
+
+      <section className="filterSection">
+        <form className="searchBar" onSubmit={(e) => { e.preventDefault(); }} >
+          <input type="text" placeholder="What are you looking for?" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1) }} aria-label="Search services" />
+          <select name="category" aria-label="Select category" onChange={(e) => setCategory(e.target.value)} value={category}>
+            <option value="">All Services</option>
+            <option value="civil">Civil Services</option>
+            <option value="legal">Legal Services</option>
+          </select>
+          <button type="submit" className="searchBtn" aria-label="Search">Search</button>
+        </form>
+      </section>
+
+      <button onClick={() => { setActive(true), setCurrentPage(1) }}>Active Service</button>
+      <button onClick={() => { setActive(false), setCurrentPage(1) }}>InActive Service</button>
+
       <div className="service-stats-row">
         <div className="service-stat-card">
           <AppstoreOutlined className="stat-icon" />
@@ -265,23 +301,30 @@ const ManageService = () => {
       </div>
       {/* End filter-action-row */}
 
+
       {/* Hiển thị số lượng kết quả */}
       <div className="result-count">Đã tìm thấy {totalServices || services.length} dịch vụ{totalPages > 1 ? `, trang ${currentPage}/${totalPages}` : ''}</div>
 
+
+      <button onClick={() => setCreateForm(true)}>Create Service </button>
+
+      <button onClick={()=>{setSortColumn(null);setModeSort(null)}}>No sort</button>
       {
         services && services.length > 0 && (
-          <Spin spinning={loading} tip="Đang tải dữ liệu...">
-            <table className="service-table">
-              <thead>
-                <tr>
-                  <th>Image</th>
-                  <th onClick={() => handleSort('serviceName')} style={{cursor:'pointer'}}>Service Name {sortConfig.key==='serviceName' ? (sortConfig.direction==='asc'?<ArrowUpOutlined />:<ArrowDownOutlined />):null}</th>
-                  <th>Type</th>
-                  <th>Number Sample</th>
-                  <th>Description</th>
-                  <th onClick={() => handleSort('price')} style={{cursor:'pointer'}}>Price (VND) {sortConfig.key==='price' ? (sortConfig.direction==='asc'?<ArrowUpOutlined />:<ArrowDownOutlined />):null}</th>
-                  <th>Action</th>
-                </tr>
+          <table className="service-table">
+            <thead>
+              <tr>
+                <th >Image</th>
+                <th onClick={()=> {setSortColumn('serviceName');setModeSort(modesort ==='asc' ? 'desc' :'asc')}}>Service Name</th>
+                <th onClick={()=> {setSortColumn('typeService');setModeSort(modesort ==='asc' ? 'desc' :'asc')}}>Type</th>
+                <th onClick={()=> {setSortColumn('sample_count');setModeSort(modesort ==='asc' ? 'desc' :'asc')}}>Number Sample</th>
+                <th>Description</th>
+                <th onClick={()=> {setSortColumn('servicePrice');setModeSort(modesort ==='asc' ? 'desc' :'asc')}}>Price (VND)</th>
+                <th>Action</th>
+
+                {/* Thêm các cột khác nếu cần */}
+              </tr>
+          
               </thead>
               <tbody>
                 {getSortedServices().map((service, idx) => (

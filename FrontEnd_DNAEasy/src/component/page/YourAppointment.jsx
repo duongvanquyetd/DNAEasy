@@ -22,26 +22,31 @@ export const YourAppointment = () => {
   const [cancelNote, setCancelNote] = useState('');
   const [typeService, setTypeService] = useState('');
   const [refunForm, setRefunForm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 2;
+  const [totalPages, setTotalPages] = useState(0);
   const rolename = localStorage.getItem('rolename') ? localStorage.getItem('rolename') : null;
-
+  const [keysearch, setkeysearch] = useState('');
   useEffect(() => {
     const fetchData = async () => {
       try {
         let appointmentsData = [];
 
-        if (rolename != null && rolename === "STAFF_LAB") {
-          const res = await GetAppointmetnForStaff_Lab();
-          console.log("STAFF_LAB response:", res);
-          appointmentsData = res?.data || [];
-        } else if (rolename != null && rolename === "STAFF_RECEPTION") {
-          const res = await GetAppointmetnForStaff_reception();
-          console.log("STAFF_RECEPTION response:", res.data);
-          appointmentsData = res?.data || [];
-        } else {
-          const res = await GetYourAppointmentInProcess();
-          console.log("Customer+StaffLab response:", res);
-          appointmentsData = res?.data || [];
-        }
+        // if (rolename != null && rolename === "STAFF_LAB") {
+        //   const res = await GetAppointmetnForStaff_Lab();
+        //   console.log("STAFF_LAB response:", res);
+        //   appointmentsData = res?.data || [];
+        // } else if (rolename != null && rolename === "STAFF_RECEPTION") {
+        //   const res = await GetAppointmetnForStaff_reception();
+        //   console.log("STAFF_RECEPTION response:", res.data);
+        //   appointmentsData = res?.data || [];
+        // } else {
+        const res = await GetYourAppointmentInProcess(currentPage, pageSize, keysearch);
+
+        setTotalPages(res.data.totalPages)
+        console.log("Appointmnet Reponse:", res.data);
+        appointmentsData = res?.data?.content || [];
+        // }
 
         const fullAppointments = await Promise.all(
           appointmentsData.map(async (appointment) => {
@@ -73,7 +78,7 @@ export const YourAppointment = () => {
     };
 
     fetchData();
-  }, []);
+  }, [currentPage, keysearch]);
 
   function handleConfirm(appointment) {
     setNextStatus(appointment.Confimed.nextStatus);
@@ -137,6 +142,19 @@ export const YourAppointment = () => {
       console.log(error.data);
     });
   }
+  const renderPagination = (total, current, setPage) => (
+    <div className="pagination">
+      {Array.from({ length: total }, (_, i) => i + 1).map((i) => (
+        <button
+          key={i}
+          className={`page-button ${i === current ? 'active' : ''}`}
+          onClick={() => setPage(i)}
+        >
+          {i}
+        </button>
+      ))}
+    </div>
+  );
   return (
     <>
       <Header />
@@ -154,6 +172,35 @@ export const YourAppointment = () => {
               <p>Theo dõi và quản lý các cuộc hẹn của bạn một cách dễ dàng</p>
             </div>
           </header>
+          <div className='search-bar-wrapper'>
+            <form
+              className="search-bar-form"
+              onSubmit={e => {
+                e.preventDefault();
+                setCurrentPage(1);
+              }}
+            >
+              <input
+                type="text"
+                placeholder="Tìm kiếm lịch hẹn..."
+                value={keysearch}
+                onChange={e => {
+                  setkeysearch(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="search-input"
+              />
+              <button type="submit" className="searchBtn">
+                <span className="search-icon" aria-hidden="true">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                </span>
+                Tìm kiếm
+              </button>
+            </form>
+          </div>
 
           {/* Main Content */}
           <main>
@@ -164,7 +211,10 @@ export const YourAppointment = () => {
                 <p>Vui lòng chờ trong giây lát</p>
               </div>
             ) : appointments.length > 0 ? (
+
               <div className="appointment-grid">
+
+
                 {appointments.map((appointment) => (
                   <div key={appointment.appointmentId} className="appointment-card">
                     {/* Card Header */}
@@ -370,7 +420,9 @@ export const YourAppointment = () => {
                     </div>
                   </div>
                 ))}
+
               </div>
+
             ) : (
               <div className="empty-state">
                 <div className="icon-container">
@@ -557,13 +609,13 @@ export const YourAppointment = () => {
                         const fileArray = [];
 
                         resultform.forEach((result, index) => {
-                        
+
                           const resultId = result.resultId;
-                          const conclusionResult = result.relationName ? e.target[`conclusionResult-${index}`].value.trim():null;
+                          const conclusionResult = result.relationName ? e.target[`conclusionResult-${index}`].value.trim() : null;
                           const fileInput = e.target[`file-${index}`];
                           const file = fileInput.files[0];
-                           
-                          if (!file || (result.relationName  && !conclusionResult)) {
+
+                          if (!file || (result.relationName && !conclusionResult)) {
                             setErrorResult("Please enter all field");
                             return;
                           }
@@ -601,7 +653,7 @@ export const YourAppointment = () => {
                       {resultform.map((result, index) => (
                         <div key={result.resultId} className="mb-4 border-bottom pb-3">
 
-                          {result.relationName  && (
+                          {result.relationName && (
                             <p><strong>Quan hệ:</strong> {result.relationName}</p>
 
                           )}
@@ -616,7 +668,7 @@ export const YourAppointment = () => {
                               required
                             />
                           </div>
-                          {result.relationName  && (
+                          {result.relationName && (
                             <div className="mb-2">
                               <label className="form-label">Kết luận</label>
                               <select
@@ -785,7 +837,10 @@ export const YourAppointment = () => {
             </div>
           )
         }
+
+
       </div >
+      {renderPagination(totalPages, currentPage, setCurrentPage)}
       <Footer />
     </>
   );
