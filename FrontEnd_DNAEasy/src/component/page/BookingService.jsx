@@ -33,16 +33,20 @@ export const BookingServicePage = () => {
   const formGroups = useRef([]);
 
   useEffect(() => {
-    GetMyInfor()
-      .then((response) => {
-        const addr = response.data.address.split(',');
-       setLocation(!addr || addr === 'null' || addr === 'undefined' || addr[0] === 'null' ? '' : response.data.address);
-        setPhoneAppointment(response.data?.phone || '');
-        setEmailAppointment(response.data?.email || '');
-      })
-      .catch((error) => {
-        console.log('Error loading user', error);
-      });
+
+    if (localStorage.getItem("token")) {
+      GetMyInfor()
+        .then((response) => {
+          const addr = response.data.address.split(',');
+          setLocation(!addr || addr === 'null' || addr === 'undefined' || addr[0] === 'null' ? '' : response.data.address);
+          setPhoneAppointment(response.data?.phone || '');
+          setEmailAppointment(response.data?.email || '');
+        })
+        .catch((error) => {
+          console.log('Error loading user', error);
+        });
+
+    }
 
     getServiceById(id)
       .then((response) => {
@@ -94,12 +98,12 @@ export const BookingServicePage = () => {
         typeCollect,
         dateCollect,
         paymentMethod,
-        location ,
+        location,
         serviceid: Number(id),
         phoneAppointment,
         emailAppointment,
       };
-      console.log("booking",bookingDetails)
+      console.log("booking", bookingDetails)
       CreateAppointment(bookingDetails)
         .then((response) => {
           setErrorHour('');

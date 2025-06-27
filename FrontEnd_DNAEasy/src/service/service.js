@@ -8,8 +8,8 @@ export const getServiceById = (id) => {
     return axios.get(`http://localhost:8080/api/service/${id}`);
 }
 
-export const SearchAndGet = (search,page,size,active) => {
-    return axios.post(`http://localhost:8080/api/service/search?size=${size}&page=${page}&active=${active}`,search);
+export const SearchAndGet = (search,page,size,active,sortcolumn,modesort) => {
+    return axios.post(`http://localhost:8080/api/service/search?size=${size}&page=${page}&active=${active}&sortcolumn=${sortcolumn}&sortmode=${modesort}`,search);
 }
 
 export const CreateService = (serviceData) => {
@@ -29,4 +29,7 @@ export const Report=()=>{
 export const ActiveSerive=(id)=>{
 
     return api.post(`/service/active/${id}`)
+}
+export const ServiceReportCommnent=(id)=>{
+    return axios.get(`http://localhost:8080/api/service/starAndNumber/${id}`)
 }

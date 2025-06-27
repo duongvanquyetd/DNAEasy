@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import Header from '../Header';
 import Footer from '../Footer';
 import '../css/Blog.css'; // Ensure this points to the CSS file with the new class names
-import {  SearchByTitleAndCatagery } from '../../service/Blog';
+import { SearchByTitleAndCatagery } from '../../service/Blog';
 
 const ErrorBoundary = ({ children }) => {
   const [hasError, setHasError] = useState(false);
@@ -39,33 +39,36 @@ const Blog = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const pagesize = 5;
   const [totalpage, setTotalPages] = useState(0);
+  const [sortColumn, setSortColumn] = useState(null);
+  const [modesort, setModeSort] = useState("asc")
 
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, category]);
 
-useEffect(() => {
-  setCurrentPage(1);
-}, [searchQuery, category]);
 
-
-useEffect(() => {
-  setLoading(true);
-  SearchByTitleAndCatagery(
-    { keywordSearch: searchQuery, keywordType: category },
-    currentPage,
-    pagesize,
-    true
-  )
-    .then((response) => {
-      setBlogs(response.data.content);
-      setTotalPages(response.data.totalPages);
-      setError(null);
-    })
-    .catch((error) => {
-      console.error('Error searching blogs:', error);
-      setError('Failed to search blogs. Please try again later.');
-    })
-    .finally(() => setLoading(false));
-}, [searchQuery, category, currentPage]);
+  useEffect(() => {
+    setLoading(true);
+    SearchByTitleAndCatagery(
+      { keywordSearch: searchQuery, keywordType: category },
+      currentPage,
+      pagesize,
+      true,
+      sortColumn,
+      modesort
+    )
+      .then((response) => {
+        setBlogs(response.data.content);
+        setTotalPages(response.data.totalPages);
+        setError(null);
+      })
+      .catch((error) => {
+        console.error('Error searching blogs:', error);
+        setError('Failed to search blogs. Please try again later.');
+      })
+      .finally(() => setLoading(false));
+  }, [searchQuery, category, currentPage,sortColumn,modesort]);
 
 
   const handleBlogClick = useCallback(
@@ -143,6 +146,47 @@ useEffect(() => {
             </button>
           </form>
         </section>
+
+        <section className="sortSection">
+          <p>Sort by:</p>
+          <div className="sortOptions">
+            <button
+              className={`sortBtn ${sortColumn === null ? 'active' : ''}`}
+              onClick={() => {
+                setSortColumn(null);
+                setModeSort(modesort === 'asc' ? 'desc' : 'asc');
+              }}
+            >
+              Default {sortColumn === null && (modesort === 'asc' ? '▲' : '▼')}
+            </button>
+
+            <button
+              className={`sortBtn ${sortColumn === 'createDate' ? 'active' : ''}`}
+              onClick={(e) => {
+
+                setSortColumn('createDate');
+                setModeSort(sortColumn === 'createDate' && modesort === 'asc' ? 'desc' : 'asc');
+
+              }}
+            >
+              createDate {sortColumn === 'createDate' && (modesort === 'asc' ? '▲' : '▼')}
+            </button>
+
+            <button
+              className={`sortBtn ${sortColumn === 'blogTitle' ? 'active' : ''}`}
+              onClick={(e) => {
+
+                setSortColumn('blogTitle');
+                setModeSort(sortColumn === 'blogTitle' && modesort === 'asc' ? 'desc' : 'asc');
+
+              }}
+            >
+              blogTitle {sortColumn === 'blogTitle' && (modesort === 'asc' ? '▲' : '▼')}
+            </button>
+          </div>
+        </section>
+
+
 
         {loading ? (
           <div className="blogLoading">

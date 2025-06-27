@@ -28,19 +28,21 @@ const ManageBlog = () => {
   const [removeUrls, setRemovedUrls] = useState([]);
   const [active, setActive] = useState(true);
   const [viewContent, setViewContent] = useState(null);
+  const [sortColumn, setSortColumn] = useState(null);
+  const [modesort, setModeSort] = useState("asc")
   useEffect(() => {
     MangerReportBlog().then((response) => {
-      console.log("Manager Report Blog",response.data)
+      console.log("Manager Report Blog", response.data)
       setTotalInActive(response.data.totalblogActive)
       setTotalactive(response.data.totalblogInactive)
-    }).catch((error)=>{
-      console.log("Error get Report Blog",error)
+    }).catch((error) => {
+      console.log("Error get Report Blog", error)
     })
   }, []);
 
   useEffect(() => {
 
-    SearchByTitleAndCatagery({ keywordSearch: searchQuery, keywordType: category }, currentPage, pagesize, active).then((response) => {
+    SearchByTitleAndCatagery({ keywordSearch: searchQuery, keywordType: category }, currentPage, pagesize, active, sortColumn, modesort).then((response) => {
       setTotalPages(response.data.totalPages)
       setBlogs(response.data.content)
       console.log("Response", response.data)
@@ -49,7 +51,7 @@ const ManageBlog = () => {
     })
 
 
-  }, [currentPage, searchQuery, category, active])
+  }, [currentPage, searchQuery, category, active,sortColumn,modesort])
   const renderPagination = (total, current, setPage) => (
     <div className="pagination">
       {Array.from({ length: total }, (_, i) => i + 1).map((i) => (
@@ -136,7 +138,7 @@ const ManageBlog = () => {
   return (
     <div>
       <div>
-        <p> Total Blog:{totalactive + totalinactive}</p>
+        <p>Total Blog:{totalactive + totalinactive}</p>
         <p>Total Service Active:{totalactive}</p>
         <p>Total Service InActive:{totalinactive}</p>
 
@@ -183,16 +185,17 @@ const ManageBlog = () => {
 
 
       <button onClick={() => setCreateForm(true)}>Create Blog  </button>
+      <button onClick={() => { setSortColumn(null); setModeSort(null) }}>No sort</button>
       {
         blogs && blogs.length > 0 && (
           <table className="service-table">
             <thead>
               <tr>
-                <th>Blogs image</th>
-                <th>Blog Name</th>
-                <th>Blog type</th>
-                <th>Blog content</th>
-                <th>Create Date</th>
+                <th  >Blogs image</th>
+                <th onClick={() => { setSortColumn('blogTitle'); setModeSort(modesort === 'asc' ? 'desc' : 'asc') }}>Blog Title</th>
+                <th onClick={() => { setSortColumn('blogType'); setModeSort(modesort === 'asc' ? 'desc' : 'asc') }}>Blog type</th>
+                <th >Blog content</th>
+                <th onClick={() => { setSortColumn('createDate'); setModeSort(modesort === 'asc' ? 'desc' : 'asc') }}>Create Date</th>
                 <th>Action</th>
 
                 {/* Thêm các cột khác nếu cần */}

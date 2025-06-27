@@ -21,6 +21,7 @@ import { AssignStaff } from './component/page/AssignStaff.jsx';
 
 
 
+
 function App() {
   return (
     <BrowserRouter>
@@ -37,14 +38,14 @@ function App() {
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:blogId" element={<BlogDetail />} />
         <Route path="/booking/:id" element={<BookingServicePage />} />
-        <Route path="/payment" element={<Payment />} /> 
+        <Route path="/payment" element={<Payment />} />
         <Route path="/YourAppointment" element={<YourAppointment />} />
         <Route path="/HistoryBooking" element={<HistoryBooking />} />
         <Route path="/AdminDashboard" element={<AdminDashboard />} />
         <Route path="/ManageBlog" element={<ManageBlog />} />
-        <Route path="/ManagerService" element={<ManageService />} />
+        <Route path="/ManageService" element={<ManageService />} />
         <Route path="/assign-staff" element={<AssignStaff />} />
-       
+      
         <Route path="*" element={<div>404 - Page Not Found</div>} />
       </Routes>
     </BrowserRouter>

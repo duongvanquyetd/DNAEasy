@@ -27,6 +27,8 @@ const ManageService = () => {
   const [removeUrls, setRemovedUrls] = useState([]);
   const [active, setActive] = useState(true);
   const [viewContent, setViewContent] = useState(null);
+  const [sortColumn,setSortColumn] = useState(null);
+  const [modesort,setModeSort]  =useState("asc")
 
 
   // Fetch services on component mount
@@ -47,7 +49,7 @@ const ManageService = () => {
 
   useEffect(() => {
 
-    SearchAndGet({ keywordSearch: searchQuery, keywordType: category }, currentPage, pagesize, active).then((response) => {
+    SearchAndGet({ keywordSearch: searchQuery, keywordType: category }, currentPage, pagesize, active,sortColumn,modesort).then((response) => {
       setTotalPages(response.data.totalPages)
       setServices(response.data.content)
       console.log("Response", response.data)
@@ -56,7 +58,7 @@ const ManageService = () => {
     })
 
 
-  }, [currentPage, searchQuery, category, active])
+  }, [currentPage, searchQuery, category, active,sortColumn,modesort])
   const renderPagination = (total, current, setPage) => (
     <div className="pagination">
       {Array.from({ length: total }, (_, i) => i + 1).map((i) => (
@@ -88,6 +90,7 @@ const ManageService = () => {
     }).catch((error) => {
       console.log("Error", error)
     })
+    
   }
 
   function handleCreateAndEdit(values) {
@@ -153,7 +156,7 @@ const ManageService = () => {
       </div>
       <section className="filterSection">
         <form className="searchBar" onSubmit={(e) => { e.preventDefault(); }} >
-          <input type="text" placeholder="What are you looking for?" value={searchQuery.trim()} onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1) }} aria-label="Search services" />
+          <input type="text" placeholder="What are you looking for?" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1) }} aria-label="Search services" />
           <select name="category" aria-label="Select category" onChange={(e) => setCategory(e.target.value)} value={category}>
             <option value="">All Services</option>
             <option value="civil">Civil Services</option>
@@ -167,18 +170,20 @@ const ManageService = () => {
       <button onClick={() => { setActive(false), setCurrentPage(1) }}>InActive Service</button>
 
 
-      <button onClick={() => setCreateForm(true)}>Create Service  </button>
+      <button onClick={() => setCreateForm(true)}>Create Service </button>
+
+      <button onClick={()=>{setSortColumn(null);setModeSort(null)}}>No sort</button>
       {
         services && services.length > 0 && (
           <table className="service-table">
             <thead>
               <tr>
-                <th>Image</th>
-                <th>Service Name</th>
-                <th>Type</th>
-                <th>Number Sample</th>
+                <th >Image</th>
+                <th onClick={()=> {setSortColumn('serviceName');setModeSort(modesort ==='asc' ? 'desc' :'asc')}}>Service Name</th>
+                <th onClick={()=> {setSortColumn('typeService');setModeSort(modesort ==='asc' ? 'desc' :'asc')}}>Type</th>
+                <th onClick={()=> {setSortColumn('sample_count');setModeSort(modesort ==='asc' ? 'desc' :'asc')}}>Number Sample</th>
                 <th>Description</th>
-                <th>Price (VND)</th>
+                <th onClick={()=> {setSortColumn('servicePrice');setModeSort(modesort ==='asc' ? 'desc' :'asc')}}>Price (VND)</th>
                 <th>Action</th>
 
                 {/* Thêm các cột khác nếu cần */}

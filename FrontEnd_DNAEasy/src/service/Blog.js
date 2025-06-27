@@ -5,8 +5,8 @@ import api from "./api";
 export const GetALlBlog = () => {
     return axios.get("http://localhost:8080/api/blog");
 }
-export const SearchByTitleAndCatagery = (data,page,size,active) => {
-    return axios.post(`http://localhost:8080/api/blog/find?page=${page}&size=${size}&active=${active}`,data);
+export const SearchByTitleAndCatagery = (data,page,size,active,sortcolumn,modesort) => {
+    return axios.post(`http://localhost:8080/api/blog/find?page=${page}&size=${size}&active=${active}&sortcolumn=${sortcolumn}&sortmode=${modesort}`,data);
 }
 
 export const GetBlogById = (id) => {
