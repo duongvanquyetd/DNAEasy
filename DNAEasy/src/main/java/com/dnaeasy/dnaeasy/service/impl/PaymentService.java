@@ -10,6 +10,7 @@ import com.dnaeasy.dnaeasy.enity.AppointmnentTracking;
 import com.dnaeasy.dnaeasy.enity.Payment;
 import com.dnaeasy.dnaeasy.enity.Person;
 import com.dnaeasy.dnaeasy.enums.PaymentMehtod;
+import com.dnaeasy.dnaeasy.exception.BadRequestException;
 import com.dnaeasy.dnaeasy.mapper.PaymentMapper;
 import com.dnaeasy.dnaeasy.responsity.IsAppointmentResponsitory;
 import com.dnaeasy.dnaeasy.responsity.IsPaymentResponsitory;
@@ -55,7 +56,7 @@ public class PaymentService implements IsPaymentService {
 
         String ID = UUID.randomUUID().toString();
 
-        payment.setVnpay_code(ID);
+        payment.setPaycode(ID);
         isPaymentResponsitory.save(payment);
         if (val.length == 2) {
             value = val[0];
@@ -232,6 +233,11 @@ public class PaymentService implements IsPaymentService {
     @Override
     public PaymentResponse CreatePaymentRefund(PaymentRefundRequest request, MultipartFile file) {
 
+        List<Payment> p = isPaymentResponsitory.findALLByPaycode(request.getPaycode());
+
+        if(p != null && p.size() > 0) {
+            throw  new BadRequestException("Transaction code existed");
+        }
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Person person = isUserResponsitory.findByUsername(username);
         Appointment a = isAppointmentResponsitory.findById(request.getAppointmentId()).orElseThrow(() -> new RuntimeException("appointmentId not found"));
@@ -239,6 +245,7 @@ public class PaymentService implements IsPaymentService {
         payment.setStaffReception(person);
         payment.setExpense(true); // chi tien ra
         payment.setPaymentDate(LocalDateTime.now());
+
         person.getPaymentList().add(payment);
         AppointmnentTracking appointmnentTracking = new AppointmnentTracking();
         appointmnentTracking.setStatusName("Refund_" + payment.getPaymentMethod() + "(" + payment.getPaymentAmount() + ")");

@@ -16,5 +16,6 @@ public class ServiceCreateRequest {
     private String serviceDescription;
     private BigDecimal servicePrice;
     private String typeService;
+    private  int sample_count;
     List<ServiceImage> serviceImageList;
 }

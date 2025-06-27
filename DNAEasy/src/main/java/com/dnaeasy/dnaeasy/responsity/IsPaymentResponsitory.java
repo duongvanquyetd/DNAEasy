@@ -18,7 +18,7 @@ import java.util.List;
 public interface IsPaymentResponsitory extends JpaRepository<Payment, Integer> {
 
     Payment getPaymentByAppointment_AppointmentId(int appointmentAppointmentId);
-@Query("Select p from Payment  p where p.vnpay_code =:a")
+@Query("Select p from Payment  p where p.paycode =:a")
     Payment findAllByVnpay_codeEqualsIgnoreCase(String a);
 
     Payment findByAppointment(Appointment appointment);
@@ -43,4 +43,5 @@ public interface IsPaymentResponsitory extends JpaRepository<Payment, Integer> {
 
     List<Payment> findAllByPaymentStatusIsTrueAndPaymentDateIsBetween(LocalDateTime start, LocalDateTime end);
 
+    List<Payment> findALLByPaycode(String paycode);
 }
