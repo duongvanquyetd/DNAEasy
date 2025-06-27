@@ -41,6 +41,8 @@ public class ResultService implements IsResultService {
     AppointmentService appointmentService;
     @Autowired
     EmailSender emailSender;
+    @Autowired
+    NotificationService notificationService;
 
 
     @Override
@@ -129,6 +131,7 @@ else{
         } catch (Exception e) {
             new RuntimeException(e);
         }
+       notificationService.createNotification(appointment1.getCustomer(),"Booking service  "+appointment1.getService().getServiceName()+"Resulted please history booking to view result" );
 
 
         appointmentService.UpdateStatusAppoinment(newAppointment, null);

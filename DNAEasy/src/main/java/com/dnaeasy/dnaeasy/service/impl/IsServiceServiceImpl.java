@@ -3,7 +3,9 @@ package com.dnaeasy.dnaeasy.service.impl;
 import com.dnaeasy.dnaeasy.dto.request.SearchRequest;
 import com.dnaeasy.dnaeasy.dto.request.ServiceCreateRequest;
 import com.dnaeasy.dnaeasy.dto.response.ManagerServiceReponse;
+import com.dnaeasy.dnaeasy.dto.response.ServiceCommentResponse;
 import com.dnaeasy.dnaeasy.dto.response.ServiceResponse;
+import com.dnaeasy.dnaeasy.enity.Comment;
 import com.dnaeasy.dnaeasy.enity.Service;
 import com.dnaeasy.dnaeasy.enity.ServiceImage;
 import com.dnaeasy.dnaeasy.exception.BadRequestException;
@@ -12,13 +14,12 @@ import com.dnaeasy.dnaeasy.mapper.ServiceMapper;
 import com.dnaeasy.dnaeasy.responsity.IsServiceResponsitory;
 import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.web.multipart.MultipartFile;
 
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -146,21 +147,14 @@ public class IsServiceServiceImpl implements IsServiceService {
     @Override
     public Page<ServiceResponse> search(SearchRequest request, Pageable pageable, boolean active) {
         Page<Service> services = null;
-        if (!request.getKeywordType().trim().isEmpty() && !request.getKeywordSearch().trim().isEmpty()) {
-            services = serviceRepo.findByTypeServiceContainingIgnoreCaseAndServiceNameContainingAndActive(request.getKeywordType(), request.getKeywordSearch(), active, pageable);
-        } else if (request.getKeywordType().trim().isEmpty() && !request.getKeywordSearch().trim().isEmpty()) {
-            services = serviceRepo.findByServiceNameContainingIgnoreCaseAndActive(request.getKeywordSearch(), active, pageable);
-        } else if (!request.getKeywordType().trim().isEmpty() && request.getKeywordSearch().trim().isEmpty()) {
-            services = serviceRepo.findByTypeServiceContainingIgnoreCaseAndActive(request.getKeywordType(), active, pageable);
-        } else {
-            services = serviceRepo.findAllByActive(active, pageable);
+        try {
+            BigDecimal bigDecimal = new BigDecimal(request.getKeywordSearch());
+            services = serviceRepo.searchServicePrice(request.getKeywordSearch().trim(),bigDecimal,request.getKeywordType().trim(),active,pageable);
+        }catch (Exception e) {
+            services = serviceRepo.searchService(request.getKeywordSearch().trim(),request.getKeywordType().trim(),active,pageable);
         }
-
-
         Page<ServiceResponse> responses = services.map(
                 serviceMapper::convertToResponse);
-
-
         return responses;
     }
 
@@ -189,6 +183,23 @@ public class IsServiceServiceImpl implements IsServiceService {
 
         s.setActive(true);
         return serviceMapper.convertToResponse(serviceRepo.save(s));
+    }
+
+    @Override
+    public ServiceCommentResponse getNumberCommnentAndStar(int id) {
+
+        ServiceCommentResponse response = new ServiceCommentResponse();
+        response.setNumberFeedback(serviceRepo.findByServiceId(id).getComments().size());
+        int sum = 0;
+        for (Comment c : serviceRepo.findByServiceId(id).getComments()) {
+            sum+=c.getRating();
+        }
+       if(response.getNumberFeedback() > 0){
+           double  start = sum/response.getNumberFeedback();
+           response.setStar(start);
+       }
+
+        return response;
     }
 
     private ServiceResponse convertToResponse(Service s) {

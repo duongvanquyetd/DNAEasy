@@ -1,6 +1,7 @@
 package com.dnaeasy.dnaeasy.enity;
 
 import com.dnaeasy.dnaeasy.enums.SampleMethod;
+import com.dnaeasy.dnaeasy.enums.Work_hour;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
@@ -28,6 +29,8 @@ public class Appointment {
     @Column(nullable = false)
     private String location;
     private LocalDateTime dateCollect;
+    @Column
+    private LocalDateTime createdate =LocalDateTime.now();
     @Lob
     @Column(columnDefinition = "TEXT")
     private String note;

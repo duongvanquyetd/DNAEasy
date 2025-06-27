@@ -18,7 +18,7 @@ public class SecurityConfig {
 
     public String[] URL = {"/api/auth/*", "/api/payment/*","/api/comments/*","/api/blog","/api/blog/*"
 
-    ,"/api/service","/api/payment/*","/api/comments/*","/api/auth/*","/api/service","/api/service/*","/api/service/*","/api/email/*","/oauth2/**","/api/auth/**"};
+    ,"/api/service","/api/payment/*","/api/comments/*","/api/auth/*","/api/service","/api/service/*","/api/service/starAndNumber/*","/api/email/*","/oauth2/**","/api/auth/**"};
 
     @Autowired
     private CustomJwtDecoder jwtDecoder;

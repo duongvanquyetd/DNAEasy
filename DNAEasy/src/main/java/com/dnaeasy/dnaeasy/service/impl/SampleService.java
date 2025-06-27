@@ -7,6 +7,7 @@ import com.dnaeasy.dnaeasy.dto.response.SampleResponse;
 import com.dnaeasy.dnaeasy.dto.response.TestprocessResponse;
 import com.dnaeasy.dnaeasy.enity.*;
 import com.dnaeasy.dnaeasy.enity.ProcessTesting;
+import com.dnaeasy.dnaeasy.enums.RoleName;
 import com.dnaeasy.dnaeasy.enums.SampleMethod;
 import com.dnaeasy.dnaeasy.exception.ResourceNotFound;
 import com.dnaeasy.dnaeasy.mapper.SampleMapper;
@@ -44,15 +45,20 @@ public class SampleService implements IsSampleService {
     @Autowired
     IsSampleTrackingReponsitory isSampleTrackingReponsitory;
 
+    @Autowired
+    NotificationService notificationService;
+
     @Override
     public List<SampleResponse> Create(SampleCreateRequest sampleCreateRequest) {
+
+
         Appointment appointment = isAppointmentResponsitory.findById(sampleCreateRequest.getAppointmentId()).orElseThrow(() -> new ResourceNotFound("Appointment not found"));
         List<Sample> sampleList = new ArrayList<>();
 
         System.out.println(appointment.getService().getSample_count());
         for (int i = 0; i < appointment.getService().getSample_count(); i++) {
             Sample sample = new Sample();
-            sample.setSamplecode(generateUniqueCode());
+            sample.setSamplecode(generateCode());
             sample.setAppointment(appointment);
             sampleList.add(sample);
         }
@@ -64,7 +70,13 @@ public class SampleService implements IsSampleService {
 
             sampleResponseList.add(sampleMapper.SampeToSampleResponse(sample));
         }
+        // Notification
+        String user = SecurityContextHolder.getContext().getAuthentication().getName();
+        Person p = isUserResponsity.findByUsername(user);
+       notificationService.createNotification(p, "Booking Appointment Sucessfully");
 
+
+        //Notification
         return sampleResponseList;
     }
 
@@ -88,29 +100,30 @@ public class SampleService implements IsSampleService {
 //            return testprocessResponse;
 //        }
 
-
+        ProcessTesting p = null;
         if (sampleList.get(0).getCureStatusSample() == null) {
-            ProcessTesting p = isProcessTesting.findByOrderProcessAndSampleMethod(1, appointment.getTypeCollect());
+             p = isProcessTesting.findByOrderProcessAndSampleMethod(1, appointment.getTypeCollect());
 
             // ty kiem tra tiep xem ngay hom nay co phai ngay dat lich khong neu phai thi moi cho sua status
             if (person.getRolename().equals(p.getPerson_confirm())) {
                 testprocessResponse.setIsallowCofirmation(true);
                 testprocessResponse.setNextStatus(p.getStatusName());
                 testprocessResponse.setFormfor(p.getFormfor());
+
             }
 
         } else {
-
-
             ProcessTesting curent = isProcessTesting.findOrderProcessByStatusNameAndSampleMethod(sampleList.get(0).getCureStatusSample(), appointment.getTypeCollect());
-            ProcessTesting p = isProcessTesting.findByOrderProcessAndSampleMethod(curent.getOrderProcess() + 1, appointment.getTypeCollect());
+             p = isProcessTesting.findByOrderProcessAndSampleMethod(curent.getOrderProcess() + 1, appointment.getTypeCollect());
             if (person.getRolename().equals(p.getPerson_confirm())) {
                 testprocessResponse.setIsallowCofirmation(true);
                 testprocessResponse.setNextStatus(p.getStatusName());
                 testprocessResponse.setFormfor(p.getFormfor());
+
             }
 
         }
+        testprocessResponse.setRole(p.getPerson_confirm());//
         return testprocessResponse;
 
     }
@@ -186,7 +199,29 @@ public class SampleService implements IsSampleService {
                 sampleResponseList.add(sampleMapper.SampeToSampleResponse(sample));
 
             }
+
+
             isSampleTrackingReponsitory.save(sampleTracking);
+            // Notification
+            String user = SecurityContextHolder.getContext().getAuthentication().getName();
+            Person p = isUserResponsity.findByUsername(user);
+            TestprocessResponse tp = isAllowCofirmation(new SampleCreateRequest(appointid));
+            System.out.println("Test process"+tp);
+            Appointment a = isAppointmentResponsitory.findById(appointid).orElseThrow(() -> new ResourceNotFound("Appointment not found"));
+            if (p.getRolename().equals(RoleName.CUSTOMER)) {
+                if (tp.getRole().equals(RoleName.STAFF_TEST)) {
+                    if (a.getStaff() != null) {
+
+                       notificationService.createNotification(a.getStaff(), updateSampleRequestList.get(0).getNextStatusName() + " Confirmed the process is " + tp.getNextStatus());
+
+                    }
+                }
+            }
+            else {
+              notificationService.createNotification(a.getCustomer(), updateSampleRequestList.get(0).getNextStatusName() + " Confirmed the next process  is " + tp.getNextStatus()+"do by "+tp.getRole());
+
+            }
+            //Notification
         }
 
 

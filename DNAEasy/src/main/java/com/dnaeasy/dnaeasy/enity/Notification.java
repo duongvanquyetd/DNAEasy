@@ -14,12 +14,14 @@ public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long notiID;
+    @Column(columnDefinition = "TEXT")
     private String content;
+    @Column(nullable = false,columnDefinition = "BIT DEFAULT 0")
+    private boolean readed=false;
+
     private LocalDateTime time;
     @ManyToOne
     @JoinColumn(name="person_Id")
     private Person person;
-    @ManyToOne
-    @JoinColumn(name="staff_id")
-    private Person staff;
+
 }

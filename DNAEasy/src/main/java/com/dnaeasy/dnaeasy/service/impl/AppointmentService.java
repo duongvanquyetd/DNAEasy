@@ -29,6 +29,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.parameters.P;
@@ -39,12 +40,17 @@ import java.math.BigDecimal;
 
 import java.sql.Timestamp;
 
+
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,10 +76,11 @@ public class AppointmentService implements IsAppointmentService {
     @Autowired
     IsSystemConfigRepo isSystemConfigRepo;
     @Autowired
-
     UserMapper userMapper;
     @Autowired
     IsPaymentResponsitory isPaymentResponsitory;
+    @Autowired
+    NotificationService notificationService;
 
 
     @Override
@@ -181,31 +188,38 @@ public class AppointmentService implements IsAppointmentService {
     }
 
     @Override
-    public List<AppointmentResponse> getAllFlowCurentUser() {
+    public Page<AppointmentResponse> getAllFlowCurentUser(String keysearch, Pageable pageable) {
 
 
         String usename = SecurityContextHolder.getContext().getAuthentication().getName();
         Person p = isUserResponsity.findByUsername(usename);
 //        System.out.println(p.getName());
-        List<Appointment> appointmentList = new ArrayList<>();
+        Page<Appointment> appointmentList = null;
         List<String> list = new ArrayList<>();
         list.add("CANCLE");
         list.add("COMPLETE");
         list.add("REFUNDED");
         if (p.getRolename().equals(RoleName.STAFF_TEST)) {
-            appointmentList = isAppointmentResponsitory.findAllByStaffAndCurentStatusAppointmentIsIn(p, list);
+            appointmentList = isAppointmentResponsitory.findAllByStaffAndCurentStatusAppointmentIsIn(p, list, keysearch, pageable);
         } else if (p.getRolename().equals(RoleName.STAFF_LAB)) {
 
+            List<Integer> sampleid = new ArrayList<>();
+            List<Result> results = isResultResponsitory.findAllByStaff(p);
+            for (Result result : results) {
 
-            List<Result> result = isResultResponsitory.findAllByStaff(p);
-
-
-            List<Sample> sampleList = new ArrayList<>();
-            if (!result.isEmpty()) {
-                for (Result r : result) {
-                    appointmentList.add(r.getSampelist().iterator().next().getAppointment());
+                Set<Sample> sampleList = result.getSampelist();
+                for (Sample sample : sampleList) {
+                    sampleid.add(sample.getSampleid());
                 }
             }
+
+            appointmentList = isAppointmentResponsitory.findByStaffLabAndCurrentAppointmnetIsIn(sampleid, keysearch, pageable);
+
+//            if (!result.isEmpty()) {
+//                for (Result r : result) {
+//                    appointmentList.getContent().add(r.getSampelist().iterator().next().getAppointment());
+//                }
+//            }
 
 
         } else if (p.getRolename().equals(RoleName.STAFF_RECEPTION)) {
@@ -213,26 +227,21 @@ public class AppointmentService implements IsAppointmentService {
             lis.add("REFUNDED");
             lis.add("COMPLETE");
 
-            List<Appointment> list1 = isAppointmentResponsitory.findALLByPayment_StaffReceptionAndCurentStatusAppointmentIsIn(p, lis);
-            appointmentList.addAll(list1);
+            appointmentList = isAppointmentResponsitory.findALLByPayment_StaffReceptionAndCurentStatusAppointmentIsIn(p, lis, keysearch, pageable);
 
 
         } else {
-            appointmentList = isAppointmentResponsitory.findAllByCustomerAndCurentStatusAppointmentIsIn(p, list);
+            appointmentList = isAppointmentResponsitory.findAllByCustomerAndCurentStatusAppointmentIsIn(p, list, keysearch, pageable);
         }
 
-        List<AppointmentResponse> appointmentResponseList = new ArrayList<>();
+        Page<AppointmentResponse> appointmentResponses = appointmentList.map(appointmentMapper::AppointmentCreateResponse);
+        for (AppointmentResponse appointmentResponse : appointmentResponses.getContent()) {
 
-        appointmentList.forEach(appointment -> {
 
-            AppointmentResponse appointmentResponse = appointmentMapper.AppointmentCreateResponse(appointment);
-            appointmentResponse.setListSample(sampleService.getbyAppoinment(appointment.getAppointmentId()));
+            appointmentResponse.setListSample(sampleService.getbyAppoinment(appointmentResponse.getAppointmentId()));
+        }
 
-            appointmentResponseList.add(appointmentResponse);
-            //  appointmentResponseList.add(appointmentMapper.AppointmentCreateResponse(appointment));
-        });
-
-        return appointmentResponseList;
+        return appointmentResponses;
     }
 
     @Override
@@ -250,21 +259,22 @@ public class AppointmentService implements IsAppointmentService {
     }
 
     @Override
-    public List<AppointmentResponse> getAppoinmentinprocess() {
+    public Page<AppointmentResponse> getAppoinmentinprocess(String keysearch, Pageable pageable) {
         String usename = SecurityContextHolder.getContext().getAuthentication().getName();
         Person p = isUserResponsity.findByUsername(usename);
         // System.out.println(p.getName());
-        List<Appointment> appointmentList = new ArrayList<>();
+        Page<Appointment> appointmentList = null;
         List<String> list = new ArrayList<>();
         list.add("CANCLE");
         list.add("COMPLETE");
         list.add("REFUNDED");
+        List<Appointment> listpaging = new ArrayList<>();
 
 
         // staff lab cung nen hien nhung cai ma thuoc ve ca cua minh va nhung cai minh can confirm
         if (p.getRolename().equals(RoleName.STAFF_TEST)) {
             list.add("WAITING FOR PAYMENT");
-            List<Appointment> appointments = isAppointmentResponsitory.findAllByStaffAndCurentStatusAppointmentNotIn(p, list);
+            List<Appointment> appointments = isAppointmentResponsitory.findAllByStaffAndCurentStatusAppointmentNotIn(p, list, keysearch);
 
             for (Appointment appointment : appointments) {
                 ProcessTesting processTesting = new ProcessTesting();
@@ -276,118 +286,174 @@ public class AppointmentService implements IsAppointmentService {
                     processTesting = isProcessTesting.findByOrderProcessAndSampleMethod(curent.getOrderProcess() + 1, appointment.getTypeCollect());
                 }
                 if (p.getRolename().equals(processTesting.getPerson_confirm())) {
-                    appointmentList.add(appointment);
+                    listpaging.add(appointment);
+                }
+            }
+
+
+        } else if (p.getRolename().equals(RoleName.STAFF_LAB)) {
+
+            List<Appointment> app = isAppointmentResponsitory.findAllByCurentStatusAppointmentNotIn(list, keysearch);
+
+            for (Appointment appointment : app) {
+
+                List<Sample> sampleList = appointment.getSampelist();
+                if (sampleList != null && sampleList.size() > 0 && sampleList.get(0).getCureStatusSample() != null) {
+                    ProcessTesting curent = isProcessTesting.findOrderProcessByStatusNameAndSampleMethod(sampleList.get(0).getCureStatusSample(), appointment.getTypeCollect());
+                    ProcessTesting pro = isProcessTesting.findByOrderProcessAndSampleMethod(curent.getOrderProcess() + 1, appointment.getTypeCollect());
+
+                    if (pro.getPerson_confirm().equals(RoleName.STAFF_LAB)) {
+                        Work_hour work = Work_hour(appointment.getDateCollect());
+                        if (work.equals(p.getWork_hour())) {
+                            listpaging.add(appointment);
+                        }
+                    }
+                }
+
+            }
+        } else if (p.getRolename().equals(RoleName.STAFF_RECEPTION)) {
+            list = new ArrayList<>();
+            list.add("CANCLE");
+            list.add("COMPLETE");
+            list.add("WAITING FOR PAYMENT");
+
+            List<Appointment> appt = isAppointmentResponsitory.findAllByPaymentStatusIsFalseAndExpenseIsFalseAndAppointment_CurentStatusAppointmentIsIn(keysearch, list);
+
+
+            for (Appointment appointment : appt) {
+                Work_hour work = Work_hour(appointment.getDateCollect());
+                if (work.equals(p.getWork_hour())) {
+// tranh truong hop thanh toan bang tien mat no chua thanh toan ma da huy thi no se hien len tren ko hop ly
+                    if (appointment.getCurentStatusAppointment().equals("CANCLE")) {
+                        if (appointment.getSampelist().size() > 0 && appointment.getSampelist().getFirst().getCureStatusSample() != null) {
+                            listpaging.add(appointment);
+                        }
+                    } else {
+                        listpaging.add(appointment);
+                    }
                 }
             }
 
         } else {
-            appointmentList = isAppointmentResponsitory.findAllByCustomerAndCurentStatusAppointmentNotIn(p, list);
+            appointmentList = isAppointmentResponsitory.findAllByCustomerAndCurentStatusAppointmentNotIn(p, list, keysearch, pageable);
         }
 
-        List<AppointmentResponse> appointmentResponseList = new ArrayList<>();
-        appointmentList.forEach(appointment -> {
-            AppointmentResponse appointmentResponse = appointmentMapper.AppointmentCreateResponse(appointment);
-            appointmentResponse.setListSample(sampleService.getbyAppoinment(appointment.getAppointmentId()));
+        if (!p.getRolename().equals(RoleName.CUSTOMER)) {
+            int pagesize = pageable.getPageSize();
+            int startpage = pageable.getPageNumber() * pagesize;
+            int endpage = Math.min(startpage + pagesize, listpaging.size());
+            List<Appointment> paging = listpaging.subList(startpage, endpage);
 
-            appointmentResponseList.add(appointmentResponse);
-            //  appointmentResponseList.add(appointmentMapper.AppointmentCreateResponse(appointment));
-        });
-        return appointmentResponseList;
-    }
-
-    @Override
-    public List<AppointmentResponse> getAppoinmentFofStaff_Lab() {
+            appointmentList = new PageImpl<>(paging, pageable, listpaging.size());
+        }
 
 
-        // minh se  lay thoi gian dat lich -> doi sang ca -> kiem tra roi hien nhung lich hen thuoc ve ca cua minh len
-        String usename = SecurityContextHolder.getContext().getAuthentication().getName();
-        Person p = isUserResponsity.findByUsername(usename);
-//        System.out.println(p.getName());
-        List<String> list = new ArrayList<>();
-        list.add("CANCLE");
-        list.add("COMPLETE");
-        list.add("REFUNDED");
-        List<Appointment> appointmentList = isAppointmentResponsitory.findAllByCurentStatusAppointmentNotIn(list);
-        List<AppointmentResponse> appointmentResponseList = new ArrayList<>();
-        for (Appointment appointment : appointmentList) {
+        if (appointmentList != null && appointmentList.getContent().size() > 0) {
+            Page<AppointmentResponse> appointmentResponses = appointmentList.map(appointmentMapper::AppointmentCreateResponse);
+            for (AppointmentResponse appointmentResponse : appointmentResponses.getContent()) {
 
-            List<Sample> sampleList = appointment.getSampelist();
-            if (sampleList != null && sampleList.size() > 0 && sampleList.get(0).getCureStatusSample() != null) {
-                ProcessTesting curent = isProcessTesting.findOrderProcessByStatusNameAndSampleMethod(sampleList.get(0).getCureStatusSample(), appointment.getTypeCollect());
-                ProcessTesting pro = isProcessTesting.findByOrderProcessAndSampleMethod(curent.getOrderProcess() + 1, appointment.getTypeCollect());
 
-                if (pro.getPerson_confirm().equals(RoleName.STAFF_LAB)) {
-                    Work_hour work = Work_hour(appointment.getDateCollect());
-                    if (work.equals(p.getWork_hour())) {
-                        AppointmentResponse appointmentResponse = appointmentMapper.AppointmentCreateResponse(appointment);
-                        appointmentResponse.setListSample(sampleService.getbyAppoinment(appointment.getAppointmentId()));
-
-                        appointmentResponseList.add(appointmentResponse);
-                    }
-                }
-
-                //  appointmentResponseList.add(appointmentMapper.AppointmentCreateResponse(appointment));
-
+                appointmentResponse.setListSample(sampleService.getbyAppoinment(appointmentResponse.getAppointmentId()));
             }
 
+            return appointmentResponses;
         }
-
-
-        return appointmentResponseList;
+        return null;
     }
 
-    @Override
-    public List<AppointmentResponse> getAppoinmentFofStaff_Reception() {
+//    @Override
+//    public List<AppointmentResponse> getAppoinmentFofStaff_Lab() {
+//
+//
+//        // minh se  lay thoi gian dat lich -> doi sang ca -> kiem tra roi hien nhung lich hen thuoc ve ca cua minh len
+//        String usename = SecurityContextHolder.getContext().getAuthentication().getName();
+//        Person p = isUserResponsity.findByUsername(usename);
+////        System.out.println(p.getName());
+//        List<String> list = new ArrayList<>();
+//        list.add("CANCLE");
+//        list.add("COMPLETE");
+//        list.add("REFUNDED");
+//        List<Appointment> appointmentList = isAppointmentResponsitory.findAllByCurentStatusAppointmentNotIn(list);
+//        List<AppointmentResponse> appointmentResponseList = new ArrayList<>();
+//        for (Appointment appointment : appointmentList) {
+//
+//            List<Sample> sampleList = appointment.getSampelist();
+//            if (sampleList != null && sampleList.size() > 0 && sampleList.get(0).getCureStatusSample() != null) {
+//                ProcessTesting curent = isProcessTesting.findOrderProcessByStatusNameAndSampleMethod(sampleList.get(0).getCureStatusSample(), appointment.getTypeCollect());
+//                ProcessTesting pro = isProcessTesting.findByOrderProcessAndSampleMethod(curent.getOrderProcess() + 1, appointment.getTypeCollect());
+//
+//                if (pro.getPerson_confirm().equals(RoleName.STAFF_LAB)) {
+//                    Work_hour work = Work_hour(appointment.getDateCollect());
+//                    if (work.equals(p.getWork_hour())) {
+//                        AppointmentResponse appointmentResponse = appointmentMapper.AppointmentCreateResponse(appointment);
+//                        appointmentResponse.setListSample(sampleService.getbyAppoinment(appointment.getAppointmentId()));
+//
+//                        appointmentResponseList.add(appointmentResponse);
+//                    }
+//                }
+//
+//                //  appointmentResponseList.add(appointmentMapper.AppointmentCreateResponse(appointment));
+//
+//            }
+//
+//        }
+//
+//
+//        return appointmentResponseList;
+//    }
+//
+//    @Override
+//    public List<AppointmentResponse> getAppoinmentFofStaff_Reception() {
+//
+//
+//        String usename = SecurityContextHolder.getContext().getAuthentication().getName();
+//        List<String> lists = new ArrayList<>();
+//        lists.add("CANCLE");
+//        lists.add("COMPLETE");
+//        lists.add("WAITING FOR PAYMENT");
+//        Person p = isUserResponsity.findByUsername(usename);
+//        List<Payment> listpayPayments = isPaymentResponsitory.findAllByPaymentStatusIsFalseAndExpenseIsFalseAndAppointment_CurentStatusAppointmentIsIn(lists);
+//        List<AppointmentResponse> appointmentResponseList = new ArrayList<>();
+//
+//        List<Appointment> list = new ArrayList<>();
+//        for (Payment payment : listpayPayments) {
+//
+//            list.add(payment.getAppointment());
+//            System.out.println(list.size());
+//        }
+//
+//        for (Appointment appointment : list) {
+//            System.out.println(appointment.getAppointmentId());
+//            System.out.println(appointment.getDateCollect());
+//            Work_hour work = Work_hour(appointment.getDateCollect());
+//            System.out.println(work);
+//
+//
+//            if (work.equals(p.getWork_hour())) {
 
-
-        String usename = SecurityContextHolder.getContext().getAuthentication().getName();
-        List<String> lists = new ArrayList<>();
-        lists.add("CANCLE");
-        lists.add("COMPLETE");
-        lists.add("WAITING FOR PAYMENT");
-        Person p = isUserResponsity.findByUsername(usename);
-        List<Payment> listpayPayments = isPaymentResponsitory.findAllByPaymentStatusIsFalseAndExpenseIsFalseAndAppointment_CurentStatusAppointmentIsIn(lists);
-        List<AppointmentResponse> appointmentResponseList = new ArrayList<>();
-
-        List<Appointment> list = new ArrayList<>();
-        for (Payment payment : listpayPayments) {
-
-            list.add(payment.getAppointment());
-            System.out.println(list.size());
-        }
-
-        for (Appointment appointment : list) {
-            System.out.println(appointment.getAppointmentId());
-            System.out.println(appointment.getDateCollect());
-            Work_hour work = Work_hour(appointment.getDateCollect());
-            System.out.println(work);
-
-
-            if (work.equals(p.getWork_hour())) {
-// tranh truong hop thanh toan bang tien mat no chua thanh toan ma da huy thi no se hien len tren ko hop ly
-                if (appointment.getCurentStatusAppointment().equals("CANCLE")) {
-                    if (appointment.getSampelist().size() > 0 && appointment.getSampelist().getFirst().getCureStatusSample() != null) {
-                        AppointmentResponse appointmentResponse = appointmentMapper.AppointmentCreateResponse(appointment);
-                        appointmentResponse.setListSample(sampleService.getbyAppoinment(appointment.getAppointmentId()));
-
-                        appointmentResponseList.add(appointmentResponse);
-                    }
-                } else {
-                    AppointmentResponse appointmentResponse = appointmentMapper.AppointmentCreateResponse(appointment);
-                    appointmentResponse.setListSample(sampleService.getbyAppoinment(appointment.getAppointmentId()));
-
-                    appointmentResponseList.add(appointmentResponse);
-                }
-
-
-            }
-
-
-        }
-        return appointmentResponseList;
-    }
-
-
+    /// / tranh truong hop thanh toan bang tien mat no chua thanh toan ma da huy thi no se hien len tren ko hop ly
+//                if (appointment.getCurentStatusAppointment().equals("CANCLE")) {
+//                    if (appointment.getSampelist().size() > 0 && appointment.getSampelist().getFirst().getCureStatusSample() != null) {
+//                        AppointmentResponse appointmentResponse = appointmentMapper.AppointmentCreateResponse(appointment);
+//                        appointmentResponse.setListSample(sampleService.getbyAppoinment(appointment.getAppointmentId()));
+//
+//                        appointmentResponseList.add(appointmentResponse);
+//                    }
+//                } else {
+//                    AppointmentResponse appointmentResponse = appointmentMapper.AppointmentCreateResponse(appointment);
+//                    appointmentResponse.setListSample(sampleService.getbyAppoinment(appointment.getAppointmentId()));
+//
+//                    appointmentResponseList.add(appointmentResponse);
+//                }
+//
+//
+//            }
+//
+//
+//        }
+//        return appointmentResponseList;
+//    }
+//
     public Work_hour Work_hour(LocalDateTime dateCollect) {
         int hour = dateCollect.getHour();
 
@@ -432,7 +498,7 @@ public class AppointmentService implements IsAppointmentService {
     public Page<AppointmentResponse> getAppointmnetForMangerShiftStaff(Pageable pageable) {
         Page<Appointment> appointments = isAppointmentResponsitory.findForMangerAssign(pageable);
 
-        List<AppointmentResponse> appointmentResponseList = new ArrayList<>();
+
         return appointments.map(appointmentMapper::AppointmentCreateResponse);
     }
 
@@ -444,15 +510,22 @@ public class AppointmentService implements IsAppointmentService {
         });
         Person staff = isUserResponsity.findByPersonId(request.getPersonId());
         a.setStaff(staff);
-        if(staff != null) // chuc nang huy assign staff
+        if (staff != null) // chuc nang huy assign staff
         {
+//notification
+            String code = "";
+            for (Sample s : a.getSampelist()) {
+                code += s.getSamplecode() + "-";
+            }
+
+            notificationService.createNotification(staff, "You have appointment at " + a.getDateCollect() + "  in " + a.getLocation() + "(" + a.getTypeCollect() + "). " + " Let prepare " + a.getService().getSample_count() + " .kit test with sample code is " + code.substring(0, code.length() - 1));
+
+//notification
             staff.getAppointmentList().add(a);
             isUserResponsity.save(staff);
-        }
-        else {
+        } else {
             isAppointmentResponsitory.save(a);
         }
-
 
 
         return appointmentMapper.AppointmentCreateResponse(a);
@@ -466,13 +539,11 @@ public class AppointmentService implements IsAppointmentService {
         LocalDateTime startDay = day.atStartOfDay();
         LocalDateTime endDay = startDay.plusDays(1);
         Page<Person> list = null;
-        if(keyword == null || keyword.trim().isEmpty())
-        {
-            list  = isUserResponsity.findStaffByWorkHour(startDay, endDay, Work_hour(a.getDateCollect()), pageable);
+        if (keyword == null || keyword.trim().isEmpty()) {
+            list = isUserResponsity.findStaffByWorkHour(startDay, endDay, Work_hour(a.getDateCollect()), pageable);
 
-        }else
-        {
-            list = isUserResponsity.findStaffByWorkHourWithKeyWord(startDay,endDay,Work_hour(a.getDateCollect()),pageable,keyword);
+        } else {
+            list = isUserResponsity.findStaffByWorkHourWithKeyWord(startDay, endDay, Work_hour(a.getDateCollect()), pageable, keyword);
         }
         return list.map(userMapper::PersonToStaffResponse);
     }
@@ -509,9 +580,9 @@ public class AppointmentService implements IsAppointmentService {
 
         int totalAppointment = isAppointmentResponsitory.countCompletedAppointmentsToday(start, end);
 
-        BigDecimal revenue = isPaymentResponsitory.getTodayRevenueToday(start,end);
-        Map<String,SummaryTodayResponse> summary = new HashMap<>();
-        SummaryTodayResponse today = new SummaryTodayResponse(revenue,totalAppointment);
+        BigDecimal revenue = isPaymentResponsitory.getTodayRevenueToday(start, end);
+        Map<String, SummaryTodayResponse> summary = new HashMap<>();
+        SummaryTodayResponse today = new SummaryTodayResponse(revenue, totalAppointment);
 
         summary.put("hôm nay", today);
         return summary;
@@ -565,6 +636,7 @@ public class AppointmentService implements IsAppointmentService {
 
         } else {
             throw new IllegalArgumentException("Please provide valid date info");
+
         }
 
 
@@ -582,6 +654,7 @@ public class AppointmentService implements IsAppointmentService {
         response.setTotalExpense(expense);
         response.setRemain(remain);
         return new StaticReponse(totalBills, revenue, expense, remain);
+
     }
 
 
