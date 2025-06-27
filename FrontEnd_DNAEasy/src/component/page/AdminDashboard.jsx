@@ -16,14 +16,6 @@ import {
   ChevronDown,
   Plus,
   Filter,
-  Download,
-  Eye,
-  Edit,
-  Trash2,
-  DollarSign,
-  Activity,
-  CreditCard,
-  UserPlus,
   MoreHorizontal
 } from 'lucide-react';
 import '/src/component/css/AdminDashboard.css'; 
@@ -32,7 +24,7 @@ const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  // Sample data
+  // Sample static data (no API calls)
   const stats = [
     { 
       icon: Users, 
@@ -44,7 +36,7 @@ const AdminDashboard = () => {
       bgColor: '#E3F2FD'
     },
     { 
-      icon: DollarSign, 
+      icon: Users, 
       label: 'Total Revenue', 
       value: '$999.99M', 
       change: '4.67%', 
@@ -53,7 +45,7 @@ const AdminDashboard = () => {
       bgColor: '#E8F5E8'
     },
     { 
-      icon: UserPlus, 
+      icon: UserCheck, 
       label: 'New Orders', 
       value: '10.2k', 
       change: '2.40%', 

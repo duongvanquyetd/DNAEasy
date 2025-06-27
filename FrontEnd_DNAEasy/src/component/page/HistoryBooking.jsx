@@ -39,6 +39,9 @@ export const HistoryBooking = () => {
                         const hardresultID = result.data?.[0]?.hardresultID;
                         const canconfirm = hardresultID ? await CanConfirm(hardresultID) : { data: null };
 
+                        // Derive sampleCollectMethod based on location or a new field (example logic)
+                        const sampleCollectMethod = appointment.location === 'Tại nhà' ? 'Tại nhà tự lấy' : 'Bệnh viện';
+
                         return {
                             ...appointment,
                             trackingSample: appointment.listSample[0]?.sampleTracking || [],
@@ -46,7 +49,8 @@ export const HistoryBooking = () => {
                             status: status.data,
                             cancomment: cancomment.data,
                             trackingReuslt: result.data && result.data[0] && result.data[0].tracking ? result.data[0].tracking : '',
-                            canconfirm: canconfirm.data
+                            canconfirm: canconfirm.data,
+                            sampleCollectMethod, // Added new field
                         };
                     })
                 );
@@ -177,13 +181,16 @@ export const HistoryBooking = () => {
                                             </svg>
                                             <span>{formatDate(booking.dateCollect)}</span>
                                         </div>
-                                        <div className="detail-item">
-                                            <span className="detail-label">Kết luận:</span>
-                                            <span className="detail-value">{booking.result[0]?.conclustionResult || 'Chưa có kết quả'}</span>
+                                        <div className="sample-info">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                                            </svg>
+                                            <span>Sample Collect: {booking.sampleCollectMethod || 'Không xác định'}</span>
                                         </div>
                                     </div>
                                     {selectedAppointmentId === booking.appointmentId && (
                                         <div className="card-body">
+                                            {/* Basic details always visible */}
                                             <div className="details-grid">
                                                 <div className="detail-item">
                                                     <span className="detail-label">Khách hàng:</span>
@@ -206,22 +213,16 @@ export const HistoryBooking = () => {
                                                     <span className="detail-value">{booking.note || 'Không có'}</span>
                                                 </div>
                                                 <div className="detail-item">
-                                                    {booking.cancomment && (
+                                                    {booking.status && booking.cancomment && (
                                                         <a href={`/service/${booking.serviceId}`} className="comment-button">
                                                             Comment
                                                         </a>
                                                     )}
-                                                    {booking.canconfirm?.canConfirmHardResult && (
-                                                        <button
-                                                            className="comment-button"
-                                                            onClick={() => setShowUploadForm(booking)}
-                                                        >
-                                                            {booking.canconfirm.nextStatus}
-                                                        </button>
-                                                    )}
                                                 </div>
                                             </div>
-                                            {!booking.status && rolename === "CUSTOMER" && booking.curentStatusAppointment === "COMPLETE" ? (
+
+                                            {/* Payment warning if not paid and customer role with complete status */}
+                                            {!booking.status && rolename === "CUSTOMER" && booking.curentStatusAppointment === "COMPLETE" && (
                                                 <div className="payment-warning">
                                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
@@ -234,100 +235,113 @@ export const HistoryBooking = () => {
                                                         </button>
                                                     </div>
                                                 </div>
-                                            ) : (
-                                                <div className="payment-info">
-                                                    <h4>Phương thức thanh toán</h4>
-                                                    <p>
-                                                        {booking.paymentMethod === 'VNPay' ? (
-                                                            <img src="https://s-vnba-cdn.aicms.vn/vnba-media/23/8/16/vnpay-logo_64dc3da9d7a11.jpg" alt="VNPay" className="payment-logo" />
-                                                        ) : booking.paymentMethod === 'Cash' ? (
-                                                            <img src="https://www.creativefabrica.com/wp-content/uploads/2021/09/15/Money-finance-cash-payment-icon-Graphics-17346742-1.jpg" alt="Cash" className="payment-logo" />
-                                                        ) : (
-                                                            booking.paymentMethod
-                                                        )}
-                                                    </p>
-                                                    <p className="payment-amount">{booking.paymentAmount?.toLocaleString('vi-VN')} VNĐ</p>
-                                                </div>
                                             )}
-                                            <div className="tracking-grid">
-                                                <div className="tracking-section">
-                                                    <h4>Tiến trình lịch hẹn</h4>
-                                                    {booking.tracking?.length > 0 ? (
-                                                        booking.tracking.map((track, idx) => (
-                                                            <div key={idx} className="tracking-item">
-                                                                <span className="status-dot appointment" />
-                                                                <div>
-                                                                    <p>{track.statusName}</p>
-                                                                    <span>{formatDate(track.statusDate)}</span>
-                                                                    {track.imageUrl && <img src={track.imageUrl} alt="Track" className="tracking-image" />}
-                                                                </div>
-                                                            </div>
-                                                        ))
-                                                    ) : (
-                                                        <p>Không có dữ liệu.</p>
-                                                    )}
-                                                </div>
-                                                <div className="tracking-section">
-                                                    <h4>Tiến trình xử lý mẫu</h4>
-                                                    {booking.trackingSample?.length > 0 ? (
-                                                        booking.trackingSample.map((track, idx) => (
-                                                            <div key={idx} className="tracking-item">
-                                                                <span className="status-dot sample" />
-                                                                <div>
-                                                                    <p>{track.nameStatus}</p>
-                                                                    <span>{formatDate(track.sampleTrackingTime)}</span>
-                                                                    {track.imageUrl && <img src={track.imageUrl} alt="Track" className="tracking-image" />}
-                                                                </div>
-                                                            </div>
-                                                        ))
-                                                    ) : (
-                                                        <p>Không có dữ liệu.</p>
-                                                    )}
-                                                </div>
-                                                <div className="tracking-section">
-                                                    <h4>Kết quả xét nghiệm</h4>
-                                                    {booking.result?.length > 0 ? (
-                                                        booking.result.map((res, idx) => (
-                                                            <div key={idx} className="tracking-item">
-                                                                <span className="status-dot result" />
-                                                                <div>
-                                                                    <p><strong>Người lấy mẫu:</strong> {res.nameOfPerson}</p>
-                                                                    {res.relationName && <p><strong>Quan hệ:</strong> {res.relationName}</p>}
-                                                                    <p><strong>Mã mẫu:</strong> {res.samplecode}</p>
-                                                                    {res.conclustionResult && <p><strong>Kết luận:</strong> {res.conclustionResult}</p>}
-                                                                    <p><strong>Có kết quả:</strong> {formatDate(res.resultTime)}</p>
-                                                                    {res.resulFilePDF && (
-                                                                        <>
-                                                                            <img src={res.resulFilePDF} alt="Kết quả PDF" className="result-image" />
-                                                                            <a href={res.resulFilePDF.replace('/upload/', '/upload/fl_attachment/')} className="download-button">
-                                                                                Tải xuống
-                                                                            </a>
-                                                                        </>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        ))
-                                                    ) : (
-                                                        <p>Chưa có kết quả.</p>
-                                                    )}
-                                                    {rolename === "CUSTOMER" && booking.result[0]?.hardresultID === null && (
+
+                                            {/* Full details only visible after payment */}
+                                            {booking.status && (
+                                                <>
+                                                    <div className="payment-info">
+                                                        <h4>Phương thức thanh toán</h4>
+                                                        <p>
+                                                            {booking.paymentMethod === 'VNPay' ? (
+                                                                <img src="https://s-vnba-cdn.aicms.vn/vnba-media/23/8/16/vnpay-logo_64dc3da9d7a11.jpg" alt="VNPay" className="payment-logo" />
+                                                            ) : booking.paymentMethod === 'Cash' ? (
+                                                                <img src="https://www.creativefabrica.com/wp-content/uploads/2021/09/15/Money-finance-cash-payment-icon-Graphics-17346742-1.jpg" alt="Cash" className="payment-logo" />
+                                                            ) : (
+                                                                booking.paymentMethod
+                                                            )}
+                                                        </p>
+                                                        <p className="payment-amount">{booking.paymentAmount?.toLocaleString('vi-VN')} VNĐ</p>
+                                                    </div>
+                                                    <div className="tracking-grid">
+                                                        <div className="tracking-section">
+                                                            <h4>Tiến trình lịch hẹn</h4>
+                                                            {booking.tracking?.length > 0 ? (
+                                                                booking.tracking.map((track, idx) => (
+                                                                    <div key={idx} className="tracking-item">
+                                                                        <span className="status-dot appointment" />
+                                                                        <div>
+                                                                            <p>{track.statusName}</p>
+                                                                            <span>{formatDate(track.statusDate)}</span>
+                                                                            {track.imageUrl && <img src={track.imageUrl} alt="Track" className="tracking-image" />}
+                                                                        </div>
+                                                                    </div>
+                                                                ))
+                                                            ) : (
+                                                                <p>Không có dữ liệu.</p>
+                                                            )}
+                                                        </div>
+                                                        <div className="tracking-section">
+                                                            <h4>Tiến trình xử lý mẫu</h4>
+                                                            {booking.trackingSample?.length > 0 ? (
+                                                                booking.trackingSample.map((track, idx) => (
+                                                                    <div key={idx} className="tracking-item">
+                                                                        <span className="status-dot sample" />
+                                                                        <div>
+                                                                            <p>{track.nameStatus}</p>
+                                                                            <span>{formatDate(track.sampleTrackingTime)}</span>
+                                                                            {track.imageUrl && <img src={track.imageUrl} alt="Track" className="tracking-image" />}
+                                                                        </div>
+                                                                    </div>
+                                                                ))
+                                                            ) : (
+                                                                <p>Không có dữ liệu.</p>
+                                                            )}
+                                                        </div>
+                                                        <div className="tracking-section">
+                                                            <h4>Kết quả xét nghiệm</h4>
+                                                            {booking.result?.length > 0 ? (
+                                                                booking.result.map((res, idx) => (
+                                                                    <div key={idx} className="tracking-item">
+                                                                        <span className="status-dot result" />
+                                                                        <div>
+                                                                            <p><strong>Người lấy mẫu:</strong> {res.nameOfPerson}</p>
+                                                                            {res.relationName && <p><strong>Quan hệ:</strong> {res.relationName}</p>}
+                                                                            <p><strong>Mã mẫu:</strong> {res.samplecode}</p>
+                                                                            {res.conclustionResult && <p><strong>Kết luận:</strong> {res.conclustionResult}</p>}
+                                                                            <p><strong>Có kết quả:</strong> {formatDate(res.resultTime)}</p>
+                                                                            {res.resulFilePDF && (
+                                                                                <>
+                                                                                    <img src={res.resulFilePDF} alt="Kết quả PDF" className="result-image" />
+                                                                                    <a href={res.resulFilePDF.replace('/upload/', '/upload/fl_attachment/')} className="download-button">
+                                                                                        Tải xuống
+                                                                                    </a>
+                                                                                </>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                ))
+                                                            ) : (
+                                                                <p>Chưa có kết quả.</p>
+                                                            )}
+                                                            {rolename === "CUSTOMER" && booking.result[0]?.hardresultID === null && (
+                                                                <button
+                                                                    className="receive-hard-result-btn"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        setCreateHardResult(true);
+                                                                    }}
+                                                                >
+                                                                    Receive Hard Result
+                                                                </button>
+                                                            )}
+                                                            <HardResultModal
+                                                                isOpen={createHardResult}
+                                                                onClose={() => setCreateHardResult(false)}
+                                                                resultlist={booking.result}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    {booking.canconfirm?.canConfirmHardResult && (
                                                         <button
-                                                            className="receive-hard-result-btn"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                setCreateHardResult(true);
-                                                            }}
+                                                            className="comment-button"
+                                                            onClick={() => setShowUploadForm(booking)}
                                                         >
-                                                            Receive Hard Result
+                                                            {booking.canconfirm.nextStatus}
                                                         </button>
                                                     )}
-                                                    <HardResultModal
-                                                        isOpen={createHardResult}
-                                                        onClose={() => setCreateHardResult(false)}
-                                                        resultlist={booking.result}
-                                                    />
-                                                </div>
-                                            </div>
+                                                </>
+                                            )}
                                         </div>
                                     )}
                                 </div>
