@@ -242,7 +242,6 @@ const ManageService = () => {
       <div className="filter-action-row">
         <div className="filter-bar-left">
           <form className="searchBar" onSubmit={(e) => { e.preventDefault(); }} >
-            <span className="search-icon"><AppstoreOutlined /></span>
             <input type="text" placeholder="What are you looking for?" value={searchQuery.trim()} onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1) }} aria-label="Search services" />
             <select name="category" aria-label="Select category" onChange={(e) => setCategory(e.target.value)} value={category}>
               <option value="">All Services</option>
