@@ -16,7 +16,7 @@ public class Notification {
     private Long notiID;
     @Column(columnDefinition = "TEXT")
     private String content;
-    @Column(nullable = false,columnDefinition = "BIT 0")
+    @Column(nullable = false,columnDefinition = "BIT DEFAULT 0")
     private boolean readed=false;
 
     private LocalDateTime time;

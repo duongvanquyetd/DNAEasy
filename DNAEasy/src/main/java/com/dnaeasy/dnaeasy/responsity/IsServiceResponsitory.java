@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 public interface IsServiceResponsitory extends JpaRepository<Service, Long> {
     Service findByServiceId(int serviceId);
@@ -24,6 +23,7 @@ public interface IsServiceResponsitory extends JpaRepository<Service, Long> {
 
     Page<Service> findByTypeServiceContainingIgnoreCaseAndServiceNameContainingAndActive(String typeService, String serviceName, boolean active,Pageable pageable);
 
+
     Page<Service> findByServiceNameContainingIgnoreCaseAndActive(String serviceName, boolean active, Pageable pageable);
 
     Page<Service> findByTypeServiceContainingIgnoreCaseAndActive(String typeService, boolean active, Pageable pageable);
@@ -36,4 +36,24 @@ public interface IsServiceResponsitory extends JpaRepository<Service, Long> {
     int countByServiceNameAndActive(String serviceName, boolean active);
 
     long countByActive(boolean active);
+
+
+    @Query("""
+            SELECT s from Service s where s.active=:active 
+            and (:serviceName is null or lower( s.serviceName) like lower(concat("%",:serviceName,'%') )
+  ) 
+              and (:typeService is null or lower( s.typeService) like lower(concat("%",:typeService,'%') )  )
+
+""")
+    Page<Service> searchService(String serviceName, String typeService, boolean active, Pageable pageable);
+    @Query("""
+            SELECT s from Service s where s.active=:active 
+            and (:serviceName is null or lower( s.serviceName) like lower(concat("%",:serviceName,'%') )
+            or s.servicePrice =:price) 
+              and (:typeService is null or lower( s.typeService) like lower(concat("%",:typeService,'%') )  )
+
+""")
+    Page<Service> searchServicePrice(String serviceName,BigDecimal price, String typeService, boolean active, Pageable pageable);
+
+
 }

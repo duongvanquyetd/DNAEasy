@@ -35,9 +35,22 @@ public interface IsPaymentResponsitory extends JpaRepository<Payment, Integer> {
 
    @Query("select p from Payment p where p.isExpense = false and p.appointment.appointmentId =:appointmentid")
     Payment findByAppointmentIdAndExpenseIsFalse(int appointmentid);
-
-    @Query("select p from Payment p where p.paymentStatus = false and p.isExpense = false and p.appointment.curentStatusAppointment  in (:appointmentCurentStatusAppointments)")
-    List<Payment> findAllByPaymentStatusIsFalseAndExpenseIsFalseAndAppointment_CurentStatusAppointmentIsIn( Collection<String> appointmentCurentStatusAppointments);
+//    @Query("""
+//            select p from Payment p where p.paymentStatus = false and p.isExpense = false and p.appointment.curentStatusAppointment  in
+//            (select  a.appointmentId from Appointment  a where
+//             (
+//            lower(a.location) like lower(concat('%',:keysearch,'%'))
+//            or :keysearch is null
+//            or lower(a.curentStatusAppointment) like lower(concat('%',:keysearch,'%') )
+//            or lower(a.typeCollect) like lower(concat('%',:keysearch,'%'))
+//            or lower(a.service.serviceName) like  lower(concat('%',:keysearch,'%'))
+//            or lower(a.emailAppointment) like lower(concat('%',:keysearch,'%'))
+//            or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))
+//             )
+//            and a.curentStatusAppointment not in (:list) )
+//
+//            """)
+//    List<Payment> findAllByPaymentStatusIsFalseAndExpenseIsFalseAndAppointment_CurentStatusAppointmentIsIn( Collection<String> appointmentCurentStatusAppointments);
 
     List<Payment> findAllByPaymentStatusIsTrueAndPaymentDateIsBetween(LocalDateTime start, LocalDateTime end);
 

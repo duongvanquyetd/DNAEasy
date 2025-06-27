@@ -3,12 +3,16 @@ package com.dnaeasy.dnaeasy.mapper;
 import com.dnaeasy.dnaeasy.dto.request.AppointmentCreateRequest;
 import com.dnaeasy.dnaeasy.dto.response.AppointmentResponse;
 import com.dnaeasy.dnaeasy.dto.response.AppointmentTrackingResponse;
+import com.dnaeasy.dnaeasy.dto.response.SampleResponse;
 import com.dnaeasy.dnaeasy.enity.Appointment;
 import com.dnaeasy.dnaeasy.enity.AppointmnentTracking;
 import com.dnaeasy.dnaeasy.enity.Payment;
+import com.dnaeasy.dnaeasy.enity.Sample;
 import com.dnaeasy.dnaeasy.enums.PaymentMehtod;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,8 +20,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 @Mapper(componentModel = "spring")
 public interface AppointmentMapper {
+
+
     Appointment AppointmentCreateRequestToAppointment(AppointmentCreateRequest AppointmentCreateRequest);
 
 
@@ -30,6 +37,7 @@ public interface AppointmentMapper {
     @Mapping(target = "typeService" ,source = "service.typeService")
     @Mapping(target = "paymentStatus",expression = "java(paymentStatus(appointment))")
     @Mapping(target = "serviceId" ,source  ="service.serviceId")
+
     AppointmentResponse AppointmentCreateResponse(Appointment appointment);
     default List<AppointmentTrackingResponse> AppointmentTrackingToList(Appointment appointment) {
       List<AppointmentTrackingResponse> list = new ArrayList<>();
@@ -72,5 +80,6 @@ public interface AppointmentMapper {
         return null;
 
     }
+
 
  }
