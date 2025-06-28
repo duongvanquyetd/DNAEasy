@@ -40,4 +40,6 @@ public interface IsCommentRepository extends JpaRepository<Comment, Integer> {
 
 
     int countByService_ServiceIdAndCustomer_PersonId(int serviceServiceId, int customerPersonId);
+
+    Integer countByRating(int rating);
 }
