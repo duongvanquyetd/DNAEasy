@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Table, Button, Modal, Form, Input, InputNumber, Space, message, Upload, Card, Row, Col, Statistic, Tag, Tooltip, Select, Spin, AutoComplete } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, UploadOutlined, EyeOutlined, DollarOutlined, AppstoreOutlined, TrophyOutlined, CheckCircleTwoTone, CloseCircleTwoTone, ExclamationCircleOutlined, QuestionCircleOutlined, FileExcelOutlined, ArrowUpOutlined, ArrowDownOutlined, SearchOutlined, ReloadOutlined, CloseCircleFilled, LeftOutlined, RightOutlined, CheckOutlined, PauseOutlined } from '@ant-design/icons';
+import { Table, Button, Modal, Form, Input, InputNumber, Space, message, Upload, Card, Row, Col, Statistic, Tag, Tooltip, Select, Spin, AutoComplete, Typography, Divider, Badge, Avatar, Popconfirm } from 'antd';
+import { EditOutlined, DeleteOutlined, PlusOutlined, UploadOutlined, EyeOutlined, DollarOutlined, AppstoreOutlined, TrophyOutlined, CheckCircleTwoTone, CloseCircleTwoTone, ExclamationCircleOutlined, QuestionCircleOutlined, FileExcelOutlined, ArrowUpOutlined, ArrowDownOutlined, SearchOutlined, ReloadOutlined, LeftOutlined, RightOutlined, CheckOutlined, PauseOutlined, SortAscendingOutlined, SortDescendingOutlined, FilterOutlined } from '@ant-design/icons';
 import DynamicHeader from '../DynamicHeader';
 import HeaderManager from '../HeaderManager';
 import Footer from '../Footer';
 import '../css/ManageService.css';
 import { ActiveSerive, CreateService, DeleteService, GetALlServies, Report, SearchAndGet, UpdateService } from '../../service/service';
+import { CheckCircleOutlined } from '@ant-design/icons';
+import { CloseOutlined } from '@ant-design/icons';
+const { Title, Text } = Typography;
 
 const ManageService = () => {
   const [services, setServices] = useState([]);
@@ -29,12 +32,9 @@ const ManageService = () => {
   const [sortColumn,setSortColumn] = useState(null);
   const [modesort,setModeSort]  =useState("asc")
 
-  const [confirmModal, setConfirmModal] = useState({ open: false, type: '', service: null });
   const [helpModal, setHelpModal] = useState(false);
 
   const [loading, setLoading] = useState(false);
-
-  const [pendingEditValues, setPendingEditValues] = useState(null);
 
   const [imageModal, setImageModal] = useState({ open: false, images: [], current: 0 });
   const slideshowRef = useRef(null);
@@ -50,68 +50,93 @@ const ManageService = () => {
       setAvaragePrice(response.data.avgamount)
       setTotalInActive(response.data.inactive)
       setTotalactive(response.data.active)
-    })
+    }).catch((error) => {
+      console.log("Error fetching report:", error);
+      message.error('Failed to load service statistics');
+    });
     console.log('ManageService component mounted');
   }, []);
 
   useEffect(() => {
+    setLoading(true);
+    console.log('Fetching services with params:', { 
+      searchQuery, 
+      category, 
+      currentPage, 
+      pagesize, 
+      active, 
+      sortColumn, 
+      modesort 
+    });
+    SearchAndGet({ keywordSearch: searchQuery, keywordType: category }, currentPage, pagesize, active, sortColumn, modesort)
+      .then((response) => {
+        console.log('API Response:', response.data);
+        setTotalPages(response.data.totalPages)
+        setServices(response.data.content)
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.log("Error fetching services:", error);
+        setLoading(false);
+        message.error('Lỗi khi tải dữ liệu!');
+      });
+  }, [currentPage, searchQuery, category, active, sortColumn, modesort])
 
-
-    SearchAndGet({ keywordSearch: searchQuery, keywordType: category }, currentPage, pagesize, active,sortColumn,modesort).then((response) => {
-
-      setTotalPages(response.data.totalPages)
-      setServices(response.data.content)
-      setLoading(false);
-    }).catch(() => {
-      setLoading(false);
-      message.error('Lỗi khi tải dữ liệu!');
-    })
-
-
-
-  }, [currentPage, searchQuery, category, active,sortColumn,modesort])
-
-  const renderPagination = (total, current, setPage) => (
-    <div className="pagination" style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', margin: '18px 0' }}>
-      <button
-        className="page-button"
-        onClick={() => setPage(current - 1)}
-        disabled={current === 1}
-        style={{ opacity: current === 1 ? 0.5 : 1 }}
-      >
-        <LeftOutlined /> Previous
-      </button>
-      {Array.from({ length: total }, (_, i) => i + 1).map((i) => (
+  const renderPagination = (total, current, setPage) => {
+    if (!total || total <= 0) return null;
+    
+    return (
+      <div className="pagination" style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', margin: '18px 0' }}>
         <button
-          key={i}
-          className={`page-button ${i === current ? 'active' : ''}`}
-          onClick={() => setPage(i)}
+          className="page-button"
+          onClick={() => setPage(current - 1)}
+          disabled={current === 1}
+          style={{ opacity: current === 1 ? 0.5 : 1 }}
         >
-          {i}
+          <LeftOutlined /> Previous
         </button>
-      ))}
-      <button
-        className="page-button"
-        onClick={() => setPage(current + 1)}
-        disabled={current === total}
-        style={{ opacity: current === total ? 0.5 : 1 }}
-      >
-        Next <RightOutlined />
-      </button>
-    </div>
-  );
+        {Array.from({ length: total }, (_, i) => i + 1).map((i) => (
+          <button
+            key={i}
+            className={`page-button ${i === current ? 'active' : ''}`}
+            onClick={() => setPage(i)}
+          >
+            {i}
+          </button>
+        ))}
+        <button
+          className="page-button"
+          onClick={() => setPage(current + 1)}
+          disabled={current === total}
+          style={{ opacity: current === total ? 0.5 : 1 }}
+        >
+          Next <RightOutlined />
+        </button>
+      </div>
+    );
+  };
 
   function handleActive(id) {
     ActiveSerive(id).then((response) => {
-      console.log("Acctive Successfully", response.data);
+      console.log("Active Successfully", response.data);
+      message.success('Dịch vụ đã được kích hoạt thành công!');
       setSearchQuery((pre) => pre + " ")
     }).catch((error) => {
       console.log("Error", error)
+      message.error('Lỗi khi kích hoạt dịch vụ!');
     })
   }
 
   function handleDelete(id) {
-    setConfirmModal({ open: true, type: 'delete', service: services.find(s => s.serviceId === id) });
+    DeleteService(id)
+      .then(() => {
+        setSearchQuery((pre) => pre + " ");
+        message.success('Dịch vụ đã được xóa thành công!');
+      })
+      .catch((error) => {
+        console.log("Error", error);
+        message.error('Lỗi khi xóa dịch vụ!');
+      });
   }
 
   function handleEdit(service) {
@@ -123,30 +148,13 @@ const ManageService = () => {
       price: service.price,
       description: service.serviceDescription,
       sampleCount: service.sample_count,
-      imageUrls: service.imageUrls.map((url, idx) => ({
+      imageUrls: service.imageUrls?.map((url, idx) => ({
         uid: `${idx}`,
         name: url.split('/').pop(),
         status: 'done',
         url: url
-      }))
+      })) || []
     });
-  }
-
-  function handleConfirmAction() {
-    if (confirmModal.type === 'delete') {
-      DeleteService(confirmModal.service.serviceId).then(() => {
-        setSearchQuery((pre) => pre + " ")
-        message.success('Dịch vụ đã được xóa thành công!');
-      }).catch((error) => {
-        console.log("Error", error)
-      })
-    } else if (confirmModal.type === 'edit') {
-      if (pendingEditValues) {
-        handleCreateAndEdit(pendingEditValues);
-        setPendingEditValues(null);
-      }
-    }
-    setConfirmModal({ open: false, type: '', service: null });
   }
 
   function handleCreateAndEdit(values) {
@@ -159,9 +167,11 @@ const ManageService = () => {
       sample_count: values.sampleCount
     }
     formdata.append("service", new Blob([JSON.stringify(createService)], { type: "application/json" }))
-    if (values.imageUrls) {
+    if (values.imageUrls && values.imageUrls.length > 0) {
       values.imageUrls.forEach(file => {
-        formdata.append("file", file.originFileObj); // vi dung thu vien ant nen .originFileObj moi la File that su duoi BE moi nhan dc
+        if (file.originFileObj) {
+          formdata.append("file", file.originFileObj);
+        }
       });
     }
     console.log("Create data", createService)
@@ -174,8 +184,10 @@ const ManageService = () => {
         setSearchQuery((pre) => pre + " ")
         setCreateForm(false);       // Ẩn form
         form.resetFields();
+        message.success('Dịch vụ đã được cập nhật thành công!');
       }).catch((error) => {
-        console.log("Erorr", error.response?.data?.error)
+        console.log("Error", error.response?.data?.error)
+        message.error('Lỗi khi cập nhật dịch vụ!');
       })
     }
     else {
@@ -186,7 +198,8 @@ const ManageService = () => {
         form.resetFields();
         message.success('Dịch vụ đã được tạo thành công!');
       }).catch((error) => {
-        console.log("Erorr", error.response?.data?.error)
+        console.log("Error", error.response?.data?.error)
+        message.error('Lỗi khi tạo dịch vụ!');
       })
     }
   }
@@ -249,6 +262,219 @@ const ManageService = () => {
     setCurrentPage(1);
     // Có thể gọi API hoặc filter local tuỳ logic hiện tại
   };
+
+  const getSortIcon = (columnName) => {
+    if (sortColumn === columnName) {
+      return modesort === 'asc' ? <SortAscendingOutlined /> : <SortDescendingOutlined />;
+    }
+    return null;
+  };
+
+  const columns = [
+    {
+      title: 'Image',
+      dataIndex: 'imageUrls',
+      key: 'image',
+      width: 100,
+      render: (images, record) => (
+        <Avatar
+          size={60}
+          shape="square"
+          src={images && images.length > 0 ? images[0] : "https://th.bing.com/th/id/OIP.TdX9D7lAgnLjiFIgHvflfAHaHa?r=0&rs=1&pid=ImgDetMain&cb=idpwebpc2"}
+          alt={record.serviceName}
+          style={{ borderRadius: 8, cursor: 'pointer' }}
+          onClick={() => images && images.length > 0 && openImageModal(images, 0)}
+        />
+      ),
+    },
+    {
+      title: (
+        <Space>
+          <AppstoreOutlined />
+          Service Name
+          {getSortIcon('serviceName')}
+        </Space>
+      ),
+      dataIndex: 'serviceName',
+      key: 'name',
+      sorter: true,
+      render: (text) => (
+        <Text strong style={{ fontSize: 14 }}>
+          {text}
+        </Text>
+      ),
+    },
+    {
+      title: (
+        <Space>
+          <FilterOutlined />
+          Type
+          {getSortIcon('typeService')}
+        </Space>
+      ),
+      dataIndex: 'typeService',
+      key: 'type',
+      sorter: true,
+      render: (text) => (
+        <Tag color="blue" style={{ borderRadius: 6 }}>
+          {text}
+        </Tag>
+      ),
+    },
+    {
+      title: (
+        <Space>
+          <TrophyOutlined />
+          Sample Count
+          {getSortIcon('sample_count')}
+        </Space>
+      ),
+      dataIndex: 'sample_count',
+      key: 'sampleCount',
+      sorter: true,
+      render: (text) => (
+        <Text type="secondary">
+          {text}
+        </Text>
+      ),
+    },
+    {
+      title: 'Description',
+      dataIndex: 'serviceDescription',
+      key: 'description',
+      width: 80,
+      render: (text, record) => (
+        <Tooltip title="View Content">
+          <Button
+            type="text"
+            icon={<EyeOutlined />}
+            onClick={() => setViewContent(record)}
+            style={{ color: '#1890ff' }}
+          />
+        </Tooltip>
+      ),
+    },
+    {
+      title: (
+        <Space>
+          <DollarOutlined />
+          Price (VND)
+          {getSortIcon('servicePrice')}
+        </Space>
+      ),
+      dataIndex: 'price',
+      key: 'price',
+      sorter: true,
+      render: (text) => (
+        <Text strong style={{ color: '#52c41a' }}>
+          {text?.toLocaleString('vi-VN') || ''}
+        </Text>
+      ),
+    },
+    {
+      title: 'Status',
+      dataIndex: 'active',
+      key: 'status',
+      width: 100,
+      render: (active) => (
+        <Badge
+          status={active ? 'success' : 'default'}
+          text={active ? 'Active' : 'Inactive'}
+        />
+      ),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      width: 150,
+      render: (_, record) => (
+        <Space size="small">
+          {record.active ? (
+            <Popconfirm
+              title="Delete Service"
+              description={
+                <div>
+                  <p>Are you sure you want to delete this service?</p>
+                  <p style={{ fontWeight: 'bold', color: '#ff4d4f' }}>
+                    "{record.serviceName}"
+                  </p>
+                  <p style={{ fontSize: '12px', color: '#999' }}>
+                    This action cannot be undone.
+                  </p>
+                </div>
+              }
+              onConfirm={() => {
+                console.log("Delete confirmed for service:", record.serviceName, "ID:", record.serviceId);
+                handleDelete(record.serviceId);
+              }}
+              onCancel={() => {
+                console.log("Delete cancelled for service:", record.serviceName);
+                message.info("Delete operation cancelled");
+              }}
+              okText="Yes, Delete"
+              cancelText="Cancel"
+              okType="danger"
+              placement="topRight"
+              icon={<DeleteOutlined style={{ color: '#ff4d4f' }} />}
+            >
+              <Button
+                type="text"
+                danger
+                icon={<DeleteOutlined />}
+                size="small"
+                title="Delete Service"
+              />
+            </Popconfirm>
+          ) : (
+            <Popconfirm
+              title="Activate Service"
+              description={
+                <div>
+                  <p>Are you sure you want to activate this service?</p>
+                  <p style={{ fontWeight: 'bold', color: '#52c41a' }}>
+                    "{record.serviceName}"
+                  </p>
+                </div>
+              }
+              onConfirm={() => {
+                console.log("Activate confirmed for service:", record.serviceName, "ID:", record.serviceId);
+                handleActive(record.serviceId);
+              }}
+              onCancel={() => {
+                console.log("Activate cancelled for service:", record.serviceName);
+                message.info("Activate operation cancelled");
+              }}
+              okText="Yes, Activate"
+              cancelText="Cancel"
+              okType="primary"
+              placement="topRight"
+              icon={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
+            >
+              <Button
+                type="text"
+                icon={<CheckCircleOutlined />}
+                size="small"
+                style={{ color: '#52c41a' }}
+                title="Activate Service"
+              />
+            </Popconfirm>
+          )}
+
+          <Button
+            type="text"
+            icon={<EditOutlined />}
+            size="small"
+            style={{ color: '#1890ff' }}
+            title="Edit Service"
+            onClick={() => {
+              console.log("Edit clicked for service:", record.serviceName, "ID:", record.serviceId);
+              handleEdit(record);
+            }}
+          />
+        </Space>
+      ),
+    },
+  ];
 
   return (
     <div className="manage-service-main-content">
@@ -317,19 +543,18 @@ const ManageService = () => {
                   onSelect={val => { setSearchQuery(val); setCurrentPage(1); handleSearch(); }}
                   onSearch={fetchServiceSuggestions}
                   onChange={val => { setSearchQuery(val); setCurrentPage(1); fetchServiceSuggestions(val); }}
-                  style={{ width: 260 }}
+                  style={{ width: 300}}
                 >
                   <Input
                     placeholder="What are you looking for?"
                     allowClear
                     style={{
-                      height: 44,
                       borderRadius: 30,
                       background: '#fff',
                       color: '#222',
                       border: '1.5px solid #e0e7ef',
-                      fontSize: 5,
                       boxShadow: '0 2px 12px rgba(30,58,138,0.04)'
+                      
                     }}
                     suffix={
                       <SearchOutlined
@@ -369,12 +594,20 @@ const ManageService = () => {
                   <PlusOutlined style={{fontSize: '1rem', marginRight: 6}} />
                   Create Service
                 </button>
-                <button className={`filter-btn small-btn ${active ? 'active' : ''}`} onClick={() => { setActive(true); setCurrentPage(1); }} type="button">
+                <button className={`filter-btn small-btn ${active ? 'active' : ''}`} onClick={() => { 
+                  console.log('Active button clicked, setting active to true');
+                  setActive(true); 
+                  setCurrentPage(1); 
+                }} type="button">
                   <CheckOutlined style={{fontSize: '1rem', marginRight: 6}} />
                   Active Service
                   <span className="badge small-badge">{totalactive}</span>
                 </button>
-                <button className={`filter-btn small-btn ${!active ? 'inactive' : ''}`} onClick={() => { setActive(false); setCurrentPage(1); }} type="button">
+                <button className={`filter-btn small-btn ${!active ? 'inactive' : ''}`} onClick={() => { 
+                  console.log('Inactive button clicked, setting active to false');
+                  setActive(false); 
+                  setCurrentPage(1); 
+                }} type="button">
                   <PauseOutlined style={{fontSize: '1rem', marginRight: 6}} />
                   Inactive Service
                   <span className="badge small-badge">{totalinactive}</span>
@@ -384,140 +617,45 @@ const ManageService = () => {
             {/* End filter-action-row */}
       
             <div className="pagination-desc" style={{ textAlign: 'center', color: '#64748b', marginBottom: 8 }}>
-              Page {currentPage} of {totalPages}. Each page shows up to {pagesize} services.
+              Page {currentPage} of {totalPages || 0}. Each page shows up to {pagesize} services.
             </div>
       
-            {
-              services && services.length > 0 && (
-                <Spin spinning={loading} tip="Loading data...">
-                  <table className="service-table">
-                    <thead>
-                       <tr>
-                <th >Image</th>
-                <th onClick={()=> {
-                  if (sortColumn === 'serviceName') {
-                    setModeSort(modesort === 'asc' ? 'desc' : 'asc');
-                  } else {
-                    setSortColumn('serviceName');
-                    setModeSort('asc');
-                  }
-                }}
-                style={{ cursor: 'pointer' }}
-                >
-                  Service Name
-                  {sortColumn === 'serviceName' && (
-                    <span style={{ marginLeft: '8px' }}>
-                      {modesort === 'asc' ? <ArrowUpOutlined style={{ color: '#2563eb' }} /> : <ArrowDownOutlined style={{ color: '#2563eb' }} />}
-                    </span>
-                  )}
-                </th>
-                <th onClick={()=> {
-                  if (sortColumn === 'typeService') {
-                    setModeSort(modesort === 'asc' ? 'desc' : 'asc');
-                  } else {
-                    setSortColumn('typeService');
-                    setModeSort('asc');
-                  }
-                }}
-                style={{ cursor: 'pointer' }}
-                >
-                  Type
-                  {sortColumn === 'typeService' && (
-                    <span style={{ marginLeft: '8px' }}>
-                      {modesort === 'asc' ? <ArrowUpOutlined style={{ color: '#2563eb' }} /> : <ArrowDownOutlined style={{ color: '#2563eb' }} />}
-                    </span>
-                  )}
-                </th>
-                <th onClick={()=> {
-                  if (sortColumn === 'sample_count') {
-                    setModeSort(modesort === 'asc' ? 'desc' : 'asc');
-                  } else {
-                    setSortColumn('sample_count');
-                    setModeSort('asc');
-                  }
-                }}
-                style={{ cursor: 'pointer' }}
-                >
-                  Number Sample
-                  {sortColumn === 'sample_count' && (
-                    <span style={{ marginLeft: '8px' }}>
-                      {modesort === 'asc' ? <ArrowUpOutlined style={{ color: '#2563eb' }} /> : <ArrowDownOutlined style={{ color: '#2563eb' }} />}
-                    </span>
-                  )}
-                </th>
-                <th>Description</th>
-                <th onClick={()=> {
-                  if (sortColumn === 'servicePrice') {
-                    setModeSort(modesort === 'asc' ? 'desc' : 'asc');
-                  } else {
-                    setSortColumn('servicePrice');
-                    setModeSort('asc');
-                  }
-                }}
-                style={{ cursor: 'pointer' }}
-                >
-                  Price (VND)
-                  {sortColumn === 'servicePrice' && (
-                    <span style={{ marginLeft: '8px' }}>
-                      {modesort === 'asc' ? <ArrowUpOutlined style={{ color: '#2563eb' }} /> : <ArrowDownOutlined style={{ color: '#2563eb' }} />}
-                    </span>
-                  )}
-                </th>
-                <th>Action</th>
-
-                {/* Thêm các cột khác nếu cần */}
-              </tr>
-                    </thead>
-                    <tbody>
-                      {services.map((service, idx) => (
-                        <tr key={service.serviceId || idx} className="service-row">
-                          <td>
-                            {service.imageUrls && service.imageUrls.length > 0 ? (
-                              <img
-                                src={service.imageUrls[0]}
-                                alt={service.serviceName}
-                                className="service-img"
-                                style={{ cursor: 'pointer' }}
-                                onClick={() => openImageModal(service.imageUrls, 0)}
-                              />
-                            ) : (
-                              <img
-                                src="https://th.bing.com/th/id/OIP.TdX9D7lAgnLjiFIgHvflfAHaHa?r=0&rs=1&pid=ImgDetMain&cb=idpwebpc2"
-                                alt="default"
-                                className="service-img default"
-                              />
-                            )}
-                          </td>
-                          <td>{service.serviceName}</td>
-                          <td>{service.typeService}</td>
-                          <td>{service.sample_count}</td>
-                          <td>
-                            <Tooltip title="View Content">
-                              <EyeOutlined onClick={() => setViewContent(service)} className="action-icon view" />
-                            </Tooltip>
-                          </td>
-                          <td>{service.price?.toLocaleString('vi-VN') || ''}</td>
-                          <td>
-                            {service.active ? (
-                              <Tooltip title="Delete">
-                                <DeleteOutlined onClick={() => handleDelete(service.serviceId)} className="action-icon delete" />
-                              </Tooltip>
-                            ) : (
-                              <Tooltip title="Activate">
-                                <CheckCircleTwoTone twoToneColor="#52c41a" onClick={() => handleActive(service.serviceId)} className="action-icon active" />
-                              </Tooltip>
-                            )}
-                            <Tooltip title="Edit">
-                              <EditOutlined onClick={() => handleEdit(service)} className="action-icon edit" />
-                            </Tooltip>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </Spin>
-              )
-            }
+            <Spin spinning={loading} tip="Loading data...">
+              <Card>
+                <Table
+                  columns={columns}
+                  dataSource={services || []}
+                  rowKey="serviceId"
+                  loading={loading}
+                  pagination={false}
+                  locale={{
+                    emptyText: (
+                      <div style={{ padding: '40px 0', textAlign: 'center' }}>
+                        <p style={{ fontSize: '16px', color: '#666', marginBottom: '8px' }}>
+                          {active ? 'No active services found' : 'No inactive services found'}
+                        </p>
+                        <p style={{ fontSize: '14px', color: '#999' }}>
+                          Try adjusting your search criteria or create a new service.
+                        </p>
+                      </div>
+                    )
+                  }}
+                  onChange={(pagination, filters, sorter) => {
+                    if (sorter.field) {
+                      setSortColumn(sorter.field === 'price' ? 'servicePrice' : sorter.field);
+                      setModeSort(sorter.order === 'ascend' ? 'asc' : 'desc');
+                    }
+                  }}
+                  scroll={{ x: 800 }}
+                />
+                
+                {totalPages > 1 && (
+                  <div style={{ marginTop: 16, textAlign: 'center' }}>
+                    {renderPagination(totalPages, currentPage, setCurrentPage)}
+                  </div>
+                )}
+              </Card>
+            </Spin>
             <div>
             <Modal
               title={edit ? "Edit Service" : "Create New Service"}
@@ -535,12 +673,7 @@ const ManageService = () => {
                 form={form}
                 layout="vertical"
                 onFinish={(values) => {
-                  if (edit) {
-                    setPendingEditValues(values);
-                    setConfirmModal({ open: true, type: 'edit', service: edit });
-                  } else {
-                    handleCreateAndEdit(values);
-                  }
+                  handleCreateAndEdit(values);
                 }}
               >
                 <Form.Item
@@ -635,30 +768,6 @@ const ManageService = () => {
               </p>
             </Modal>
       
-            {/* Confirm Modal */}
-            <Modal
-              open={confirmModal.open}
-              onCancel={() => setConfirmModal({ open: false, type: '', service: null })}
-              onOk={handleConfirmAction}
-              okText="Confirm"
-              cancelText="Cancel"
-              title={
-                <span style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10}}>
-                  {confirmModal.type === 'delete' ? <ExclamationCircleOutlined style={{color: '#dc2626', fontSize: 28}} /> : <EditOutlined style={{color: '#2563eb', fontSize: 26}} />}
-                  {confirmModal.type === 'delete' ? 'Confirm delete service' : 'Confirm edit service'}
-                </span>
-              }
-              className="confirm-modal-custom"
-            >
-              <div style={{textAlign: 'center', fontSize: '1.08rem', color: '#334155', margin: '12px 0 0 0'}}>
-                {confirmModal.type === 'delete' ? (
-                  <div>Are you sure you want to <b style={{color:'#dc2626'}}>delete</b> the service "{confirmModal.service?.serviceName}"?</div>
-                ) : confirmModal.type === 'edit' ? (
-                  <div>Are you sure you want to <b style={{color:'#2563eb'}}>edit</b> the service "{confirmModal.service?.serviceName}"?</div>
-                ) : null}
-              </div>
-            </Modal>
-      
             <Modal
               open={helpModal}
               onCancel={() => setHelpModal(false)}
@@ -701,29 +810,11 @@ const ManageService = () => {
                     }}
                   />
                   <button
+                    className="custom-close-btn"
                     onClick={() => setImageModal({ open: false, images: [], current: 0 })}
-                    style={{
-                      position: 'absolute',
-                      top: 12,
-                      right: 12,
-                      zIndex: 10,
-                      background: 'rgba(37,99,235,0.18)',
-                      border: 'none',
-                      borderRadius: '50%',
-                      width: 38,
-                      height: 38,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                      boxShadow: '0 2px 8px #2563eb44',
-                      transition: 'background 0.2s'
-                    }}
-                    onMouseOver={e => e.currentTarget.style.background = '#2563eb'}
-                    onMouseOut={e => e.currentTarget.style.background = 'rgba(37,99,235,0.18)'}
                     aria-label="Close"
                   >
-                    <CloseCircleFilled style={{ fontSize: 30, color: '#fff' }} />
+                    <span style={{ fontSize: 32, color: '#222', fontWeight: 700, lineHeight: 1 }}>×</span>
                   </button>
                   {imageModal.images.length > 1 && (
                     <>
@@ -829,7 +920,6 @@ const ManageService = () => {
               )}
             </Modal>
                </div>
-            {renderPagination(totalPages, currentPage, setCurrentPage)}
             <Footer />
     </div>
   );
