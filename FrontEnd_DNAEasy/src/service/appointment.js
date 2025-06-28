@@ -32,3 +32,12 @@ export const GetAppointForManagerAssign=(page,size)=>{
 export const AssignForAppoint=(AssigneStaff)=>{
     return api.post("/appointment/assignStaff",AssigneStaff)
 } 
+
+export const GetAppointmentStatistics = (start, end) => {
+  return api.post("/appointment/revenue_chart", {
+    startPeriod: start,
+    endPeriod: end,
+  });
+
+
+};

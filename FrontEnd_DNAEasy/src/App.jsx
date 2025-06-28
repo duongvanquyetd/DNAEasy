@@ -18,6 +18,7 @@ import BlogDetail from './component/page/BlogDetail.jsx';
 import ManageBlog from './component/page/ManageBlog';
 import ManageService from './component/page/ManageService';
 import { AssignStaff } from './component/page/AssignStaff.jsx';
+import RevenueChart from './component/page/RevenueChart.jsx';
 
 
 
@@ -45,7 +46,7 @@ function App() {
         <Route path="/ManageBlog" element={<ManageBlog />} />
         <Route path="/ManageService" element={<ManageService />} />
         <Route path="/assign-staff" element={<AssignStaff />} />
-      
+        <Route path="/revenua" element={<RevenueChart />} />
         <Route path="*" element={<div>404 - Page Not Found</div>} />
       </Routes>
     </BrowserRouter>

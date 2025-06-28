@@ -12,3 +12,6 @@ export const UpdateInfor = (user) =>{
 export const GetStaffForAppoint = (appointmentId,size,page,keyword)=>{
     return api.get(`/appointment/staffs/${appointmentId}?size=`+size+"&page="+page+"&keyword="+keyword)
 }
+export const CountAllUser = () => {
+  return api.get("/user/count");
+};
