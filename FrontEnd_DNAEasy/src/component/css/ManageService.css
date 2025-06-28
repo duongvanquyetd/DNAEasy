@@ -16,7 +16,8 @@ body, .manage-service-main-content {
 }
 .service-table th {
   background: #f1f5ff;
-  color: #1e293b;
+  color: white ;
+  background-color: #1e3a8a;
   font-weight: 700;
   padding: 18px 12px;
   text-align: left;
@@ -29,6 +30,7 @@ body, .manage-service-main-content {
   vertical-align: middle;
   font-size: 1.05rem;
   color: #1e293b;
+
 }
 .service-table tr:last-child td {
   border-bottom: none;
@@ -37,9 +39,65 @@ body, .manage-service-main-content {
   background: #f0f6ff;
   transition: background 0.18s;
 }
+
+/* Ant Design Table Styles */
+.ant-table {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.ant-table-thead > tr > th {
+  background: #1e3a8a !important;
+  color: #ffffff !important;
+  border-bottom: 2px solid #e0e7ef !important;
+  font-weight: 700 !important;
+  padding: 18px 16px !important;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.08rem !important;
+  text-align: left;
+  position: relative;
+}
+
+.ant-table-thead > tr > th:hover {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.ant-table-thead > tr > th .anticon {
+  color: #ffffff !important;
+  margin-left: 4px;
+  font-size: 1.1em;
+}
+
+.ant-table-thead > tr > th .ant-space {
+  color: #ffffff !important;
+}
+
+.ant-table-thead > tr > th .ant-space .anticon {
+  color: #ffffff !important;
+}
+
+.ant-table-tbody > tr > td {
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background-color: #f8fafc;
+}
+
+.ant-table-tbody > tr:hover {
+  background-color: #f8fafc;
+}
+
 .service-img {
-  width: 64px;
-  height: 44px;
+  width: 140px !important;
+  height: 100px !important;
   object-fit: cover;
   border-radius: 12px;
   border: 1.5px solid #e0e7ef;
@@ -203,16 +261,21 @@ body, .manage-service-main-content {
 .searchBar {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 24px;
   background: #f1f5ff;
-  border-radius: 40px;
-  padding: 12px 24px;
-  box-shadow: 0 2px 12px rgba(30,58,138,0.04);
-  max-width: 1200px;
+  border-radius: 48px;
+  padding: 18px 36px;
+  box-shadow: 0 2px 18px rgba(30,58,138,0.06);
+  max-width: 1800px !important;
   margin-left: auto;
   margin-right: auto;
-
 }
+
+.searchBar > * {
+  display: flex;
+  align-items: center;
+}
+
 .searchBar .ant-select-selector {
   border: none !important;
   background: transparent !important;
@@ -220,13 +283,15 @@ body, .manage-service-main-content {
 }
 
 .searchBar .ant-input, .searchBar .ant-input-affix-wrapper {
-  border-radius: 30px !important;
+  border-radius: 36px !important;
   background: #fff !important;
   color: #222 !important;
   border: 1.5px solid #e0e7ef !important;
   font-size: 0.8rem !important;
   box-shadow: none !important;
-
+  height: 58px !important;
+  padding: 0 28px !important;
+  width: 250px !important;
 }
 .searchBar .ant-input::placeholder {
   color: #8b929a !important;
@@ -238,78 +303,52 @@ body, .manage-service-main-content {
   align-items: center !important;
 }
 .search-icon-btn {
-  background: #2563eb !important;
-  border: none !important;
-  border-radius: 50% !important;
-  width: 36px !important;
-  height: 36px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  box-shadow: 0 2px 8px #2563eb22 !important;
-  cursor: pointer !important;
-  transition: background 0.2s !important;
-  margin-right: 4px !important;
-}
-.search-icon-btn:hover {
-  background: #1e40af !important;
+  width: 48px !important;
+  height: 48px !important;
+  font-size: 26px !important;
 }
 .search-icon-btn .anticon {
-  color: #fff !important;
-  font-size: 18px !important;
+  font-size: 26px !important;
 }
-.searchBar select {
-  height: 44px;
-  width: 180px;
-  min-width: 120px;
-  max-width: 240px;
-  font-size: 1rem;
-  border-radius: 22px;
-  padding: 0 18px;
-  background: #fff;
-  color: #222;
-  border: 1.5px solid #e0e7ef;
-  box-shadow: none;
-  outline: none;
-  transition: border 0.18s;
-}
-.searchBar select:focus {
-  border: 1.5px solid #2563eb;
+.searchBar select, .searchBar .ant-select-selector {
+  height: 58px !important;
+  min-width: 210px;
+  max-width: 400px;
+  font-size: 0.8rem !important;
+  border-radius: 28px !important;
+  padding: 0 22px !important;
 }
 .searchBtn, .primary-btn, .filter-btn {
-  height: 44px;
-  min-width: 44px;
-  border-radius: 14px;
-  font-size: 1.08rem;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 18px;
-  font-weight: 700;
+  font-size: 1.18rem;
+  padding: 0 28px;
+  border-radius: 24px;
+  height: 58px;
 }
-.primary-btn {
-  background: linear-gradient(90deg, #2563eb 0%, #1e3a8a 100%);
-  color: #fff;
-  border: none;
+.primary-btn, .filter-btn {
+  padding-right: 38px;
 }
-.filter-btn {
-  background: #f1f5ff;
-  color: #1e3a8a;
-  border: none;
-}
-.filter-btn.active {
-  background: #22c55e;
-  color: #fff;
-}
-.filter-btn.inactive {
-  background: #dc2626;
-  color: #fff;
-}
-.badge {
-  font-size: 0.95rem;
-  padding: 2px 8px;
+.badge, .badge.small-badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  font-size: 0.92rem;
+  padding: 0 8px;
   border-radius: 12px;
-  margin-left: 6px;
+  margin-left: 0;
+  min-width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fbbf24;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 8px #fbbf2433;
+  z-index: 2;
 }
 @media (max-width: 900px) {
   .searchBar {
@@ -451,6 +490,7 @@ body, .manage-service-main-content {
   }
   .manage-title {
     font-size: 1.3rem;
+    
   }
   .manage-subtitle {
     font-size: 1rem;
@@ -765,7 +805,7 @@ body, .manage-service-main-content {
 .manage-title {
   font-size: 2.2rem;
   font-weight: 900;
-  color: #1e293b;
+  color: #1e293b !important;
   margin-bottom: 6px;
   letter-spacing: -0.5px;
 }
@@ -839,7 +879,7 @@ body, .manage-service-main-content {
   right: 18px !important;
   z-index: 10;
 }
-.service-image-modal .ant-modal-close:hover .anticon {
+.service-image-modal .anticon {
   color: #2563eb !important;
   background: #fff !important;
   border: 3px solid #2563eb !important;
@@ -1006,4 +1046,27 @@ body, .manage-service-main-content {
   color: #64748b;
   font-weight: 600;
   margin-left: 2px;
+}
+
+/* Nút close modal ảnh dịch vụ: chỉ còn icon X đen, không viền, không nền, không bo góc */
+.service-image-modal .custom-close-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 10;
+  background: transparent;
+  border: none;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: none;
+  padding: 0;
+}
+.service-image-modal .custom-close-btn .custom-close-icon {
+  font-size: 26px;
+  color: #222;
+  transition: color 0.2s;
 }
