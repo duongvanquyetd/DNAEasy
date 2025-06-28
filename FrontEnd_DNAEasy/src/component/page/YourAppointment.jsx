@@ -341,7 +341,7 @@ export const YourAppointment = () => {
                           </button>
                         )}
 
-                        {appointment.Confimed.isallowCofirmation ? (
+                        {appointment.Confimed.isallowCofirmation && appointment.staffName ? (
                           <button
                             className="btn confirm"
                             onClick={() => handleConfirm(appointment)}
