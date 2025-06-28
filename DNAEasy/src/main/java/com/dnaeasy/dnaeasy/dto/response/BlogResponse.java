@@ -24,4 +24,5 @@ public class BlogResponse {
     List<String> blogimage;
     private LocalDateTime createDate;
     private  boolean active;
+    private String author;
 }

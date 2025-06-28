@@ -2,9 +2,16 @@ package com.dnaeasy.dnaeasy.controller;
 
 
 import com.dnaeasy.dnaeasy.dto.request.CommentRequest;
+import com.dnaeasy.dnaeasy.dto.request.SearchCommnentRequest;
 import com.dnaeasy.dnaeasy.dto.response.CommentReponse;
+import com.dnaeasy.dnaeasy.dto.response.CommentReportResponse;
+import com.dnaeasy.dnaeasy.dto.response.ManageCommentResponse;
 import com.dnaeasy.dnaeasy.service.impl.CommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -61,6 +68,20 @@ public class CommentController {
     ) {
         return ResponseEntity.ok(commentService.canComment(serviceId));
     }
-
+    @PostMapping("/managercomment")
+    public ResponseEntity<Page<ManageCommentResponse>> getManagerComment(@RequestParam("page") int page,
+                                                                        @RequestParam("size") int size,
+                                                                        @RequestBody SearchCommnentRequest request
+                                                                  )
+    {
+        System.out.println("Star"+request.getStar());
+        Pageable pageable = PageRequest.of(page-1,size,Sort.by("rating").descending());
+        return ResponseEntity.ok(commentService.getALlForManageComment(request,pageable));
+    }
+    @GetMapping("/commentReport")
+    public ResponseEntity<CommentReportResponse>  reportComment()
+    {
+        return  ResponseEntity.ok(commentService.getCommentReport());
+    }
 
 }
