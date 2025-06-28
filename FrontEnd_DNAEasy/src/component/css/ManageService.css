@@ -211,13 +211,70 @@ body, .manage-service-main-content {
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
+
 }
-.searchBar input,
+.searchBar .ant-select-selector {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.searchBar .ant-input, .searchBar .ant-input-affix-wrapper {
+  border-radius: 30px !important;
+  background: #fff !important;
+  color: #222 !important;
+  border: 1.5px solid #e0e7ef !important;
+  font-size: 0.8rem !important;
+  box-shadow: none !important;
+
+}
+.searchBar .ant-input::placeholder {
+  color: #8b929a !important;
+  opacity: 1;
+}
+.searchBar .ant-input-suffix {
+  margin-right: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+.search-icon-btn {
+  background: #2563eb !important;
+  border: none !important;
+  border-radius: 50% !important;
+  width: 36px !important;
+  height: 36px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 2px 8px #2563eb22 !important;
+  cursor: pointer !important;
+  transition: background 0.2s !important;
+  margin-right: 4px !important;
+}
+.search-icon-btn:hover {
+  background: #1e40af !important;
+}
+.search-icon-btn .anticon {
+  color: #fff !important;
+  font-size: 18px !important;
+}
 .searchBar select {
   height: 44px;
+  width: 180px;
+  min-width: 120px;
+  max-width: 240px;
+  font-size: 1rem;
   border-radius: 22px;
-  font-size: 1.08rem;
-  padding: 0 16px;
+  padding: 0 18px;
+  background: #fff;
+  color: #222;
+  border: 1.5px solid #e0e7ef;
+  box-shadow: none;
+  outline: none;
+  transition: border 0.18s;
+}
+.searchBar select:focus {
+  border: 1.5px solid #2563eb;
 }
 .searchBtn, .primary-btn, .filter-btn {
   height: 44px;
@@ -760,4 +817,193 @@ body, .manage-service-main-content {
   filter: drop-shadow(0 2px 8px #2563eb22);
   transform: scale(1.13);
   transition: color 0.18s, filter 0.18s, transform 0.13s;
+}
+
+/* Làm mờ overlay cho modal ảnh dịch vụ */
+.service-image-modal .ant-modal-mask {
+  background: rgba(0, 0, 0, 0.12) !important;
+  /* backdrop-filter: blur(0.5px) !important;
+  -webkit-backdrop-filter: blur(0.5px) !important; */
+}
+
+/* Làm mờ toàn bộ app khi mở modal ảnh dịch vụ */
+.blurred-bg #root > *:not(.ant-modal-root) {
+  filter: blur(1.5px) brightness(1);
+  transition: filter 0.3s;
+  pointer-events: none;
+  user-select: none;
+}
+
+.service-image-modal .ant-modal-close {
+  top: 18px !important;
+  right: 18px !important;
+  z-index: 10;
+}
+.service-image-modal .ant-modal-close:hover .anticon {
+  color: #2563eb !important;
+  background: #fff !important;
+  border: 3px solid #2563eb !important;
+  box-shadow: 0 2px 16px #2563eb88;
+}
+
+/* Xóa hoàn toàn viền trắng ngoài modal ảnh dịch vụ */
+.service-image-modal .ant-modal-content,
+.service-image-modal .ant-modal-body {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+}
+
+.service-image-modal .thumbnail-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 14px;
+  justify-content: flex-start;
+  align-items: center;
+  max-width: 738px;
+  margin: 0 auto;
+  background: rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 12px 0;
+  box-shadow: 0 2px 12px #0002;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.service-image-modal .thumbnail-row::-webkit-scrollbar {
+  height: 8px;
+}
+.service-image-modal .thumbnail-row::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 8px;
+}
+
+.small-btn {
+  font-size: 0.98rem !important;
+  padding: 6px 14px !important;
+  border-radius: 8px !important;
+  min-width: 90px !important;
+  min-height: 32px !important;
+  height: 32px !important;
+  gap: 5px !important;
+}
+.small-btn .anticon {
+  font-size: 1rem !important;
+}
+.small-badge {
+  font-size: 0.78rem !important;
+  padding: 1.5px 6px !important;
+  border-radius: 10px !important;
+  margin-left: 4px !important;
+  top: -6px !important;
+  right: -6px !important;
+}
+
+.stat-flex-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+.stat-flex-row .stat-icon {
+  font-size: 1.5rem;
+  margin-right: 10px;
+}
+.stat-flex-row .stat-label {
+  font-size: 1rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  flex: 1 1 auto;
+  text-align: left;
+}
+.stat-flex-row .stat-value {
+  font-size: 1.18rem;
+  color: #1e293b;
+  font-weight: 800;
+  min-width: 60px;
+  text-align: right;
+}
+
+.stat-flex-fix {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  justify-content: flex-start;
+}
+.stat-flex-fix .stat-icon {
+  font-size: 1.5rem;
+  margin-right: 0;
+  flex-shrink: 0;
+}
+.stat-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+.stat-info .stat-label {
+  font-size: 1rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  white-space: normal;
+  line-height: 1.1;
+}
+.stat-info .stat-value {
+  font-size: 1.18rem;
+  color: #1e293b;
+  font-weight: 800;
+  word-break: break-all;
+  text-align: left;
+}
+
+.stat-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+.stat-center .stat-icon {
+  font-size: 1.9rem;
+  margin-bottom: 0;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.stat-center .stat-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.stat-center .stat-label {
+  font-size: 1rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  margin-bottom: 2px;
+}
+.stat-center .stat-value {
+  font-size: 1.18rem;
+  color: #1e293b;
+  font-weight: 800;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.stat-center .stat-unit {
+  font-size: 0.95rem;
+  color: #64748b;
+  font-weight: 600;
+  margin-left: 2px;
 }

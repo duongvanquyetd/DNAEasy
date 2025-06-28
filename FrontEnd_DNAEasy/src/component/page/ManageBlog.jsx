@@ -32,8 +32,8 @@ const ManageBlog = () => {
   useEffect(() => {
     MangerReportBlog().then((response) => {
       console.log("Manager Report Blog", response.data);
-      setTotalInActive(response.data.totalblogActive);
-      setTotalactive(response.data.totalblogInactive);
+      setTotalInActive(response.data.totalblogInactive);
+      setTotalactive(response.data.totalblogActive);
     }).catch(() => {
       console.log("Error get Report Blog");
     });
