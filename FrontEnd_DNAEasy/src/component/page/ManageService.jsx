@@ -296,14 +296,14 @@ const ManageService = () => {
                 <DollarOutlined className="stat-icon" />
                 <div className="stat-info">
                   <span className="stat-label">TOTAL VALUE</span>
-                  <span className="stat-value">{totalValue} <span className="stat-unit">VND</span></span>
+                  <span className="stat-value">{Number(totalValue).toLocaleString('vi-VN', { maximumFractionDigits: 0 })} <span className="stat-unit">VND</span></span>
                 </div>
               </div>
               <div className="service-stat-card stat-center">
                 <TrophyOutlined className="stat-icon" />
                 <div className="stat-info">
                   <span className="stat-label">AVG PRICE</span>
-                  <span className="stat-value">{averagePrice} <span className="stat-unit">VND</span></span>
+                  <span className="stat-value">{Number(averagePrice).toLocaleString('vi-VN', { maximumFractionDigits: 0 })} <span className="stat-unit">VND</span></span>
                 </div>
               </div>
             </div>
