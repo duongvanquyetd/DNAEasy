@@ -15,3 +15,7 @@ export const CanComment = (serviceId) => {
 
   return api.get(`/comments/cancomment/${serviceId}`);
 }
+
+export const ManageCommentReport=(page,size,datasearch)=>{
+  return api.post(`/comments/managercomment?page=${page}&size=${size}`,datasearch)
+}
