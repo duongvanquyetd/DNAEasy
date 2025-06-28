@@ -41,6 +41,7 @@ const Blog = () => {
   const [totalpage, setTotalPages] = useState(0);
   const [sortColumn, setSortColumn] = useState(null);
   const [modesort, setModeSort] = useState("asc")
+  const [type, setType] = useState([]);
 
 
   useEffect(() => {
@@ -59,6 +60,7 @@ const Blog = () => {
       modesort
     )
       .then((response) => {
+        console.log("Reponse", response.data)
         setBlogs(response.data.content);
         setTotalPages(response.data.totalPages);
         setError(null);
@@ -68,7 +70,7 @@ const Blog = () => {
         setError('Failed to search blogs. Please try again later.');
       })
       .finally(() => setLoading(false));
-  }, [searchQuery, category, currentPage,sortColumn,modesort]);
+  }, [searchQuery, category, currentPage, sortColumn, modesort]);
 
 
   const handleBlogClick = useCallback(
@@ -123,24 +125,6 @@ const Blog = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               aria-label="Search blog posts"
             />
-            <select
-              name="category"
-              aria-label="Select blog category"
-              onChange={(e) => { setCategory(e.target.value); }}
-              value={category || ''}
-            >
-              <option value="">All Categories</option>
-              {blogs.length > 0 && (
-                blogs.map((blog) => (
-                  <option key={blog.blogType} value={blog.blogType}>
-                    {blog.blogType}
-                  </option>
-                ))
-
-              )}
-
-
-            </select>
             <button type="submit" className="blogSearchBar button" aria-label="Search">
               Search
             </button>
@@ -211,27 +195,64 @@ const Blog = () => {
             </button>
           </div>
         ) : (
-          <section className="blogPosts">
-            {blogs.map((blog) => (
-              <div key={blog.blogId} className="blogPost">
-                <img
-                  src={blog.blogimage?.[0] || 'https://via.placeholder.com/320x220?text=Blog+Image'}
-                  alt={blog.blogTitle}
-                  className="blogImage"
-                  loading="lazy"
-                />
-                <h3>{blog.blogTitle}</h3>
-                <p className="blogSummary">{blog.excerpt}</p>
-                <button
-                  className="blogLinkButton"
-                  onClick={() => handleBlogClick(blog.blogId)}
-                  aria-label={`Read more about ${blog.blogTitle}`}
+          // ...existing code...
+          // ...existing code...
+          <div className="blogMainLayout">
+            {/* Blog Type Sidebar */}
+            <aside className="blogTypeSidebar">
+              <h3 className="blogTypeTitle">Blog Types</h3>
+              <ul className="blogTypeList">
+                <li
+                  className={`blogTypeItem${category === '' ? ' active' : ''}`}
+                  onClick={() => setCategory('')}
                 >
-                  Read More
-                </button>
-              </div>
-            ))}
-          </section>
+                  All Types
+                </li>
+                {[...new Set(blogs.map((blog) => blog.blogType))].map((type) => (
+                  <li
+                    key={type}
+                    className={`blogTypeItem${category === type ? ' active' : ''}`}
+                    onClick={() => setCategory(type)}
+                  >
+                    {type}
+                  </li>
+                ))}
+              </ul>
+            </aside>
+
+            {/* Blog List */}
+            <main className="blogPosts">
+              {blogs
+                .filter((blog) => !category || blog.blogType === category)
+                .map((blog) => (
+                  <div key={blog.blogId} className="blogPost">
+                    <img
+                      src={blog.blogimage?.[0] || 'https://via.placeholder.com/320x220?text=Blog+Image'}
+                      alt={blog.blogTitle}
+                      className="blogImage"
+                      loading="lazy"
+                    />
+                    <div className="blogInfo">
+                      <div className="blogTitle">{blog.blogTitle}</div>
+                      <div className="blogMeta">
+                        <span>{blog.createDate?.slice(0, 10)}</span>
+                        <span>{blog.author || "Unknown Author"}</span>
+                      </div>
+                      <p className="blogSummary">{blog.excerpt}</p>
+                      <button
+                        className="blogLinkButton"
+                        onClick={() => handleBlogClick(blog.blogId)}
+                        aria-label={`Read more about ${blog.blogTitle}`}
+                      >
+                        Read More
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </main>
+          </div>
+          // ...existing code...
+          // ...existing code...
         )}
 
         <section className="blogPageNav">{renderPagination(totalpage, currentPage)}</section>
