@@ -61,7 +61,7 @@ const UserProfile = () => {
   if (error) {
     return (
       <div className="page">
-        {user && user.rolename === 'MANAGER' ? <HeaderManager /> : <Header />}
+        {user && user.rolename && user.rolename.toLowerCase() === 'manager' ? <HeaderManager /> : <Header />}
         <main className="main">
           <div className="profile-container">
             <div className="profile-title">Error</div>

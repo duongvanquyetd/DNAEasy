@@ -5,7 +5,7 @@ import { GetStaffForAppoint } from '../../service/user';
 import '../css/AssignStaff.css';
 import Header from '../Header';
 import Footer from '../Footer';
-import HeaderManager from '../HeaderManager';
+import DynamicHeader from '../DynamicHeader';
 
 export const AssignStaff = () => {
   const [appointments, setAppointments] = useState([]);
@@ -115,7 +115,7 @@ export const AssignStaff = () => {
 
   return (
     <>
-      <HeaderManager />
+      <DynamicHeader />
       {toast && (
         <div className="toast-notification">
           {toast.message}

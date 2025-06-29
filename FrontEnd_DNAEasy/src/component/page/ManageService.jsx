@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Table, Button, Modal, Form, Input, InputNumber, Space, message, Upload, Card, Row, Col, Statistic, Tag, Tooltip, Select, Spin, AutoComplete, Typography, Divider, Badge, Avatar, Popconfirm } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, UploadOutlined, EyeOutlined, DollarOutlined, AppstoreOutlined, TrophyOutlined, CheckCircleTwoTone, CloseCircleTwoTone, ExclamationCircleOutlined, QuestionCircleOutlined, FileExcelOutlined, ArrowUpOutlined, ArrowDownOutlined, SearchOutlined, ReloadOutlined, LeftOutlined, RightOutlined, CheckOutlined, PauseOutlined, SortAscendingOutlined, SortDescendingOutlined, FilterOutlined } from '@ant-design/icons';
 import DynamicHeader from '../DynamicHeader';
-import HeaderManager from '../HeaderManager';
 import Footer from '../Footer';
 import '../css/ManageService.css';
 import { ActiveSerive, CreateService, DeleteService, GetALlServies, Report, SearchAndGet, UpdateService } from '../../service/service';
@@ -478,7 +477,7 @@ const ManageService = () => {
 
   return (
     <div className="manage-service-main-content">
-            <HeaderManager />
+            <DynamicHeader />
             <div className="manage-header">
               <AppstoreOutlined style={{fontSize: 38, color: '#2563eb', marginRight: 16}} />
               <div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { CommentReport, ManageCommentReport } from '../../service/Comment';
 import '../css//ManageComment.css';
-import HeaderManager from '../HeaderManager';
+import DynamicHeader from '../DynamicHeader';
 import Footer from '../Footer';
 
 export const ManageComment = () => {
@@ -164,7 +164,7 @@ export const ManageComment = () => {
 
   return (
     <>
-      <HeaderManager />
+      <DynamicHeader />
       <div className="manage-comment-container">
 
         <h1 className="page-title">Comment Management</h1>
