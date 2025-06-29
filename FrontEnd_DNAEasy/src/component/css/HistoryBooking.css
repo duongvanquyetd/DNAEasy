@@ -27,6 +27,7 @@ body {
   color: #fff;
   text-align: center;
   overflow: hidden;
+  margin-top: 2rem; /* Added to push the banner down */
 }
 
 .header-container {
@@ -419,7 +420,7 @@ body {
 
 .status-dot {
   width: 8px;
-  height: 8px;
+  height:8px;
   border-radius: 50%;
   margin-top: 0.4rem;
   flex-shrink: 0;
@@ -756,7 +757,6 @@ body {
   box-shadow: 0 2px 8px #2563eb22;
   padding: 10px 24px 10px 18px;
   border: 2px solid #2563eb;
-  
 }
 
 .search-input {
@@ -776,6 +776,7 @@ body {
   opacity: 1;
   font-weight: 400;
 }
+
 .searchBtn {
   background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
   color: #fff;
@@ -799,6 +800,7 @@ body {
   box-shadow: 0 4px 16px rgba(37, 99, 235, 0.18);
   transform: translateY(-2px) scale(1.03);
 }
+
 .searchBtn .search-icon {
   display: flex;
   align-items: center;

@@ -5,7 +5,6 @@ import { EditOutlined, DeleteOutlined, PlusOutlined, UploadOutlined, EyeOutlined
 import DynamicHeader from '../DynamicHeader';
 import Footer from '../Footer';
 import '../css/ManageService.css';
-import { useNavigate } from 'react-router-dom';
 import { ActiveBlog, CreateBlog, DeleteBlogs, MangerReportBlog, SearchByTitleAndCatagery, UpdateBlog } from '../../service/Blog';
 
 const ManageBlog = () => {
