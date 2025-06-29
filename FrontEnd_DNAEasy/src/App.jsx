@@ -43,10 +43,11 @@ function App() {
         <Route path="/YourAppointment" element={<YourAppointment />} />
         <Route path="/HistoryBooking" element={<HistoryBooking />} />
         <Route path="/AdminDashboard" element={<AdminDashboard />} />
+        <Route path="/AdminDashboard/analytics" element={<AdminDashboard key="analytics" />} />
         <Route path="/ManageBlog" element={<ManageBlog />} />
         <Route path="/ManageService" element={<ManageService />} />
         <Route path="/assign-staff" element={<AssignStaff />} />
-        <Route path="/revenua" element={<RevenueChart />} />
+        <Route path="/revenue" element={<RevenueChart />} />
         <Route path="*" element={<div>404 - Page Not Found</div>} />
       </Routes>
     </BrowserRouter>
