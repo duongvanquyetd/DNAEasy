@@ -135,6 +135,7 @@ h2 {
 .choose-button {
   background: #22c55e;
   color: #ffffff;
+
 }
 
 .choose-button:hover {
@@ -278,6 +279,7 @@ h2 {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
   transition: all 0.2s ease;
   position: relative;
+  flex-wrap: wrap;
 }
 
 .staff-card.expanded {
@@ -327,17 +329,19 @@ h2 {
   box-shadow: 0 0 4px #a3a3a388;
 }
 
-.staff-info {
+.staff-info-assign {
   flex: 1;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 4px;
+  width: 70%;
 }
 
 .staff-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  padding: 4px;
+  width: 80%;
 }
 
 .staff-card strong {
@@ -387,6 +391,8 @@ h2 {
   display: flex;
   align-items: center;
   gap: 4px;
+  margin-left: 15%;
+  width: 100%;
 }
 
 .staff-detail-expand {
@@ -515,6 +521,7 @@ h2 {
   .choose-button {
     width: 100%;
     justify-content: center;
+ 
   }
 
   .appointment-detail-label {
@@ -643,4 +650,15 @@ h2 {
   background: #f3f4f6;
   color: #64748b;
   border: 1px solid #cbd5e1;
+}
+.appointment-staff-avatar{
+
+  display: flex;
+  justify-content: center;
+
+}
+.appointment-staff-avatar img{
+
+  width: 100px;
+
 }

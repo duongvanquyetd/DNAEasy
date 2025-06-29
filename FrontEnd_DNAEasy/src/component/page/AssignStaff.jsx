@@ -21,6 +21,7 @@ export const AssignStaff = () => {
   const [expandedStaffId, setExpandedStaffId] = useState(null);
   const [toast, setToast] = useState(null);
   const [confirmModal, setConfirmModal] = useState({ open: false, staff: null, type: null });
+  const [cancle, setCancle] = useState(null);
 
   useEffect(() => {
     fetchAppointments();
@@ -34,6 +35,7 @@ export const AssignStaff = () => {
   const fetchAppointments = async () => {
     try {
       const response = await GetAppointForManagerAssign(currentPage, pageSize);
+      console.log("Response appointment", response.data)
       setTotalPages(response.data.totalPages);
       setAppointments(response.data.content || []);
     } catch (error) {
@@ -44,6 +46,7 @@ export const AssignStaff = () => {
   const fetchStaff = async () => {
     try {
       const response = await GetStaffForAppoint(selectedAppointment.appointmentId, pageSizeStaff, currentPageStaff, searchKey);
+      console.log("Response staff", response.data)
       setTotalPageStaff(response.data.totalPages);
       setListStaff(response.data.content || []);
     } catch (error) {
@@ -82,27 +85,30 @@ export const AssignStaff = () => {
 
   // Hàm thực hiện phân công/huỷ sau khi xác nhận
   const handleConfirmAssign = () => {
-    const appointmentId = selectedAppointment.appointmentId;
+    let appointmentId;
+    if (cancle) {
+      appointmentId = cancle.appointmentId;
+    }
+    else {
+      appointmentId = selectedAppointment.appointmentId;
+    }
     const personId = confirmModal.type === 'assign' ? confirmModal.staff.personId : null;
     const request = {
       appoinmetnId: Number(appointmentId),
       personId: personId !== null ? Number(personId) : null,
     };
+
     AssignForAppoint(request)
       .then(() => {
         setToast({ type: 'success', message: personId ? 'Phân công thành công!' : 'Huỷ phân công thành công!' });
+        setSelectedAppointment(null)
+        setCancle(null)
         GetAppointForManagerAssign(currentPage, pageSize)
           .then((response) => {
             setTotalPages(response.data.totalPages);
             setAppointments(response.data.content);
           });
-        if (selectedAppointment) {
-          GetStaffForAppoint(selectedAppointment.appointmentId, pageSizeStaff, currentPageStaff, searchKey)
-            .then((response) => {
-              setTotalPageStaff(response.data.totalPages);
-              setListStaff(response.data.content);
-            });
-        }
+
         setTimeout(() => setToast(null), 1500);
       })
       .catch((error) => {
@@ -115,7 +121,7 @@ export const AssignStaff = () => {
 
   return (
     <>
-      <HeaderManager />
+       <HeaderManager />
       {toast && (
         <div className="toast-notification">
           {toast.message}
@@ -140,9 +146,8 @@ export const AssignStaff = () => {
                 <tr
                   key={a.appointmentId}
                   className={
-                    `appointment-row ${
-                      selectedAppointment?.appointmentId === a.appointmentId ? 'selected-row' : ''
-                    } ${a.staffName ? 'assigned-row' : ''}`
+                    `appointment-row ${selectedAppointment?.appointmentId === a.appointmentId ? 'selected-row' : ''
+                    } ${a.staffResponse ? 'assigned-row' : ''}`
                   }
                   onClick={() => {
                     setSelectedAppointment(a);
@@ -154,7 +159,7 @@ export const AssignStaff = () => {
                   <td>{a.typeService}</td>
                   <td>{a.dateCollect}</td>
                   <td>{a.typeCollect}</td>
-                  <td>{a.staffName || <span className="not-assigned">Not Assigned</span>}</td>
+                  <td>{a.staffResponse?.name || <span className="not-assigned">Not Assigned</span>}</td>
                   <td className="action-cell">
                     <button
                       className="action-button"
@@ -165,14 +170,16 @@ export const AssignStaff = () => {
                         setSearchKey('');
                       }}
                     >
-                      {a.staffName ? 'Change' : 'Assign'}
+                      {a.staffResponse ? 'Change' : 'Assign'}
                     </button>
-                    {a.staffName && (
+                    {a.staffResponse && (
                       <button
                         className="cancel-button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          openConfirmModal({ personId: null, name: a.staffName }, 'cancel');
+                          setCancle(a)
+                          openConfirmModal({ personId: null, name: a.staffResponse.name }, 'cancel');
+
                           setCurrentPageStaff(1);
                           setSearchKey('');
                         }}
@@ -194,39 +201,38 @@ export const AssignStaff = () => {
               <button className="close-button" onClick={handleBack}>
                 ✕
               </button>
-              <h2 className="panel-title">
-                <span role="img" aria-label="calendar">📅</span> Chi tiết lịch hẹn
-              </h2>
-              <div className="appointment-details-card">
-                <div className="appointment-details-content">
-                  <div className="appointment-detail-row">
-                    <span className="appointment-detail-icon">👤</span>
-                    <span className="appointment-detail-label">Khách hàng:</span>
-                    <span className="appointment-detail-value">{selectedAppointment.customerName}</span>
+
+              {selectedAppointment?.staffResponse && (
+                <>
+                  <h2 className="panel-title">
+                    <span role="img" aria-label="calendar">📅</span> Staff assigning Appointment
+                  </h2>
+                  <div className="appointment-details-card">
+                    <div className="appointment-details-content">
+                      <div className="appointment-staff-avatar">
+
+                        <img src={selectedAppointment?.staffResponse.avatarUrl}></img>
+                      </div>
+                      <div className="appointment-detail-row">
+                        <span className="appointment-detail-icon">👤</span>
+                        <span className="appointment-detail-label">Staff:</span>
+                        <span className="appointment-detail-value">{selectedAppointment?.staffResponse.name}</span>
+                      </div>
+                      <div className="appointment-detail-row">
+                        <span className="appointment-detail-icon">🏠</span>
+                        <span className="appointment-detail-label">Address:</span>
+                        <span className="appointment-detail-value">{selectedAppointment?.staffResponse.address}</span>
+                      </div>
+                      <div className="appointment-detail-row">
+                        <span className="appointment-detail-icon">⏰</span>
+                        <span className="appointment-detail-label">Phone:</span>
+                        <span className="appointment-detail-value">{selectedAppointment?.staffResponse.phone}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="appointment-detail-row">
-                    <span className="appointment-detail-icon">🏠</span>
-                    <span className="appointment-detail-label">Địa chỉ:</span>
-                    <span className="appointment-detail-value">{selectedAppointment.address}</span>
-                  </div>
-                  <div className="appointment-detail-row">
-                    <span className="appointment-detail-icon">⏰</span>
-                    <span className="appointment-detail-label">Thời gian:</span>
-                    <span className="appointment-detail-value">{selectedAppointment.date} {selectedAppointment.time}</span>
-                  </div>
-                  <div className="appointment-detail-row">
-                    <span className="appointment-detail-icon">🧪</span>
-                    <span className="appointment-detail-label">Loại:</span>
-                    <span className="appointment-detail-value">
-                      {selectedAppointment.typeSample === 'Home_collection'
-                        ? 'Lấy mẫu tại nhà'
-                        : selectedAppointment.typeSample === 'Hospital_collection'
-                        ? 'Lấy mẫu tại viện'
-                        : 'Gửi kit test'}
-                    </span>
-                  </div>
-                </div>
-              </div>
+                </>
+              )}
+
               <div className="search-container">
                 <span className="search-icon">
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -258,8 +264,8 @@ export const AssignStaff = () => {
                         onClick={() => setExpandedStaffId(expandedStaffId === staff.personId ? null : staff.personId)}
                         style={{ cursor: 'pointer' }}
                       >
-                        <div style={{display: 'flex', alignItems: 'center', position: 'relative'}}>
-                          <div style={{position: 'relative'}}>
+                        <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
+                          <div style={{ position: 'relative' }}>
                             <img
                               src={staff.avatarUrl || '/default-avatar.png'}
                               alt={staff.name}
@@ -268,27 +274,30 @@ export const AssignStaff = () => {
                             <span className={`avatar-status-dot ${status}`}></span>
                           </div>
                         </div>
-                        <div className="staff-info">
+                        <div className="staff-info-assign">
                           <div className="staff-header">
                             <strong>{staff.name}</strong>
                           </div>
-                          <div className="staff-address"><span style={{marginRight: 4}}>🏠</span>{staff.address}</div>
-                          {expandedStaffId === staff.personId && (
-                            <div className="staff-detail-expand" style={{marginTop: 10, fontSize: '0.97rem', color: '#334155'}}>
-                              <div><span style={{marginRight: 4}}>📞</span>{staff.phone || 'Chưa có số điện thoại'}</div>
-                              <div><span style={{marginRight: 4}}>✉️</span>{staff.email || 'Chưa có email'}</div>
-                              <div><span style={{marginRight: 4}}>🕒</span>Số lần được phân công: {staff.assignCount || 0}</div>
-                            </div>
-                          )}
+                          <button
+                            className="choose-button"
+                            onClick={e => { e.stopPropagation(); openConfirmModal(staff, 'assign'); }}
+                            style={{ opacity: 1 }}
+                            title={'Choose this staff'}
+                          >
+                            <span className="choose-icon" style={{ display: 'flex', alignItems: 'center', height: '100%' }}>✔️</span>Choose
+                          </button>
+
                         </div>
-                        <button
-                          className="choose-button"
-                          onClick={e => { e.stopPropagation(); openConfirmModal(staff, 'assign'); }}
-                          style={{opacity: 1}}
-                          title={'Chọn nhân viên này'}
-                        >
-                          <span className="choose-icon" style={{display: 'flex', alignItems: 'center', height: '100%'}}>✔️</span>Choose
-                        </button>
+
+                        <div className="staff-address">{staff.address}</div>
+                        {expandedStaffId === staff.personId && (
+                          <div className="staff-detail-expand" style={{ marginTop: 10, fontSize: '0.97rem', color: '#334155' }}>
+                            <div><span style={{ marginRight: 4 }}>📞</span>{staff.phone || 'No phone'}</div>
+                            <div><span style={{ marginRight: 4 }}>✉️</span>{staff.email || 'No email'}</div>
+                            <div><span style={{ marginRight: 4 }}>🕒</span>Assigned count: {staff.assignCount || 0}</div>
+                          </div>
+                        )}
+
                       </div>
                     );
                   })}
@@ -296,26 +305,26 @@ export const AssignStaff = () => {
                 </>
               )}
               <button className="back-button" onClick={handleBack}>
-                <LeftOutlined /> Quay lại
+                <LeftOutlined /> Back
               </button>
             </div>
-          ) :null}
+          ) : null}
         </div>
       </div>
       {confirmModal.open && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h3 style={{marginBottom: 16}}>
-              {confirmModal.type === 'assign' ? 'Xác nhận phân công' : 'Xác nhận huỷ phân công'}
+            <h3 style={{ marginBottom: 16 }}>
+              {confirmModal.type === 'assign' ? 'Confirm assignment' : 'Confirm cancel assignment'}
             </h3>
-            <div style={{marginBottom: 18, fontSize: '1.05rem'}}>
+            <div style={{ marginBottom: 18, fontSize: '1.05rem' }}>
               {confirmModal.type === 'assign'
-                ? `Bạn có chắc chắn muốn phân công nhân viên "${confirmModal.staff.name}" cho lịch hẹn này?`
-                : `Bạn có chắc chắn muốn huỷ phân công nhân viên "${confirmModal.staff.name}" khỏi lịch hẹn này?`}
+                ? `Are you sure you want to assign staff "${confirmModal.staff.name}" to this appointment?`
+                : `Are you sure you want to cancel assignment of staff "${confirmModal.staff.name}" from this appointment?`}
             </div>
-            <div style={{display: 'flex', gap: 16, justifyContent: 'center'}}>
-              <button className="action-button" onClick={handleConfirmAssign}>Xác nhận</button>
-              <button className="cancel-button" onClick={closeConfirmModal}>Huỷ</button>
+            <div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>
+              <button className="action-button" onClick={handleConfirmAssign}>Confirm</button>
+              <button className="cancel-button" onClick={closeConfirmModal}>Cancel</button>
             </div>
           </div>
         </div>

@@ -9,6 +9,127 @@ import { FaTwitter, FaFacebook, FaLinkedin } from 'react-icons/fa';
 import { GetBlogById } from '../../service/Blog';
 
 
+const ServiceImageCarousel = ({ imageUrls, serviceName }) => {
+  const [currentIndex, setCurrentIndex] = useState(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % imageUrls.length)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [imageUrls.length])
+
+  const goToPrevious = () => {
+    setCurrentIndex((prev) => (prev - 1 + imageUrls.length) % imageUrls.length)
+  }
+
+  const goToNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % imageUrls.length)
+  }
+
+  return (
+    <div
+      style={{
+        position: "relative",
+        width: "100%",
+        height: "384px",
+        borderRadius: "12px",
+        overflow: "hidden",
+        boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
+      }}
+    >
+      {imageUrls.map((url, index) => (
+        <img
+          key={index}
+          src={url || "/placeholder.svg"}
+          alt={`${serviceName} ${index + 1}`}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            opacity: index === currentIndex ? 1 : 0,
+            transition: "opacity 0.5s ease-in-out",
+          }}
+        />
+      ))}
+
+      <button
+        onClick={goToPrevious}
+        style={{
+          position: "absolute",
+          left: "16px",
+          top: "50%",
+          transform: "translateY(-50%)",
+          background: "rgba(0, 0, 0, 0.3)",
+          color: "white",
+          border: "none",
+          borderRadius: "50%",
+          width: "40px",
+          height: "40px",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "18px",
+        }}
+      >
+        ‹
+      </button>
+
+      <button
+        onClick={goToNext}
+        style={{
+          position: "absolute",
+          right: "16px",
+          top: "50%",
+          transform: "translateY(-50%)",
+          background: "rgba(0, 0, 0, 0.3)",
+          color: "white",
+          border: "none",
+          borderRadius: "50%",
+          width: "40px",
+          height: "40px",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "18px",
+        }}
+      >
+        ›
+      </button>
+
+      <div
+        style={{
+          position: "absolute",
+          bottom: "16px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          display: "flex",
+          gap: "8px",
+        }}
+      >
+        {imageUrls.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentIndex(index)}
+            style={{
+              width: "8px",
+              height: "8px",
+              borderRadius: "50%",
+              border: "none",
+              background: index === currentIndex ? "white" : "rgba(255, 255, 255, 0.5)",
+              cursor: "pointer",
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
 const Breadcrumbs = ({ title }) => (
   <nav className="breadcrumbs" aria-label="Breadcrumb">
     <div className="breadcrumbs-content">
@@ -130,19 +251,13 @@ const BlogDetail = () => {
               <section className="blogDetailContent redesigned" ref={contentRef}>
                 <h1 className="blogDetailTitle">{blog.blogTitle}</h1>
                 <div className="blogDetailMeta redesigned">
-                  <span className="blogDetailAuthor">{blog.staffName || 'Author'}</span> |
+                  <span className="blogDetailAuthor">{blog.author || 'Author'}</span> |
                   <span className="blogDetailCategory">{blog.blogType || 'Category'}</span> |
                   <span className="blogDetailDate">{blog.createDate ? new Date(blog.createDate).toLocaleString() : '1 min ago'}</span>
                 </div>
                 <div className="blogDetailImageContainer redesigned">
                   {blog.blogimage && blog.blogimage.length > 0 ? (
-                    <img
-                      src={blog.blogimage[0]}
-                      alt={blog.blogTitle}
-                      className="blogDetailImage"
-                      loading="lazy"
-                      onError={(e) => console.log('Image failed to load:', e.target.src)}
-                    />
+                    <ServiceImageCarousel imageUrls={blog.blogimage} serviceName={blog.blogTitle} />
                   ) : (
                     <p>No image available</p>
                   )}

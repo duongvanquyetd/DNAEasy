@@ -865,6 +865,7 @@ body {
   box-shadow: 0 2px 8px #2563eb22;
   padding: 10px 24px 10px 18px;
   border: 2px solid #2563eb;
+  width: fit-content;
 
 }
 
