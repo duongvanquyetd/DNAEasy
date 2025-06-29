@@ -1,55 +1,138 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Users, UserCheck, Crown, Edit3, Trash2, Plus, Filter, Download, RefreshCw, Eye, MoreVertical } from 'lucide-react';
+import { GetAllUsers, GetUserStats, UpdateUserRole, DeleteUser } from '../../service/user';
 
 const AdminUserManagement = () => {
-  const [activeTab, setActiveTab] = useState('customers');
+  const [activeTab, setActiveTab] = useState('CUSTOMER');
   const [users, setUsers] = useState([]);
   const [editUser, setEditUser] = useState(null);
-  const [viewUser, setViewUser] = useState(null); // New state for viewing user
+  const [viewUser, setViewUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(5);
+  const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [showViewModal, setShowViewModal] = useState(false); // New state for view modal
+  const [showViewModal, setShowViewModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [pageSize] = useState(10);
+  const [error, setError] = useState(null);
 
   const [stats, setStats] = useState({
-    totalCustomers: 2847,
-    totalStaff: 156,
-    totalManagers: 23,
+    totalCustomers: 0,
+    totalStaff: 0,
+    totalManagers: 0,
     lastUpdated: new Date().toLocaleString('en-US')
   });
 
   const tabs = [
-    { id: 'customers', label: 'Customers', icon: Users, count: stats.totalCustomers, color: { from: '#1e3a8a', to: '#3b82f6' } },
-    { id: 'staff', label: 'Staff', icon: UserCheck, count: stats.totalStaff, color: { from: '#3b82f6', to: '#60a5fa' } },
-    { id: 'managers', label: 'Managers', icon: Crown, count: stats.totalManagers, color: { from: '#1d4ed8', to: '#2563eb' } },
+    { id: 'CUSTOMER', label: 'Customers', icon: Users, count: stats.totalCustomers, color: { from: '#1e3a8a', to: '#3b82f6' } },
+    { id: 'STAFF', label: 'Staff', icon: UserCheck, count: stats.totalStaff, color: { from: '#3b82f6', to: '#60a5fa' } },
+    { id: 'MANAGER', label: 'Managers', icon: Crown, count: stats.totalManagers, color: { from: '#1d4ed8', to: '#2563eb' } },
   ];
 
-  // Mock data
-  const mockUsers = [
-    { id: 1, name: 'Nguyen Van An', email: 'an.nguyen@email.com', phone: '0901234567', role: 'customers', avatar: 'NA', status: 'active', createdAt: '2024-01-15', lastLogin: '2024-06-27' },
-    { id: 2, name: 'Tran Thi Binh', email: 'binh.tran@email.com', phone: '0912345678', role: 'staff', avatar: 'TB', status: 'active', createdAt: '2024-02-20', lastLogin: '2024-06-26' },
-    { id: 3, name: 'Le Minh Cuong', email: 'cuong.le@email.com', phone: '0923456789', role: 'managers', avatar: 'LC', status: 'inactive', createdAt: '2024-03-10', lastLogin: '2024-06-20' },
-    { id: 4, name: 'Pham Thi Dung', email: 'dung.pham@email.com', phone: '0934567890', role: 'customers', avatar: 'PD', status: 'active', createdAt: '2024-04-05', lastLogin: '2024-06-27' },
-    { id: 5, name: 'Hoang Van Duc', email: 'duc.hoang@email.com', phone: '0945678901', role: 'staff', avatar: 'HD', status: 'active', createdAt: '2024-05-12', lastLogin: '2024-06-25' }
-  ];
-
+  // Fetch user stats
   useEffect(() => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setUsers(mockUsers.filter(user => user.role === activeTab));
-      setIsLoading(false);
-    }, 500);
-  }, [activeTab]);
+    const fetchUserStats = async () => {
+      try {
+        console.log('Calling GetUserStats API');
+        const response = await GetUserStats();
+        console.log('Stats response:', response);
+        
+        // Kiểm tra cấu trúc response - phù hợp với API từ backend
+        if (response.data) {
+          console.log('Stats data processed:', response.data);
+          
+          // Xử lý theo cấu trúc API trả về
+          const totalCustomers = response.data.CUSTOMER || 0;
+          const totalStaff = response.data.STAFF || 0;
+          const totalManagers = response.data.MANAGER || 0;
+          
+          setStats({
+            totalCustomers,
+            totalStaff, 
+            totalManagers,
+            lastUpdated: new Date().toLocaleString('en-US')
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching user stats:', err);
+        setError('Failed to load user statistics');
+      }
+    };
 
-  const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.phone.includes(searchQuery)
-  );
+    fetchUserStats();
+  }, []);
+
+  // Fetch users based on active tab
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        console.log('Fetching users with params:', {
+          role: activeTab,
+          page: currentPage - 1,
+          size: pageSize,
+          keyword: searchQuery
+        });
+        
+        const response = await GetAllUsers(
+          activeTab,
+          currentPage - 1, // API uses 0-based indexing
+          pageSize,
+          searchQuery
+        );
+        
+        console.log('API Response (full):', response);
+        console.log('Response data:', response.data);
+        console.log('Response headers:', response.headers);
+        console.log('Response status:', response.status);
+        
+        // Kiểm tra token để xem có vấn đề về authentication không
+        console.log('Current token:', localStorage.getItem('token'));
+        
+        // Backend trả về mảng trực tiếp, không có cấu trúc pagination
+        if (response.data) {
+          // Thêm log chi tiết để debug
+          console.log('Setting users with:', response.data);
+          console.log('Users array type:', Array.isArray(response.data));
+          console.log('Users array length:', Array.isArray(response.data) ? response.data.length : 'not an array');
+          
+          setUsers(response.data || []);
+          // Nếu API không trả về thông tin trang, giả định 1 trang
+          setTotalPages(1);
+        } else {
+          console.error('Unexpected API response structure:', response);
+          setError('Unexpected API response format');
+        }
+      } catch (err) {
+        console.error('Error fetching users:', err);
+        console.error('Error details:', err.response ? {
+          status: err.response.status,
+          statusText: err.response.statusText,
+          data: err.response.data
+        } : 'No response');
+        
+        setError(`Failed to load users: ${err.message || 'Unknown error'}`);
+        setUsers([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, [activeTab, currentPage, pageSize, searchQuery]);
+
+  // Debounced search
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      setCurrentPage(1); // Reset to first page on new search
+    }, 500);
+
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery]);
 
   const handleEditUser = (user) => {
     setEditUser(user);
@@ -62,60 +145,118 @@ const AdminUserManagement = () => {
     setShowViewModal(true);
   };
 
-  const handleUpdateUser = () => {
+  const handleUpdateUser = async () => {
     if (editUser) {
-      const updatedUsers = users.map(user =>
-        user.id === editUser.id ? { ...user, role: selectedRole } : user
-      );
-      setUsers(updatedUsers);
-      setShowModal(false);
-      setEditUser(null);
+      setIsLoading(true);
+      try {
+        // API backend thực tế sẽ xác nhận việc cập nhật role
+        await UpdateUserRole(editUser.id, selectedRole);
+        
+        // Update the user in the local state
+        setUsers(prevUsers => 
+          prevUsers.map(user =>
+            user.id === editUser.id ? { ...user, role: selectedRole } : user
+          )
+        );
+        
+        // Refresh user stats after updating role
+        const response = await GetUserStats();
+        if (response.data) {
+          const totalCustomers = response.data.CUSTOMER || 0;
+          const totalStaff = response.data.STAFF || 0;
+          const totalManagers = response.data.MANAGER || 0;
+          
+          setStats({
+            totalCustomers,
+            totalStaff,
+            totalManagers,
+            lastUpdated: new Date().toLocaleString('en-US')
+          });
+        }
+        
+        setShowModal(false);
+        setEditUser(null);
+      } catch (err) {
+        console.error('Error updating user:', err);
+        setError(`Failed to update user: ${err.message || 'Unknown error'}`);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
-  const handleDeleteUser = (userId) => {
+  const handleDeleteUser = async (userId) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
-      setUsers(users.filter(user => user.id !== userId));
+      setIsLoading(true);
+      try {
+        await DeleteUser(userId);
+        
+        // Xóa user khỏi state
+        setUsers(users.filter(user => user.id !== userId));
+        
+        // Cập nhật lại thống kê sau khi xóa
+        const response = await GetUserStats();
+        if (response.data) {
+          const totalCustomers = response.data.CUSTOMER || 0;
+          const totalStaff = response.data.STAFF || 0;
+          const totalManagers = response.data.MANAGER || 0;
+          
+          setStats({
+            totalCustomers,
+            totalStaff,
+            totalManagers,
+            lastUpdated: new Date().toLocaleString('en-US')
+          });
+        }
+      } catch (err) {
+        console.error('Error deleting user:', err);
+        setError(`Failed to delete user: ${err.message || 'Unknown error'}`);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
   const getStatusBadge = (status) => {
-  return status === 'active' ? (
-    <div style={{ 
-      display: 'inline-flex', 
-      alignItems: 'center', 
-      gap: '0.5rem',
-      padding: '0.5rem 1rem', 
-      fontSize: '1.25rem', 
-      fontWeight: '600', 
-      color: '#ffffff', 
-      background: '#4CAF50',
-      border: '1px solid #45a049',
-      borderRadius: '2rem',
-      boxShadow: '0 2px 4px rgba(76, 175, 80, 0.3)'
-    }}>
-      <div style={{ width: '0.75rem', height: '0.75rem', backgroundColor: '#4CAF50', borderRadius: '50%' }} />
-      Active
-    </div>
-  ) : (
-    <div style={{ 
-      display: 'inline-flex', 
-      alignItems: 'center', 
-      gap: '0.5rem',
-      padding: '0.5rem 1rem', 
-      fontSize: '1.25rem', 
-      fontWeight: '600', 
-      color: '#ffffff', 
-      background: '#F44336',
-      border: '1px solid #DA190B',
-      borderRadius: '2rem',
-      boxShadow: '0 2px 4px rgba(244, 67, 54, 0.3)'
-    }}>
-      <div style={{ width: '0.5rem', height: '0.5rem', backgroundColor: '#F44336', borderRadius: '20%%' }} />
-      Inactive
-    </div>
-  );
-};
+    // Chuyển đổi status từ boolean sang text
+    const isActive = status === true;
+    
+    return isActive ? (
+      <div style={{ 
+        display: 'inline-flex', 
+        alignItems: 'center', 
+        gap: '0.5rem',
+        padding: '0.5rem 1rem', 
+        fontSize: '1.25rem', 
+        fontWeight: '600', 
+        color: '#ffffff', 
+        background: '#4CAF50',
+        border: '1px solid #45a049',
+        borderRadius: '2rem',
+        boxShadow: '0 2px 4px rgba(76, 175, 80, 0.3)'
+      }}>
+        <div style={{ width: '0.75rem', height: '0.75rem', backgroundColor: '#4CAF50', borderRadius: '50%' }} />
+        Active
+      </div>
+    ) : (
+      <div style={{ 
+        display: 'inline-flex', 
+        alignItems: 'center', 
+        gap: '0.5rem',
+        padding: '0.5rem 1rem', 
+        fontSize: '1.25rem', 
+        fontWeight: '600', 
+        color: '#ffffff', 
+        background: '#F44336',
+        border: '1px solid #DA190B',
+        borderRadius: '2rem',
+        boxShadow: '0 2px 4px rgba(244, 67, 54, 0.3)'
+      }}>
+        <div style={{ width: '0.5rem', height: '0.5rem', backgroundColor: '#F44336', borderRadius: '20%%' }} />
+        Inactive
+      </div>
+    );
+  };
 
   const getAvatarColor = (index) => {
     const gradients = [
@@ -234,6 +375,37 @@ const AdminUserManagement = () => {
       </div>
 
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '3rem 2rem' }}>
+        {/* Error display */}
+        {error && (
+          <div style={{
+            padding: '1rem 1.5rem',
+            background: 'rgba(239, 68, 68, 0.15)',
+            color: 'white',
+            borderRadius: '0.75rem',
+            marginBottom: '1.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            boxShadow: '0 4px 10px rgba(239, 68, 68, 0.2)'
+          }}>
+            <p style={{ fontWeight: '500' }}>{error}</p>
+            <button 
+              onClick={() => setError(null)}
+              style={{ 
+                background: 'none', 
+                border: 'none', 
+                cursor: 'pointer',
+                color: 'white',
+                fontSize: '1.25rem',
+                fontWeight: 'bold'
+              }}
+            >
+              &times;
+            </button>
+          </div>
+        )}
+        
         {/* Stats Cards */}
         <div style={{ 
           display: 'grid', 
@@ -610,7 +782,7 @@ const AdminUserManagement = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredUsers.map((user, index) => (
+                  {users.map((user, index) => (
                     <tr 
                       key={user.id} 
                       style={{ 
@@ -643,7 +815,7 @@ const AdminUserManagement = () => {
                             boxShadow: '0 6px 20px rgba(0, 0, 0, 0.2)',
                             transition: 'transform 0.3s'
                           }}>
-                            {user.avatar}
+                            {user.name ? user.name.substring(0, 2).toUpperCase() : 'NA'}
                           </div>
                           <div>
                             <p style={{ fontWeight: '600', color: 'white', fontSize: '1.1rem', lineHeight: '1.5rem' }}>
@@ -655,9 +827,9 @@ const AdminUserManagement = () => {
                       </td>
                       <td style={{ padding: '1.5rem 2.5rem' }}>
                         <div>
-                          <p style={{ color: 'white', fontWeight: '500', fontSize: '1rem' }}>{user.email}</p>
+                          <p style={{ color: 'white', fontWeight: '500', fontSize: '1rem' }}>{user.email || "N/A"}</p>
                           <p style={{ fontSize: '0.9rem', color: 'rgba(255, 255, 255, 0.65)', fontWeight: '400' }}>
-                            {user.phone}
+                            {user.phone || "N/A"}
                           </p>
                         </div>
                       </td>
@@ -666,12 +838,12 @@ const AdminUserManagement = () => {
                       </td>
                       <td style={{ padding: '1.5rem 2.5rem' }}>
                         <p style={{ color: 'white', fontWeight: '500', fontSize: '1rem' }}>
-                          {new Date(user.createdAt).toLocaleDateString('en-US')}
+                          {user.createdDate ? new Date(user.createdDate).toLocaleDateString('en-US') : 'N/A'}
                         </p>
                       </td>
                       <td style={{ padding: '1.5rem 2.5rem' }}>
                         <p style={{ color: 'white', fontWeight: '500', fontSize: '1rem' }}>
-                          {new Date(user.lastLogin).toLocaleDateString('en-US')}
+                          {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('en-US') : 'N/A'}
                         </p>
                       </td>
                       <td style={{ padding: '1.5rem 2.5rem' }}>
@@ -764,7 +936,7 @@ const AdminUserManagement = () => {
           <div style={{ padding: '1.5rem 2.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.15)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
               <p style={{ fontSize: '0.95rem', color: 'rgba(255, 255, 255, 0.85)', fontWeight: '400' }}>
-                Showing <span style={{ fontWeight: '600' }}>{filteredUsers.length}</span> of <span style={{ fontWeight: '600' }}>{tabs.find(t => t.id === activeTab)?.count}</span> results
+                Showing <span style={{ fontWeight: '600' }}>{users.length}</span> of <span style={{ fontWeight: '600' }}>{tabs.find(t => t.id === activeTab)?.count}</span> results
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
                 <button 
@@ -908,14 +1080,14 @@ const AdminUserManagement = () => {
                     fontSize: '1.25rem',
                     boxShadow: '0 6px 20px rgba(0,0,0,0.2)'
                   }}>
-                    {editUser.avatar}
+                    {editUser.name ? editUser.name.substring(0, 2).toUpperCase() : 'NA'}
                   </div>
                   <div>
                     <h4 style={{ fontWeight: '600', color: '#1e293b', fontSize: '1.25rem' }}>
                       {editUser.name}
                     </h4>
                     <p style={{ fontSize: '0.95rem', color: '#6b7280', fontWeight: '400' }}>
-                      {editUser.email}
+                      {editUser.email || "N/A"}
                     </p>
                   </div>
                 </div>
@@ -926,13 +1098,15 @@ const AdminUserManagement = () => {
                   fontSize: '0.95rem' 
                 }}>
                   <div>
-                    <span style={{ color: '#6b7280', fontWeight: '500' }}>Phone:</span>
-                    <p style={{ fontWeight: '600', color: '#1e293b' }}>{editUser.phone}</p>
+                    <span style={{ color: '#6b7280', fontWeight: '500' }}>Status:</span>
+                    <p style={{ fontWeight: '600', color: '#1e293b' }}>
+                      {editUser.status === true ? 'Active' : 'Inactive'}
+                    </p>
                   </div>
                   <div>
                     <span style={{ color: '#6b7280', fontWeight: '500' }}>Join Date:</span>
                     <p style={{ fontWeight: '600', color: '#1e293b' }}>
-                      {new Date(editUser.createdAt).toLocaleDateString('en-US')}
+                      {editUser.createdDate ? new Date(editUser.createdDate).toLocaleDateString('en-US') : 'N/A'}
                     </p>
                   </div>
                 </div>
@@ -1124,14 +1298,14 @@ const AdminUserManagement = () => {
                     fontSize: '1.25rem',
                     boxShadow: '0 6px 20px rgba(0,0,0,0.2)'
                   }}>
-                    {viewUser.avatar}
+                    {viewUser.name ? viewUser.name.substring(0, 2).toUpperCase() : 'NA'}
                   </div>
                   <div>
                     <h4 style={{ fontWeight: '600', color: '#1e293b', fontSize: '1.25rem' }}>
                       {viewUser.name}
                     </h4>
                     <p style={{ fontSize: '0.95rem', color: '#6b7280', fontWeight: '400' }}>
-                      {viewUser.email}
+                      {viewUser.email || "N/A"}
                     </p>
                   </div>
                 </div>
@@ -1142,31 +1316,21 @@ const AdminUserManagement = () => {
                   fontSize: '0.95rem' 
                 }}>
                   <div>
-                    <span style={{ color: '#6b7280', fontWeight: '500' }}>Phone:</span>
-                    <p style={{ fontWeight: '600', color: '#1e293b' }}>{viewUser.phone}</p>
+                    <span style={{ color: '#6b7280', fontWeight: '500' }}>Status:</span>
+                    <p style={{ fontWeight: '600', color: '#1e293b' }}>
+                      {viewUser.status === true ? 'Active' : 'Inactive'}
+                    </p>
                   </div>
                   <div>
                     <span style={{ color: '#6b7280', fontWeight: '500' }}>Join Date:</span>
                     <p style={{ fontWeight: '600', color: '#1e293b' }}>
-                      {new Date(viewUser.createdAt).toLocaleDateString('en-US')}
-                    </p>
-                  </div>
-                  <div>
-                    <span style={{ color: '#6b7280', fontWeight: '500' }}>Last Login:</span>
-                    <p style={{ fontWeight: '600', color: '#1e293b' }}>
-                      {new Date(viewUser.lastLogin).toLocaleDateString('en-US')}
-                    </p>
-                  </div>
-                  <div>
-                    <span style={{ color: '#6b7280', fontWeight: '500' }}>Status:</span>
-                    <p style={{ fontWeight: '600', color: '#1e293b' }}>
-                      {viewUser.status.charAt(0).toUpperCase() + viewUser.status.slice(1)}
+                      {viewUser.createdDate ? new Date(viewUser.createdDate).toLocaleDateString('en-US') : 'N/A'}
                     </p>
                   </div>
                   <div>
                     <span style={{ color: '#6b7280', fontWeight: '500' }}>Role:</span>
                     <p style={{ fontWeight: '600', color: '#1e293b' }}>
-                      {tabs.find(tab => tab.id === viewUser.role)?.label || viewUser.role}
+                      {viewUser.role || 'N/A'}
                     </p>
                   </div>
                 </div>
