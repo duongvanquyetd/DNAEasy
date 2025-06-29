@@ -495,11 +495,18 @@ public class AppointmentService implements IsAppointmentService {
     }
 
     @Override
-    public Page<AppointmentResponse> getAppointmnetForMangerShiftStaff(Pageable pageable) {
+    public Page<AppointmentAssingResponse> getAppointmnetForMangerShiftStaff(Pageable pageable) {
         Page<Appointment> appointments = isAppointmentResponsitory.findForMangerAssign(pageable);
+        Page<AppointmentAssingResponse> assingResponses = appointments.map(appointmentMapper::ApointmenetToAppoinAssingResponse);
+        for (Appointment appointment : appointments.getContent()) {
 
-
-        return appointments.map(appointmentMapper::AppointmentCreateResponse);
+              for(AppointmentAssingResponse assingResponse : assingResponses.getContent()) {
+                  if(assingResponse.getAppointmentId() == appointment.getAppointmentId() && appointment.getStaff() != null) {
+                      assingResponse.setStaffResponse(userMapper.PersonToStaffResponse(appointment.getStaff()));
+                  }
+              }
+        }
+        return assingResponses;
     }
 
     @Override
@@ -545,7 +552,14 @@ public class AppointmentService implements IsAppointmentService {
         } else {
             list = isUserResponsity.findStaffByWorkHourWithKeyWord(startDay, endDay, Work_hour(a.getDateCollect()), pageable, keyword);
         }
-        return list.map(userMapper::PersonToStaffResponse);
+        Page<StaffResponse> responses = list.map(userMapper::PersonToStaffResponse);
+        for (int i = 0; i < responses.getContent().size(); i++) {
+
+            responses.getContent().get(i).setAssignCount(isAppointmentResponsitory.countByStaff(list.getContent().get(i)));
+
+
+        }
+        return responses;
     }
 
     @Override

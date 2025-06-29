@@ -40,7 +40,7 @@ public interface IsAppointmentService {
     int getCompletedAppointmentsToday();
     List<AppointmentResponse> getAppointmentYesterday();
 
-    Page<AppointmentResponse> getAppointmnetForMangerShiftStaff(Pageable pageable);
+    Page<AppointmentAssingResponse> getAppointmnetForMangerShiftStaff(Pageable pageable);
     AppointmentResponse AssignStaffForApp(AppoinmetnAssignRequest request);
     Page<StaffResponse> getStaffForAppointment(int appointmentId,String keyword,Pageable pageable);
     boolean CanRefund(int appointmentId);

@@ -226,4 +226,6 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
             and a.customer.personId in (select c.customer.personId from Comment  c)
             """)
     List<Appointment> findALLAppointmentHaveCommnent(String keysearch);
+
+    int countByStaff(Person staff);
 }
