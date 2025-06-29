@@ -10,6 +10,7 @@ const navItems = [
   { name: 'Manage Service', path: '/ManageService' },
   { name: 'Manage Blog', path: '/ManageBlog' },
   { name: 'Manage Staff', path: '/assign-staff' },
+   { name: 'Manage Comment', path: '/ManageComment' },
 ];
 
 const HeaderManager = () => {

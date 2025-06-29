@@ -79,19 +79,19 @@ import Footer from '../Footer.jsx';
                 <img src="https://images.pexels.com/photos/7088526/pexels-photo-7088526.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Home DNA Tests Guide" className="blog-image" />
                 <h3>Home DNA Tests: Guide</h3>
                 <p>Home DNA tests are easy to use and confidential.</p>
-                <Link to="/blog/guide" className="blog-btn">Read More</Link>
+                <Link to="/blog" className="blog-btn">Read More</Link>
               </div>
               <div className="blog-column card-right">
                 <img src="https://images.pexels.com/photos/7089401/pexels-photo-7089401.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Home DNA Tests" className="blog-image" />
                 <h3>Home DNA Tests</h3>
                 <p>Discover the accuracy of home DNA tests and why using an accredited lab is important.</p>
-                <Link to="/blog/accuracy" className="blog-btn">Read More</Link>
+                <Link to="/blog" className="blog-btn">Read More</Link>
               </div>
               <div className="blog-column card-left">
                 <img src="https://images.pexels.com/photos/3825527/pexels-photo-3825527.jpeg?auto=compress&cs=tinysrgb&w=600" alt="DNA Inbreeding Testing" className="blog-image" />
                 <h3>DNA for Inbreeding Testing</h3>
                 <p>Information about DNA tests for consanguinity in French.</p>
-                <Link to="/blog/consanguinity" className="blog-btn">Read More</Link>
+                <Link to="/blog" className="blog-btn">Read More</Link>
               </div>
             </React.Fragment>
           )}
@@ -117,19 +117,19 @@ import Footer from '../Footer.jsx';
                 <img src="https://images.pexels.com/photos/3825527/pexels-photo-3825527.jpeg?auto=compress&cs=tinysrgb&w=600" alt="DNA Paternity Test" className="service-image" />
                 <h3>DNA Paternity Test</h3>
                 <p>Accurate and confidential paternity testing services.</p>
-                <Link to="/service/paternity" className="service-btn">Learn More</Link>
+                <Link to="/service" className="service-btn">Learn More</Link>
               </div>
               <div className="service-column card-right">
                 <img src="https://images.pexels.com/photos/7088526/pexels-photo-7088526.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="DNA Ancestry Test" className="service-image" />
                 <h3>DNA Ancestry Test</h3>
                 <p>Discover your ancestry and family history with our DNA ancestry tests.</p>
-                <Link to="/service/ancestry" className="service-btn">Learn More</Link>
+                <Link to="/service" className="service-btn">Learn More</Link>
               </div>
               <div className="service-column card-left">
                 <img src="https://images.pexels.com/photos/3825527/pexels-photo-3825527.jpeg?auto=compress&cs=tinysrgb&w=600" alt="DNA Relationship Test" className="service-image" />
                 <h3>DNA Relationship Test</h3>
                 <p>Explore your genetic relationships with our DNA relationship tests.</p>
-                <Link to="/service/relationship" className="service-btn">Learn More</Link>
+                <Link to="/service" className="service-btn">Learn More</Link>
               </div>
             </React.Fragment>
           )}
@@ -140,7 +140,7 @@ import Footer from '../Footer.jsx';
   <div className="testimonial-carousel">
     {/* Map over testimonials array */}
     <div className="testimonial-card">
-      <img src="customer1.jpg" alt="Customer" />
+      <img src="https://res.cloudinary.com/dy3uhobsq/image/upload/db11418a-7874-4286-91c8-40b2c618d25c_male.jpg?_a=DAGAACAYZAA0" alt="Customer" />
       <p>"The process was easy and results were fast!"</p>
       <span>- Jane D.</span>
     </div>
@@ -151,11 +151,11 @@ import Footer from '../Footer.jsx';
   <h2>What Experts Say</h2>
   <div className="testimonial-carousel">
     <div className="testimonial-card">
-      <img src="doctor1.jpg" alt="Doctor" />
+      <img src="https://i1.rgstatic.net/ii/profile.image/11431281183266062-1692793071395_Q512/Liansong-Ye.jpg" alt="Doctor" />
       <p>
         "This DNA testing system is highly reliable and scientifically robust. It ensures accurate results with strict confidentiality — exactly what medical professionals and patients need."
       </p>
-      <span>- Dr. Nguyen Thi Lan, Geneticist</span>
+      <span>- Dr. Liansong Ye, Geneticist</span>
     </div>
     {/* Bạn có thể thêm nhiều bác sĩ khác nếu cần */}
   </div>

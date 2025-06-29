@@ -22,8 +22,8 @@ const Footer = () => {
             <ul style={styles.columnList}>
               {['DNA Paternity Tests', 'Legal DNA Tests', 'Immigration Tests', 'Relationship Tests'].map((item) => (
                 <li key={item}>
-                  <a 
-                    href="#" 
+                  <a
+                    href="#"
                     style={styles.link}
                     onMouseEnter={(e) => {
                       e.target.style.color = '#60a5fa';
@@ -47,8 +47,8 @@ const Footer = () => {
             <ul style={styles.columnList}>
               {['About Us', 'Contact Us', 'FAQs', 'Blog'].map((item) => (
                 <li key={item}>
-                  <a 
-                    href="#" 
+                  <a
+                    href="#"
                     style={styles.link}
                     onMouseEnter={(e) => {
                       e.target.style.color = '#60a5fa';
@@ -72,8 +72,8 @@ const Footer = () => {
             <div style={styles.contactInfo}>
               <p style={styles.contactText}>NGO 335 Laird Rd.</p>
               <p style={styles.contactText}>North York, ON</p>
-              <a 
-                href="tel:+18777087678" 
+              <a
+                href="tel:+18777087678"
                 style={styles.phoneLink}
                 onMouseEnter={(e) => e.target.style.color = '#34d399'}
                 onMouseLeave={(e) => e.target.style.color = '#60a5fa'}
@@ -119,8 +119,8 @@ const Footer = () => {
           <div style={styles.footerLinks}>
             {['Privacy Policy', 'Terms & Conditions', 'Accessibility'].map((link, index) => (
               <React.Fragment key={link}>
-                <a 
-                  href="#" 
+                <a
+                  href="#"
                   style={styles.footerLink}
                   onMouseEnter={(e) => e.target.style.color = '#60a5fa'}
                   onMouseLeave={(e) => e.target.style.color = '#94a3b8'}
@@ -130,7 +130,7 @@ const Footer = () => {
                 {index < 2 && <span style={styles.separator}>•</span>}
               </React.Fragment>
             ))}
-            
+
           </div>
         </div>
       </div>
@@ -142,6 +142,7 @@ const styles = {
   footer: {
     background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
     color: '#fff',
+
   },
   footerContent: {
     maxWidth: '1200px',
@@ -283,7 +284,7 @@ const styles = {
     color: '#64748b',
     fontSize: '14px',
   },
-  
+
   // Media queries simulation
   '@media (max-width: 768px)': {
     footerBottomContent: {

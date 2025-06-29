@@ -15,3 +15,11 @@ export const CanComment = (serviceId) => {
 
   return api.get(`/comments/cancomment/${serviceId}`);
 }
+
+export const ManageCommentReport=(page,size,datasearch)=>{
+  return api.post(`/comments/managercomment?page=${page}&size=${size}`,datasearch)
+}
+
+export const CommentReport = ()=>{
+  return api.get("/comments/commentReport")
+}
