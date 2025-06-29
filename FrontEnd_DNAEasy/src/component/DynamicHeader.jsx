@@ -29,13 +29,13 @@ const DynamicHeader = () => {
   }, []);
 
   console.log("Current userRole state:", userRole);
-  console.log("Is Manager?", userRole === 'MANAGER');
+  console.log("Is Manager?", userRole && userRole.toLowerCase() === 'manager');
 
   if (isLoading) {
     return <Header />; // Show default header while loading
   }
 
-  return userRole === 'MANAGER' ? <HeaderManager /> : <Header />;
+  return userRole && userRole.toLowerCase() === 'manager' ? <HeaderManager /> : <Header />;
 };
 
 export default DynamicHeader; 
