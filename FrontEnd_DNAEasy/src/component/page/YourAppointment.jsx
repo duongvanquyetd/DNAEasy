@@ -163,13 +163,14 @@ export const YourAppointment = () => {
           Header Section
           <header>
             <div className="header-content">
+             
               <h1>
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                Quản lý lịch hẹn
+                Appointment Management
               </h1>
-              <p>Theo dõi và quản lý các cuộc hẹn của bạn một cách dễ dàng</p>
+              <p>Track and manage your appointments easily</p>
             </div>
           </header>
           <div className='search-bar-wrapper'>
@@ -182,7 +183,7 @@ export const YourAppointment = () => {
             >
               <input
                 type="text"
-                placeholder="Tìm kiếm lịch hẹn..."
+                placeholder="Search appointments..."
                 value={keysearch}
                 onChange={e => {
                   setkeysearch(e.target.value);
@@ -191,13 +192,7 @@ export const YourAppointment = () => {
                 className="search-input"
               />
               <button type="submit" className="searchBtn">
-                <span className="search-icon" aria-hidden="true">
-                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  </svg>
-                </span>
-                Tìm kiếm
+                Search
               </button>
             </form>
           </div>
@@ -207,8 +202,8 @@ export const YourAppointment = () => {
             {loading ? (
               <div className="loading-container">
                 <div className="loading-spinner"></div>
-                <h3>Đang tải dữ liệu...</h3>
-                <p>Vui lòng chờ trong giây lát</p>
+                <h3>Loading data...</h3>
+                <p>Please wait a moment</p>
               </div>
             ) : appointments.length > 0 ? (
 
@@ -238,7 +233,7 @@ export const YourAppointment = () => {
                           style={{ width: `${(appointment.orderProcess / (appointment.statusNames.length - 1)) * 95}%` }}
                         ></div>
 
-                        {/* Hàng 1: Step circle + label */}
+                        {/* Row 1: Step circle + label */}
                         <div className="progress-steps progress-steps-row">
                           {appointment.statusNames.map((step, index) => {
                             const isCompleted = index < appointment.orderProcess;
@@ -254,7 +249,7 @@ export const YourAppointment = () => {
                           })}
                         </div>
 
-                        {/* Hàng 2: Step time dưới đúng cột */}
+                        {/* Row 2: Step time under each column */}
 
                         {appointment.listStatusTime && (
 
@@ -270,14 +265,14 @@ export const YourAppointment = () => {
                                       <div className="time-icon">🕒</div>
                                       <div className="time-value">{time.toLocaleTimeString()}</div>
                                       <div className="date-icon">📅</div>
-                                      <div className="date-value">{time.toLocaleDateString('vi-VN')}</div>
+                                      <div className="date-value">{time.toLocaleDateString('en-GB')}</div>
                                     </>
                                   ) : (
                                     <>
                                       <div className="time-icon">🕒</div>
                                       <div className="time-value">--:--:--</div>
                                       <div className="date-icon">📅</div>
-                                      <div className="date-value">Chưa cập nhật</div>
+                                      <div className="date-value">Not updated</div>
                                     </>
                                   )}
                                 </div>
@@ -293,29 +288,29 @@ export const YourAppointment = () => {
                       {/* Info Grid */}
                       <div className="info-grid">
                         <div className="info-item">
-                          <div className="info-label">Khách hàng</div>
+                          <div className="info-label">Customer</div>
                           <div className="info-value">{appointment.customerName}</div>
                         </div>
                         <div className="info-item">
-                          <div className="info-label">Nhân viên</div>
+                          <div className="info-label">Staff</div>
                           <div className="info-value">{appointment.staffName ? appointment.staffName : "is assigning"}</div>
                         </div>
                         <div className="info-item">
-                          <div className="info-label">Ngày lấy mẫu</div>
+                          <div className="info-label">Sample Collection Date</div>
                           <div className="info-value">{new Date(appointment.dateCollect).toLocaleString()}</div>
                         </div>
                         <div className="info-item">
-                          <div className="info-label">Địa điểm</div>
+                          <div className="info-label">Location</div>
                           <div className="info-value">{appointment.location}</div>
                         </div>
                         <div className="info-item">
-                          <div className="info-label">Loại thu thập</div>
+                          <div className="info-label">Collection Type</div>
                           <div className="info-value">{appointment.typeCollect}</div>
                         </div>
                         <div className="info-item">
-                          <div className="info-label">Thanh toán</div>
+                          <div className="info-label">Payment</div>
                           <div className="info-value">
-                            {appointment.paymentAmount.toLocaleString('vi-VN')} VND ({appointment.paymentMethod})
+                            {appointment.paymentAmount.toLocaleString('en-US')} VND ({appointment.paymentMethod})
                           </div>
                         </div>
                       </div>
@@ -337,7 +332,7 @@ export const YourAppointment = () => {
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
-                            Hủy lịch hẹn
+                            Cancel appointment
                           </button>
                         )}
 
@@ -378,7 +373,7 @@ export const YourAppointment = () => {
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
-                            Xác nhận thanh toán
+                            Confirm payment
                           </button>
                         )}
 
@@ -391,7 +386,7 @@ export const YourAppointment = () => {
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
-                            Thanh toán bằng tiền mặt to view result
+                            Pay by cash to view result
                           </button>
 
                         ) : appointment.canrefund && (
@@ -430,8 +425,8 @@ export const YourAppointment = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                 </div>
-                <h3>Không có lịch hẹn nào</h3>
-                <p>Hiện tại bạn chưa có lịch hẹn nào được tạo.</p>
+                <h3>No appointments found</h3>
+                <p>You have not created any appointments yet.</p>
               </div>
             )}
           </main>
@@ -447,7 +442,7 @@ export const YourAppointment = () => {
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                     </svg>
-                    Xác nhận trạng thái
+                    Confirm status
                   </h5>
                   <button className="close-btn" onClick={() => setStatusform(null)}>
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -490,16 +485,16 @@ export const YourAppointment = () => {
                           window.location.reload();
                         })
                         .catch((error) => {
-                          alert("Lỗi khi xác nhận");
+                          alert("Error while confirming");
                         });
                     }}
                   >
                     <div className="form-group">
-                      <label className="form-label">File bằng chứng</label>
+                      <label className="form-label">Proof file</label>
                       <input type="file" name="file" className="form-control" />
                     </div>
                     <button type="submit" className="form-submit confirm">
-                      Xác nhận
+                      Confirm
                     </button>
                   </form>
                 </div>
@@ -518,7 +513,7 @@ export const YourAppointment = () => {
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
-                    Xác nhận hủy lịch hẹn
+                    Confirm cancellation
                   </h5>
                   <button className="close-btn" onClick={() => setCancelForm(null)}>
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -530,7 +525,7 @@ export const YourAppointment = () => {
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();
-                      if (!cancelNote.trim()) return alert("Vui lòng nhập lý do hủy.");
+                      if (!cancelNote.trim()) return alert("Please enter a cancellation reason.");
                       const formdata = new FormData();
                       const file = e.target["file"].files[0];
                       console.log("aaaa", { appointmentId: cancelForm.appointmentId, note: cancelNote });
@@ -554,27 +549,27 @@ export const YourAppointment = () => {
                           window.location.reload();
                         })
                         .catch((error) => {
-                          alert("Lỗi khi hủy");
+                          alert("Error while cancelling");
                         });
                     }}
                   >
                     <div className="form-group">
-                      <label className="form-label">Lý do hủy</label>
+                      <label className="form-label">Cancellation reason</label>
                       <textarea
                         className="form-control textarea"
                         value={cancelNote}
                         onChange={(e) => setCancelNote(e.target.value)}
                         required
                         rows="4"
-                        placeholder="Vui lòng nhập lý do hủy lịch hẹn..."
+                        placeholder="Please enter the reason for cancelling the appointment..."
                       />
                     </div>
                     <div className="form-group">
-                      <label className="form-label">File bằng chứng</label>
+                      <label className="form-label">Proof file</label>
                       <input type="file" name="file" className="form-control" />
                     </div>
                     <button type="submit" className="form-submit cancel">
-                      Xác nhận hủy
+                      Confirm cancellation
                     </button>
                   </form>
                 </div>
@@ -591,7 +586,7 @@ export const YourAppointment = () => {
               <div className="modal-dialog modal-lg" role="document">
                 <div className="modal-content">
                   <div className="modal-header">
-                    <h5 className="modal-title">Xác nhận kết quả xét nghiệm</h5>
+                    <h5 className="modal-title">Confirm test result</h5>
                     <button
                       type="button"
                       className="btn-close"
@@ -616,7 +611,7 @@ export const YourAppointment = () => {
                           const file = fileInput.files[0];
 
                           if (!file || (result.relationName && !conclusionResult)) {
-                            setErrorResult("Please enter all field");
+                            setErrorResult("Please enter all fields");
                             return;
                           }
 
@@ -627,12 +622,12 @@ export const YourAppointment = () => {
                           fileArray.push(file);
                         });
 
-                        // Append mỗi file với cùng key "file"
+                        // Append each file with the key "file"
                         fileArray.forEach((file) => {
                           formData.append("file", file);
                         });
 
-                        // Append kết quả (1 mảng JSON)
+                        // Append results (as a JSON array)
                         formData.append(
                           "result",
                           new Blob([JSON.stringify(resultDataArray)], { type: "application/json" })
@@ -654,13 +649,13 @@ export const YourAppointment = () => {
                         <div key={result.resultId} className="mb-4 border-bottom pb-3">
 
                           {result.relationName && (
-                            <p><strong>Quan hệ:</strong> {result.relationName}</p>
+                            <p><strong>Relationship:</strong> {result.relationName}</p>
 
                           )}
 
-                          <p><strong>Mã mẫu:</strong> {result.samplecode}</p>
+                          <p><strong>Sample code:</strong> {result.samplecode}</p>
                           <div className="mb-2">
-                            <label className="form-label">Tải file kết quả</label>
+                            <label className="form-label">Upload result file</label>
                             <input
                               type="file"
                               name={`file-${index}`}
@@ -670,15 +665,15 @@ export const YourAppointment = () => {
                           </div>
                           {result.relationName && (
                             <div className="mb-2">
-                              <label className="form-label">Kết luận</label>
+                              <label className="form-label">Conclusion</label>
                               <select
                                 name={`conclusionResult-${index}`}
                                 className="form-select"
                                 required
                               >
-                                <option value="">-- Chọn kết luận --</option>
-                                <option value="Consanguineous">Consanguineous (Cùng huyết thống)</option>
-                                <option value="Not Consanguineous">Not Consanguineous (Không cùng huyết thống)</option>
+                                <option value="">-- Select conclusion --</option>
+                                <option value="Consanguineous">Consanguineous (Biological relationship)</option>
+                                <option value="Not Consanguineous">Not Consanguineous (No biological relationship)</option>
                               </select>
                             </div>
 
@@ -687,7 +682,7 @@ export const YourAppointment = () => {
                         </div>
                       ))}
                       <p><strong>{errorResult && <div className='text-danger' > {errorResult}</div>}</strong></p>
-                      <button type="submit" className="btn btn-primary">Xác nhận tất cả</button>
+                      <button type="submit" className="btn btn-primary">Confirm all</button>
                     </form>
                   </div>
                 </div>
@@ -706,7 +701,7 @@ export const YourAppointment = () => {
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                     </svg>
-                    Xác nhận thông tin mẫu
+                    Confirm sample information
                   </h5>
                   <button className="close-btn" onClick={() => setSampleform(null)}>
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -734,7 +729,7 @@ export const YourAppointment = () => {
                         };
 
                         if (!sampleUpdate.name || (sampleform.length > 1 && !sampleUpdate.relationName) || !sampleUpdate.sampleType) {
-                          setErrorSample("Please input all field");
+                          setErrorSample("Please input all fields");
                           return;
                         }
 
@@ -760,7 +755,7 @@ export const YourAppointment = () => {
                           if (error.response?.data?.CCCD) {
                             setErrorSample(error.response.data.CCCD);
                           }
-                          console.log("Lỗi:", error.response?.data);
+                          console.log("Error:", error.response?.data);
                         });
                     }}
                   >
@@ -769,10 +764,10 @@ export const YourAppointment = () => {
                     )}
                     {sampleform.map((sample, index) => (
                       <div key={sample.sampleid} className="result-item">
-                        <p><strong>Mã mẫu:</strong> {sample.samplecode}</p>
+                        <p><strong>Sample code:</strong> {sample.samplecode}</p>
                         {typeService === "legal" && (
                           <div className="form-group">
-                            <label className="form-label">CCCD</label>
+                            <label className="form-label">Citizen ID</label>
                             <input
                               type="text"
                               name={`cccd-${index}`}
@@ -783,7 +778,7 @@ export const YourAppointment = () => {
                           </div>
                         )}
                         <div className="form-group">
-                          <label className="form-label">Tên người lấy mẫu</label>
+                          <label className="form-label">Sample taker name</label>
                           <input
                             type="text"
                             name={`name-${index}`}
@@ -796,7 +791,7 @@ export const YourAppointment = () => {
                         {sampleform.length > 1 && (
 
                           <div className="form-group">
-                            <label className="form-label">Quan hệ</label>
+                            <label className="form-label">Relationship</label>
                             <input
                               type="text"
                               name={`relationName-${index}`}
@@ -809,15 +804,15 @@ export const YourAppointment = () => {
                         )}
 
                         <div className="form-group">
-                          <label className="form-label">Loại mẫu</label>
+                          <label className="form-label">Sample type</label>
                           <select
                             name={`sampleType-${index}`}
                             defaultValue={sample.sampleType || ''}
                             className="form-select"
                             required
                           >
-                            <option value="">-- Chọn loại mẫu --</option>
-                            {["Máu", "Móng tay", "Tóc", "Niêm mạc miệng", "Răng"].map((type) => (
+                            <option value="">-- Select sample type --</option>
+                            {["Blood", "Nail", "Hair", "Buccal swab", "Tooth"].map((type) => (
                               <option key={type} value={type}>{type}</option>
                             ))}
                           </select>
@@ -825,11 +820,11 @@ export const YourAppointment = () => {
                       </div>
                     ))}
                     <div className="form-group">
-                      <label className="form-label">File bằng chứng</label>
+                      <label className="form-label">Proof file</label>
                       <input type="file" name="file" className="form-control" />
                     </div>
                     <button type="submit" className="form-submit confirm">
-                      Gửi xác nhận
+                      Submit confirmation
                     </button>
                   </form>
                 </div>
@@ -837,7 +832,6 @@ export const YourAppointment = () => {
             </div>
           )
         }
-
 
       </div >
       {renderPagination(totalPages, currentPage, setCurrentPage)}

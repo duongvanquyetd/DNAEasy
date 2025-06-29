@@ -480,6 +480,7 @@
     border-bottom: 2px solid #bbe1fa;
     padding-bottom: 8px;
     display: block; /* Ensure title is full width */
+    width: 40%;
 }
 
 .staff-info {
@@ -487,7 +488,7 @@
     align-items: flex-start;
     gap: 16px;
     flex-direction: row;
-    margin-left: 50px;
+   
 }
 @media (max-width: 768px) {
     .staff-info {
