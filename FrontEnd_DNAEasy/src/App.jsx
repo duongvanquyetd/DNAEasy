@@ -47,6 +47,7 @@ function App() {
         <Route path="/assign-staff" element={<AssignStaff />} />
         <Route path="/ManageComment" element={<ManageComment />} />
         <Route path="/user-admin-dashboard" element={<UserAdminDashboard />} />
+        <Route path="/Notification" element={<UserAdminDashboard />} />
         <Route path="*" element={<div>404 - Page Not Found</div>} />
       </Routes>
     </BrowserRouter>
