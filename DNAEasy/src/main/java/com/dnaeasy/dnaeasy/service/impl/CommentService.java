@@ -171,7 +171,7 @@ public class CommentService implements IsCommentService {
                                 commentReponse.setNameStaff_Reception_Refund(p.getStaffReception().getName());
                                 commentReponse.setEmailStaff_Reception_Refund(p.getStaffReception().getEmail());
                                 commentReponse.setPhoneStaff_Reception_Refund(p.getStaffReception().getPhone());
-                                commentReponse.setAvatarUrlStaff_Reception(p.getStaffReception().getAvatarUrl());
+                                commentReponse.setAvatarUrlStaff_ReceptionRefund(p.getStaffReception().getAvatarUrl());
                             } else {
                                 commentReponse.setNameStaff_Reception(p.getStaffReception().getName());
                                 commentReponse.setEmailStaff_Reception(p.getStaffReception().getEmail());
@@ -222,6 +222,7 @@ public class CommentService implements IsCommentService {
         commentReportResponse.setComments(total);
         return commentReportResponse;
     }
+
 
 
 }

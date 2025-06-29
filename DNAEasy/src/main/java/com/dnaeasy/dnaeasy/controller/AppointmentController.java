@@ -106,7 +106,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/managershift")
-    public ResponseEntity<Page<AppointmentResponse>> getManager(@RequestParam("size") int size , @RequestParam("page") int page){
+    public ResponseEntity<Page<AppointmentAssingResponse>> getManager(@RequestParam("size") int size , @RequestParam("page") int page){
         Pageable pageable = PageRequest.of(page-1,size);
 
         return ResponseEntity.ok(appointmentService.getAppointmnetForMangerShiftStaff(pageable));

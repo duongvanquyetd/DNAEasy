@@ -1,6 +1,7 @@
 package com.dnaeasy.dnaeasy.mapper;
 
 import com.dnaeasy.dnaeasy.dto.request.AppointmentCreateRequest;
+import com.dnaeasy.dnaeasy.dto.response.AppointmentAssingResponse;
 import com.dnaeasy.dnaeasy.dto.response.AppointmentResponse;
 import com.dnaeasy.dnaeasy.dto.response.AppointmentTrackingResponse;
 import com.dnaeasy.dnaeasy.dto.response.SampleResponse;
@@ -80,6 +81,7 @@ public interface AppointmentMapper {
         return null;
 
     }
-
-
+    @Mapping(target = "serviceName" ,source = "service.serviceName")
+    @Mapping(target = "typeService" ,source = "service.typeService")
+ AppointmentAssingResponse ApointmenetToAppoinAssingResponse(Appointment appointment);
  }
