@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Users, 
   Calendar, 
@@ -19,10 +19,29 @@ import {
   MoreHorizontal
 } from 'lucide-react';
 import '/src/component/css/AdminDashboard.css'; 
+import RevenueChart from './RevenueChart';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeTab, setActiveTab] = useState('dashboard');
+  
+  // Set initial active tab based on URL
+  const isAnalyticsPath = location.pathname.includes('/analytics');
+  const [activeTab, setActiveTab] = useState(isAnalyticsPath ? 'analytics' : 'dashboard');
+
+  // Add effect to log when active tab changes
+  useEffect(() => {
+    console.log('Active tab changed to:', activeTab);
+    
+    // Update URL when activeTab changes
+    if (activeTab === 'analytics') {
+      navigate('/AdminDashboard/analytics', { replace: true });
+    } else if (activeTab !== 'dashboard') {
+      navigate('/AdminDashboard', { replace: true });
+    }
+  }, [activeTab, navigate]);
 
   // Sample static data (no API calls)
   const stats = [
@@ -323,6 +342,33 @@ const AdminDashboard = () => {
     );
   };
 
+  // Render content based on active tab
+  const renderContent = () => {
+    console.log('Rendering content for tab:', activeTab);
+    
+    switch(activeTab) {
+      case 'dashboard':
+        return renderDashboardContent();
+      case 'analytics':
+        console.log('Should render RevenueChart component');
+        // Force the component to remount by adding a key
+        return (
+          <div className="analytics-container">
+            <h2>Revenue Analytics</h2>
+            <p>Detailed statistics and charts for revenue analysis</p>
+            <RevenueChart key={`revenue-chart-${Date.now()}`} />
+          </div>
+        );
+      default:
+        return (
+          <div className="coming-soon">
+            <h3>Coming Soon</h3>
+            <p>This section is under development</p>
+          </div>
+        );
+    }
+  };
+
   return (
     <div className="admin-dashboard">
       {/* Sidebar */}
@@ -346,7 +392,10 @@ const AdminDashboard = () => {
           {menuItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => {
+                console.log('Clicked on menu item:', item.id);
+                setActiveTab(item.id);
+              }}
               className={`nav-item ${activeTab === item.id ? 'nav-item-active' : ''}`}
             >
               <item.icon size={20} />
@@ -395,12 +444,7 @@ const AdminDashboard = () => {
 
         {/* Content */}
         <main className="content">
-          {activeTab === 'dashboard' ? renderDashboardContent() : (
-            <div className="coming-soon">
-              <h3>Coming Soon</h3>
-              <p>This section is under development</p>
-            </div>
-          )}
+          {renderContent()}
         </main>
       </div>
     </div>

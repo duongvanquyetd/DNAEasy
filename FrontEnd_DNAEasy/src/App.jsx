@@ -18,9 +18,18 @@ import BlogDetail from './component/page/BlogDetail.jsx';
 import ManageBlog from './component/page/ManageBlog';
 import ManageService from './component/page/ManageService';
 import { AssignStaff } from './component/page/AssignStaff.jsx';
+
+import RevenueChart from './component/page/RevenueChart.jsx';
+
+
+
 import { ManageComment } from './component/page/ManageComment.jsx';
 import UserAdminDashboard from "./component/page/AdminUser.jsx";
+
 import DNATestingAdminDashboard from './component/page/AdminAppointment.jsx';
+
+
+import AdminRevenue from './component/page/AdminRevenue.jsx';
 
 
 
@@ -44,12 +53,22 @@ function App() {
         <Route path="/YourAppointment" element={<YourAppointment />} />
         <Route path="/HistoryBooking" element={<HistoryBooking />} />
         <Route path="/AdminDashboard" element={<AdminDashboard />} />
+        <Route path="/AdminDashboard/analytics" element={<AdminDashboard key="analytics" />} />
         <Route path="/ManageBlog" element={<ManageBlog />} />
         <Route path="/ManageService" element={<ManageService />} />
         <Route path="/assign-staff" element={<AssignStaff />} />
+
+        <Route path="/revenue" element={<RevenueChart />} />
+
         <Route path="/ManageComment" element={<ManageComment />} />
         <Route path="/user-admin-dashboard" element={<UserAdminDashboard />} />
+
         <Route path="/AdminAppoinment" element={<DNATestingAdminDashboard />} />
+
+        <Route path="/AdminRevenue" element={<AdminRevenue />}/>
+        <Route path="/Notification" element={<UserAdminDashboard />} />
+
+
         <Route path="*" element={<div>404 - Page Not Found</div>} />
       </Routes>
     </BrowserRouter>
