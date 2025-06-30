@@ -24,6 +24,7 @@
     margin-bottom: 20px;
     width: 100%;
     border: 1px solid rgba(37, 99, 235, 0.1);
+    margin-top: 10px;
   }
   .chart-area::before {
     content: "";
@@ -49,22 +50,18 @@
 
   .stats-boxes {
     display: flex;
-    gap: 20px;
-    flex-direction: row;
-    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
   }
 
   .stat-box {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     flex: 1;
-    position: relative;
-    border: 1px solid rgba(37, 99, 235, 0.1);
-    min-height: 200px;
+    min-width: 220px;
   }
 
   .stat-box:before {
@@ -110,26 +107,22 @@
   }
 
   .stat-title {
-    font-size: 16px;
+    font-size: 15px; /* Giảm kích thước font */
     font-weight: 600;
-    color: #3b82f6; /* Medium blue */
-    margin-bottom: 12px;
+    color: #3b82f6;
+    margin-bottom: 10px; /* Giảm margin */
   }
 
   .stat-value {
-    font-size: 32px;
+    font-size: 28px; /* Giảm kích thước font */
     font-weight: 700;
-    color: #1e40af; /* Dark blue */
-    margin-bottom: 12px;
+    color: #1e40af;
+    margin-bottom: 10px; /* Giảm margin */
   }
 
   .stat-info {
-    display: flex;
-    font-size: 14px;
-    color: #60a5fa; /* Light blue */
-    margin-bottom: 12px;
-    gap: 6px;
-    align-items: center;
+    font-size: 12px; /* Giảm kích thước font */
+    margin-bottom: 10px; /* Giảm margin */
   }
 
   .world-icon {
@@ -463,4 +456,396 @@
     .stat-value {
       font-size: 24px;
     }
+  }
+
+  /* Thêm stye cho appointment icon */
+  .appointment-icon {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+  }
+
+  /* Styling cho donut chart appointments */
+  .appointment-donut {
+    background: conic-gradient(
+      #10b981 0% 57%,  /* Completed */
+      #3b82f6 57% 90%, /* In Progress */
+      #ef4444 90% 100% /* Cancelled */
+    );
+  }
+
+  /* Styles cho status items */
+  .stat-appointment-status {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .status-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    gap: 0.5rem;
+  }
+
+  .status-item span {
+    display: flex;
+    justify-content: space-between;
+    flex-grow: 1;
+  }
+
+  .status-item strong {
+    color: #1e40af;
+    font-weight: 600;
+  }
+
+  .appointment-chart {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    flex: 1;
+    align-items: center;
+  }
+
+  /* Thêm màu cho refunded */
+  .status-item:nth-child(4) strong {
+    color: #f59e0b;
+  }
+
+  /* Xóa các style không còn cần thiết */
+  .appointment-chart, .donut-chart, .donut-chart-center, .traffic-chart {
+    display: none;
+  }
+
+  /* Thêm màu cụ thể cho các trạng thái */
+  .status-item:nth-child(1) strong {
+    color: #10b981; /* Màu cho Completed */
+  }
+
+  .status-item:nth-child(2) strong {
+    color: #3b82f6; /* Màu cho In Progress */
+  }
+
+  .status-item:nth-child(3) strong {
+    color: #ef4444; /* Màu cho Cancelled */
+  }
+
+  /* Thêm border nhẹ giữa các status items */
+  .status-item {
+    border-bottom: 1px dashed rgba(59, 130, 246, 0.1);
+  }
+
+  .status-item:last-child {
+    border-bottom: none;
+  }
+
+  /* Thêm style cho Customer categories */
+  .stat-customer-categories,
+  .stat-revenue-categories,
+  .stat-appointment-status {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .category-item,
+  .status-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    gap: 0.5rem;
+  }
+
+  .category-item span,
+  .status-item span {
+    display: flex;
+    justify-content: space-between;
+    flex-grow: 1;
+  }
+
+  /* Thêm style cho User roles và Revenue flow */
+  .stat-user-roles,
+  .stat-revenue-flow,
+  .stat-appointment-status {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .role-item,
+  .flow-item,
+  .status-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    gap: 0.5rem;
+  }
+
+  .role-item span,
+  .flow-item span,
+  .status-item span {
+    display: flex;
+    justify-content: space-between;
+    flex-grow: 1;
+  }
+
+  /* Add error message styling */
+  .error-message {
+    background-color: #fee2e2;
+    border: 1px solid #ef4444;
+    color: #b91c1c;
+    padding: 16px;
+    border-radius: 8px;
+    margin: 16px 0;
+    text-align: center;
+    font-weight: 500;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .login-button {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .login-button:hover {
+    background-color: #2563eb;
+  }
+
+  /* Add loading spinner styling */
+  .loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    color: #3b82f6;
+    font-weight: 500;
+  }
+
+  .no-data-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    background-color: rgba(219, 234, 254, 0.1);
+    border-radius: 8px;
+    border: 1px dashed #cbd5e1;
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .no-data-message p {
+    color: #64748b;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .retry-button {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .retry-button:hover {
+    background-color: #2563eb;
+  }
+
+  .error-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 320px;
+    width: 100%;
+    color: #ef4444;
+    font-size: 16px;
+    font-weight: 500;
+    background-color: #fee2e2;
+    border-radius: 8px;
+    border: 1px dashed #fca5a5;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .error-message svg {
+    margin-bottom: 10px;
+  }
+
+  /* Add styles for the date selector */
+  .date-selector {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+    padding: 0 16px;
+  }
+
+  .selector-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #64748b;
+    margin-right: 12px;
+  }
+
+  .selector-controls {
+    display: flex;
+    gap: 8px;
+  }
+
+  .month-selector,
+  .year-selector {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    background-color: white;
+    font-size: 14px;
+    color: #1e293b;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .month-selector:hover,
+  .year-selector:hover {
+    border-color: #94a3b8;
+  }
+
+  .month-selector:focus,
+  .year-selector:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+
+  /* Top Services Section */
+  .top-services-section {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    margin-top: 30px;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+  }
+
+  .section-title svg {
+    color: #3b82f6;
+  }
+
+  .section-period {
+    font-size: 14px;
+    color: #64748b;
+  }
+
+  .services-table-container {
+    overflow-x: auto;
+    margin-top: 15px;
+  }
+
+  .services-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  .services-table th {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+    color: #666;
+    font-weight: 600;
+  }
+
+  .services-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #333;
+  }
+
+  .services-table tbody tr:hover {
+    background-color: #f9f9f9;
+  }
+
+  .services-table .rank-column {
+    width: 60px;
+    text-align: center;
+  }
+
+  .services-table .name-column {
+    width: 50%;
+  }
+
+  .services-table .count-column {
+    width: 50%;
+    text-align: center;
+  }
+
+  .rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-weight: 600;
+    font-size: 12px;
+  }
+
+  .rank-1 {
+    background-color: #FFD700;
+    color: #333;
+  }
+
+  .rank-2 {
+    background-color: #C0C0C0;
+    color: #333;
+  }
+
+  .rank-3 {
+    background-color: #CD7F32;
+    color: #fff;
+  }
+
+  .top-rank {
+    font-weight: 600;
+  }
+
+  .no-data {
+    text-align: center;
+    color: #888;
+    padding: 30px 0 !important;
   }
