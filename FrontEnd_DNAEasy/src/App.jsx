@@ -20,7 +20,7 @@ import ManageService from './component/page/ManageService';
 import { AssignStaff } from './component/page/AssignStaff.jsx';
 import { ManageComment } from './component/page/ManageComment.jsx';
 import UserAdminDashboard from "./component/page/AdminUser.jsx";
-
+import AdminRevenue from './component/page/AdminRevenue.jsx';
 
 function App() {
   return (
@@ -47,6 +47,7 @@ function App() {
         <Route path="/assign-staff" element={<AssignStaff />} />
         <Route path="/ManageComment" element={<ManageComment />} />
         <Route path="/user-admin-dashboard" element={<UserAdminDashboard />} />
+        <Route path="/AdminRevenue" element={<AdminRevenue />}/>
         <Route path="/Notification" element={<UserAdminDashboard />} />
         <Route path="*" element={<div>404 - Page Not Found</div>} />
       </Routes>
