@@ -79,5 +79,5 @@ public class Person {
     private LocalDateTime createdDate;
 
     @Column(name = "active")
-    private Boolean active;
+    private Boolean active= true;
 }
