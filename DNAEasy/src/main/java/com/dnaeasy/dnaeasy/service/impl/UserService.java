@@ -5,12 +5,14 @@ import com.dnaeasy.dnaeasy.dto.response.StaffResponse;
 import com.dnaeasy.dnaeasy.dto.response.UserFilterRespone;
 import com.dnaeasy.dnaeasy.dto.response.UserReportReponse;
 import com.dnaeasy.dnaeasy.dto.response.UserResponse;
+import com.dnaeasy.dnaeasy.dto.response.UserCountResponse;
 import com.dnaeasy.dnaeasy.enity.Appointment;
 import com.dnaeasy.dnaeasy.enity.Person;
 import com.dnaeasy.dnaeasy.enums.RoleName;
 import com.dnaeasy.dnaeasy.exception.BadRequestException;
 import com.dnaeasy.dnaeasy.mapper.UserMapper;
 import com.dnaeasy.dnaeasy.responsity.IsAppointmentResponsitory;
+import com.dnaeasy.dnaeasy.responsity.IsPersonRepository;
 import com.dnaeasy.dnaeasy.responsity.IsUserResponsity;
 import com.dnaeasy.dnaeasy.service.IsUserService;
 import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
@@ -33,6 +35,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Service
 public class UserService implements IsUserService {
+    private final IsPersonRepository isPersonRepository;
     IsUserResponsity personResponsity;
     UserMapper userMapper;
     CloudinaryUtil cloudinaryUtil;
@@ -208,4 +211,18 @@ public class UserService implements IsUserService {
         personResponsity.save(person);
     }
 
+    @Override
+    public int getTotalUsers() {
+        return personResponsity.countAllUser();
+    }
+
+    @Override
+    public UserCountResponse getUserCounts() {
+        int total = personResponsity.countAllUser();
+        int staff = personResponsity.countStaffUsers();
+        int manager = personResponsity.countManagerUsers();
+        int admin = personResponsity.countAdminUsers();
+        
+        return new UserCountResponse(total, staff, manager, admin);
+    }
 }

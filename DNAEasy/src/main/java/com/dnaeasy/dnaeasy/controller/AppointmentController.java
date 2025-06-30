@@ -12,6 +12,7 @@ import com.dnaeasy.dnaeasy.dto.response.StaffResponse;
 import com.dnaeasy.dnaeasy.dto.response.SummaryTodayResponse;
 import com.dnaeasy.dnaeasy.dto.response.SummaryYesterdayResponse;
 
+import com.dnaeasy.dnaeasy.dto.response.AppointmentStatsResponse;
 
 import com.dnaeasy.dnaeasy.service.impl.AppointmentService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -81,11 +82,7 @@ public class AppointmentController {
 //        return  ResponseEntity.ok(appointmentService.getAppoinmentFofStaff_Reception());
 //    }
 
-    @GetMapping("/countToday")
-    public ResponseEntity<Map<String, SummaryTodayResponse>> countAppointmentsToday(){
-        Map<String, SummaryTodayResponse> summary = appointmentService.getTodaySummary();
-        return ResponseEntity.ok(summary);
-    }
+
 
 
 
@@ -128,8 +125,26 @@ public class AppointmentController {
         return  ResponseEntity.ok(appointmentService.CanRefund(id));
 
     }
+
     @PostMapping("/reportappointment")
     public ResponseEntity<List<AppointmentReportResponse>> getAppointmentReport(@RequestBody AppointmnetReportRequest request) {
         return  ResponseEntity.ok(appointmentService.getAppointmentReport(request));
+
+    @PostMapping("/revenue_chart")
+    public ResponseEntity<List<RevenueChartResponse>> getRevenueChart(@RequestBody StaticRequest request) {
+        LocalDate start = LocalDate.parse(request.getStartPeriod());
+        LocalDate end = LocalDate.parse(request.getEndPeriod());
+
+        List<RevenueChartResponse> chart = appointmentService.getRevenueByDay(
+                request.getStartPeriod(),
+                request.getEndPeriod()
+        );
+        return ResponseEntity.ok(chart);
+    }
+    
+    @GetMapping("/stats")
+    public ResponseEntity<AppointmentStatsResponse> getAppointmentStats() {
+        return ResponseEntity.ok(appointmentService.getAppointmentStats());
+
     }
 }
