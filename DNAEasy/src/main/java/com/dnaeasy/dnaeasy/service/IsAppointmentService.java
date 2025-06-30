@@ -1,9 +1,6 @@
 package com.dnaeasy.dnaeasy.service;
 
-import com.dnaeasy.dnaeasy.dto.request.AppoinmetnAssignRequest;
-import com.dnaeasy.dnaeasy.dto.request.AppointmentCreateRequest;
-import com.dnaeasy.dnaeasy.dto.request.StaticRequest;
-import com.dnaeasy.dnaeasy.dto.request.StatusUpdateAppointment;
+import com.dnaeasy.dnaeasy.dto.request.*;
 
 import com.dnaeasy.dnaeasy.dto.response.*;
 
@@ -51,6 +48,12 @@ public interface IsAppointmentService {
     StaticReponse getStaticByDate(StaticRequest request);
     List<TopServiceReponse> findTopService(StaticRequest request);
 
+
+    List<AppointmentReportResponse> getAppointmentReport(AppointmnetReportRequest request);
+
+
+
     AppointmentStatsResponse getAppointmentStats();
+
 
 }

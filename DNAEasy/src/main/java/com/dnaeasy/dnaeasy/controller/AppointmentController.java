@@ -1,9 +1,6 @@
 package com.dnaeasy.dnaeasy.controller;
 
-import com.dnaeasy.dnaeasy.dto.request.AppoinmetnAssignRequest;
-import com.dnaeasy.dnaeasy.dto.request.AppointmentCreateRequest;
-import com.dnaeasy.dnaeasy.dto.request.StaticRequest;
-import com.dnaeasy.dnaeasy.dto.request.StatusUpdateAppointment;
+import com.dnaeasy.dnaeasy.dto.request.*;
 
 import com.dnaeasy.dnaeasy.dto.response.*;
 
@@ -128,6 +125,11 @@ public class AppointmentController {
         return  ResponseEntity.ok(appointmentService.CanRefund(id));
 
     }
+
+    @PostMapping("/reportappointment")
+    public ResponseEntity<List<AppointmentReportResponse>> getAppointmentReport(@RequestBody AppointmnetReportRequest request) {
+        return  ResponseEntity.ok(appointmentService.getAppointmentReport(request));
+
     @PostMapping("/revenue_chart")
     public ResponseEntity<List<RevenueChartResponse>> getRevenueChart(@RequestBody StaticRequest request) {
         LocalDate start = LocalDate.parse(request.getStartPeriod());
@@ -143,5 +145,6 @@ public class AppointmentController {
     @GetMapping("/stats")
     public ResponseEntity<AppointmentStatsResponse> getAppointmentStats() {
         return ResponseEntity.ok(appointmentService.getAppointmentStats());
+
     }
 }

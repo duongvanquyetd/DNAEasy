@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -48,6 +49,7 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
             or lower(a.service.serviceName) like  lower(concat('%',:keysearch,'%'))  
             or lower(a.emailAppointment) like lower(concat('%',:keysearch,'%')) 
             or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))    
+            or lower(a.customer.name) like lower(concat('%',:keysearch,'%'))    
              )
             and a.curentStatusAppointment not in (:list) 
             
@@ -68,6 +70,7 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
             or lower(a.service.serviceName) like  lower(concat('%',:keysearch,'%'))  
             or lower(a.emailAppointment) like lower(concat('%',:keysearch,'%')) 
             or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))    
+            or lower(a.customer.name) like lower(concat('%',:keysearch,'%')) 
              )
             and a.curentStatusAppointment not in (:list) 
             
@@ -85,6 +88,7 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
             or lower(a.service.serviceName) like  lower(concat('%',:keysearch,'%'))  
             or lower(a.emailAppointment) like lower(concat('%',:keysearch,'%')) 
             or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))    
+            or lower(a.customer.name) like lower(concat('%',:keysearch,'%')) 
              )
             and a.curentStatusAppointment  in (:list) 
             
@@ -101,7 +105,8 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
             or lower(a.typeCollect) like lower(concat('%',:keysearch,'%'))  
             or lower(a.service.serviceName) like  lower(concat('%',:keysearch,'%'))  
             or lower(a.emailAppointment) like lower(concat('%',:keysearch,'%')) 
-            or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))    
+            or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))  
+            or lower(a.customer.name) like lower(concat('%',:keysearch,'%'))   
              )
             and a.curentStatusAppointment  in (:list) 
             
@@ -118,7 +123,8 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
             or lower(a.typeCollect) like lower(concat('%',:keysearch,'%'))  
             or lower(a.service.serviceName) like  lower(concat('%',:keysearch,'%'))  
             or lower(a.emailAppointment) like lower(concat('%',:keysearch,'%')) 
-            or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))    
+            or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))   
+            or lower(a.customer.name) like lower(concat('%',:keysearch,'%'))  
              )
             and a.curentStatusAppointment  in (:list) 
             and a.appointmentId in (Select p.appointment.appointmentId from Payment p where p.staffReception =:staff)
@@ -182,7 +188,8 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
             or lower(a.typeCollect) like lower(concat('%',:keysearch,'%'))  
             or lower(a.service.serviceName) like  lower(concat('%',:keysearch,'%'))  
             or lower(a.emailAppointment) like lower(concat('%',:keysearch,'%')) 
-            or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))    
+            or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))
+            or lower(a.customer.name) like lower(concat('%',:keysearch,'%'))     
              )
             and a.appointmentId in (select s.appointment.appointmentId  from Sample  s where s.sampleid in (:sampleid))
             """)
@@ -199,6 +206,7 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
             or lower(a.service.serviceName) like  lower(concat('%',:keysearch,'%'))  
             or lower(a.emailAppointment) like lower(concat('%',:keysearch,'%')) 
             or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))    
+            or lower(a.customer.name) like lower(concat('%',:keysearch,'%')) 
              )
             and a.curentStatusAppointment  in (:list) 
             and a.appointmentId in (select p.appointment.appointmentId from Payment p where p.paymentStatus = false and p.isExpense = false)
@@ -243,5 +251,29 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
     List<Appointment> findALLAppointmentHaveCommnent(String keysearch);
 
     int countByStaff(Person staff);
+
+
+
+@Query("""
+        select  a from Appointment  a where
+        a.dateCollect between :fromdate and :todate
+        
+""")
+    List<Appointment> findAllByDateCollect(LocalDateTime fromdate,LocalDateTime todate);
+
+
+    @Query("""
+        select  count(*) from Appointment  a where
+        a.dateCollect between :star and :end
+        and a.curentStatusAppointment = :list
+""")
+    Long countByDateCollectAndCurentStatusAppointmentIsLike(LocalDateTime star , LocalDateTime end, String list);
+
+    @Query("""
+        select   count(*)  from Appointment  a where
+        a.dateCollect between :star and :end
+        and a.curentStatusAppointment not in (:list)
+""")
+    Long countAppointmentInprocess(LocalDateTime star , LocalDateTime end, List<String> list);
 
 }
