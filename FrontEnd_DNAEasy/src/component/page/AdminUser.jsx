@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Users, UserCheck, Crown, Edit3, Trash2, Plus, Filter, Download, RefreshCw, Eye, MoreVertical } from 'lucide-react';
+import { Search, Users, UserCheck, Crown, Edit3, Trash2, Plus, Filter, Download, RefreshCw, Eye, MoreVertical, Shield } from 'lucide-react';
 import { GetAllUsers, GetUserStats, UpdateUserRole, DeleteUser } from '../../service/user';
 import '../css/AdminUser.css';
 
 const AdminUserManagement = () => {
-  const [activeTab, setActiveTab] = useState('CUSTOMER');
+  const [activeTab, setActiveTab] = useState('USER');
   const [users, setUsers] = useState([]);
   const [editUser, setEditUser] = useState(null);
   const [viewUser, setViewUser] = useState(null);
@@ -20,16 +20,18 @@ const AdminUserManagement = () => {
   const [error, setError] = useState(null);
 
   const [stats, setStats] = useState({
-    totalCustomers: 0,
+    totalUsers: 0,
     totalStaff: 0,
     totalManagers: 0,
+    totalAdmins: 0,
     lastUpdated: new Date().toLocaleString('en-US')
   });
 
   const tabs = [
-    { id: 'CUSTOMER', label: 'Customers', icon: Users, count: stats.totalCustomers, color: { from: '#1e3a8a', to: '#3b82f6' } },
+    { id: 'USER', label: 'Users', icon: Users, count: stats.totalUsers, color: { from: '#1e3a8a', to: '#3b82f6' } },
     { id: 'STAFF', label: 'Staff', icon: UserCheck, count: stats.totalStaff, color: { from: '#3b82f6', to: '#60a5fa' } },
     { id: 'MANAGER', label: 'Managers', icon: Crown, count: stats.totalManagers, color: { from: '#1d4ed8', to: '#2563eb' } },
+    { id: 'ADMIN', label: 'Admins', icon: Shield, count: stats.totalAdmins, color: { from: '#7e22ce', to: '#a855f7' } },
   ];
 
   // Fetch user stats
@@ -45,14 +47,16 @@ const AdminUserManagement = () => {
           console.log('Stats data processed:', response.data);
           
           // Xử lý theo cấu trúc API trả về
-          const totalCustomers = response.data.CUSTOMER || 0;
+          const totalUsers = response.data.USER || 0;
           const totalStaff = response.data.STAFF || 0;
           const totalManagers = response.data.MANAGER || 0;
+          const totalAdmins = response.data.ADMIN || 0;
           
           setStats({
-            totalCustomers,
+            totalUsers,
             totalStaff, 
             totalManagers,
+            totalAdmins,
             lastUpdated: new Date().toLocaleString('en-US')
           });
         }
@@ -136,6 +140,15 @@ const AdminUserManagement = () => {
   }, [searchQuery]);
 
   const handleEditUser = (user) => {
+    console.log('User object to edit:', user);
+    console.log('Available properties:', Object.keys(user));
+    
+    // Sử dụng name thay vì id để xác định người dùng
+    if (!user.name) {
+      setError('Cannot edit user: User name is missing');
+      return;
+    }
+    
     setEditUser(user);
     setSelectedRole(user.role);
     setShowModal(true);
@@ -150,27 +163,36 @@ const AdminUserManagement = () => {
     if (editUser) {
       setIsLoading(true);
       try {
-        // API backend thực tế sẽ xác nhận việc cập nhật role
-        await UpdateUserRole(editUser.id, selectedRole);
+        // Kiểm tra name có tồn tại không
+        if (!editUser.name) {
+          throw new Error('User name is missing');
+        }
+        
+        console.log('Updating user with name:', editUser.name, 'to role:', selectedRole);
+        
+        // Sử dụng name thay vì id
+        await UpdateUserRole(editUser.name, selectedRole);
         
         // Update the user in the local state
         setUsers(prevUsers => 
           prevUsers.map(user =>
-            user.id === editUser.id ? { ...user, role: selectedRole } : user
+            user.name === editUser.name ? { ...user, role: selectedRole } : user
           )
         );
         
         // Refresh user stats after updating role
         const response = await GetUserStats();
         if (response.data) {
-          const totalCustomers = response.data.CUSTOMER || 0;
+          const totalUsers = response.data.USER || 0;
           const totalStaff = response.data.STAFF || 0;
           const totalManagers = response.data.MANAGER || 0;
+          const totalAdmins = response.data.ADMIN || 0;
           
           setStats({
-            totalCustomers,
+            totalUsers,
             totalStaff,
             totalManagers,
+            totalAdmins,
             lastUpdated: new Date().toLocaleString('en-US')
           });
         }
@@ -186,26 +208,34 @@ const AdminUserManagement = () => {
     }
   };
 
-  const handleDeleteUser = async (userId) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
+  const handleDeleteUser = async (user) => {
+    if (!user || !user.name) {
+      setError('Cannot delete: User name is missing');
+      return;
+    }
+    
+    if (window.confirm(`Are you sure you want to delete user "${user.name}"?`)) {
       setIsLoading(true);
       try {
-        await DeleteUser(userId);
+        // Sử dụng name thay vì id
+        await DeleteUser(user.name);
         
         // Xóa user khỏi state
-        setUsers(users.filter(user => user.id !== userId));
+        setUsers(users.filter(u => u.name !== user.name));
         
         // Cập nhật lại thống kê sau khi xóa
         const response = await GetUserStats();
         if (response.data) {
-          const totalCustomers = response.data.CUSTOMER || 0;
+          const totalUsers = response.data.USER || 0;
           const totalStaff = response.data.STAFF || 0;
           const totalManagers = response.data.MANAGER || 0;
+          const totalAdmins = response.data.ADMIN || 0;
           
           setStats({
-            totalCustomers,
+            totalUsers,
             totalStaff,
             totalManagers,
+            totalAdmins,
             lastUpdated: new Date().toLocaleString('en-US')
           });
         }
@@ -266,7 +296,7 @@ const AdminUserManagement = () => {
             const Icon = tab.icon;
             return (
               <div
-                key={tab.id}
+                key={`stat-${tab.id}`}
                 className={`aum-stats-card${activeTab === tab.id ? ' active' : ''}`}
                 onClick={() => setActiveTab(tab.id)}
                 tabIndex={0}
@@ -286,7 +316,7 @@ const AdminUserManagement = () => {
         <nav className="aum-tabs">
           {tabs.map((tab) => (
             <button
-              key={tab.id}
+              key={`tab-${tab.id}`}
               className={`aum-tab-btn${activeTab === tab.id ? ' active' : ''}`}
               onClick={() => { setActiveTab(tab.id); setCurrentPage(1); }}
             >
@@ -314,9 +344,9 @@ const AdminUserManagement = () => {
             {showFilters && (
               <div className="aum-filter-dropdown">
                 <select>
-                  <option>All Statuses</option>
-                  <option>Active</option>
-                  <option>Inactive</option>
+                  <option key="all-statuses">All Statuses</option>
+                  <option key="active">Active</option>
+                  <option key="inactive">Inactive</option>
                 </select>
               </div>
             )}
@@ -364,8 +394,8 @@ const AdminUserManagement = () => {
                       </td>
                       <td>
                         <div className="aum-user-contact">
-                          <span>{user.email || "N/A"}</span>
-                          <span>{user.phone || "N/A"}</span>
+                          <span key="email">{user.email || "N/A"}</span>
+                          <span key="phone">{user.phone || "N/A"}</span>
                         </div>
                       </td>
                       <td>{getStatusBadge(user.status)}</td>
@@ -375,7 +405,7 @@ const AdminUserManagement = () => {
                         <div className="aum-actions">
                           <button title="View" onClick={() => handleViewUser(user)} className="aum-action-view"><Eye size={18} /></button>
                           <button title="Edit" onClick={() => handleEditUser(user)} className="aum-action-edit"><Edit3 size={18} /></button>
-                          <button title="Delete" onClick={() => handleDeleteUser(user.id)} className="aum-action-delete"><Trash2 size={18} /></button>
+                          <button title="Delete" onClick={() => handleDeleteUser(user)} className="aum-action-delete"><Trash2 size={18} /></button>
                         </div>
                       </td>
                     </tr>
@@ -395,7 +425,7 @@ const AdminUserManagement = () => {
             <button disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>&larr; Previous</button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <button
-                key={page}
+                key={`page-${page}`}
                 className={page === currentPage ? 'active' : ''}
                 onClick={() => setCurrentPage(page)}
               >
@@ -425,8 +455,8 @@ const AdminUserManagement = () => {
                   </div>
                 </div>
                 <div className="aum-modal-info-grid">
-                  <div><span>Status:</span> <p>{editUser.status === true ? 'Active' : 'Inactive'}</p></div>
-                  <div><span>Join Date:</span> <p>{editUser.createdDate ? new Date(editUser.createdDate).toLocaleDateString('en-US') : 'N/A'}</p></div>
+                  <div key="status"><span>Status:</span> <p>{editUser.status === true ? 'Active' : 'Inactive'}</p></div>
+                  <div key="join-date"><span>Join Date:</span> <p>{editUser.createdDate ? new Date(editUser.createdDate).toLocaleDateString('en-US') : 'N/A'}</p></div>
                 </div>
                 <div className="aum-modal-role">
                   <label>User Role</label>
@@ -434,7 +464,7 @@ const AdminUserManagement = () => {
                     {tabs.map((tab) => {
                       const Icon = tab.icon;
                       return (
-                        <label key={tab.id} className={`aum-role-option${selectedRole === tab.id ? ' selected' : ''}`}>
+                        <label key={`role-${tab.id}`} className={`aum-role-option${selectedRole === tab.id ? ' selected' : ''}`}>
                           <input
                             type="radio"
                             name="role"
@@ -477,9 +507,9 @@ const AdminUserManagement = () => {
                   </div>
                 </div>
                 <div className="aum-modal-info-grid">
-                  <div><span>Status:</span> <p>{viewUser.status === true ? 'Active' : 'Inactive'}</p></div>
-                  <div><span>Join Date:</span> <p>{viewUser.createdDate ? new Date(viewUser.createdDate).toLocaleDateString('en-US') : 'N/A'}</p></div>
-                  <div><span>Role:</span> <p>{viewUser.role || 'N/A'}</p></div>
+                  <div key="status"><span>Status:</span> <p>{viewUser.status === true ? 'Active' : 'Inactive'}</p></div>
+                  <div key="join-date"><span>Join Date:</span> <p>{viewUser.createdDate ? new Date(viewUser.createdDate).toLocaleDateString('en-US') : 'N/A'}</p></div>
+                  <div key="role"><span>Role:</span> <p>{viewUser.role || 'N/A'}</p></div>
                 </div>
               </div>
               <div className="aum-modal-footer">

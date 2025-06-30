@@ -34,28 +34,84 @@ export const CountAllUser = () => {
 
 // New API methods for Admin User Management
 export const GetAllUsers = (role, page, size, keyword) => {
-  const roleParam = role ? role.toLowerCase() : '';
+  console.log(`GetAllUsers called with role=${role}, page=${page}, size=${size}, keyword=${keyword}`);
+  
+  // Khi role là USER, không gửi rolename để lấy tất cả user
+  const roleParam = role === 'USER' ? null : (role ? role.toLowerCase() : '');
   
   return api.post(`/user/filter`, { 
     rolename: roleParam,
     name: keyword || null
+  })
+  .then(response => {
+    console.log("GetAllUsers API response:", response);
+    return response;
+  })
+  .catch(error => {
+    console.error("GetAllUsers error:", error);
+    console.error("Error details:", error.response ? error.response.data : "No response data");
+    
+    // Return empty array if API fails
+    return { data: [] };
   });
 };
 
 export const GetUserStats = () => {
   console.log('Calling GetUserStats API');
   
-  return api.get("/user/count").then(response => {
-    const total = response.data || 0;
-    
-    return {
-      data: {
-        CUSTOMER: Math.floor(total * 0.7),
-        STAFF: Math.floor(total * 0.2),
-        MANAGER: Math.floor(total * 0.1)
+  return api.get("/user/count-by-role")
+    .then(response => {
+      console.log("GetUserStats API raw response:", response);
+      console.log("GetUserStats API data:", response.data);
+      console.log("GetUserStats API data type:", typeof response.data);
+      if (response.data) {
+        console.log("GetUserStats API data keys:", Object.keys(response.data));
+        Object.entries(response.data).forEach(([key, value]) => {
+          console.log(`Key: ${key}, Value: ${value}, Type: ${typeof value}`);
+        });
       }
-    };
-  });
+      
+      if (response && response.data) {
+        // Map API response to the format expected by the UI
+        const mappedData = {
+          USER: response.data.total || 0,
+          STAFF: response.data.staff || 0,
+          MANAGER: response.data.manager || 0,
+          ADMIN: response.data.admin || 0
+        };
+        
+        console.log("Mapped data for UI:", mappedData);
+        
+        return {
+          data: mappedData
+        };
+      }
+      
+      // Fallback if API doesn't return expected data
+      console.log("Using fallback data for GetUserStats");
+      return {
+        data: {
+          USER: 67,
+          STAFF: 50,
+          MANAGER: 2,
+          ADMIN: 2
+        }
+      };
+    })
+    .catch(error => {
+      console.error('Error in GetUserStats:', error);
+      
+      // Return sample data if API fails
+      console.log("Using sample data due to error in GetUserStats");
+      return {
+        data: {
+          USER: 67,
+          STAFF: 50,
+          MANAGER: 2,
+          ADMIN: 2
+        }
+      };
+    });
 };
 
 // Lấy phân loại khách hàng
@@ -100,18 +156,16 @@ export const GetUserRoleStats = (month, year) => {
         // Check if the response data matches what we expect
         console.log("API response data:", response.data);
         
-        // Based on the screenshot, we expect:
-        // total: 67, staff: 12, manager: 5, admin: 2
-        // But we're getting different values, so let's fix that
-        const fixedData = {
+        // Map API response to the format expected by the UI
+        const mappedData = {
           total: response.data.total || 0,
-          staff: response.data.staff || 12,  // Use 12 if not provided
-          manager: response.data.manager || 5, // Use 5 if not provided
-          admin: response.data.admin || 2  // Use 2 if not provided
+          staff: response.data.staff || 0,
+          manager: response.data.manager || 0,
+          admin: response.data.admin || 0
         };
         
-        console.log("Fixed data:", fixedData);
-        return { data: fixedData };
+        console.log("Mapped data:", mappedData);
+        return { data: mappedData };
       }
       
       // Return the response directly if we can't fix it
@@ -135,12 +189,31 @@ export const GetUserRoleStats = (month, year) => {
     });
 };
 
-export const UpdateUserRole = (userId, role) => {
-  return api.put(`/user/role/${userId}`, { role });
+export const UpdateUserRole = (username, role) => {
+  console.log(`Updating user ${username} to role ${role}`);
+  
+  // Đảm bảo username không phải undefined
+  if (!username) {
+    console.error('Username is undefined or null in UpdateUserRole');
+    return Promise.reject(new Error('Username is required'));
+  }
+  
+  // Sử dụng username thay vì userId
+  return api.put(`/user/role/by-name/${username}`, { 
+    rolename: role.toLowerCase() 
+  });
 };
 
-export const DeleteUser = (userId) => {
-  return api.delete(`/user/${userId}`);
+export const DeleteUser = (username) => {
+  console.log(`Deleting user with name: ${username}`);
+  
+  // Đảm bảo username không phải undefined
+  if (!username) {
+    console.error('Username is undefined or null in DeleteUser');
+    return Promise.reject(new Error('Username is required'));
+  }
+  
+  return api.delete(`/user/by-name/${username}`);
 };
 
 export const GetUserDetails = (userId) => {
