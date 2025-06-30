@@ -6,6 +6,7 @@ import '../css/AssignStaff.css';
 import Header from '../Header';
 import Footer from '../Footer';
 import DynamicHeader from '../DynamicHeader';
+import HeaderManager from '../HeaderManager';
 
 export const AssignStaff = () => {
   const [appointments, setAppointments] = useState([]);
