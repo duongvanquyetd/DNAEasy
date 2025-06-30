@@ -20,9 +20,9 @@ const Header = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 5
   const [totalPages, setTotalPages] = useState(0)
-
+  const rolename = localStorage.getItem("rolename");
   useEffect(() => {
-    if (localStorage.getItem("token")) {
+    if (rolename) {
       GetMyInfor()
         .then((response) => {
           setUser(response.data)
@@ -35,7 +35,7 @@ const Header = () => {
   }, [])
 
   useEffect(() => {
-    if (localStorage.getItem("token")) {
+    if (rolename) {
       GetAllNoti(currentPage, pageSize).then((response) => {
         console.log("Response data", response.data)
         setNotifications(response.data.content)
@@ -100,19 +100,19 @@ const Header = () => {
       // Refresh notifications after marking as read
       GetAllNoti(currentPage, pageSize).then((response) => {
         setNotifications(response.data.content)
-        
+
       })
       NumberNotification().then((response) => {
         setUnreadCount(response.data)
       })
     })
   }
-   const handleMarkAsReadAll = () => {
-    MarkALLreaded().then((response)=> {
+  const handleMarkAsReadAll = () => {
+    MarkALLreaded().then((response) => {
       console.log("Response readed", response.data)
       // Refresh notifications after marking as read
       GetAllNoti(currentPage, pageSize).then((response) => {
-      
+
         setNotifications(response.data.content)
       })
       NumberNotification().then((response) => {
@@ -202,6 +202,8 @@ const Header = () => {
           { name: "Blog", path: "/blog" },
           { name: "Your Appointment", path: "/yourappointment" },
           { name: "History Booking", path: "/historybooking" },
+
+
         ].map((item, index) => (
           <Link
             key={item.name}
@@ -259,7 +261,7 @@ const Header = () => {
                   <div style={styles.notificationTitle}>
                     <span style={{ fontSize: "18px", fontWeight: "700", color: "#f8fafc" }}>Notifications</span>
                     {unreadCount > 0 && <span style={styles.unreadBadge}>{unreadCount} new</span>}
-                    {unreadCount > 0 && <button style={styles.unreadBadge} onClick={()=> handleMarkAsReadAll()}> Mark Readed ALL</button>}
+                    {unreadCount > 0 && <button style={styles.unreadBadge} onClick={() => handleMarkAsReadAll()}> Mark Readed ALL</button>}
                   </div>
                 </div>
 

@@ -275,24 +275,15 @@ const EditProfile = () => {
                   </>
 
                 )}
-
-
-
-
-
-
-
-
-
             </div>
 
             {error && <div className='text-danger'>{error}</div>}
             <div className="form-actions">
-              <button type="button" className="cancel-button" onClick={(e) => setUpdatePass(updatepass ? false : true)}>{updatepass ? "Close change Password" : "Change Password"}</button>
+             {formData.typeLogin === null &&  <button type="button" className="save-button" onClick={(e) => setUpdatePass(updatepass ? false : true)}>{updatepass ? "Close change Password" : "Change Password"}</button>}
               <button type="submit" className="save-button">Save</button>
               <button
                 type="button"
-                className="cancel-button"
+                className="save-button"
                 onClick={() => navigate('/user/profile')}
               >
                 Cancel

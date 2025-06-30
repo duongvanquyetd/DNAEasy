@@ -31,7 +31,8 @@
   align-items: center;
   padding: 40px 20px;
   position: relative;
-    margin-top:100px ;
+  margin-top: 100px;
+  background-image: url(/src/component/image/background/Background.jpg);
 }
 
 .profile-container {
@@ -42,7 +43,7 @@
   backdrop-filter: blur(20px);
   padding: 40px;
   border-radius: 24px;
-  box-shadow: 
+  box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.15),
     0 8px 25px rgba(0, 0, 0, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
@@ -56,7 +57,7 @@
 
 .profile-container:hover {
   transform: translateY(-8px);
-  box-shadow: 
+  box-shadow:
     0 30px 80px rgba(0, 0, 0, 0.2),
     0 12px 35px rgba(0, 0, 0, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
@@ -75,7 +76,7 @@
   border-radius: 50%;
   position: relative;
   overflow: hidden;
-  box-shadow: 
+  box-shadow:
     0 8px 25px rgba(102, 126, 234, 0.3),
     inset 0 2px 4px rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
@@ -86,7 +87,7 @@
 
 .avatar:hover {
   transform: scale(1.05);
-  box-shadow: 
+  box-shadow:
     0 12px 35px rgba(102, 126, 234, 0.4),
     inset 0 2px 4px rgba(255, 255, 255, 0.3);
 }
@@ -118,8 +119,15 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .field {
@@ -163,7 +171,7 @@ select.input {
 .input:focus,
 select.input:focus {
   border-color: #667eea;
-  box-shadow: 
+  box-shadow:
     0 0 0 3px rgba(102, 126, 234, 0.1),
     0 4px 12px rgba(102, 126, 234, 0.15);
   transform: translateY(-2px);
@@ -185,7 +193,7 @@ select.input:hover {
 .save-button {
   margin-top: 32px;
   padding: 16px 32px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
   color: #ffffff;
   border: none;
   border-radius: 16px;
@@ -198,7 +206,7 @@ select.input:hover {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  box-shadow: 
+  box-shadow:
     0 8px 25px rgba(102, 126, 234, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
@@ -251,7 +259,7 @@ select.input:hover {
 .edit-button:hover,
 .save-button:hover:not(:disabled) {
   transform: translateY(-3px);
-  box-shadow: 
+  box-shadow:
     0 15px 40px rgba(102, 126, 234, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
@@ -271,7 +279,7 @@ select.input:hover {
 .edit-button:active,
 .save-button:active {
   transform: translateY(-1px);
-  box-shadow: 
+  box-shadow:
     0 8px 25px rgba(102, 126, 234, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
@@ -287,23 +295,23 @@ button:disabled {
   .main {
     padding: 20px 10px;
   }
-  
+
   .profile-container {
     width: 95%;
     padding: 30px 24px;
     border-radius: 20px;
   }
-  
+
   .form-grid {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  
+
   .avatar {
     width: 100px;
     height: 100px;
   }
-  
+
   .detail {
     position: static;
     margin-bottom: 20px;
@@ -311,12 +319,12 @@ button:disabled {
     width: fit-content;
     align-self: center;
   }
-  
+
   .form-actions {
     flex-direction: column;
     gap: 12px;
   }
-  
+
   .form-actions .save-button,
   .form-actions .cancel-button {
     width: 100%;
@@ -327,11 +335,11 @@ button:disabled {
   .profile-container {
     padding: 20px 16px;
   }
-  
+
   .form-grid {
     gap: 12px;
   }
-  
+
   .avatar {
     width: 80px;
     height: 80px;
@@ -343,6 +351,7 @@ button:disabled {
   0% {
     transform: translateX(-100%);
   }
+
   100% {
     transform: translateX(100%);
   }

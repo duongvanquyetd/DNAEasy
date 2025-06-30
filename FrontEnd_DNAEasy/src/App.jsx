@@ -20,6 +20,8 @@ import ManageService from './component/page/ManageService';
 import { AssignStaff } from './component/page/AssignStaff.jsx';
 import { ManageComment } from './component/page/ManageComment.jsx';
 import UserAdminDashboard from "./component/page/AdminUser.jsx";
+import DNATestingAdminDashboard from './component/page/AdminAppointment.jsx';
+
 
 
 function App() {
@@ -47,7 +49,7 @@ function App() {
         <Route path="/assign-staff" element={<AssignStaff />} />
         <Route path="/ManageComment" element={<ManageComment />} />
         <Route path="/user-admin-dashboard" element={<UserAdminDashboard />} />
-        <Route path="/Notification" element={<UserAdminDashboard />} />
+        <Route path="/AdminAppoinment" element={<DNATestingAdminDashboard />} />
         <Route path="*" element={<div>404 - Page Not Found</div>} />
       </Routes>
     </BrowserRouter>

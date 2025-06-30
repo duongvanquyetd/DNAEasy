@@ -19,7 +19,7 @@ export const HistoryBooking = () => {
     const [showUploadForm, setShowUploadForm] = useState(false);
     const [imageFile, setImageFile] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 2;// maii mot sua thanh 5 booking 1 trang
+    const pageSize = 5;// maii mot sua thanh 5 booking 1 trang
     const [totalPages, setTotalPages] = useState(0);
     const [keysearch, setkeysearch] = useState('');
     useEffect(() => {

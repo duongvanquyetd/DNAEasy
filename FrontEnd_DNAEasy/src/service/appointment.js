@@ -32,3 +32,6 @@ export const GetAppointForManagerAssign=(page,size)=>{
 export const AssignForAppoint=(AssigneStaff)=>{
     return api.post("/appointment/assignStaff",AssigneStaff)
 } 
+export const GetAppointmentReport=(date)=>{
+    return api.post("/appointment/reportappointment",date)
+}

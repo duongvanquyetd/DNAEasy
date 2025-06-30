@@ -81,7 +81,7 @@ const ManageBlog = () => {
       console.log("Error get Report Blog", error);
       message.error('Failed to load blog statistics');
     });
-  }, []);
+  }, [searchQuery]);
 
   useEffect(() => {
     setLoading(true);
