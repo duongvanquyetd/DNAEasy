@@ -31,6 +31,11 @@ export const AssignForAppoint=(AssigneStaff)=>{
     return api.post("/appointment/assignStaff",AssigneStaff)
 } 
 
+export const GetAppointmentReport=(date)=>{
+    return api.post("/appointment/reportappointment",date)
+}
+
+
 export const GetAppointmentStatistics = (start, end) => {
   console.log(`Fetching appointment statistics from ${start} to ${end}`);
   console.log(`API URL: /appointment/statistics`);
@@ -356,3 +361,4 @@ export const GetTopBookedServices = (month, year) => {
     };
   });
 };
+

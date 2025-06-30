@@ -54,7 +54,7 @@ const ManageService = () => {
       message.error('Failed to load service statistics');
     });
     console.log('ManageService component mounted');
-  }, []);
+  }, [searchQuery]);
 
   useEffect(() => {
     setLoading(true);

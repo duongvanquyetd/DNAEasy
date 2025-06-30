@@ -123,7 +123,7 @@ const ManageBlog = () => {
     }).finally(() => {
       setStatsLoading(false);
     });
-  }, []);
+  }, [searchQuery]);
 
   useEffect(() => {
     setLoading(true);
