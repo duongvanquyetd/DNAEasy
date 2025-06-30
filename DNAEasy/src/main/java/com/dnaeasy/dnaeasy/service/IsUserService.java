@@ -5,6 +5,7 @@ import com.dnaeasy.dnaeasy.dto.response.StaffResponse;
 import com.dnaeasy.dnaeasy.dto.response.UserFilterRespone;
 import com.dnaeasy.dnaeasy.dto.response.UserReportReponse;
 import com.dnaeasy.dnaeasy.dto.response.UserResponse;
+import com.dnaeasy.dnaeasy.dto.response.UserCountResponse;
 import com.nimbusds.jose.JOSEException;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,4 +30,7 @@ public interface IsUserService {
     List<UserFilterRespone> filterUser(UserFilterRequest request);
 
     void updateUser(UserUpdateRequest request);
+    public int getTotalUsers();
+    
+    UserCountResponse getUserCounts();
 }

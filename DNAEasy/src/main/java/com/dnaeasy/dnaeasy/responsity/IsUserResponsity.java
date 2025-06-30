@@ -83,10 +83,16 @@ public interface IsUserResponsity extends JpaRepository<Person, String> {
     @Query("UPDATE Person p SET p.active = :active WHERE p.personId = :personId")
     void updateActiveByPersonId(@Param("personId") int personId, @Param("active") Boolean active);
 
-
-
-
-
-
+    @Query("select count(p) from Person p")
+    int countAllUser();
+    
+    @Query("select count(p) from Person p where p.rolename = 'STAFF_TEST' or p.rolename = 'STAFF_LAB'")
+    int countStaffUsers();
+    
+    @Query("select count(p) from Person p where p.rolename = 'MANAGER'")
+    int countManagerUsers();
+    
+    @Query("select count(p) from Person p where p.rolename = 'ADMIN'")
+    int countAdminUsers();
 }
 

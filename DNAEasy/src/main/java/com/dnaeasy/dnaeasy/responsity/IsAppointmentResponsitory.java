@@ -140,15 +140,12 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
         select top 10 s.service_name as name, count (a.appointment_id) as total
         from appoinment a join service s on a.service_id = s.service_id
         where a.curent_status_appointment = 'COMPLETED' 
-        AND a.date_collect BETWEEN :startDate AND :endDate
         group by s.service_name order by total DESC
     """, nativeQuery = true)
-    List<TopServiceReponse> findTop10Service(@Param("startDate") Timestamp start,
-                                             @Param("endDate") Timestamp end
-    );
+    List<TopServiceReponse> findTop10Service();
 
 
-
+//    AND a.date_collect BETWEEN :startDate AND :endDate
 
     List<Appointment> findAllByCurentStatusAppointmentAndDateCollectIsBetween(String status, LocalDateTime start, LocalDateTime end);
 
@@ -212,4 +209,19 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
             and a.appointmentId in (select p.appointment.appointmentId from Payment p where p.paymentStatus = false and p.isExpense = false)
             """)
     List<Appointment>findAllByPaymentStatusIsFalseAndExpenseIsFalseAndAppointment_CurentStatusAppointmentIsIn(String keysearch,List<String> list);
+
+    @Query("select count(a) from Appointment a")
+    int countAllAppointments();
+    
+    @Query("select count(a) from Appointment a where a.curentStatusAppointment = 'COMPLETED'")
+    int countCompletedAppointments();
+    
+    @Query("select count(a) from Appointment a where a.curentStatusAppointment not in ('COMPLETED', 'CANCLE', 'REFUNDED')")
+    int countInProgressAppointments();
+    
+    @Query("select count(a) from Appointment a where a.curentStatusAppointment = 'CANCLE'")
+    int countCancelledAppointments();
+    
+    @Query("select count(a) from Appointment a where a.curentStatusAppointment = 'REFUNDED'")
+    int countRefundedAppointments();
 }
