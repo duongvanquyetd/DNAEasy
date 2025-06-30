@@ -128,8 +128,8 @@ public class AppointmentController {
 
     @PostMapping("/reportappointment")
     public ResponseEntity<List<AppointmentReportResponse>> getAppointmentReport(@RequestBody AppointmnetReportRequest request) {
-        return  ResponseEntity.ok(appointmentService.getAppointmentReport(request));
-
+        return ResponseEntity.ok(appointmentService.getAppointmentReport(request));
+    }
     @PostMapping("/revenue_chart")
     public ResponseEntity<List<RevenueChartResponse>> getRevenueChart(@RequestBody StaticRequest request) {
         LocalDate start = LocalDate.parse(request.getStartPeriod());

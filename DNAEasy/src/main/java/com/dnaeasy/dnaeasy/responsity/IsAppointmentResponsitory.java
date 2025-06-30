@@ -229,7 +229,7 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
     @Query("select count(a) from Appointment a where a.curentStatusAppointment = 'REFUNDED'")
     int countRefundedAppointments();
 
-    List<Appointment> findAllByPaymentStatusIsFalseAndExpenseIsFalseAndAppointment_CurentStatusAppointmentIsIn(String keysearch, List<String> list);
+//    List<Appointment> findAllByPaymentStatusIsFalseAndExpenseIsFalseAndAppointment_CurentStatusAppointmentIsIn(String keysearch, List<String> list);
 
     List<Appointment> findALLByCurentStatusAppointmentIn(Collection<String> curentStatusAppointments);
 
