@@ -35,3 +35,8 @@ export const AssignForAppoint=(AssigneStaff)=>{
 export const GetAppointmentCounts = () => {
   return api.get("/appointment/count");
 };
+
+// Thêm API để lấy báo cáo cuộc hẹn theo khoảng thời gian
+export const GetAppointmentReport = (dateRange) => {
+  return api.get("/appointment/reports", { params: dateRange });
+};
