@@ -9,6 +9,7 @@ import com.dnaeasy.dnaeasy.dto.response.*;
 
 import com.dnaeasy.dnaeasy.dto.response.AppointCreateResponse;
 import com.dnaeasy.dnaeasy.dto.response.AppointmentResponse;
+import com.dnaeasy.dnaeasy.dto.response.AppointmentStatsResponse;
 
 import com.dnaeasy.dnaeasy.dto.response.StaffResponse;
 
@@ -46,11 +47,10 @@ public interface IsAppointmentService {
     boolean CanRefund(int appointmentId);
 
 
- Map<String, SummaryTodayResponse> getTodaySummary();
+    List<RevenueChartResponse>getRevenueByDay(String start, String end);
     StaticReponse getStaticByDate(StaticRequest request);
     List<TopServiceReponse> findTopService(StaticRequest request);
 
-
-
+    AppointmentStatsResponse getAppointmentStats();
 
 }

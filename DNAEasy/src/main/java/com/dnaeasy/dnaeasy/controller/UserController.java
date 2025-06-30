@@ -4,6 +4,7 @@ import com.dnaeasy.dnaeasy.dto.request.PersonRequest;
 import com.dnaeasy.dnaeasy.dto.request.UserFilterRequest;
 import com.dnaeasy.dnaeasy.dto.request.UserUpdateRequest;
 import com.dnaeasy.dnaeasy.dto.request.UserUpdateResquest;
+import com.dnaeasy.dnaeasy.dto.response.UserCountResponse;
 import com.dnaeasy.dnaeasy.dto.response.UserFilterRespone;
 import com.dnaeasy.dnaeasy.dto.response.UserReportReponse;
 import com.dnaeasy.dnaeasy.dto.response.UserResponse;
@@ -75,5 +76,15 @@ public class UserController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<Integer> countUsers() {
+        return ResponseEntity.ok(userService.getTotalUsers());
+    }
+
+    @GetMapping("/count-by-role")
+    public ResponseEntity<UserCountResponse> getUserCounts() {
+        return ResponseEntity.ok(userService.getUserCounts());
     }
 }

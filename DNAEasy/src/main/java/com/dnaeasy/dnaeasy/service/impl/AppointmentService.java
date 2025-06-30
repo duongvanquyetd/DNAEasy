@@ -81,6 +81,8 @@ public class AppointmentService implements IsAppointmentService {
     IsPaymentResponsitory isPaymentResponsitory;
     @Autowired
     NotificationService notificationService;
+    @Autowired
+    private IsPersonRepository isPersonRepository;
 
 
     @Override
@@ -588,18 +590,24 @@ public class AppointmentService implements IsAppointmentService {
 //    }
 
     @Override
-    public Map<String, SummaryTodayResponse> getTodaySummary() {
-        LocalDateTime start = LocalDateTime.now().toLocalDate().atStartOfDay();
-        LocalDateTime end = start.plusDays(1);
+    public List<RevenueChartResponse> getRevenueByDay(String startDate, String endDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-        int totalAppointment = isAppointmentResponsitory.countCompletedAppointmentsToday(start, end);
+        LocalDate start = LocalDate.parse(startDate, formatter);
+        LocalDate end = LocalDate.parse(endDate, formatter);
 
-        BigDecimal revenue = isPaymentResponsitory.getTodayRevenueToday(start, end);
-        Map<String, SummaryTodayResponse> summary = new HashMap<>();
-        SummaryTodayResponse today = new SummaryTodayResponse(revenue, totalAppointment);
+        List<RevenueChartResponse> chartData = new ArrayList<>();
+        LocalDate current = start;
 
-        summary.put("hôm nay", today);
-        return summary;
+        while (!current.isAfter(end)) {
+            BigDecimal dailyRevenue = isPaymentResponsitory.getRevenueByDate(current);
+            if (dailyRevenue == null) dailyRevenue = BigDecimal.ZERO;
+
+            chartData.add(new RevenueChartResponse(current, dailyRevenue));
+            current = current.plusDays(1);
+        }
+
+        return chartData;
     }
 
 
@@ -718,11 +726,19 @@ public class AppointmentService implements IsAppointmentService {
             throw new IllegalArgumentException("Please provide valid date or period input");
         }
 
-        return isAppointmentResponsitory.findTop10Service(
-                Timestamp.valueOf(start),
-                Timestamp.valueOf(end)
-        );
-
+        return isAppointmentResponsitory.findTop10Service();
     }
+
+    @Override
+    public AppointmentStatsResponse getAppointmentStats() {
+        int total = isAppointmentResponsitory.countAllAppointments();
+        int completed = isAppointmentResponsitory.countCompletedAppointments();
+        int inProgress = isAppointmentResponsitory.countInProgressAppointments();
+        int cancelled = isAppointmentResponsitory.countCancelledAppointments();
+        int refunded = isAppointmentResponsitory.countRefundedAppointments();
+        
+        return new AppointmentStatsResponse(total, completed, inProgress, cancelled, refunded);
+    }
+
 }
 
