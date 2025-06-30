@@ -137,7 +137,7 @@ public class AuthencationService implements IsAuthencationService {
                 .subject(peroson.getUsername())
                 .issuer("DNAEasy.com")
                 .issueTime(new Date())
-                .expirationTime(new Date(Instant.now().plus(3600, ChronoUnit.SECONDS).toEpochMilli()))
+                .expirationTime(new Date(Instant.now().plus(3600*4, ChronoUnit.SECONDS).toEpochMilli()))
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope", peroson.getRolename())
                 .build();

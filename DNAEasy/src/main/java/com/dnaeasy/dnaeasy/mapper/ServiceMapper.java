@@ -17,14 +17,15 @@ public interface ServiceMapper {
     ServiceCreateRequest toDTO(Service entity);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateEntityFromDTO(ServiceCreateRequest dto, @MappingTarget Service  entity);
+    void updateEntityFromDTO(ServiceCreateRequest dto, @MappingTarget Service entity);
 
-    @Mapping(target = "imageUrls" ,expression = "java(getImage(dto))")
-    @Mapping(target = "price",source = "servicePrice")
+    @Mapping(target = "imageUrls", expression = "java(getImage(dto))")
+    @Mapping(target = "price", source = "servicePrice")
 
     ServiceResponse convertToResponse(Service dto);
-    default List<String> getImage( Service dto) {
-        List< ServiceImage> serviceImages = dto.getServiceImageList();
+
+    default List<String> getImage(Service dto) {
+        List<ServiceImage> serviceImages = dto.getServiceImageList();
         List<String> imageUrls = new ArrayList<>();
         for (ServiceImage serviceImage : serviceImages) {
             imageUrls.add(serviceImage.getServiceImagePath());

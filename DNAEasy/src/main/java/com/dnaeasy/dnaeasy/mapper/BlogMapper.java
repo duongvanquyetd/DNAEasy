@@ -13,7 +13,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface BlogMapper {
     @Mapping(target = "blogimage", expression = "java(BlogimagetoString(blog))")
-
+    @Mapping(target = "author", source = "staff.name")
     BlogResponse BlogToBlogResponse(Blog blog);
 
     Blog BlogCreateRequestToBlog(BlogCreateRequest blogCreateRequest);
