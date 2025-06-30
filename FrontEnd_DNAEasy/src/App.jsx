@@ -26,6 +26,11 @@ import RevenueChart from './component/page/RevenueChart.jsx';
 import { ManageComment } from './component/page/ManageComment.jsx';
 import UserAdminDashboard from "./component/page/AdminUser.jsx";
 
+import DNATestingAdminDashboard from './component/page/AdminAppointment.jsx';
+
+
+import AdminRevenue from './component/page/AdminRevenue.jsx';
+
 
 
 function App() {
@@ -57,7 +62,12 @@ function App() {
 
         <Route path="/ManageComment" element={<ManageComment />} />
         <Route path="/user-admin-dashboard" element={<UserAdminDashboard />} />
+
+        <Route path="/AdminAppoinment" element={<DNATestingAdminDashboard />} />
+
+        <Route path="/AdminRevenue" element={<AdminRevenue />}/>
         <Route path="/Notification" element={<UserAdminDashboard />} />
+
 
         <Route path="*" element={<div>404 - Page Not Found</div>} />
       </Routes>

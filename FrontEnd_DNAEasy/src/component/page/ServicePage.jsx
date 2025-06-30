@@ -247,20 +247,24 @@ const Service = () => {
                 <ServiceImageCarouselService imageUrls={service.imageUrls} serviceName={service.serviceName} />
                 <p className="serviceName">{service.serviceName}
 
+                  {service.star > 0 && (
 
-                  <span className="detail-star-inline">
-                    {Array.from({ length: 5 }).map((_, idx) => (
-                      <span
-                        key={idx}
-                        className={`star${idx < service.star ? " filled" : ""}`}
-                      >
-                        ★
+                    <span className="detail-star-inline">
+                      {Array.from({ length: 5 }).map((_, idx) => (
+                        <span
+                          key={idx}
+                          className={`star${idx < service.star ? " filled" : ""}`}
+                        >
+                          ★
+                        </span>
+                      ))}
+                      <span className="feedback-count">
+                        ({service.numberOfComment})
                       </span>
-                    ))}
-                    <span className="feedback-count">
-                      ({service.numberOfComment})
                     </span>
-                  </span>
+
+                  )}
+
                 </p>
                 <p className="price">{new Intl.NumberFormat('vi-VN').format(service.price)} VND</p>
                 <button className="bookingBtn" onClick={() => handleBookingClick(service.serviceId)} aria-label={`Book ${service.serviceName}`}>Book Now</button>

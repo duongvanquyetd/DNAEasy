@@ -1,0 +1,580 @@
+/* Reset và Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: #f5f7fa;
+}
+
+.admin-dashboard {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+/* Header Styles */
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 40px 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.header-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.main-title {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #2d3748;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.title-icon {
+  font-size: 3.5rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: #718096;
+  font-weight: 400;
+}
+
+/* Section Styles */
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-icon {
+  font-size: 1.8rem;
+}
+
+/* Filter Section */
+.filter-section {
+  margin-bottom: 30px;
+}
+
+.filter-container {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 12px 24px;
+  border: 2px solid #e2e8f0;
+  border-radius: 25px;
+  background: white;
+  color: #4a5568;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.filter-btn:hover {
+  border-color: #3182ce;
+  color: #3182ce;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(49, 130, 206, 0.2);
+}
+
+.filter-btn.active {
+  background: linear-gradient(135deg, #3182ce, #2c5aa0);
+  border-color: #3182ce;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(49, 130, 206, 0.3);
+}
+
+/* Stats Section */
+.stats-section {
+  margin-bottom: 30px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 25px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+  font-size: 3rem;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f7fafc, #edf2f7);
+}
+
+.stat-content h3 {
+  font-size: 0.9rem;
+  color: #718096;
+  margin-bottom: 5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #2d3748;
+  line-height: 1;
+}
+
+.stat-percent {
+  font-size: 0.9rem;
+  color: #4a5568;
+  font-weight: 500;
+  margin-top: 5px;
+}
+
+/* Specific stat card colors */
+.stat-card.total .stat-icon {
+  background: linear-gradient(135deg, #3182ce, #2c5aa0);
+  color: white;
+}
+.stat-card.completed .stat-icon {
+  background: linear-gradient(135deg, #38a169, #2f855a);
+  color: white;
+}
+.stat-card.progress .stat-icon {
+  background: linear-gradient(135deg, #d69e2e, #b7791f);
+  color: white;
+}
+.stat-card.cancelled .stat-icon {
+  background: linear-gradient(135deg, #e53e3e, #c53030);
+  color: white;
+}
+.stat-card.refunded .stat-icon {
+  background: linear-gradient(135deg, #805ad5, #6b46c1);
+  color: white;
+}
+
+/* Chart Section */
+.chart-section {
+  margin-bottom: 30px;
+}
+
+.chart-container {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.progress-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.chart-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.chart-label {
+  min-width: 120px;
+  font-weight: 600;
+  color: #4a5568;
+  font-size: 0.9rem;
+}
+
+.chart-bar {
+  flex: 1;
+  height: 30px;
+  background: #f7fafc;
+  border-radius: 15px;
+  overflow: hidden;
+  position: relative;
+}
+
+.chart-fill {
+  height: 100%;
+  border-radius: 15px;
+  transition: width 1s ease-in-out;
+  position: relative;
+}
+
+.chart-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3));
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.completed-fill {
+  background: linear-gradient(90deg, #38a169, #2f855a);
+}
+.progress-fill {
+  background: linear-gradient(90deg, #d69e2e, #b7791f);
+}
+.cancelled-fill {
+  background: linear-gradient(90deg, #e53e3e, #c53030);
+}
+.refunded-fill {
+  background: linear-gradient(90deg, #805ad5, #6b46c1);
+}
+
+.chart-value {
+  min-width: 40px;
+  text-align: center;
+  font-weight: 700;
+  color: #2d3748;
+  font-size: 1.1rem;
+}
+
+/* Table Section */
+.table-section {
+  margin-bottom: 30px;
+}
+
+.table-container {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #718096;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.appointments-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.appointments-table th {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 15px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.appointments-table td {
+  padding: 15px 12px;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+}
+
+.appointments-table tr:hover {
+  background: #f7fafc;
+  transform: scale(1.01);
+  transition: all 0.2s ease;
+}
+
+.appointments-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Table Cell Styles */
+.id-cell {
+  font-weight: 700;
+  color: #3182ce;
+  font-family: "Courier New", monospace;
+}
+
+.customer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.customer-name {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.customer-email {
+  font-size: 0.85rem;
+  color: #718096;
+}
+
+.test-type {
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.price-cell {
+  font-weight: 700;
+  color: #38a169;
+  font-family: "Courier New", monospace;
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-completed {
+  background: linear-gradient(135deg, #c6f6d5, #9ae6b4);
+  color: #22543d;
+}
+
+.status-progress {
+  background: linear-gradient(135deg, #faf089, #f6e05e);
+  color: #744210;
+}
+
+.status-cancelled {
+  background: linear-gradient(135deg, #fed7d7, #feb2b2);
+  color: #742a2a;
+}
+
+.status-refunded {
+  background: linear-gradient(135deg, #e9d8fd, #d6bcfa);
+  color: #553c9a;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  background: #f7fafc;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+}
+
+.action-btn:hover {
+  background: #edf2f7;
+  transform: scale(1.1);
+}
+
+.action-btn.delete:hover {
+  background: #fed7d7;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-dashboard {
+    padding: 15px;
+  }
+
+  .main-title {
+    font-size: 2.2rem;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .title-icon {
+    font-size: 2.5rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-buttons {
+    flex-direction: column;
+  }
+
+  .chart-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .chart-label {
+    min-width: auto;
+    text-align: center;
+  }
+
+  .table-wrapper {
+    font-size: 0.85rem;
+  }
+
+  .appointments-table th,
+  .appointments-table td {
+    padding: 10px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-dashboard {
+    padding: 10px;
+  }
+
+  .main-title {
+    font-size: 1.8rem;
+  }
+
+  .stat-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+
+  .stat-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
+  }
+
+  .stat-number {
+    font-size: 2rem;
+  }
+}
+
+/* Loading Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stat-card,
+.filter-container,
+.chart-container,
+.table-container {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.stat-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.stat-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.stat-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.stat-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.stat-card:nth-child(5) {
+  animation-delay: 0.5s;
+}
