@@ -1,239 +1,446 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Area, AreaChart } from "recharts";
-import { Users, TrendingUp, Smartphone, Tablet, Monitor, DollarSign, Globe, ChevronUp, ArrowUpRight, Activity } from "lucide-react";
-import axios from "axios";
-import { GetAppointmentStatistics } from "../../service/appointment";
-import { CountAllUser } from "../../service/user";
-import UserStatBox from "./UserStatBox";  
+import { 
+  Users, TrendingUp, Smartphone, Tablet, Monitor, DollarSign, Globe, ChevronUp, ArrowUpRight, Activity, 
+  Calendar, CheckCircle, Clock, AlertCircle, UserCheck, Award, UserPlus, Shield, Briefcase, User, AlertTriangle,
+  BarChart2, ArrowUp, Layers, Star
+} from "lucide-react";
+import { GetRevenueChartData, GetAppointmentCountsByStatus, GetRevenueFlowStats, GetTopBookedServices } from "../../service/appointment";
+import { GetUserRoleStats } from "../../service/user";
 import "../../component/css/RevenueChart.css";
 
 const RevenueChart = () => {
-const [data, setData] = useState([]);
-const [userCount, setUserCount] = useState(0);
-const [totalRevenue, setTotalRevenue] = useState(0);
-const [dateRange, setDateRange] = useState({ start: '', end: '' });
-const [userGrowth, setUserGrowth] = useState(0);
-const [revenueGrowth, setRevenueGrowth] = useState(0);
-const [timeFilter, setTimeFilter] = useState('Month');
-const [dailyChange, setDailyChange] = useState(0);
-const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState([]);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [dateRange, setDateRange] = useState({ 
+    start: '', 
+    end: '',
+    display: 'Jun 1 - Jun 30'
+  });
+  const [timeFilter, setTimeFilter] = useState('Month');
+  const [dailyChange, setDailyChange] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // Current month (1-12)
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); // Current year
+  const [topServices, setTopServices] = useState([]);
 
-const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const mockData = days.map(day => ({ day }));
+  // State for statistics
+  const [userRoleStats, setUserRoleStats] = useState({
+    total: 0,
+    staff: 0,
+    manager: 0,
+    admin: 0
+  });
 
-useEffect(() => {
-    fetchData(timeFilter);
-}, [timeFilter]);
+  const [revenueFlowStats, setRevenueFlowStats] = useState({
+    total: 0,
+    income: 0,
+    expenses: 0,
+    profit: 0
+  });
 
-const fetchData = async (period) => {
-  setIsLoading(true);
-  try {
-    // Get current date for the end date
-    const endDate = new Date();
-    // Calculate start date based on selected period
-    const startDate = new Date();
-    
-    if (period === 'Week') {
-      startDate.setDate(endDate.getDate() - 7);
-    } else {
-      startDate.setMonth(endDate.getMonth() - 1);
-    }
+  const [appointmentStatusCounts, setAppointmentStatusCounts] = useState({
+    total: 0,
+    completed: 0,
+    inProgress: 0,
+    cancelled: 0,
+    refunded: 0
+  });
 
-    // Previous period dates
-    const prevEndDate = new Date(startDate);
-    prevEndDate.setDate(prevEndDate.getDate() - 1);
-    const prevStartDate = new Date(prevEndDate);
-    
-    if (period === 'Week') {
-      prevStartDate.setDate(prevEndDate.getDate() - 7);
-    } else {
-      prevStartDate.setMonth(prevEndDate.getMonth() - 1);
-    }
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-    // Format dates for API call (YYYY-MM-DD)
-    const formatDate = (date) => {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    };
+  // Format number as currency
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
 
-    const startDateStr = formatDate(startDate);
-    const endDateStr = formatDate(endDate);
-    const prevStartDateStr = formatDate(prevStartDate);
-    const prevEndDateStr = formatDate(prevEndDate);
+  // Format number with commas
+  const formatNumber = (num) => {
+    return new Intl.NumberFormat('en-US').format(num);
+  };
 
-    // Save date range for display
-    setDateRange({
-      start: startDateStr,
-      end: endDateStr,
-      display: `${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
-    });
-
-    // Get revenue data with dynamic date range for current period
-    const currentRes = await GetAppointmentStatistics(startDateStr, endDateStr);
-    console.log(`${period} period revenue data`, currentRes.data);
-    const currentChartData = currentRes.data;
-    
-    // Add day names for the week view and enhance data
-    if (period === 'Week') {
-      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      const chartDataWithDays = currentChartData.map(item => {
-        const date = new Date(item.date);
-        return {
-          ...item,
-          day: dayNames[date.getDay()],
-          revenue: Number(item.revenue || 0),
-          formattedRevenue: formatCurrency(item.revenue || 0)
-        };
-      });
-      setData(chartDataWithDays);
-    } else {
-      // For month view, we'll filter to show fewer data points (every 3-4 days)
-      const enhancedData = currentChartData.map((item, index) => {
-        const date = new Date(item.date);
-        const formattedDate = `${date.getDate()} ${date.toLocaleDateString('en-US', { month: 'short' })}`;
-        return {
-          ...item,
-          revenue: Number(item.revenue || 0),
-          formattedRevenue: formatCurrency(item.revenue || 0),
-          formattedDate: formattedDate,
-          displayOnXAxis: index % 3 === 0 // Only show every 3rd date on X-axis
-        };
-      });
-      setData(enhancedData);
-    }
-    
-    // Calculate total revenue for current period
-    let currentRevenue = 0;
-    if (currentChartData && currentChartData.length > 0) {
-      currentRevenue = currentChartData.reduce((total, item) => total + (Number(item.revenue) || 0), 0);
-      setTotalRevenue(currentRevenue);
-      console.log(`${period} period total revenue:`, currentRevenue);
+  // Fetch all necessary data when component mounts or month/year changes
+  useEffect(() => {
+    const fetchAllData = async () => {
+      setIsLoading(true);
       
-      // Get yesterday's change
-      if (currentChartData.length >= 2) {
-        const yesterday = currentChartData[currentChartData.length - 2].revenue || 0;
-        const today = currentChartData[currentChartData.length - 1].revenue || 0;
-        if (yesterday > 0) {
-          const change = ((today - yesterday) / yesterday) * 100;
-          setDailyChange(change.toFixed(2));
+      try {
+        // Format dates for API
+        const startDate = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-01`;
+        const lastDay = new Date(selectedYear, selectedMonth, 0).getDate();
+        const endDate = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+        
+        // Set date range for display
+        setDateRange({
+          start: startDate,
+          end: endDate,
+          display: `${new Date(startDate).toLocaleString('default', { month: 'short' })} 1 - ${new Date(endDate).toLocaleString('default', { month: 'short' })} ${lastDay}`
+        });
+        
+        // Fetch revenue chart data
+        const revenueResponse = await GetRevenueChartData(startDate, endDate);
+        if (revenueResponse && revenueResponse.data) {
+          processChartData(revenueResponse.data, timeFilter);
         }
+        
+        // Fetch user role stats
+        const userResponse = await GetUserRoleStats(selectedMonth, selectedYear);
+        if (userResponse && userResponse.data) {
+          setUserRoleStats(userResponse.data);
+        }
+        
+        // Fetch revenue flow stats
+        const revenueFlowResponse = await GetRevenueFlowStats(selectedMonth, selectedYear);
+        if (revenueFlowResponse && revenueFlowResponse.data) {
+          setRevenueFlowStats(revenueFlowResponse.data);
+        }
+        
+        // Fetch appointment status counts
+        const appointmentResponse = await GetAppointmentCountsByStatus();
+        if (appointmentResponse && appointmentResponse.data) {
+          // Map API response fields to our state
+          const apiData = appointmentResponse.data;
+          setAppointmentStatusCounts({
+            total: apiData.total || 0,
+            completed: apiData.completed || 0,
+            inProgress: apiData.inProgress || 0,
+            cancelled: apiData.cancelled || 0,
+            refunded: apiData.refunded || 0
+          });
+        }
+        
+        // Fetch top booked services
+        const topServicesResponse = await GetTopBookedServices(selectedMonth, selectedYear);
+        if (topServicesResponse && topServicesResponse.data) {
+          console.log("Top services data:", topServicesResponse.data);
+          // API trả về mảng trực tiếp, không cần .data nữa
+          setTopServices(Array.isArray(topServicesResponse.data) 
+            ? topServicesResponse.data.slice(0, 10) 
+            : topServicesResponse.data);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
       }
-    }
-
-    // Get revenue data for previous period
-    const prevRes = await GetAppointmentStatistics(prevStartDateStr, prevEndDateStr);
-    console.log(`Previous ${period} revenue data`, prevRes.data);
-    const prevChartData = prevRes.data;
+    };
     
-    // Calculate total revenue for previous period
-    let prevRevenue = 0;
-    if (prevChartData && prevChartData.length > 0) {
-      prevRevenue = prevChartData.reduce((total, item) => total + (Number(item.revenue) || 0), 0);
-      console.log(`Previous ${period} total revenue:`, prevRevenue);
+    fetchAllData();
+  }, [selectedMonth, selectedYear]);
+
+  // Update chart when timeFilter changes
+  useEffect(() => {
+    if (data.length > 0) {
+      processChartData(data, timeFilter);
     }
-
-    // Calculate revenue growth percentage
-    if (prevRevenue > 0) {
-      const growth = ((currentRevenue - prevRevenue) / prevRevenue) * 100;
-      setRevenueGrowth(growth.toFixed(1));
-    }
-
-    // Get current user count
-    const currentUserRes = await CountAllUser();
-    console.log("Current user count", currentUserRes.data);
-    const currentUsers = currentUserRes.data;
-    setUserCount(currentUsers);
-    
-    // For simplicity, let's use a static growth rate for users
-    const growthRate = 18.2;
-    setUserGrowth(growthRate);
-
-    setIsLoading(false);
-    
-  } catch (error) {
-    console.error("API error:", error);
-    setIsLoading(false);
-  }
-};
-
-// Format number as currency
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(amount);
-};
-
-// Format number with commas
-const formatNumber = (num) => {
-  return new Intl.NumberFormat('en-US').format(num);
-};
-
-// Format date for X-axis
-const formatXAxis = (tickItem) => {
-  if (timeFilter === 'Week') {
-    return tickItem; // Return day name for week view
-  } else {
-    // For dates in the month view, return the formatted date
-    const dateObj = new Date(tickItem);
-    if (isNaN(dateObj.getTime())) {
-      return tickItem; // Return as is if not a valid date
-    }
-    return `${dateObj.getDate()} ${dateObj.toLocaleDateString('en-US', { month: 'short' })}`;
-  }
-};
-
-// Custom tooltip for the chart
-const CustomTooltip = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
-    let displayDate = label;
-    
-    // Format the date for display in tooltip
-    if (timeFilter !== 'Week' && payload[0].payload.date) {
-      const dateObj = new Date(payload[0].payload.date);
-      if (!isNaN(dateObj.getTime())) {
-        displayDate = `${dateObj.getDate()} ${dateObj.toLocaleDateString('en-US', { month: 'short' })}`;
-      }
-    }
-    
-    return (
-      <div className="custom-tooltip">
-        <p className="tooltip-date">{displayDate}</p>
-        <p className="tooltip-revenue">
-          <span className="tooltip-label">Revenue: </span>
-          <span className="tooltip-value">{formatCurrency(payload[0].value)}</span>
-        </p>
-      </div>
-    );
-  }
-  return null;
-};
-
-// Custom active dot
-const CustomActiveDot = (props) => {
-  const { cx, cy, stroke, dataKey } = props;
+  }, [timeFilter]);
   
-  return (
-    <g>
-      <circle cx={cx} cy={cy} r={8} stroke={stroke} strokeWidth={2} fill="#fff" />
-      <circle cx={cx} cy={cy} r={4} stroke="none" fill={stroke} />
-    </g>
-  );
-};
+  // Process chart data from API
+  const processChartData = (apiData, viewType) => {
+    console.log("Processing chart data for view type:", viewType, apiData);
+    
+    if (!Array.isArray(apiData)) {
+      console.error("API data is not an array:", apiData);
+      return;
+    }
+    
+    // Calculate total revenue
+    let total = 0;
+    
+    // Transform API data for chart
+    const chartData = apiData.map(item => {
+      const revenue = Number(item.revenue) || 0;
+      total += revenue;
+      
+      // Format date for display
+      const date = new Date(item.date);
+      const formattedDate = `${date.getDate()} ${date.toLocaleDateString('en-US', { month: 'short' })}`;
+      const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+      
+      return {
+        date: item.date,
+        formattedDate: formattedDate,
+        day: dayName,
+        revenue: revenue,
+        formattedRevenue: formatCurrency(revenue)
+      };
+    });
+    
+    // Sort by date
+    chartData.sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    // Calculate daily change if possible
+    if (chartData.length >= 2) {
+      const lastDay = chartData[chartData.length - 1].revenue;
+      const prevDay = chartData[chartData.length - 2].revenue;
+      
+      if (prevDay > 0) {
+        const change = ((lastDay - prevDay) / prevDay) * 100;
+        setDailyChange(change.toFixed(1));
+      }
+    }
+    
+    setData(chartData);
+    setTotalRevenue(total);
+  };
 
-// Traffic share data
-const trafficData = [
-  { name: "Desktop", value: 60, color: "#2563eb" },
-  { name: "Mobile", value: 30, color: "#3b82f6" },
-  { name: "Tablet", value: 10, color: "#60a5fa" }
-];
+  // Format X-axis labels
+  const formatXAxis = (tickItem) => {
+    if (timeFilter === 'Week') {
+      // For week view, return day name
+      return tickItem; // tickItem should be the day name
+    } else {
+      // For month view, format the date
+      const parts = tickItem.split(' ');
+      if (parts.length >= 2) {
+        return `${parts[0]}/${parts[1].substring(0, 3)}`;
+      }
+      return tickItem;
+    }
+  };
+
+  // Custom tooltip for the chart
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="custom-tooltip">
+          <p className="tooltip-label">{payload[0].payload.formattedDate}</p>
+          <p className="tooltip-value">
+            <span className="tooltip-label">Revenue: </span>
+            <span className="tooltip-amount">{payload[0].payload.formattedRevenue}</span>
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Custom active dot for the chart
+  const CustomActiveDot = (props) => {
+    const { cx, cy, stroke, dataKey } = props;
+    return (
+      <svg x={cx - 8} y={cy - 8} width={16} height={16} viewBox="0 0 16 16">
+        <circle cx="8" cy="8" r="6" stroke={stroke} strokeWidth="2" fill="white" />
+        <circle cx="8" cy="8" r="3" stroke="none" fill={stroke} />
+      </svg>
+    );
+  };
+
+  // Appointment status data
+  const appointmentStatusData = [
+    { 
+      name: "Completed", 
+      value: appointmentStatusCounts.total ? Math.round((appointmentStatusCounts.completed / appointmentStatusCounts.total) * 100) : 0,
+      count: appointmentStatusCounts.completed || 0,
+      color: "#10b981", 
+      icon: CheckCircle
+    },
+    { 
+      name: "In Progress", 
+      value: appointmentStatusCounts.total ? Math.round((appointmentStatusCounts.inProgress / appointmentStatusCounts.total) * 100) : 0,
+      count: appointmentStatusCounts.inProgress || 0,
+      color: "#3b82f6", 
+      icon: Clock
+    },
+    { 
+      name: "Cancelled", 
+      value: appointmentStatusCounts.total ? Math.round((appointmentStatusCounts.cancelled / appointmentStatusCounts.total) * 100) : 0,
+      count: appointmentStatusCounts.cancelled || 0,
+      color: "#ef4444", 
+      icon: AlertCircle
+    },
+    { 
+      name: "Refunded", 
+      value: appointmentStatusCounts.total ? Math.round((appointmentStatusCounts.refunded / appointmentStatusCounts.total) * 100) : 0,
+      count: appointmentStatusCounts.refunded || 0,
+      color: "#f59e0b", 
+      icon: Activity
+    }
+  ];
+
+  // User role data
+  const userRoleData = [
+    { 
+      name: "Staff", 
+      value: userRoleStats.staff || 0,
+      color: "#3b82f6", 
+      icon: Briefcase
+    },
+    { 
+      name: "Manager", 
+      value: userRoleStats.manager || 0,
+      color: "#10b981", 
+      icon: Shield
+    },
+    { 
+      name: "Admin", 
+      value: userRoleStats.admin || 0,
+      color: "#f59e0b", 
+      icon: User
+    }
+  ];
+
+  // Revenue flow data
+  const revenueFlowData = [
+    { 
+      name: "Income", 
+      amount: revenueFlowStats.income || 0,
+      color: "#10b981"
+    },
+    { 
+      name: "Expenses", 
+      amount: revenueFlowStats.expenses || 0,
+      color: "#ef4444"
+    },
+    { 
+      name: "Profit", 
+      amount: revenueFlowStats.profit || 0,
+      color: "#3b82f6"
+    }
+  ];
+
+  // Get current month and year
+  const getCurrentMonthYear = () => {
+    return new Date(selectedYear, selectedMonth - 1).toLocaleString('default', { month: 'long', year: 'numeric' });
+  };
+
+  // Handle month change
+  const handleMonthChange = (e) => {
+    setSelectedMonth(parseInt(e.target.value));
+  };
+
+  // Handle year change
+  const handleYearChange = (e) => {
+    setSelectedYear(parseInt(e.target.value));
+  };
+
+  // Handle time filter change
+  const handleTimeFilterChange = (filter) => {
+    setTimeFilter(filter);
+  };
+
+  // Filter data for week view if needed
+  const getFilteredData = () => {
+    if (timeFilter === 'Week') {
+      // For week view, get the last 7 days of data
+      if (data.length <= 7) return data;
+      return data.slice(data.length - 7);
+    }
+    return data;
+  };
 
   return (
     <div className="revenue-chart-container">
+      {/* Month/Year selector */}
+      <div className="date-selector">
+        <div className="selector-label">Select Period:</div>
+        <div className="selector-controls">
+          <select value={selectedMonth} onChange={handleMonthChange} className="month-selector">
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+          <select value={selectedYear} onChange={handleYearChange} className="year-selector">
+            <option value="2023">2023</option>
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Stats Boxes - đưa lên trên đầu */}
+      <div className="stats-boxes">
+        {/* Customers Box - with user roles */}
+        <div className="stat-box">
+          <div className="stat-icon">
+            <Users size={24} />
+          </div>
+          <div className="stat-title">Users</div>
+          <div className="stat-value">{formatNumber(userRoleStats.total || 0)}</div>
+          <div className="stat-info">
+            <span>{getCurrentMonthYear()}</span>
+            <span className="world-icon">
+              <Globe size={12} /> WorldWide
+            </span>
+          </div>
+          <div className="stat-user-roles">
+            {userRoleData.map((item, index) => (
+              <div key={index} className="role-item">
+                <item.icon size={16} color={item.color} />
+                <span>
+                  {item.name} <strong>{item.value}</strong>
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Revenue Box - with revenue flow */}
+        <div className="stat-box">
+          <div className="stat-icon revenue-icon">
+            <DollarSign size={24} />
+          </div>
+          <div className="stat-title">Revenue</div>
+          <div className="stat-value">{formatCurrency(revenueFlowStats.total || 0)}</div>
+          <div className="stat-info">
+            <span>{getCurrentMonthYear()}</span>
+            <span className="world-icon">
+              <Globe size={12} /> WorldWide
+            </span>
+          </div>
+          <div className="stat-revenue-flow">
+            {revenueFlowData.map((item, index) => (
+              <div key={index} className="flow-item">
+                <div style={{ width: '16px', height: '16px', backgroundColor: item.color, borderRadius: '50%' }} />
+                <span>
+                  {item.name} <strong>{formatCurrency(item.amount)}</strong>
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Appointments Box */}
+        <div className="stat-box">
+          <div className="stat-icon appointment-icon">
+            <Calendar size={24} />
+          </div>
+          <div className="stat-title">Appointments</div>
+          <div className="stat-value">{formatNumber(appointmentStatusCounts.total || 0)}</div>
+          <div className="stat-info">
+            <span>{dateRange.display || 'Loading...'}</span>
+            <span className="world-icon">
+              <Globe size={12} /> WorldWide
+            </span>
+          </div>
+          <div className="stat-appointment-status">
+            {appointmentStatusData.map((item, index) => (
+              <div key={index} className="status-item">
+                <item.icon size={16} color={item.color} />
+                <span>
+                  {item.name} <strong>{item.count} ({item.value}%)</strong>
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      {/* Chart Area - chuyển xuống dưới */}
       <div className="chart-area">
         {/* Sales value header */}
         <div className="sales-header">
@@ -243,7 +450,7 @@ const trafficData = [
             <div className="sales-change">
               <span>Yesterday</span>
               <span className={`change-value ${parseFloat(dailyChange) >= 0 ? 'positive' : 'negative'}`}>
-                {parseFloat(dailyChange) >= 0 ? <ArrowUpRight size={16} /> : null}
+                <ArrowUpRight size={16} />
                 {dailyChange}%
               </span>
             </div>
@@ -251,13 +458,13 @@ const trafficData = [
           <div className="time-filter">
             <button 
               className={`filter-btn ${timeFilter === 'Month' ? 'active' : ''}`}
-              onClick={() => setTimeFilter('Month')}
+              onClick={() => handleTimeFilterChange('Month')}
             >
               Month
             </button>
             <button 
               className={`filter-btn ${timeFilter === 'Week' ? 'active' : ''}`}
-              onClick={() => setTimeFilter('Week')}
+              onClick={() => handleTimeFilterChange('Week')}
             >
               Week
             </button>
@@ -269,116 +476,88 @@ const trafficData = [
           {isLoading ? (
             <div className="loading-spinner">Loading revenue data...</div>
           ) : (
-            <ResponsiveContainer width="100%" height={320}>
-              <AreaChart 
-                data={data} 
-                margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
-                className="revenue-line-chart"
-              >
+            <div className="chart-container">
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={getFilteredData()} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.7}/>
-                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0.1}/>
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid vertical={false} stroke="#bfdbfe" strokeDasharray="5 5" />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis 
-                  dataKey={timeFilter === 'Week' ? "day" : "date"} 
+                    dataKey={timeFilter === 'Week' ? "day" : "formattedDate"} 
+                    tickLine={false}
                   axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 12, fill: '#3b82f6' }} 
-                  dy={10}
-                  padding={{ left: 20, right: 20 }}
-                  tickFormatter={formatXAxis}
-                  interval={timeFilter === 'Week' ? 0 : 2}
-                  angle={-15}
-                  textAnchor="end"
-                  height={60}
+                    tickFormatter={formatXAxis}
+                    tick={{ fontSize: 12, fill: '#64748b' }}
                 />
                 <YAxis
-                  tickFormatter={(value) => `${(value / 1_000_000).toFixed(1)}M`}
-                  tick={{ fontSize: 12, fill: '#3b82f6' }}
+                    tickFormatter={(value) => `${value / 1000000}M`}
+                    tickLine={false}
                   axisLine={false}
-                  tickLine={false}
-                  dx={-10}
+                    tick={{ fontSize: 12, fill: '#64748b' }}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Area
                   type="monotone"
                   dataKey="revenue"
-                  stroke="#2563eb"
-                  strokeWidth={3}
+                    stroke="#3b82f6" 
+                    fillOpacity={1} 
                   fill="url(#colorRevenue)"
-                  fillOpacity={1}
-                  activeDot={CustomActiveDot}
+                    activeDot={<CustomActiveDot />}
                 />
               </AreaChart>
             </ResponsiveContainer>
+            </div>
           )}
         </div>
       </div>
       
-      <div className="stats-boxes">
-        {/* Customers Box - Using real API data */}
-        <div className="stat-box">
-          <div className="stat-icon">
-            <Users size={24} />
+      {/* Top Services Table */}
+      <div className="top-services-section">
+        <div className="section-header">
+          <div className="section-title">
+            <BarChart2 size={20} />
+            <h2>Top 10 Most Booked Services</h2>
           </div>
-          <div className="stat-title">Customers</div>
-          <div className="stat-value">{formatNumber(userCount)}</div>
-          <div className="stat-info">
-            <span>{dateRange.display || 'Loading...'}</span>
-            <span className="world-icon">
-              <Globe size={12} /> WorldWide
-            </span>
-          </div>
-          <div className="stat-change">
-            <TrendingUp size={16} />
-            <span>{userGrowth}%</span> Since last month
-          </div>
+          <div className="section-period">{getCurrentMonthYear()}</div>
         </div>
         
-        {/* Revenue Box - using real API data */}
-        <div className="stat-box">
-          <div className="stat-icon revenue-icon">
-            <DollarSign size={24} />
-          </div>
-          <div className="stat-title">Revenue</div>
-          <div className="stat-value">{formatCurrency(totalRevenue)}</div>
-          <div className="stat-info">
-            <span>{dateRange.display || 'Loading...'}</span>
-            <span className="world-icon">
-              <Globe size={12} /> WorldWide
-            </span>
-          </div>
-          <div className="stat-change">
-            <TrendingUp size={16} />
-            <span>{revenueGrowth}%</span> Since last month
-          </div>
-        </div>
-        
-        {/* Traffic Share Box */}
-        <div className="stat-box">
-          <div className="stat-title">Traffic Share</div>
-          <div className="traffic-chart">
-            <div className="donut-chart">
-              <div className="donut-chart-center">
-                <Activity size={16} />
-              </div>
-            </div>
-          </div>
-          <div className="stat-traffic-devices">
-            {trafficData.map((item, index) => (
-              <div key={index} className="device-item">
-                {index === 0 ? <Monitor size={16} /> : 
-                 index === 1 ? <Smartphone size={16} /> : 
-                 <Tablet size={16} />}
-                <span>
-                  {item.name} <strong>{item.value}%</strong>
-                </span>
-              </div>
-            ))}
-          </div>
+        <div className="services-table-container">
+          {isLoading ? (
+            <div className="loading-spinner">Loading services data...</div>
+          ) : (
+            <table className="services-table">
+              <thead>
+                <tr>
+                  <th className="rank-column">#</th>
+                  <th className="name-column">Service Name</th>
+                  <th className="count-column">Total Appointments</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topServices.length > 0 ? (
+                  topServices.map((service, index) => (
+                    <tr key={index} className={index < 3 ? 'top-rank' : ''}>
+                      <td className="rank-column">
+                        <div className={`rank-badge rank-${index + 1}`}>
+                          {index < 3 ? <Star size={12} /> : index + 1}
+                        </div>
+                      </td>
+                      <td className="name-column">{service.serviceName}</td>
+                      <td className="count-column">{service.totalAppointments}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3" className="no-data">No services data available</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>

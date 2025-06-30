@@ -351,7 +351,14 @@ const AdminDashboard = () => {
         return renderDashboardContent();
       case 'analytics':
         console.log('Should render RevenueChart component');
-        return <RevenueChart />;
+        // Force the component to remount by adding a key
+        return (
+          <div className="analytics-container">
+            <h2>Revenue Analytics</h2>
+            <p>Detailed statistics and charts for revenue analysis</p>
+            <RevenueChart key={`revenue-chart-${Date.now()}`} />
+          </div>
+        );
       default:
         return (
           <div className="coming-soon">
