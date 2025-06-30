@@ -5,7 +5,7 @@ import {
   Calendar, CheckCircle, Clock, AlertCircle, UserCheck, Award, UserPlus, Shield, Briefcase, User, AlertTriangle,
   BarChart2, ArrowUp, Layers, Star
 } from "lucide-react";
-import { GetRevenueChartData, GetAppointmentCountsByStatus, GetRevenueFlowStats, GetTopBookedServices } from "../../service/appointment";
+import { GetRevenueChartData, GetAppointmentCountsByStatus, GetRevenueFlowStats, GetTopBookedServices } from "../../service/revenueService";
 import { GetUserRoleStats } from "../../service/user";
 import "../../component/css/RevenueChart.css";
 
