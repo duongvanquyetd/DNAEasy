@@ -18,6 +18,8 @@ import com.dnaeasy.dnaeasy.service.IsUserService;
 import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
 import jakarta.validation.ConstraintViolationException;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -123,7 +125,10 @@ public class UserService implements IsUserService {
 
     @Override
     public void deleteUser(int id) {
-        personResponsity.deleteById(String.valueOf(id));
+
+        Person p = personResponsity.findByPersonId(id);
+        p.setActive(false);
+        personResponsity.save(p);
     }
 
     @Override
@@ -163,35 +168,21 @@ public class UserService implements IsUserService {
     }
 
     @Override
-    public List<UserFilterRespone> filterUser(UserFilterRequest request) {
-        List<Person> person = personResponsity.findAll();
+    public Page<UserFilterRespone> filterUser(UserFilterRequest request, Pageable pageable) {
+        Page<Person> person = null;
+        if(request.getCreatedDateTo() != null && request.getCreatedDateform() != null) {
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate from = request.getCreatedDateform() != null
-                ? LocalDate.parse(request.getCreatedDateform(), formatter)
-                : null;
 
-        LocalDate to = request.getCreatedDateTo() != null
-                ? LocalDate.parse(request.getCreatedDateTo(), formatter)
-                : null;
+                person  = personResponsity.findByFilter( request.getName(),request.getRolename() ,request.getCreatedDateform().atStartOfDay(),request.getCreatedDateTo().atStartOfDay(),pageable,request.getActive());
 
-        List<Person> filtered = person.stream()
-                .filter(p -> request.getName() == null || p.getName().toLowerCase().contains(request.getName().toLowerCase()))
-                .filter(p -> request.getRolename() == null ||
-                        (p.getRolename() != null &&
-                                p.getRolename().toString().toLowerCase().contains(request.getRolename())))
-                .filter(p -> request.getActive() == null || p.getActive().equals(request.getActive()))
-                .filter(p ->from == null || (p.getCreatedDate() != null && !p.getCreatedDate().toLocalDate().isBefore(from)))
-                .filter(p -> to == null || (p.getCreatedDate() != null && !p.getCreatedDate().toLocalDate().isAfter(to)))
-                .collect(Collectors.toList());
 
-        return filtered.stream()
-                .map(p -> new UserFilterRespone(
-                        p.getName(),
-                        p.getRolename().toString(),
-                        p.getActive(),
-                        p.getCreatedDate() != null ? p.getCreatedDate().toString() : null
-                )).collect(Collectors.toList());
+
+        }
+        else {
+            person  = personResponsity.findByFilter( request.getName(),request.getRolename() ,null,null,pageable,request.getActive());
+        }
+
+       return  person.map(userMapper::UserToUserFilterRespone);
     }
 
 
@@ -199,15 +190,7 @@ public class UserService implements IsUserService {
     public void updateUser(UserUpdateRequest request) {
         Person person = personResponsity.findById(String.valueOf(request.getPersonId()))
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
-
-        if (request.getActive() != null) {
-            person.setActive(request.getActive());
-        }
-
-        if (request.getRole() != null) {
-            person.setRolename(RoleName.valueOf(request.getRole()));
-        }
-
+            person.setRolename(request.getRole());
         personResponsity.save(person);
     }
 
@@ -222,7 +205,14 @@ public class UserService implements IsUserService {
         int staff = personResponsity.countStaffUsers();
         int manager = personResponsity.countManagerUsers();
         int admin = personResponsity.countAdminUsers();
-        
-        return new UserCountResponse(total, staff, manager, admin);
+        int customer = personResponsity.countByRolename(RoleName.CUSTOMER);
+        return new UserCountResponse(total, staff, manager, admin,customer);
+    }
+
+    @Override
+    public void ActiveUser(int id) {
+        Person p = personResponsity.findByPersonId(id);
+        p.setActive(true);
+        personResponsity.save(p);
     }
 }
