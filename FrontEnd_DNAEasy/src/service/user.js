@@ -33,13 +33,15 @@ export const GetStaffForAppoint = (appointmentId,size,page,keyword)=>{
 // };
 
 // New API methods for Admin User Management
+
 export const GetAllUsers = ( page, size, datasearch) => {
   return api.post(`/user/filter?page=${page}&size=${size}`,datasearch)
-};
+
 
 // export const GetUserStats = () => {
 //   console.log('Calling GetUserStats API');
   
+
 //   return api.get("/user/count").then(response => {
 //     const total = response.data || 0;
     
@@ -52,6 +54,7 @@ export const GetAllUsers = ( page, size, datasearch) => {
 //     };
 //   });
 // };
+
 
 // // Lấy phân loại khách hàng
 // export const GetCustomerCategories = () => {
@@ -95,18 +98,16 @@ export const GetUserRoleStats = (month, year) => {
         // Check if the response data matches what we expect
         console.log("API response data:", response.data);
         
-        // Based on the screenshot, we expect:
-        // total: 67, staff: 12, manager: 5, admin: 2
-        // But we're getting different values, so let's fix that
-        const fixedData = {
+        // Map API response to the format expected by the UI
+        const mappedData = {
           total: response.data.total || 0,
-          staff: response.data.staff || 12,  // Use 12 if not provided
-          manager: response.data.manager || 5, // Use 5 if not provided
-          admin: response.data.admin || 2  // Use 2 if not provided
+          staff: response.data.staff || 0,
+          manager: response.data.manager || 0,
+          admin: response.data.admin || 0
         };
         
-        console.log("Fixed data:", fixedData);
-        return { data: fixedData };
+        console.log("Mapped data:", mappedData);
+        return { data: mappedData };
       }
       
       // Return the response directly if we can't fix it
@@ -136,6 +137,7 @@ export const UpdateUserRole = (data) => {
 
 export const DeleteUser = (userId) => {
   return api.get(`/user/delete/${userId}`);
+
 };
 
 export const GetUserDetails = (userId) => {

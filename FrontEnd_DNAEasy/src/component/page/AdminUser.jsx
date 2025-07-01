@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
+
 import { Search, Users, UserCheck, Crown, Edit3, Trash2, Plus, Filter, Download, RefreshCw, Eye, MoreVertical } from 'lucide-react';
+
 
 import '../css/AdminUser.css';
 import { ActiveUser, DeleteUser, GetAllUsers, ReportUser, UpdateUserRole } from '../../service/user';
 
 const AdminUserManagement = () => {
-  const [activeTab, setActiveTab] = useState('CUSTOMER');
+  const [activeTab, setActiveTab] = useState('USER');
   const [users, setUsers] = useState([]);
   const [editUser, setEditUser] = useState(null);
   const [viewUser, setViewUser] = useState(null);
@@ -25,15 +27,18 @@ const AdminUserManagement = () => {
   const [active, setActive] = useState(true);
   const [numberUser,setNumberUser] = useState();
   const [stats, setStats] = useState({
-    totalCustomers: 0,
+    totalUsers: 0,
     totalStaff: 0,
+
     totalManagers: 0
+
   });
 
   const tabs = [
-    { id: 'CUSTOMER', label: 'Customers', icon: Users, count: stats.totalCustomers, color: { from: '#1e3a8a', to: '#3b82f6' } },
+    { id: 'USER', label: 'Users', icon: Users, count: stats.totalUsers, color: { from: '#1e3a8a', to: '#3b82f6' } },
     { id: 'STAFF', label: 'Staff', icon: UserCheck, count: stats.totalStaff, color: { from: '#3b82f6', to: '#60a5fa' } },
     { id: 'MANAGER', label: 'Managers', icon: Crown, count: stats.totalManagers, color: { from: '#1d4ed8', to: '#2563eb' } },
+    { id: 'ADMIN', label: 'Admins', icon: Shield, count: stats.totalAdmins, color: { from: '#7e22ce', to: '#a855f7' } },
   ];
 
 
@@ -80,6 +85,15 @@ const AdminUserManagement = () => {
     }
   };
   const handleEditUser = (user) => {
+    console.log('User object to edit:', user);
+    console.log('Available properties:', Object.keys(user));
+    
+    // Sử dụng name thay vì id để xác định người dùng
+    if (!user.name) {
+      setError('Cannot edit user: User name is missing');
+      return;
+    }
+    
     setEditUser(user);
     setSelectedRole(user.rolename);
     setShowModal(true);
@@ -94,6 +108,7 @@ const AdminUserManagement = () => {
     if (editUser) {
       setIsLoading(true);
       try {
+
 
         console.log("Edit USer", editUser)
         const updatuser = {
@@ -110,6 +125,7 @@ const AdminUserManagement = () => {
         })
 
         // Update the user in the local state
+
         setShowModal(false);
         setEditUser(null);
       } catch (err) {
@@ -121,11 +137,13 @@ const AdminUserManagement = () => {
     }
   };
 
+
   const handleDeleteUser = async (userId) => {
     DeleteUser(userId).then((response) => {
       console.log("response delete", response.data)
       fetchUserStats();
     })
+
   };
 
 
@@ -196,7 +214,7 @@ const AdminUserManagement = () => {
             const Icon = tab.icon;
             return (
               <div
-                key={tab.id}
+                key={`stat-${tab.id}`}
                 className={`aum-stats-card${activeTab === tab.id ? ' active' : ''}`}
                 onClick={() => setActiveTab(tab.id)}
                 tabIndex={0}
@@ -216,7 +234,7 @@ const AdminUserManagement = () => {
         <nav className="aum-tabs">
           {tabs.map((tab) => (
             <button
-              key={tab.id}
+              key={`tab-${tab.id}`}
               className={`aum-tab-btn${activeTab === tab.id ? ' active' : ''}`}
               onClick={() => { setActiveTab(tab.id); setCurrentPage(1); }}
             >
@@ -257,10 +275,12 @@ const AdminUserManagement = () => {
             
             {showFilters && (
               <div className="aum-filter-dropdown">
+
                 <select value={active} onChange={(e) => setActive(e.target.value)}>
 
                   <option value={true}>Active</option>
                   <option value={false}>Inactive</option>
+
                 </select>
               </div>
             )}
@@ -308,7 +328,9 @@ const AdminUserManagement = () => {
                       </td>
                       <td>
                         <div className="aum-user-contact">
+
                           <span>{user.rolename || "N/A"}</span>
+
 
                         </div>
                       </td>
@@ -319,6 +341,7 @@ const AdminUserManagement = () => {
                         <div className="aum-actions">
                           <button title="View" onClick={() => handleViewUser(user)} className="aum-action-view"><Eye size={18} /></button>
                           <button title="Edit" onClick={() => handleEditUser(user)} className="aum-action-edit"><Edit3 size={18} /></button>
+
                           {user.active ? (
                             <button title="Delete" onClick={() => handleDeleteUser(user.personId)} className="aum-action-delete"><Trash2 size={18} /></button>
 
@@ -327,6 +350,7 @@ const AdminUserManagement = () => {
 
 
                           )}
+
 
                         </div>
                       </td>
@@ -341,7 +365,9 @@ const AdminUserManagement = () => {
         {/* Pagination */}
         <div className="aum-pagination-row">
           <div className="aum-pagination-info">
+
             Showing <span>{currentPage}</span> of <span>{totalPages}</span> results
+
           </div>
           {renderPagination(totalPages, currentPage, setCurrentPage)}
         </div>
@@ -365,12 +391,15 @@ const AdminUserManagement = () => {
                   </div>
                 </div>
                 <div className="aum-modal-info-grid">
+
                   <div><span>Status:</span> <p>{editUser.status === true ? 'Active' : 'Inactive'}</p></div>
                   <div><span>Join Date:</span> <p>{editUser.createDdate ? new Date(editUser.createdDate).toLocaleDateString('vn') : 'N/A'}</p></div>
+
                 </div>
                 <div className="aum-modal-role">
                   <label>User Role</label>
                   <div className="aum-modal-role-options">
+
 
                     <label className={`aum-role-option${selectedRole === "CUSTOMER" ? ' selected' : ''}`}>
                       <input
@@ -424,6 +453,7 @@ const AdminUserManagement = () => {
                     </label>
 
 
+
                   </div>
                 </div>
               </div>
@@ -454,9 +484,11 @@ const AdminUserManagement = () => {
                   </div>
                 </div>
                 <div className="aum-modal-info-grid">
+
                   <div><span>Status:</span> <p>{viewUser.active === true ? 'Active' : 'Inactive'}</p></div>
                   <div><span>Join Date:</span> <p>{viewUser.createdDate ? new Date(viewUser.createdDate).toLocaleDateString('en-US') : 'N/A'}</p></div>
                   <div><span>Role:</span> <p>{viewUser.rolename || 'N/A'}</p></div>
+
                 </div>
               </div>
               <div className="aum-modal-footer">
