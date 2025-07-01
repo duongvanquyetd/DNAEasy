@@ -12,4 +12,5 @@ public class UserCountResponse {
     private int staff;
     private int manager;
     private int admin;
+    private int customer;
 }
