@@ -12,74 +12,69 @@ export const UpdateInfor = (user) =>{
 export const GetStaffForAppoint = (appointmentId,size,page,keyword)=>{
     return api.get(`/appointment/staffs/${appointmentId}?size=${size}&page=${page}&keyword=${keyword}`)
 }
-export const CountAllUser = () => {
-  console.log("Calling CountAllUser API");
+// export const CountAllUser = () => {
+//   console.log("Calling CountAllUser API");
   
-  // Use the same endpoint as GetUserRoleStats for consistency
-  return api.get("/user/count-by-role")
-    .then(response => {
-      console.log("CountAllUser API response:", response);
-      if (response && response.data && response.data.total !== undefined) {
-        return { data: response.data.total };
-      }
-      return { data: 0 };
-    })
-    .catch(error => {
-      console.error("CountAllUser error:", error);
-      // Return a static value for testing if API fails
-      console.log("Using fallback value for CountAllUser");
-      return { data: 67 };  // Use the value from your screenshot
-    });
-};
+//   // Use the same endpoint as GetUserRoleStats for consistency
+//   return api.get("/user/count-by-role")
+//     .then(response => {
+//       console.log("CountAllUser API response:", response);
+//       if (response && response.data && response.data.total !== undefined) {
+//         return { data: response.data.total };
+//       }
+//       return { data: 0 };
+//     })
+//     .catch(error => {
+//       console.error("CountAllUser error:", error);
+//       // Return a static value for testing if API fails
+//       console.log("Using fallback value for CountAllUser");
+//       return { data: 67 };  // Use the value from your screenshot
+//     });
+// };
 
 // New API methods for Admin User Management
-export const GetAllUsers = (role, page, size, keyword) => {
-  const roleParam = role ? role.toLowerCase() : '';
-  
-  return api.post(`/user/filter`, { 
-    rolename: roleParam,
-    name: keyword || null
-  });
+export const GetAllUsers = ( page, size, datasearch) => {
+  return api.post(`/user/filter?page=${page}&size=${size}`,datasearch)
 };
 
-export const GetUserStats = () => {
-  console.log('Calling GetUserStats API');
+// export const GetUserStats = () => {
+//   console.log('Calling GetUserStats API');
   
-  return api.get("/user/count").then(response => {
-    const total = response.data || 0;
+//   return api.get("/user/count").then(response => {
+//     const total = response.data || 0;
     
-    return {
-      data: {
-        CUSTOMER: Math.floor(total * 0.7),
-        STAFF: Math.floor(total * 0.2),
-        MANAGER: Math.floor(total * 0.1)
-      }
-    };
-  });
-};
+//     return {
+//       data: {
+//         CUSTOMER: Math.floor(total * 0.7),
+//         STAFF: Math.floor(total * 0.2),
+//         MANAGER: Math.floor(total * 0.1)
+//       }
+//     };
+//   });
+// };
 
-// Lấy phân loại khách hàng
-export const GetCustomerCategories = () => {
-  return api.get("/user/customer_categories").then(response => {
-    // Nếu API chưa có, tạo mô phỏng dữ liệu thống kê
-    if (!response.data || typeof response.data !== 'object') {
-      // Lấy tổng số user
-      return CountAllUser().then(countRes => {
-        const totalCustomers = Math.floor(countRes.data * 0.7);
+// // Lấy phân loại khách hàng
+// export const GetCustomerCategories = () => {
+//   return api.get("/user/customer_categories").then(response => {
+//     // Nếu API chưa có, tạo mô phỏng dữ liệu thống kê
+//     if (!response.data || typeof response.data !== 'object') {
+//       // Lấy tổng số user
+//       return CountAllUser().then(countRes => {
+//         const totalCustomers = Math.floor(countRes.data * 0.7);
         
-        return {
-          data: {
-            total: totalCustomers,
-            regular: Math.floor(totalCustomers * 0.6), // Khách hàng thường xuyên
-            new: Math.floor(totalCustomers * 0.3),     // Khách hàng mới
-            vip: Math.floor(totalCustomers * 0.1)      // Khách hàng VIP
-          }
-        };
-      });
-    }
-    return response;
-  });
-};
+//         return {
+//           data: {
+//             total: totalCustomers,
+//             regular: Math.floor(totalCustomers * 0.6), // Khách hàng thường xuyên
+//             new: Math.floor(totalCustomers * 0.3),     // Khách hàng mới
+//             vip: Math.floor(totalCustomers * 0.1)      // Khách hàng VIP
+//           }
+//         };
+//       });
+//     }
+//     return response;
+//   });
+// };
 
 // Lấy số liệu người dùng theo vai trò và tháng
 export const GetUserRoleStats = (month, year) => {
@@ -135,14 +130,23 @@ export const GetUserRoleStats = (month, year) => {
     });
 };
 
-export const UpdateUserRole = (userId, role) => {
-  return api.put(`/user/role/${userId}`, { role });
+export const UpdateUserRole = (data) => {
+  return api.put(`/user/update-user`,data);
 };
 
 export const DeleteUser = (userId) => {
-  return api.delete(`/user/${userId}`);
+  return api.get(`/user/delete/${userId}`);
 };
 
 export const GetUserDetails = (userId) => {
   return api.get(`/user/${userId}`);
 };
+export const ActiveUser=(id)=>{
+  return api.get(`/user/active/${id}`)
+
+
+}
+export const ReportUser= ()=>{
+
+  return api.get("/user/count-by-role")
+}

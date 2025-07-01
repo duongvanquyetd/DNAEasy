@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Users, UserCheck, Crown, Edit3, Trash2, Plus, Filter, Download, RefreshCw, Eye, MoreVertical } from 'lucide-react';
-import { GetAllUsers, GetUserStats, UpdateUserRole, DeleteUser } from '../../service/user';
+
 import '../css/AdminUser.css';
+import { ActiveUser, DeleteUser, GetAllUsers, ReportUser, UpdateUserRole } from '../../service/user';
 
 const AdminUserManagement = () => {
   const [activeTab, setActiveTab] = useState('CUSTOMER');
@@ -9,21 +10,24 @@ const AdminUserManagement = () => {
   const [editUser, setEditUser] = useState(null);
   const [viewUser, setViewUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [pageSize] = useState(10);
-  const [error, setError] = useState(null);
 
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+  const [totalPages, setTotalPages] = useState(0);
+  const [fromdate, setFromdate] = useState('');
+  const [todate, setTodate] = useState('');
+  const [active, setActive] = useState(true);
+  const [numberUser,setNumberUser] = useState();
   const [stats, setStats] = useState({
     totalCustomers: 0,
     totalStaff: 0,
-    totalManagers: 0,
-    lastUpdated: new Date().toLocaleString('en-US')
+    totalManagers: 0
   });
 
   const tabs = [
@@ -32,112 +36,52 @@ const AdminUserManagement = () => {
     { id: 'MANAGER', label: 'Managers', icon: Crown, count: stats.totalManagers, color: { from: '#1d4ed8', to: '#2563eb' } },
   ];
 
+
+
   // Fetch user stats
   useEffect(() => {
-    const fetchUserStats = async () => {
-      try {
-        console.log('Calling GetUserStats API');
-        const response = await GetUserStats();
-        console.log('Stats response:', response);
-        
-        // Kiểm tra cấu trúc response - phù hợp với API từ backend
-        if (response.data) {
-          console.log('Stats data processed:', response.data);
-          
-          // Xử lý theo cấu trúc API trả về
-          const totalCustomers = response.data.CUSTOMER || 0;
-          const totalStaff = response.data.STAFF || 0;
-          const totalManagers = response.data.MANAGER || 0;
-          
-          setStats({
-            totalCustomers,
-            totalStaff, 
-            totalManagers,
-            lastUpdated: new Date().toLocaleString('en-US')
-          });
-        }
-      } catch (err) {
-        console.error('Error fetching user stats:', err);
-        setError('Failed to load user statistics');
-      }
-    };
+
 
     fetchUserStats();
-  }, []);
+  }, [currentPage, searchQuery, activeTab, active,fromdate,todate]);
 
-  // Fetch users based on active tab
-  useEffect(() => {
-    const fetchUsers = async () => {
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        console.log('Fetching users with params:', {
-          role: activeTab,
-          page: currentPage - 1,
-          size: pageSize,
-          keyword: searchQuery
-        });
-        
-        const response = await GetAllUsers(
-          activeTab,
-          currentPage - 1, // API uses 0-based indexing
-          pageSize,
-          searchQuery
-        );
-        
-        console.log('API Response (full):', response);
-        console.log('Response data:', response.data);
-        console.log('Response headers:', response.headers);
-        console.log('Response status:', response.status);
-        
-        // Kiểm tra token để xem có vấn đề về authentication không
-        console.log('Current token:', localStorage.getItem('token'));
-        
-        // Backend trả về mảng trực tiếp, không có cấu trúc pagination
-        if (response.data) {
-          // Thêm log chi tiết để debug
-          console.log('Setting users with:', response.data);
-          console.log('Users array type:', Array.isArray(response.data));
-          console.log('Users array length:', Array.isArray(response.data) ? response.data.length : 'not an array');
-          
-          setUsers(response.data || []);
-          // Nếu API không trả về thông tin trang, giả định 1 trang
-          setTotalPages(1);
-        } else {
-          console.error('Unexpected API response structure:', response);
-          setError('Unexpected API response format');
-        }
-      } catch (err) {
-        console.error('Error fetching users:', err);
-        console.error('Error details:', err.response ? {
-          status: err.response.status,
-          statusText: err.response.statusText,
-          data: err.response.data
-        } : 'No response');
-        
-        setError(`Failed to load users: ${err.message || 'Unknown error'}`);
-        setUsers([]);
-      } finally {
-        setIsLoading(false);
+  const fetchUserStats = async () => {
+    try {
+
+      ReportUser().then((response) => {
+        console.log("Report user", response.data)
+        setStats({
+          totalCustomers: response.data.customer,
+          totalStaff:response.data.staff ,
+          totalManagers: response.data.manager
+        })
+      })
+
+
+      console.log('Calling GetUser API');
+      const datasearch =
+      {
+        name: searchQuery,
+        rolename: activeTab,
+        active: active,
+        createdDateform: fromdate,
+        createdDateTo: todate
       }
-    };
 
-    fetchUsers();
-  }, [activeTab, currentPage, pageSize, searchQuery]);
-
-  // Debounced search
-  useEffect(() => {
-    const debounceTimer = setTimeout(() => {
-      setCurrentPage(1); // Reset to first page on new search
-    }, 500);
-
-    return () => clearTimeout(debounceTimer);
-  }, [searchQuery]);
-
+      console.log("Request data to search ", datasearch)
+      const response = await GetAllUsers(currentPage, pageSize, datasearch);
+      console.log(' response:', response.data);
+      setUsers(response.data.content)
+      setTotalPages(response.data.totalPages)
+      setNumberUser(response.data.totalElements)
+    } catch (err) {
+      console.error('Error fetching user stats:', err);
+      setError('Failed to load user statistics');
+    }
+  };
   const handleEditUser = (user) => {
     setEditUser(user);
-    setSelectedRole(user.role);
+    setSelectedRole(user.rolename);
     setShowModal(true);
   };
 
@@ -150,31 +94,22 @@ const AdminUserManagement = () => {
     if (editUser) {
       setIsLoading(true);
       try {
-        // API backend thực tế sẽ xác nhận việc cập nhật role
-        await UpdateUserRole(editUser.id, selectedRole);
-        
-        // Update the user in the local state
-        setUsers(prevUsers => 
-          prevUsers.map(user =>
-            user.id === editUser.id ? { ...user, role: selectedRole } : user
-          )
-        );
-        
-        // Refresh user stats after updating role
-        const response = await GetUserStats();
-        if (response.data) {
-          const totalCustomers = response.data.CUSTOMER || 0;
-          const totalStaff = response.data.STAFF || 0;
-          const totalManagers = response.data.MANAGER || 0;
-          
-          setStats({
-            totalCustomers,
-            totalStaff,
-            totalManagers,
-            lastUpdated: new Date().toLocaleString('en-US')
-          });
+
+        console.log("Edit USer", editUser)
+        const updatuser = {
+          personId: editUser.personId,
+          role: selectedRole
         }
-        
+        console.log("Request udpate user", updatuser)
+
+        // API backend thực tế sẽ xác nhận việc cập nhật role
+        UpdateUserRole(updatuser).then((response) => {
+          console.log("Update user", response.data)
+          // Refresh user stats after updating role
+          fetchUserStats();
+        })
+
+        // Update the user in the local state
         setShowModal(false);
         setEditUser(null);
       } catch (err) {
@@ -187,41 +122,36 @@ const AdminUserManagement = () => {
   };
 
   const handleDeleteUser = async (userId) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      setIsLoading(true);
-      try {
-        await DeleteUser(userId);
-        
-        // Xóa user khỏi state
-        setUsers(users.filter(user => user.id !== userId));
-        
-        // Cập nhật lại thống kê sau khi xóa
-        const response = await GetUserStats();
-        if (response.data) {
-          const totalCustomers = response.data.CUSTOMER || 0;
-          const totalStaff = response.data.STAFF || 0;
-          const totalManagers = response.data.MANAGER || 0;
-          
-          setStats({
-            totalCustomers,
-            totalStaff,
-            totalManagers,
-            lastUpdated: new Date().toLocaleString('en-US')
-          });
-        }
-      } catch (err) {
-        console.error('Error deleting user:', err);
-        setError(`Failed to delete user: ${err.message || 'Unknown error'}`);
-      } finally {
-        setIsLoading(false);
-      }
-    }
+    DeleteUser(userId).then((response) => {
+      console.log("response delete", response.data)
+      fetchUserStats();
+    })
   };
 
+
+  const handleActiveeUser = async (userId) => {
+    ActiveUser(userId).then((response) => {
+      console.log("response delete", response.data)
+      fetchUserStats();
+    })
+  };
+  const renderPagination = (total, current) => (
+    <div className="pagination">
+      {Array.from({ length: total }, (_, i) => i + 1).map((i) => (
+        <button
+          key={i}
+          className={`page-button ${i === current ? 'active' : ''}`}
+          onClick={() => setCurrentPage(i)}
+        >
+          {i}
+        </button>
+      ))}
+    </div>
+  );
   const getStatusBadge = (status) => {
     // Chuyển đổi status từ boolean sang text
     const isActive = status === true;
-    
+
     return isActive ? (
       <div className="status-badge active">
         Active
@@ -282,7 +212,7 @@ const AdminUserManagement = () => {
           })}
         </section>
 
-        {/* Tabs */}
+        
         <nav className="aum-tabs">
           {tabs.map((tab) => (
             <button
@@ -291,7 +221,7 @@ const AdminUserManagement = () => {
               onClick={() => { setActiveTab(tab.id); setCurrentPage(1); }}
             >
               {tab.label}
-              <span className="aum-tab-count">{tab.count}</span>
+            { activeTab === tab.id && ( <span className="aum-tab-count">{activeTab === tab.id ? numberUser :''}</span>)}
             </button>
           ))}
         </nav>
@@ -302,7 +232,7 @@ const AdminUserManagement = () => {
             <Search size={18} />
             <input
               type="text"
-              placeholder={`Search ${tabs.find(t => t.id === activeTab)?.label.toLowerCase()}...`}
+              placeholder={`Search ${selectedRole} by name ...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -311,16 +241,31 @@ const AdminUserManagement = () => {
             <button onClick={() => setShowFilters(!showFilters)} className="aum-filter-btn">
               <Filter size={18} /> Filter
             </button>
+             <input
+                  type="date"
+                  value={fromdate}
+                  onChange={(e) => setFromdate(e.target.value)}
+                 
+                />
+                <span style={{ color: '#64748b' }}>to</span>
+                <input
+                  type="date"
+                  value={todate}
+                  onChange={(e) => setTodate(e.target.value)}
+                  
+                />
+            
             {showFilters && (
               <div className="aum-filter-dropdown">
-                <select>
-                  <option>All Statuses</option>
-                  <option>Active</option>
-                  <option>Inactive</option>
+                <select value={active} onChange={(e) => setActive(e.target.value)}>
+
+                  <option value={true}>Active</option>
+                  <option value={false}>Inactive</option>
                 </select>
               </div>
             )}
           </div>
+          
         </div>
 
         {/* Error display */}
@@ -344,38 +289,45 @@ const AdminUserManagement = () => {
                 <thead>
                   <tr>
                     <th>User</th>
-                    <th>Contact</th>
+                    <th>Role</th>
                     <th>Status</th>
                     <th>Join Date</th>
-                    <th>Last Login</th>
-                    <th>Actions</th>
+
                   </tr>
                 </thead>
                 <tbody>
                   {users.map((user, i) => (
-                    <tr key={user.id}>
+                    <tr key={user.personId}>
                       <td>
                         <div className="aum-user-info">
-                          <div className="aum-avatar" style={{ background: getAvatarColor(i) }}>
-                            {user.name ? user.name.substring(0, 2).toUpperCase() : 'NA'}
-                          </div>
+                          
+                          <img className="aum-avatar" src={user.avatarUrl} alt="" />
+                         
                           <div className="aum-user-name">{user.name}</div>
                         </div>
                       </td>
                       <td>
                         <div className="aum-user-contact">
-                          <span>{user.email || "N/A"}</span>
-                          <span>{user.phone || "N/A"}</span>
+                          <span>{user.rolename || "N/A"}</span>
+
                         </div>
                       </td>
-                      <td>{getStatusBadge(user.status)}</td>
+                      <td>{getStatusBadge(user.active)}</td>
                       <td>{user.createdDate ? new Date(user.createdDate).toLocaleDateString('en-US') : 'N/A'}</td>
-                      <td>{user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('en-US') : 'N/A'}</td>
+
                       <td>
                         <div className="aum-actions">
                           <button title="View" onClick={() => handleViewUser(user)} className="aum-action-view"><Eye size={18} /></button>
                           <button title="Edit" onClick={() => handleEditUser(user)} className="aum-action-edit"><Edit3 size={18} /></button>
-                          <button title="Delete" onClick={() => handleDeleteUser(user.id)} className="aum-action-delete"><Trash2 size={18} /></button>
+                          {user.active ? (
+                            <button title="Delete" onClick={() => handleDeleteUser(user.personId)} className="aum-action-delete"><Trash2 size={18} /></button>
+
+                          ) : (
+                            <button title="Delete" onClick={() => handleActiveeUser(user.personId)} className="aum-action-restore	">Restore</button>
+
+
+                          )}
+
                         </div>
                       </td>
                     </tr>
@@ -389,21 +341,9 @@ const AdminUserManagement = () => {
         {/* Pagination */}
         <div className="aum-pagination-row">
           <div className="aum-pagination-info">
-            Showing <span>{users.length}</span> of <span>{tabs.find(t => t.id === activeTab)?.count}</span> results
+            Showing <span>{currentPage}</span> of <span>{totalPages}</span> results
           </div>
-          <div className="aum-pagination-btns">
-            <button disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>&larr; Previous</button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                className={page === currentPage ? 'active' : ''}
-                onClick={() => setCurrentPage(page)}
-              >
-                {page}
-              </button>
-            ))}
-            <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)}>Next &rarr;</button>
-          </div>
+          {renderPagination(totalPages, currentPage, setCurrentPage)}
         </div>
 
         {/* Edit Modal */}
@@ -426,27 +366,64 @@ const AdminUserManagement = () => {
                 </div>
                 <div className="aum-modal-info-grid">
                   <div><span>Status:</span> <p>{editUser.status === true ? 'Active' : 'Inactive'}</p></div>
-                  <div><span>Join Date:</span> <p>{editUser.createdDate ? new Date(editUser.createdDate).toLocaleDateString('en-US') : 'N/A'}</p></div>
+                  <div><span>Join Date:</span> <p>{editUser.createDdate ? new Date(editUser.createdDate).toLocaleDateString('vn') : 'N/A'}</p></div>
                 </div>
                 <div className="aum-modal-role">
                   <label>User Role</label>
                   <div className="aum-modal-role-options">
-                    {tabs.map((tab) => {
-                      const Icon = tab.icon;
-                      return (
-                        <label key={tab.id} className={`aum-role-option${selectedRole === tab.id ? ' selected' : ''}`}>
-                          <input
-                            type="radio"
-                            name="role"
-                            value={tab.id}
-                            checked={selectedRole === tab.id}
-                            onChange={(e) => setSelectedRole(e.target.value)}
-                          />
-                          <span className="aum-role-icon"><Icon size={20} /></span>
-                          <span>{tab.label}</span>
-                        </label>
-                      );
-                    })}
+
+                    <label className={`aum-role-option${selectedRole === "CUSTOMER" ? ' selected' : ''}`}>
+                      <input
+                        type="radio"
+                        name="role"
+                        value="CUSTOMER"
+                        onChange={(e) => setSelectedRole(e.target.value)}
+                      />
+                      <span className="aum-role-icon"></span>
+                      <span>CUSTOMER</span>
+                    </label>
+                    <label className={`aum-role-option${selectedRole === "STAFF_RECEPTION" ? ' selected' : ''}`}>
+                      <input
+                        type="radio"
+                        name="role"
+                        value="STAFF_RECEPTION"
+                        onChange={(e) => setSelectedRole(e.target.value)}
+                      />
+                      <span className="aum-role-icon"></span>
+                      <span>STAFF RECEPTION</span>
+                    </label>
+                    <label className={`aum-role-option${selectedRole === "STAFF_LAB" ? ' selected' : ''}`}>
+                      <input
+                        type="radio"
+                        name="role"
+                        value="STAFF_LAB"
+                        onChange={(e) => setSelectedRole(e.target.value)}
+                      />
+                      <span className="aum-role-icon"></span>
+                      <span>STAFF LAB</span>
+                    </label>
+                    <label className={`aum-role-option${selectedRole === "STAFF_TEST" ? ' selected' : ''}`}>
+                      <input
+                        type="radio"
+                        name="role"
+                        value="STAFF_TEST"
+                        onChange={(e) => setSelectedRole(e.target.value)}
+                      />
+                      <span className="aum-role-icon"></span>
+                      <span>STAFF TEST</span>
+                    </label>
+                    <label className={`aum-role-option${selectedRole === "MANAGER" ? ' selected' : ''}`}>
+                      <input
+                        type="radio"
+                        name="role"
+                        value="MANAGER"
+                        onChange={(e) => setSelectedRole(e.target.value)}
+                      />
+                      <span className="aum-role-icon"></span>
+                      <span>MANAGER</span>
+                    </label>
+
+
                   </div>
                 </div>
               </div>
@@ -477,9 +454,9 @@ const AdminUserManagement = () => {
                   </div>
                 </div>
                 <div className="aum-modal-info-grid">
-                  <div><span>Status:</span> <p>{viewUser.status === true ? 'Active' : 'Inactive'}</p></div>
+                  <div><span>Status:</span> <p>{viewUser.active === true ? 'Active' : 'Inactive'}</p></div>
                   <div><span>Join Date:</span> <p>{viewUser.createdDate ? new Date(viewUser.createdDate).toLocaleDateString('en-US') : 'N/A'}</p></div>
-                  <div><span>Role:</span> <p>{viewUser.role || 'N/A'}</p></div>
+                  <div><span>Role:</span> <p>{viewUser.rolename || 'N/A'}</p></div>
                 </div>
               </div>
               <div className="aum-modal-footer">
