@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import { Search, Users, UserCheck, Crown, Edit3, Trash2, Plus, Filter, Download, RefreshCw, Eye, MoreVertical } from 'lucide-react';
+import { Search, Users, UserCheck, Crown, Edit3, Trash2, Plus, Filter, Download, RefreshCw, Eye, MoreVertical, Shield } from 'lucide-react';
 
 
 import '../css/AdminUser.css';
@@ -25,17 +25,17 @@ const AdminUserManagement = () => {
   const [fromdate, setFromdate] = useState('');
   const [todate, setTodate] = useState('');
   const [active, setActive] = useState(true);
-  const [numberUser,setNumberUser] = useState();
+  const [numberUser, setNumberUser] = useState();
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalStaff: 0,
-
+    totalAdmins: 0,
     totalManagers: 0
 
   });
 
   const tabs = [
-    { id: 'USER', label: 'Users', icon: Users, count: stats.totalUsers, color: { from: '#1e3a8a', to: '#3b82f6' } },
+    { id: 'CUSTOMER', label: 'Users', icon: Users, count: stats.totalUsers, color: { from: '#1e3a8a', to: '#3b82f6' } },
     { id: 'STAFF', label: 'Staff', icon: UserCheck, count: stats.totalStaff, color: { from: '#3b82f6', to: '#60a5fa' } },
     { id: 'MANAGER', label: 'Managers', icon: Crown, count: stats.totalManagers, color: { from: '#1d4ed8', to: '#2563eb' } },
     { id: 'ADMIN', label: 'Admins', icon: Shield, count: stats.totalAdmins, color: { from: '#7e22ce', to: '#a855f7' } },
@@ -48,7 +48,7 @@ const AdminUserManagement = () => {
 
 
     fetchUserStats();
-  }, [currentPage, searchQuery, activeTab, active,fromdate,todate]);
+  }, [currentPage, searchQuery, activeTab, active, fromdate, todate]);
 
   const fetchUserStats = async () => {
     try {
@@ -56,9 +56,10 @@ const AdminUserManagement = () => {
       ReportUser().then((response) => {
         console.log("Report user", response.data)
         setStats({
-          totalCustomers: response.data.customer,
-          totalStaff:response.data.staff ,
-          totalManagers: response.data.manager
+          totalUsers: response.data.customer,
+          totalStaff: response.data.staff,
+          totalManagers: response.data.manager,
+          totalAdmins: response.data.admin
         })
       })
 
@@ -87,13 +88,13 @@ const AdminUserManagement = () => {
   const handleEditUser = (user) => {
     console.log('User object to edit:', user);
     console.log('Available properties:', Object.keys(user));
-    
+
     // Sử dụng name thay vì id để xác định người dùng
     if (!user.name) {
       setError('Cannot edit user: User name is missing');
       return;
     }
-    
+
     setEditUser(user);
     setSelectedRole(user.rolename);
     setShowModal(true);
@@ -223,14 +224,14 @@ const AdminUserManagement = () => {
                 <div className="aum-stats-icon"><Icon size={32} /></div>
                 <div className="aum-stats-info">
                   <span className="aum-stats-label">{tab.label}</span>
-                  <span className="aum-stats-value">{tab.count.toLocaleString()}</span>
+                  <span className="aum-stats-value">{tab.count}</span>
                 </div>
               </div>
             );
           })}
         </section>
 
-        
+
         <nav className="aum-tabs">
           {tabs.map((tab) => (
             <button
@@ -239,7 +240,7 @@ const AdminUserManagement = () => {
               onClick={() => { setActiveTab(tab.id); setCurrentPage(1); }}
             >
               {tab.label}
-            { activeTab === tab.id && ( <span className="aum-tab-count">{activeTab === tab.id ? numberUser :''}</span>)}
+              {activeTab === tab.id && (<span className="aum-tab-count">{activeTab === tab.id ? numberUser : ''}</span>)}
             </button>
           ))}
         </nav>
@@ -259,20 +260,20 @@ const AdminUserManagement = () => {
             <button onClick={() => setShowFilters(!showFilters)} className="aum-filter-btn">
               <Filter size={18} /> Filter
             </button>
-             <input
-                  type="date"
-                  value={fromdate}
-                  onChange={(e) => setFromdate(e.target.value)}
-                 
-                />
-                <span style={{ color: '#64748b' }}>to</span>
-                <input
-                  type="date"
-                  value={todate}
-                  onChange={(e) => setTodate(e.target.value)}
-                  
-                />
-            
+            <input
+              type="date"
+              value={fromdate}
+              onChange={(e) => setFromdate(e.target.value)}
+
+            />
+            <span style={{ color: '#64748b' }}>to</span>
+            <input
+              type="date"
+              value={todate}
+              onChange={(e) => setTodate(e.target.value)}
+
+            />
+
             {showFilters && (
               <div className="aum-filter-dropdown">
 
@@ -285,7 +286,7 @@ const AdminUserManagement = () => {
               </div>
             )}
           </div>
-          
+
         </div>
 
         {/* Error display */}
@@ -320,9 +321,9 @@ const AdminUserManagement = () => {
                     <tr key={user.personId}>
                       <td>
                         <div className="aum-user-info">
-                          
+
                           <img className="aum-avatar" src={user.avatarUrl} alt="" />
-                         
+
                           <div className="aum-user-name">{user.name}</div>
                         </div>
                       </td>

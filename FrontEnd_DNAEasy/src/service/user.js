@@ -36,7 +36,7 @@ export const GetStaffForAppoint = (appointmentId,size,page,keyword)=>{
 
 export const GetAllUsers = ( page, size, datasearch) => {
   return api.post(`/user/filter?page=${page}&size=${size}`,datasearch)
-
+}
 
 // export const GetUserStats = () => {
 //   console.log('Calling GetUserStats API');
