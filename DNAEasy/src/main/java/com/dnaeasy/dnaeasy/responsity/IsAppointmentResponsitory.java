@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -32,7 +33,7 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
             or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))    
              )
             and a.curentStatusAppointment not in (:list) 
-           
+            
             
             """)
     List<Appointment> findAllByStaffAndCurentStatusAppointmentNotIn(Person staff, Collection<String> list, String keysearch);
@@ -48,6 +49,7 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
             or lower(a.service.serviceName) like  lower(concat('%',:keysearch,'%'))  
             or lower(a.emailAppointment) like lower(concat('%',:keysearch,'%')) 
             or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))    
+            or lower(a.customer.name) like lower(concat('%',:keysearch,'%'))    
              )
             and a.curentStatusAppointment not in (:list) 
             
@@ -68,11 +70,12 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
             or lower(a.service.serviceName) like  lower(concat('%',:keysearch,'%'))  
             or lower(a.emailAppointment) like lower(concat('%',:keysearch,'%')) 
             or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))    
+            or lower(a.customer.name) like lower(concat('%',:keysearch,'%')) 
              )
             and a.curentStatusAppointment not in (:list) 
             
             """)
-    List<Appointment> findAllByCurentStatusAppointmentNotIn(Collection<String> list,String keysearch);
+    List<Appointment> findAllByCurentStatusAppointmentNotIn(Collection<String> list, String keysearch);
 
 
     @Query("""
@@ -85,14 +88,12 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
             or lower(a.service.serviceName) like  lower(concat('%',:keysearch,'%'))  
             or lower(a.emailAppointment) like lower(concat('%',:keysearch,'%')) 
             or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))    
+            or lower(a.customer.name) like lower(concat('%',:keysearch,'%')) 
              )
             and a.curentStatusAppointment  in (:list) 
             
             """)
-    Page<Appointment> findAllByStaffAndCurentStatusAppointmentIsIn(Person staff, Collection<String> list,String keysearch,Pageable pageable);
-
-
-
+    Page<Appointment> findAllByStaffAndCurentStatusAppointmentIsIn(Person staff, Collection<String> list, String keysearch, Pageable pageable);
 
 
     @Query("""
@@ -104,13 +105,13 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
             or lower(a.typeCollect) like lower(concat('%',:keysearch,'%'))  
             or lower(a.service.serviceName) like  lower(concat('%',:keysearch,'%'))  
             or lower(a.emailAppointment) like lower(concat('%',:keysearch,'%')) 
-            or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))    
+            or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))  
+            or lower(a.customer.name) like lower(concat('%',:keysearch,'%'))   
              )
             and a.curentStatusAppointment  in (:list) 
             
             """)
-    Page<Appointment> findAllByCustomerAndCurentStatusAppointmentIsIn(Person customer, Collection<String> list, String keysearch,Pageable pageable);
-
+    Page<Appointment> findAllByCustomerAndCurentStatusAppointmentIsIn(Person customer, Collection<String> list, String keysearch, Pageable pageable);
 
 
     @Query("""
@@ -122,13 +123,14 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
             or lower(a.typeCollect) like lower(concat('%',:keysearch,'%'))  
             or lower(a.service.serviceName) like  lower(concat('%',:keysearch,'%'))  
             or lower(a.emailAppointment) like lower(concat('%',:keysearch,'%')) 
-            or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))    
+            or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))   
+            or lower(a.customer.name) like lower(concat('%',:keysearch,'%'))  
              )
             and a.curentStatusAppointment  in (:list) 
             and a.appointmentId in (Select p.appointment.appointmentId from Payment p where p.staffReception =:staff)
             
             """)
-    Page<Appointment> findALLByPayment_StaffReceptionAndCurentStatusAppointmentIsIn(Person staff, Collection<String> list,String keysearch,Pageable pageable);
+    Page<Appointment> findALLByPayment_StaffReceptionAndCurentStatusAppointmentIsIn(Person staff, Collection<String> list, String keysearch, Pageable pageable);
 
     boolean existsByCustomer_PersonIdAndService_ServiceIdAndCurentStatusAppointmentIsIn(int customerPersonId, int serviceServiceId, Collection<String> curentStatusAppointments);
 
@@ -186,12 +188,12 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
             or lower(a.typeCollect) like lower(concat('%',:keysearch,'%'))  
             or lower(a.service.serviceName) like  lower(concat('%',:keysearch,'%'))  
             or lower(a.emailAppointment) like lower(concat('%',:keysearch,'%')) 
-            or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))    
+            or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))
+            or lower(a.customer.name) like lower(concat('%',:keysearch,'%'))     
              )
             and a.appointmentId in (select s.appointment.appointmentId  from Sample  s where s.sampleid in (:sampleid))
             """)
-    Page<Appointment> findByStaffLabAndCurrentAppointmnetIsIn(List<Integer> sampleid ,String keysearch,Pageable pageable);
-
+    Page<Appointment> findByStaffLabAndCurrentAppointmnetIsIn(List<Integer> sampleid, String keysearch, Pageable pageable);
 
 
     @Query("""
@@ -204,10 +206,12 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
             or lower(a.service.serviceName) like  lower(concat('%',:keysearch,'%'))  
             or lower(a.emailAppointment) like lower(concat('%',:keysearch,'%')) 
             or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))    
+            or lower(a.customer.name) like lower(concat('%',:keysearch,'%')) 
              )
             and a.curentStatusAppointment  in (:list) 
             and a.appointmentId in (select p.appointment.appointmentId from Payment p where p.paymentStatus = false and p.isExpense = false)
             """)
+
     List<Appointment>findAllByPaymentStatusIsFalseAndExpenseIsFalseAndAppointment_CurentStatusAppointmentIsIn(String keysearch,List<String> list);
 
     @Query("select count(a) from Appointment a")
@@ -224,4 +228,52 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
     
     @Query("select count(a) from Appointment a where a.curentStatusAppointment = 'REFUNDED'")
     int countRefundedAppointments();
+
+//    List<Appointment> findAllByPaymentStatusIsFalseAndExpenseIsFalseAndAppointment_CurentStatusAppointmentIsIn(String keysearch, List<String> list);
+
+    List<Appointment> findALLByCurentStatusAppointmentIn(Collection<String> curentStatusAppointments);
+
+    @Query("""
+            select  a from Appointment  a where 
+             (
+            lower(a.location) like lower(concat('%',:keysearch,'%')) 
+            or :keysearch is null 
+            or lower(a.curentStatusAppointment) like lower(concat('%',:keysearch,'%') ) 
+            or lower(a.typeCollect) like lower(concat('%',:keysearch,'%'))  
+            or lower(a.service.serviceName) like  lower(concat('%',:keysearch,'%'))  
+            or lower(a.emailAppointment) like lower(concat('%',:keysearch,'%')) 
+            or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))    
+           or lower(a.customer.name) like lower(concat('%',:keysearch,'%'))   
+             )
+            and a.curentStatusAppointment  in ('COMPLETE') 
+            and a.customer.personId in (select c.customer.personId from Comment  c)
+            """)
+    List<Appointment> findALLAppointmentHaveCommnent(String keysearch);
+
+    int countByStaff(Person staff);
+
+
+
+@Query("""
+        select  a from Appointment  a where
+        a.dateCollect between :fromdate and :todate
+        
+""")
+    List<Appointment> findAllByDateCollect(LocalDateTime fromdate,LocalDateTime todate);
+
+
+    @Query("""
+        select  count(*) from Appointment  a where
+        a.dateCollect between :star and :end
+        and a.curentStatusAppointment = :list
+""")
+    Long countByDateCollectAndCurentStatusAppointmentIsLike(LocalDateTime star , LocalDateTime end, String list);
+
+    @Query("""
+        select   count(*)  from Appointment  a where
+        a.dateCollect between :star and :end
+        and a.curentStatusAppointment not in (:list)
+""")
+    Long countAppointmentInprocess(LocalDateTime star , LocalDateTime end, List<String> list);
+
 }

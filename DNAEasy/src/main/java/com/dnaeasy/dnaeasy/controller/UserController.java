@@ -8,10 +8,15 @@ import com.dnaeasy.dnaeasy.dto.response.UserCountResponse;
 import com.dnaeasy.dnaeasy.dto.response.UserFilterRespone;
 import com.dnaeasy.dnaeasy.dto.response.UserReportReponse;
 import com.dnaeasy.dnaeasy.dto.response.UserResponse;
+import com.dnaeasy.dnaeasy.enums.RoleName;
 import com.dnaeasy.dnaeasy.service.impl.UserService;
 import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -63,8 +68,13 @@ public class UserController {
     }
 
     @PostMapping("/filter")
-    public ResponseEntity<List<UserFilterRespone>> filterUser(@RequestBody UserFilterRequest request){
-        List<UserFilterRespone> filter = userService.filterUser(request);
+    public ResponseEntity<Page<UserFilterRespone>> filterUser(@RequestBody UserFilterRequest request,
+
+                                                              @RequestParam("page") int page, @RequestParam("size") int size
+        ){
+
+        Pageable pagee = PageRequest.of(page-1, size, Sort.by("createdDate").descending());
+        Page<UserFilterRespone> filter = userService.filterUser(request,pagee);
         return ResponseEntity.ok(filter);
     }
 
@@ -84,7 +94,13 @@ public class UserController {
     }
 
     @GetMapping("/count-by-role")
-    public ResponseEntity<UserCountResponse> getUserCounts() {
+    public ResponseEntity<UserCountResponse> getUserCounts( ){
         return ResponseEntity.ok(userService.getUserCounts());
+    }
+
+    @GetMapping("/active/{id}")
+    public ResponseEntity<Void> isActive(@PathVariable("id") int id) {
+        userService.ActiveUser(id);
+        return ResponseEntity.ok().build();
     }
 }

@@ -1,6 +1,7 @@
 package com.dnaeasy.dnaeasy.responsity;
 
 import com.dnaeasy.dnaeasy.enity.Person;
+import com.dnaeasy.dnaeasy.enums.RoleName;
 import com.dnaeasy.dnaeasy.enums.Work_hour;
 import jakarta.transaction.Transactional;
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -51,7 +52,12 @@ public interface IsUserResponsity extends JpaRepository<Person, String> {
 
     @Query("Select  p from Person p where p.rolename = 'STAFF_TEST' and p.work_hour =:workHour and p.personId not in (Select a.staff.personId from Appointment a where (a.dateCollect between :starday and :endday) and a.curentStatusAppointment not in ('COMPLETE','CANCLE','REFUNDED') and a.staff.work_hour  =:workHour )")
     Page<Person> findStaffByWorkHour(LocalDateTime starday , LocalDateTime endday, Work_hour workHour, Pageable pageable) ;
-    @Query("Select  p from Person p where p.rolename = 'STAFF_TEST' and p.work_hour =:workHour and p.personId not in (Select a.staff.personId from Appointment a where (a.dateCollect between :starday and :endday) and a.curentStatusAppointment not in ('COMPLETE','CANCLE','REFUNDED') and a.staff.work_hour  =:workHour ) and (lower(p.name) like lower( concat('%',:keyword,'%')) or lower(concat(p.streets,',',p.district,',',p.city ) ) like lower( concat('%',:keyword,'%')) )")
+    @Query("Select  p from Person p where p.rolename = 'STAFF_TEST' " +
+            "and p.work_hour =:workHour " +
+            "and p.personId not in (Select a.staff.personId from Appointment a where (a.dateCollect between :starday and :endday) " +
+            "and a.curentStatusAppointment not in ('COMPLETE','CANCLE','REFUNDED') " +
+            "and a.staff.work_hour  =:workHour ) " +
+            "and (lower(p.name) like lower( concat('%',:keyword,'%')) or lower(concat(p.streets,',',p.district,',',p.city ) ) like lower( concat('%',:keyword,'%')) )")
     Page<Person> findStaffByWorkHourWithKeyWord(LocalDateTime starday , LocalDateTime endday, Work_hour workHour, Pageable pageable,String keyword) ;
 
    
@@ -94,5 +100,19 @@ public interface IsUserResponsity extends JpaRepository<Person, String> {
     
     @Query("select count(p) from Person p where p.rolename = 'ADMIN'")
     int countAdminUsers();
+
+
+    @Query("""
+            select p from Person p where (lower(p.name) like  lower(concat('%',:keyword,'%')) or :keyword is null) and (:start is null 
+                        
+            or :end is null or p.createdDate between :start and :end ) 
+            and lower(p.rolename) like  lower(concat('%',:roleName,'%'))
+                        and (:active is null or p.active = :active)
+            
+
+            """)
+    Page<Person> findByFilter(String keyword, String roleName, LocalDateTime start, LocalDateTime end, Pageable pageable,boolean active);
+
+    int countByRolename(RoleName rolename);
 }
 

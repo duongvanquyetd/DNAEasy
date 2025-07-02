@@ -1,9 +1,6 @@
 package com.dnaeasy.dnaeasy.service;
 
-import com.dnaeasy.dnaeasy.dto.request.AppoinmetnAssignRequest;
-import com.dnaeasy.dnaeasy.dto.request.AppointmentCreateRequest;
-import com.dnaeasy.dnaeasy.dto.request.StaticRequest;
-import com.dnaeasy.dnaeasy.dto.request.StatusUpdateAppointment;
+import com.dnaeasy.dnaeasy.dto.request.*;
 
 import com.dnaeasy.dnaeasy.dto.response.*;
 
@@ -41,7 +38,7 @@ public interface IsAppointmentService {
     int getCompletedAppointmentsToday();
     List<AppointmentResponse> getAppointmentYesterday();
 
-    Page<AppointmentResponse> getAppointmnetForMangerShiftStaff(Pageable pageable);
+    Page<AppointmentAssingResponse> getAppointmnetForMangerShiftStaff(Pageable pageable);
     AppointmentResponse AssignStaffForApp(AppoinmetnAssignRequest request);
     Page<StaffResponse> getStaffForAppointment(int appointmentId,String keyword,Pageable pageable);
     boolean CanRefund(int appointmentId);
@@ -53,6 +50,12 @@ public interface IsAppointmentService {
     List<TopServiceReponse> findTopService();
     List<RevenueChartResponse> getRevenueStats(String type, LocalDate from, LocalDate to, Integer year);
 
+
+    List<AppointmentReportResponse> getAppointmentReport(AppointmnetReportRequest request);
+
+
+
     AppointmentStatsResponse getAppointmentStats();
+
 
 }

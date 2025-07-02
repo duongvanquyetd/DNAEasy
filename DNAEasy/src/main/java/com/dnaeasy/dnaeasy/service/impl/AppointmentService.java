@@ -1,9 +1,6 @@
 package com.dnaeasy.dnaeasy.service.impl;
 
-import com.dnaeasy.dnaeasy.dto.request.AppoinmetnAssignRequest;
-import com.dnaeasy.dnaeasy.dto.request.AppointmentCreateRequest;
-import com.dnaeasy.dnaeasy.dto.request.StaticRequest;
-import com.dnaeasy.dnaeasy.dto.request.StatusUpdateAppointment;
+import com.dnaeasy.dnaeasy.dto.request.*;
 
 import com.dnaeasy.dnaeasy.dto.response.AppointCreateResponse;
 import com.dnaeasy.dnaeasy.dto.response.AppointmentResponse;
@@ -274,8 +271,6 @@ public class AppointmentService implements IsAppointmentService {
         list.add("COMPLETE");
         list.add("REFUNDED");
         List<Appointment> listpaging = new ArrayList<>();
-
-
         // staff lab cung nen hien nhung cai ma thuoc ve ca cua minh va nhung cai minh can confirm
         if (p.getRolename().equals(RoleName.STAFF_TEST)) {
             list.add("WAITING FOR PAYMENT");
@@ -500,11 +495,18 @@ public class AppointmentService implements IsAppointmentService {
     }
 
     @Override
-    public Page<AppointmentResponse> getAppointmnetForMangerShiftStaff(Pageable pageable) {
+    public Page<AppointmentAssingResponse> getAppointmnetForMangerShiftStaff(Pageable pageable) {
         Page<Appointment> appointments = isAppointmentResponsitory.findForMangerAssign(pageable);
+        Page<AppointmentAssingResponse> assingResponses = appointments.map(appointmentMapper::ApointmenetToAppoinAssingResponse);
+        for (Appointment appointment : appointments.getContent()) {
 
-
-        return appointments.map(appointmentMapper::AppointmentCreateResponse);
+            for (AppointmentAssingResponse assingResponse : assingResponses.getContent()) {
+                if (assingResponse.getAppointmentId() == appointment.getAppointmentId() && appointment.getStaff() != null) {
+                    assingResponse.setStaffResponse(userMapper.PersonToStaffResponse(appointment.getStaff()));
+                }
+            }
+        }
+        return assingResponses;
     }
 
     @Override
@@ -550,7 +552,14 @@ public class AppointmentService implements IsAppointmentService {
         } else {
             list = isUserResponsity.findStaffByWorkHourWithKeyWord(startDay, endDay, Work_hour(a.getDateCollect()), pageable, keyword);
         }
-        return list.map(userMapper::PersonToStaffResponse);
+        Page<StaffResponse> responses = list.map(userMapper::PersonToStaffResponse);
+        for (int i = 0; i < responses.getContent().size(); i++) {
+
+            responses.getContent().get(i).setAssignCount(isAppointmentResponsitory.countByStaff(list.getContent().get(i)));
+
+
+        }
+        return responses;
     }
 
     @Override
@@ -806,6 +815,7 @@ public class AppointmentService implements IsAppointmentService {
         return new AppointmentStatsResponse(total, completed, inProgress, cancelled, refunded);
     }
 
+
     @Override
     public List<RevenueDataPoint> getSimplifiedRevenueData(String startDate, String endDate) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -830,6 +840,42 @@ public class AppointmentService implements IsAppointmentService {
             current = current.plusDays(1);
         }
         return chartData;
+
+    @Override
+    public List<AppointmentReportResponse> getAppointmentReport(AppointmnetReportRequest request) {
+
+        List<Appointment> appointments = isAppointmentResponsitory.findAllByDateCollect(request.getFromdate().atStartOfDay(), request.getTodate().atStartOfDay());
+        List<AppointmentReportResponse> responses = new ArrayList<>();
+        for (Appointment a : appointments) {
+            int cout = 0;
+            if (responses.size() > 0) {
+
+                for (AppointmentReportResponse r : responses) {
+                    if (LocalDate.from(a.getDateCollect()).equals(r.getAppointmentDate())) {
+                        cout++;
+                    }
+                }
+            }
+            if (cout == 0) {
+                AppointmentReportResponse response = new AppointmentReportResponse();
+                response.setAppointmentDate(LocalDate.from(a.getDateCollect()));
+                LocalDate time = LocalDate.from(a.getDateCollect());
+                response.setComplete(isAppointmentResponsitory.countByDateCollectAndCurentStatusAppointmentIsLike(time.atStartOfDay(), time.plusDays(1).atStartOfDay(), "COMPLETE"));
+                response.setCancle(isAppointmentResponsitory.countByDateCollectAndCurentStatusAppointmentIsLike(time.atStartOfDay(), time.plusDays(1).atStartOfDay(), "CANCLE"));
+                response.setRefunded(isAppointmentResponsitory.countByDateCollectAndCurentStatusAppointmentIsLike(time.atStartOfDay(), time.plusDays(1).atStartOfDay(), "REFUNDED"));
+                List<String> list = new ArrayList<>();
+                list.add("COMPLETE");
+                list.add("CANCLE");
+                list.add("REFUNDED");
+                response.setInprocess(isAppointmentResponsitory.countAppointmentInprocess(time.atStartOfDay(), time.plusDays(1).atStartOfDay(), list));
+                responses.add(response);
+
+            }
+
+
+        }
+        return responses;
+
     }
 
 }

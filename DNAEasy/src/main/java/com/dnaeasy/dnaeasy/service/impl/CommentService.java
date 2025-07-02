@@ -2,10 +2,11 @@ package com.dnaeasy.dnaeasy.service.impl;
 
 
 import com.dnaeasy.dnaeasy.dto.request.CommentRequest;
+import com.dnaeasy.dnaeasy.dto.request.SearchCommnentRequest;
 import com.dnaeasy.dnaeasy.dto.response.CommentReponse;
-import com.dnaeasy.dnaeasy.enity.Comment;
-import com.dnaeasy.dnaeasy.enity.CommentImage;
-import com.dnaeasy.dnaeasy.enity.Person;
+import com.dnaeasy.dnaeasy.dto.response.CommentReportResponse;
+import com.dnaeasy.dnaeasy.dto.response.ManageCommentResponse;
+import com.dnaeasy.dnaeasy.enity.*;
 import com.dnaeasy.dnaeasy.exception.ResourceNotFound;
 import com.dnaeasy.dnaeasy.mapper.CommentMapper;
 import com.dnaeasy.dnaeasy.responsity.IsAppointmentResponsitory;
@@ -16,14 +17,15 @@ import com.dnaeasy.dnaeasy.service.IsCommentService;
 import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -137,10 +139,90 @@ public class CommentService implements IsCommentService {
         stauts.add("COMPLETE");
 
         com.dnaeasy.dnaeasy.enity.Service service = serviceRepo.findByServiceId(serviceId);
-        int appointmnet = apptRepo.countByService_ServiceIdAndCustomer_PersonIdAndCurentStatusAppointmentIsIn(serviceId,person.getPersonId(),stauts);
-        int commnet = commentRepo.countByService_ServiceIdAndCustomer_PersonId(serviceId,person.getPersonId());
+        int appointmnet = apptRepo.countByService_ServiceIdAndCustomer_PersonIdAndCurentStatusAppointmentIsIn(serviceId, person.getPersonId(), stauts);
+        int commnet = commentRepo.countByService_ServiceIdAndCustomer_PersonId(serviceId, person.getPersonId());
         return apptRepo.existsByCustomer_PersonIdAndService_ServiceIdAndCurentStatusAppointmentIsIn(person.getPersonId(), serviceId, stauts) && appointmnet > commnet;
     }
+
+    @Override
+    public Page<ManageCommentResponse> getALlForManageComment(SearchCommnentRequest request, Pageable pageable) {
+        List<Appointment> appointmentList = apptRepo.findALLAppointmentHaveCommnent(request.getKeysearch());
+
+        List<ManageCommentResponse> comments = new ArrayList<>();
+
+        for (Appointment appointment : appointmentList) {
+            for (int i = 0; i < appointment.getCustomer().getCommentList().size(); i++) {
+
+
+                if (appointment.getService().getServiceId() == appointment.getCustomer().getCommentList().get(i).getService().getServiceId()) {
+                    Comment comment = appointment.getCustomer().getCommentList().get(i);
+                    ManageCommentResponse commentReponse = commentMapper.CommnetToManageCommentResponse(comment);
+                    commentReponse.setEmailStaff_Test(appointment.getStaff().getEmail());
+                    commentReponse.setNameStaff_Test(appointment.getStaff().getName());
+                    commentReponse.setPhoneStaff_Test(appointment.getStaff().getPhone());
+                    commentReponse.setAvatarUrlStaff_Test(appointment.getStaff().getAvatarUrl());
+                    commentReponse.setEmailStaff_Lab(appointment.getSampelist().get(0).getResult().iterator().next().getStaff().getEmail());
+                    commentReponse.setPhoneStaff_Lab(appointment.getSampelist().get(0).getResult().iterator().next().getStaff().getPhone());
+                    commentReponse.setNameStaff_Lab(appointment.getSampelist().get(0).getResult().iterator().next().getStaff().getName());
+                    commentReponse.setAvatarUrlStaff_Lab(appointment.getSampelist().get(0).getResult().iterator().next().getStaff().getAvatarUrl());
+                    for (Payment p : appointment.getPayment()) {
+                        if (p.getStaffReception() != null) {
+                            if (!p.isExpense()) {
+                                commentReponse.setNameStaff_Reception_Refund(p.getStaffReception().getName());
+                                commentReponse.setEmailStaff_Reception_Refund(p.getStaffReception().getEmail());
+                                commentReponse.setPhoneStaff_Reception_Refund(p.getStaffReception().getPhone());
+                                commentReponse.setAvatarUrlStaff_ReceptionRefund(p.getStaffReception().getAvatarUrl());
+                            } else {
+                                commentReponse.setNameStaff_Reception(p.getStaffReception().getName());
+                                commentReponse.setEmailStaff_Reception(p.getStaffReception().getEmail());
+                                commentReponse.setPhoneStaff_Reception(p.getStaffReception().getPhone());
+                                commentReponse.setAvatarUrlStaff_ReceptionRefund(p.getStaffReception().getAvatarUrl());
+                            }
+                        }
+                    }
+                    commentReponse.setServiceName(appointment.getService().getServiceName());
+                    commentReponse.setDateCollected(appointment.getDateCollect());
+                    commentReponse.setTypeCollect(appointment.getTypeCollect());
+                    commentReponse.setAvatarUrl_Customer(appointment.getCustomer().getAvatarUrl());
+                    comments.add(commentReponse);
+                }
+
+            }
+        }
+
+        List<ManageCommentResponse> commentResponses = comments;
+
+        if (request.getStar() > 0) {
+            comments = new ArrayList<>();
+            for (int i = 0; i < commentResponses.size(); i++) {
+
+                if (commentResponses.get(i).getRating() == request.getStar()) {
+                    comments.add(commentResponses.get(i));
+
+                }
+            }
+        }
+        int pagesize = pageable.getPageSize();
+        int start = pageable.getPageNumber() * pagesize;
+        int end = Math.min(start + pagesize, comments.size());
+
+        List<ManageCommentResponse> pagin = comments.subList(start, end);
+        Page<ManageCommentResponse> pagemanage = new PageImpl<>(pagin, pageable, comments.size());
+
+        return pagemanage;
+    }
+
+    @Override
+    public CommentReportResponse getCommentReport() {
+        Map<String, Integer> total = new HashMap<>();
+        for (int i = 1; i <= 5; i++) {
+            total.put(i + "sao", commentRepo.countByRating(i));
+        }
+        CommentReportResponse commentReportResponse = new CommentReportResponse();
+        commentReportResponse.setComments(total);
+        return commentReportResponse;
+    }
+
 
 
 }

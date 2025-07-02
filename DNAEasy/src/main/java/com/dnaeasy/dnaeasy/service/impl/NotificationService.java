@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class NotificationService implements IsNotificationService {
@@ -65,4 +66,19 @@ public class NotificationService implements IsNotificationService {
         isUserResponsity.save(p);
 
     }
+    @Override
+    public void ReadedALl() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Person person = isUserResponsity.findByUsername(username);
+
+        List<Notification> notifications = person.getNotification();
+        for (Notification notification : notifications) {
+            notification.setReaded(true);
+            isNotificationRepo.save(notification);
+        }
+
+
+    }
+
 }

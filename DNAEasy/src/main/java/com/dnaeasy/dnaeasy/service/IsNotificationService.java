@@ -15,5 +15,5 @@ public interface IsNotificationService {
     Page<NotificationResponse> listnoti(Pageable pageable);
 
     void createNotification(Person p , String content);
-
+    void ReadedALl();
 }

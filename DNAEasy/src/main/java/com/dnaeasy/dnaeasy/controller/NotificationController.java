@@ -31,7 +31,7 @@ public class NotificationController {
             @RequestParam("size") int size,
             @RequestParam("page") int page) {
 
-        Pageable pageable = PageRequest.of(page,size,Sort.by("time").descending());
+        Pageable pageable = PageRequest.of(page-1,size,Sort.by("time").descending());
         return ResponseEntity.ok(notificationService.listnoti(pageable));
     }
 
@@ -42,6 +42,13 @@ public class NotificationController {
     @GetMapping("/notinotread")
     public ResponseEntity<Long> numberNotiNotRead(){
         return  ResponseEntity.ok(notificationService.NumberOfNotiNotRead());
+    }
+
+    @GetMapping("/readedall")
+    public ResponseEntity<Void> readedAll(){
+
+         notificationService.ReadedALl();
+         return ResponseEntity.ok().build();
     }
 
 }

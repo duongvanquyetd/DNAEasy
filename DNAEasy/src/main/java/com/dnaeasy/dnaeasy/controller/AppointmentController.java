@@ -1,10 +1,14 @@
 package com.dnaeasy.dnaeasy.controller;
 
+
 import com.dnaeasy.dnaeasy.dto.request.AppoinmetnAssignRequest;
 import com.dnaeasy.dnaeasy.dto.request.AppointmentCreateRequest;
 import com.dnaeasy.dnaeasy.dto.request.RevenueStatsRequest;
 import com.dnaeasy.dnaeasy.dto.request.StaticRequest;
 import com.dnaeasy.dnaeasy.dto.request.StatusUpdateAppointment;
+
+import com.dnaeasy.dnaeasy.dto.request.*;
+=
 
 import com.dnaeasy.dnaeasy.dto.response.*;
 import com.dnaeasy.dnaeasy.dto.response.RevenueDataPoint;
@@ -106,7 +110,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/managershift")
-    public ResponseEntity<Page<AppointmentResponse>> getManager(@RequestParam("size") int size , @RequestParam("page") int page){
+    public ResponseEntity<Page<AppointmentAssingResponse>> getManager(@RequestParam("size") int size , @RequestParam("page") int page){
         Pageable pageable = PageRequest.of(page-1,size);
 
         return ResponseEntity.ok(appointmentService.getAppointmnetForMangerShiftStaff(pageable));
@@ -130,6 +134,11 @@ public class AppointmentController {
     public ResponseEntity<Boolean> getCanRefund(@PathVariable("id") int id) {
         return  ResponseEntity.ok(appointmentService.CanRefund(id));
 
+    }
+
+    @PostMapping("/reportappointment")
+    public ResponseEntity<List<AppointmentReportResponse>> getAppointmentReport(@RequestBody AppointmnetReportRequest request) {
+        return ResponseEntity.ok(appointmentService.getAppointmentReport(request));
     }
     @PostMapping("/revenue_chart")
     public ResponseEntity<List<RevenueDataPoint>> getRevenueChart(@RequestBody StaticRequest request) {
@@ -162,5 +171,6 @@ public class AppointmentController {
     @GetMapping("/stats")
     public ResponseEntity<AppointmentStatsResponse> getAppointmentStats() {
         return ResponseEntity.ok(appointmentService.getAppointmentStats());
+
     }
 }

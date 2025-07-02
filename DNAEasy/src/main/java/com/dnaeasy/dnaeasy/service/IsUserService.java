@@ -7,6 +7,8 @@ import com.dnaeasy.dnaeasy.dto.response.UserReportReponse;
 import com.dnaeasy.dnaeasy.dto.response.UserResponse;
 import com.dnaeasy.dnaeasy.dto.response.UserCountResponse;
 import com.nimbusds.jose.JOSEException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -27,10 +29,11 @@ public interface IsUserService {
     void deleteUser(int id);
     List<UserReportReponse> listUser(PersonRequest request);
 
-    List<UserFilterRespone> filterUser(UserFilterRequest request);
+    Page<UserFilterRespone> filterUser(UserFilterRequest request, Pageable pageable);
 
     void updateUser(UserUpdateRequest request);
     public int getTotalUsers();
     
     UserCountResponse getUserCounts();
+    void ActiveUser(int id);
 }
