@@ -337,37 +337,14 @@ const RevenueChart = () => {
   return (
     <div className="revenue-chart-container">
       {/* Month/Year selector */}
-      <div className="date-selector">
-        <div className="selector-label">Select Period:</div>
-        <div className="selector-controls">
-          <select value={selectedMonth} onChange={handleMonthChange} className="month-selector">
-            <option value="1">January</option>
-            <option value="2">February</option>
-            <option value="3">March</option>
-            <option value="4">April</option>
-            <option value="5">May</option>
-            <option value="6">June</option>
-            <option value="7">July</option>
-            <option value="8">August</option>
-            <option value="9">September</option>
-            <option value="10">October</option>
-            <option value="11">November</option>
-            <option value="12">December</option>
-          </select>
-          <select value={selectedYear} onChange={handleYearChange} className="year-selector">
-            <option value="2023">2023</option>
-            <option value="2024">2024</option>
-            <option value="2025">2025</option>
-          </select>
-        </div>
-      </div>
+     
 
       {/* Stats Boxes - đưa lên trên đầu */}
       <div className="stats-boxes">
         {/* Customers Box - with user roles */}
         <div className="stat-box">
           <div className="stat-icon">
-            <Users size={24} />
+            <Users size={18} />
           </div>
           <div className="stat-title">Users</div>
           <div className="stat-value">{formatNumber(userRoleStats.total || 0)}</div>
@@ -392,7 +369,7 @@ const RevenueChart = () => {
         {/* Revenue Box - with revenue flow */}
         <div className="stat-box">
           <div className="stat-icon revenue-icon">
-            <DollarSign size={24} />
+            <DollarSign size={18} />
           </div>
           <div className="stat-title">Revenue</div>
           <div className="stat-value">{formatCurrency(revenueFlowStats.total || 0)}</div>
@@ -417,7 +394,7 @@ const RevenueChart = () => {
         {/* Appointments Box */}
         <div className="stat-box">
           <div className="stat-icon appointment-icon">
-            <Calendar size={24} />
+            <Calendar size={18} />
           </div>
           <div className="stat-title">Appointments</div>
           <div className="stat-value">{formatNumber(appointmentStatusCounts.total || 0)}</div>
