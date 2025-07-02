@@ -27,6 +27,7 @@ import { ManageComment } from './component/page/ManageComment.jsx';
 import DNATestingAdminDashboard from './component/page/AdminAppointment.jsx';
 
 import AdminRevenue from './component/page/AdminRevenue.jsx';
+import AdminUserManagement from './component/page/AdminUser.jsx';
 
 function App() {
   return (
@@ -56,7 +57,7 @@ function App() {
         <Route path="/revenue" element={<RevenueChart />} />
 
         <Route path="/ManageComment" element={<ManageComment />} />
-        {/* <Route path="/user-admin-dashboard" element={<UserAdminDashboard />} /> */}
+        <Route path="/user-admin-dashboard" element={<AdminUserManagement/>} />
 
         <Route path="/AdminAppoinment" element={<DNATestingAdminDashboard />} />
 

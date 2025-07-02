@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 
 
@@ -7,7 +6,7 @@ import {
   Calendar, CheckCircle, Clock, AlertCircle, Shield, Briefcase, User,
   BarChart2, Star, ChevronDown
 } from "lucide-react";
-import { GetRevenueChartData, GetAppointmentCountsByStatus } from "../../service/revenueService";
+
 // import * as revenueAPI from "../../service/revenue";
 
 import {
@@ -358,21 +357,7 @@ const featchTopServices = async () => {
                   <th className="name-column">Service Name</th>
                   <th className="count-column">Total Appointments</th>
                 </tr>
-              </thead>
-              <tbody>
-                {topServices.length > 0 ? (
-                  topServices.map((service, index) => (
-                    <tr key={index} className={index < 3 ? 'top-rank' : ''}>
-                      <td className="rank-column">
-                        <div className={`rank-badge rank-${index + 1}`}>
-                          {index < 3 ? <Star size={12} /> : index + 1}
-                        </div>
-                      </td>
-                      <td className="name-column">{service.serviceName}</td>
-                      <td className="count-column">{service.totalAppointments || service.count}</td>
-
-                    </tr>
-                  </thead>
+              </thead>  
                   <tbody>
                     {topServices.length > 0 ? (
                       topServices.map((service, index) => (
@@ -397,8 +382,6 @@ const featchTopServices = async () => {
             </div>
           </div>
         </div>
-      </div>
-    </div>
   );
 };
 

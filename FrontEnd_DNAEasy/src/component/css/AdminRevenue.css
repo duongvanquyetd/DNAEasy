@@ -20,7 +20,7 @@
   min-height: 100vh;
   font-family: 'Segoe UI', Arial, sans-serif;
   display: flex;
-  flex-wrap: nowrap; /* Đảm bảo không wrap layout */
+  flex-wrap: wrap; /* Đảm bảo không wrap layout */
 }
 
 .dashboard-content {
@@ -66,6 +66,7 @@
 .dashboard-row {
   display: flex;
   gap: var(--spacing-md);
+  width: 1500px;
 }
 
 .dashboard-stats {
