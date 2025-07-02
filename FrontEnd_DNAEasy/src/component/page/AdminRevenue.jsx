@@ -55,19 +55,19 @@ const FILTERS = {
   const [fromDate, setFromDate] = useState(new Date().toISOString().slice(0,10));
   const [toDate, setToDate] = useState(new Date().toISOString().slice(0,10));
   const currentYear = new Date().getFullYear();
+  const[revenue,setRevenue] = useState(0);
+  const[expenses,setExpenses] = useState(0);
+  const[remain,setRemain] = useState(0);
 
 
-
-  
 
   useEffect(() => {
     const loadRevenueAndStats = async () => {
       try {
-        
       const data = DateRequest();
       console.log("Date",data)
   
-        // 📊 Gọi API biểu đồ
+        // Gọi API biểu đồ
         const revenueChartRes = await FetchRevenueRefundStats( data);
 console.log("Reponse ",revenueChartRes.data)
         const chartData = revenueChartRes.data.map(item => ({
@@ -76,22 +76,6 @@ console.log("Reponse ",revenueChartRes.data)
           refund: item.refund
         }));
         setChartData(chartData);
-  
-        // // 📦 Gọi API tổng quan (income, expenses, profit...)
-        // const response = await revenueAPI.GetStatistics(from, to);
-        // const data = response.data;
-  
-        // const revenue = typeof data.revenue === 'string' ? parseInt(data.revenue.replace(/[^\d]/g, '')) : Number(data.revenue) || 0;
-        // const totalExpense = typeof data.totalExpense === 'string' ? parseInt(data.totalExpense.replace(/[^\d]/g, '')) : Number(data.totalExpense) || 0;
-        // const remain = typeof data.remain === 'string' ? parseInt(data.remain.replace(/[^\d]/g, '')) : Number(data.remain) || 0;
-  
-        // setStatsData({
-        //   total: { value: revenue, change: 0, isUp: true },
-        //   income: { value: revenue, change: 0, isUp: true },
-        //   expenses: { value: totalExpense, change: 0, isUp: false },
-        //   profit: { value: remain, change: 0, isUp: true }
-        // });
-  
       } catch (error) {
         console.error("Lỗi khi gọi API", error);
         setChartData([]);
@@ -108,77 +92,25 @@ console.log("Reponse ",revenueChartRes.data)
     let date;
          if(filter.includes("day"))
          {
-              date = {
-                  type: "day",
-                  from: fromDate,
-                  to: toDate
-
-              }
+            ate = {
+             type: "day",
+             from: fromDate,
+             to: toDate
+            }
          }else if (filter.includes("month"))
          {
-                    date = {
-                  type: "month",
-                 
-
-              }
+           date = {
+           type: "month",
             }
-              else 
-              {
-                date = {
-                  type: "year",
-
-              }
-              }
-
-              return date;
+          }
+          else 
+          {
+          date = {
+          type: "year",
+            }
+          }
+        return date;
          }
-  
-  // Set default filter to day instead of month for more accurate monitoring
-
-// Show 5 years including current year
-  
-  // // Generate year options for select dropdown
-  // const generateYearOptions = () => {
-  //   const endYear = currentYear;
-  //   const startYear = endYear - 9; // Show 10 years
-  //   return Array.from({ length: 10 }, (_, i) => startYear + i);
-  // };
-  
-
-  // Set default date range to last 7 days
-  
-
-  // const getDefaultDates = () => {
-  //   const today = new Date();
-  //   const lastWeek = new Date();
-  //   lastWeek.setDate(today.getDate() - 6); // Last 7 days including today
-    
-  //   return {
-  //     from: lastWeek.toISOString().split('T')[0], // Format as YYYY-MM-DD
-  //     to: today.toISOString().split('T')[0]
-  //   };
-  // };
- 
-
-  // useEffect(() => {
-  //   const loadStats = async () => {
-  //     try {
-  //       const result = await FetchRevenueRefundStats("2025-06-01", "2025-07-31");
-  //       console.log("API:", result);
-  //       const chartData = result.data.map(item => ({
-
-  //         date: item.date || item.name,
-  //         revenue: item.revenue,
-  //         refund: item.refund
-  //       }));
-  //       setChartData(chartData);
-  //     } catch (error) {
-  //       console.error("Failed to fetch data", error);
-  //     }
-  //   };
-
-  //   loadStats();
-  // }, []);
 
   // Format date for display
   const formatDisplayDate = (dateStr) => {
@@ -200,6 +132,32 @@ console.log("Reponse ",revenueChartRes.data)
           <span>{timeRangeDisplay}</span>
         </div>
         
+        <div className="dashboard-row stats-row" style={{gap: 20, marginBottom: 18}}>
+          {/* Income (Revenue) card */}
+          <div className="dashboard-card income-card sleep-card">
+            <div className="card-title">{<FaDollarSign size={22} style={{color: '#16c784'}} />} Thu nhập</div>
+            <div className="income-placeholder" style={{fontWeight: 700, fontSize: 22, color: '#0a1d56', opacity: 0.9}}>
+              ₫
+              
+            </div>
+          </div>
+          
+          {/* Expenses card */}
+          <div className="dashboard-card expenses-card sleep-card">
+            <div className="card-title">{<FaWallet size={22} style={{color: '#f8c63a'}} />} Chi phí</div>
+            <div className="expenses-placeholder" style={{fontWeight: 700, fontSize: 22, color: '#0a1d56', opacity: 0.9}}>
+              đ
+            </div>
+          </div>
+          
+          {/* Profit (Remain) card */}
+          <div className="dashboard-card profit-card sleep-card">
+            <div className="card-title">{<FaHandHoldingUsd size={22} style={{color: '#9c27b0'}} />} Lợi nhuận</div>
+            <div className="profit-placeholder" style={{fontWeight: 700, fontSize: 22, color: '#0a1d56', opacity: 0.9}}>
+             đ
+            </div>
+          </div>
+        </div>
 
         <div className="dashboard-row">
           <div className="dashboard-card chart-card" style={{flex: 1}}>
@@ -221,17 +179,6 @@ console.log("Reponse ",revenueChartRes.data)
                   <option value="year">By Year</option>
                 </select>
                   
-                  {/* {filter === 'month' && (
-                    <select
-                      value={selectedYear}
-                      onChange={e => setSelectedYear(parseInt(e.target.value))}
-                      style={{padding: '6px 14px', borderRadius: 8, border: '1.5px solid #e0e6f7', fontWeight: 600, fontSize: 15, color: '#0a1d56', background: '#f5f8ff', outline: 'none', boxShadow: '0 2px 8px rgba(58,111,248,0.04)'}}
-                    >
-                      {yearOptions.map(year => (
-                        <option key={year} value={year}>{year}</option>
-                      ))}
-                    </select>
-                  )} */}
                   
                 {filter === 'day' && (
                     <div className="date-range-selector">
@@ -285,40 +232,3 @@ console.log("Reponse ",revenueChartRes.data)
 
 
 export default AdminRevenue; 
-
-// <div className="dashboard-row stats-row" style={{gap: 20, marginBottom: 18}}>
-
-//           {/* Income (Revenue) card */}
-//           <div className="dashboard-card income-card sleep-card">
-//             <div className="card-title">{<FaDollarSign size={22} style={{color: '#16c784'}} />} Thu nhập</div>
-//             <div className="income-placeholder" style={{fontWeight: 700, fontSize: 22, color: '#0a1d56', opacity: 0.9}}>
-//               {statsData.income.value.toLocaleString()} ₫
-//               <span style={{fontSize: 15, marginLeft: 10, fontWeight: 700, color: statsData.income.isUp ? '#16c784' : '#ff4d4f'}}>
-//                 {statsData.income.isUp ? <FaArrowUp /> : <FaArrowDown />} {Math.abs(statsData.income.change)}%
-//               </span>
-//             </div>
-//           </div>
-          
-//           {/* Expenses card */}
-//           <div className="dashboard-card expenses-card sleep-card">
-//             <div className="card-title">{<FaWallet size={22} style={{color: '#f8c63a'}} />} Chi phí</div>
-//             <div className="expenses-placeholder" style={{fontWeight: 700, fontSize: 22, color: '#0a1d56', opacity: 0.9}}>
-//               {statsData.expenses.value.toLocaleString()} ₫
-//               <span style={{fontSize: 15, marginLeft: 10, fontWeight: 700, color: statsData.expenses.isUp ? '#16c784' : '#ff4d4f'}}>
-
-//                 {statsData.expenses.isUp ? <FaArrowUp /> : <FaArrowDown />} {Math.abs(statsData.expenses.change)}%
-//               </span>
-//             </div>
-//           </div>
-          
-//           {/* Profit (Remain) card */}
-//           <div className="dashboard-card profit-card sleep-card">
-//             <div className="card-title">{<FaHandHoldingUsd size={22} style={{color: '#9c27b0'}} />} Lợi nhuận</div>
-//             <div className="profit-placeholder" style={{fontWeight: 700, fontSize: 22, color: '#0a1d56', opacity: 0.9}}>
-//               {statsData.profit.value.toLocaleString()} ₫
-//               <span style={{fontSize: 15, marginLeft: 10, fontWeight: 700, color: statsData.profit.isUp ? '#16c784' : '#ff4d4f'}}>
-//                 {statsData.profit.isUp ? <FaArrowUp /> : <FaArrowDown />} {Math.abs(statsData.profit.change)}%
-//               </span>
-//             </div>
-//           </div>  
-//         </div>
