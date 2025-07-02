@@ -19,6 +19,7 @@ import { GetTop5Service } from '../../service/service';
 import { ReportUser } from '../../service/user';
 import { AppointmnetforAdminOverview } from '../../service/appointment';
 import { ChartOverview } from '../../service/payment';
+import AdminHeader from '../AdminHeader';
 
 
 
@@ -198,6 +199,10 @@ const featchTopServices = async () => {
   ];
 
   return (
+    <div className="style-dashboard">
+      {/* Sidebar Header */}
+      <AdminHeader />
+
     <div className="revenue-chart-container">
      
 
@@ -382,6 +387,7 @@ const featchTopServices = async () => {
             </div>
           </div>
         </div>
+    </div>
   );
 };
 

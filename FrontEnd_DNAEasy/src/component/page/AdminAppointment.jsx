@@ -188,7 +188,7 @@ const DNATestingAdminDashboard = () => {
   const [reportData, setReportData] = useState([]);
 
 
-  const [reportData, setReportData] = useState([]);
+  
 
   const getDateRange = () => {
     const today = new Date();
@@ -225,11 +225,9 @@ const DNATestingAdminDashboard = () => {
         setReportData(res.data || []);
       })
       .catch(() => setReportData([]));
-
-    
   }, [dateRange, startDate, endDate]);
 
-  }, [dateRange, startDate, endDate]);
+
 
 
   const currentData = useMemo(() => {

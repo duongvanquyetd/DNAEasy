@@ -19,16 +19,12 @@ import ManageBlog from './component/page/ManageBlog';
 import ManageService from './component/page/ManageService';
 import { AssignStaff } from './component/page/AssignStaff.jsx';
 import RevenueChart from './component/page/RevenueChart.jsx';
-
 import { ManageComment } from './component/page/ManageComment.jsx';
 import UserAdminDashboard from "./component/page/AdminUser.jsx";
 import DNATestingAdminDashboard from './component/page/AdminAppointment.jsx';
 
-
-import { ManageComment } from './component/page/ManageComment.jsx';
 // import UserAdminDashboard from "./component/page/AdminUser.jsx";
 
-import DNATestingAdminDashboard from './component/page/AdminAppointment.jsx';
 
 
 import AdminRevenue from './component/page/AdminRevenue.jsx';
@@ -62,9 +58,6 @@ function App() {
         <Route path="/revenue" element={<RevenueChart />} />
 
         <Route path="/ManageComment" element={<ManageComment />} />
-
-        <Route path="/user-admin-dashboard" element={<UserAdminDashboard />} />
-
         <Route path="/user-admin-dashboard" element={<AdminUserManagement/>} />
 
 
