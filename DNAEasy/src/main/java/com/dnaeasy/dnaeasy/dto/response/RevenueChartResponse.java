@@ -12,4 +12,7 @@ import java.time.LocalDate;
 public class RevenueChartResponse {
     private LocalDate date;
     private BigDecimal revenue;
+    private String name;
+    private BigDecimal refund;
+
 }

@@ -48,8 +48,10 @@ public interface IsAppointmentService {
 
 
     List<RevenueChartResponse>getRevenueByDay(String start, String end);
+    List<RevenueDataPoint> getSimplifiedRevenueData(String start, String end);
     StaticReponse getStaticByDate(StaticRequest request);
-    List<TopServiceReponse> findTopService(StaticRequest request);
+    List<TopServiceReponse> findTopService();
+    List<RevenueChartResponse> getRevenueStats(String type, LocalDate from, LocalDate to, Integer year);
 
     AppointmentStatsResponse getAppointmentStats();
 
