@@ -149,6 +149,7 @@ export const HistoryBooking = () => {
                     ) : (
                         <div className="booking-list">
                             {historyBooking.map((booking, index) => (
+
                                 <div
                                     key={booking.appointmentId}
                                     className={`booking-card ${selectedAppointmentId === booking.appointmentId ? 'selected' : ''}`}
@@ -158,6 +159,7 @@ export const HistoryBooking = () => {
                                         )
                                     }
                                 >
+
                                     <div className="card-header">
                                         <div className="header-content">
                                             <div className="service-info">
@@ -443,6 +445,14 @@ export const HistoryBooking = () => {
                                                                     Receive Hard Result
                                                                 </button>
                                                             )}
+                                                             {booking.canconfirm?.canConfirmHardResult && (
+                                                            <button
+                                                                className="comment-button"
+                                                                onClick={() => setShowUploadForm(booking)}
+                                                            >
+                                                                {booking.canconfirm.nextStatus}
+                                                            </button>
+                                                        )}
                                                             <HardResultModal
                                                                 isOpen={createHardResult}
                                                                 onClose={() => setCreateHardResult(false)}
@@ -483,14 +493,7 @@ export const HistoryBooking = () => {
                                                         </div>
 
 
-                                                        {booking.canconfirm?.canConfirmHardResult && (
-                                                            <button
-                                                                className="comment-button"
-                                                                onClick={() => setShowUploadForm(booking)}
-                                                            >
-                                                                {booking.canconfirm.nextStatus}
-                                                            </button>
-                                                        )}
+                                                       
                                                     </>
                                                 )}
                                             </div>
