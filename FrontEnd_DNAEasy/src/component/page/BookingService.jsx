@@ -130,7 +130,7 @@ export const BookingServicePage = () => {
     <>
       <Header />
 
-      <div className="main-container">
+      <div className="main-container-bookingpage">
         <div className="booking-header">
           <h1>{services.serviceName || 'Book a DNA Test'}</h1>
           <p className="subtitle">Accurate and confidential DNA testing</p>
