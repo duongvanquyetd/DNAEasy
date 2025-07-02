@@ -14,20 +14,21 @@
   background: var(--primary-bg);
   color: var(--text);
   min-height: 100vh;
-  padding: 36px 24px 24px 24px;
   font-family: 'Segoe UI', Arial, sans-serif;
+  display: flex; /* Sử dụng flex để bố trí sidebar và main content */
 }
 
 .dashboard-header {
   margin-bottom: 20px;
-  padding: 24px 32px 16px 32px;
+  padding: 16px 32px; /* Giảm padding để khớp với các trang khác */
   background: var(--primary-gradient);
-  border-radius: 24px;
+  border-radius: 12px; /* Giảm radius để đồng nhất */
   box-shadow: var(--shadow);
   color: #fff;
   display: flex;
   align-items: center;
   gap: 16px;
+  width: 100%; /* Đảm bảo header chiếm toàn bộ chiều rộng main content */
 }
 
 .dashboard-header h2 {
@@ -47,6 +48,9 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
+  padding: 20px; /* Padding chung cho main content */
+  padding-left: 280px; /* Bù đắp chiều rộng sidebar (260px + 20px buffer) */
+  width: 100%;
 }
 
 .dashboard-row {
@@ -145,7 +149,10 @@
   opacity: 0.8;
 }
 
-.sleep-card .card-title, .sleep-card .stats-placeholder, .sleep-card .balance-placeholder, .sleep-card .expenses-placeholder {
+.sleep-card .card-title,
+.sleep-card .stats-placeholder,
+.sleep-card .balance-placeholder,
+.sleep-card .expenses-placeholder {
   background-color: #fff !important;
   color: #000;
 }
@@ -158,6 +165,9 @@
   .dashboard-header {
     flex-direction: column;
     align-items: flex-start;
-    padding: 24px 16px 16px 16px;
+    padding: 16px;
   }
-} 
+  .dashboard-main {
+    padding-left: 0; /* Xóa padding-left khi sidebar ẩn trên mobile */
+  }
+}
