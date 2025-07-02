@@ -187,6 +187,9 @@ const DNATestingAdminDashboard = () => {
 
   const [reportData, setReportData] = useState([]);
 
+
+  const [reportData, setReportData] = useState([]);
+
   const getDateRange = () => {
     const today = new Date();
     if (dateRange === 'today') {
@@ -214,6 +217,7 @@ const DNATestingAdminDashboard = () => {
     return { fromdate: d, todate: d };
   };
 
+
   useEffect(() => {
     const range = getDateRange();
     GetAppointmentReport(range)
@@ -221,7 +225,12 @@ const DNATestingAdminDashboard = () => {
         setReportData(res.data || []);
       })
       .catch(() => setReportData([]));
+
+    
   }, [dateRange, startDate, endDate]);
+
+  }, [dateRange, startDate, endDate]);
+
 
   const currentData = useMemo(() => {
     let total = 0, completed = 0, inProgress = 0, cancelled = 0, refunded = 0;
