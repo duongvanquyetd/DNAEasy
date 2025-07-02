@@ -1,509 +1,476 @@
+/* Main container */
 .revenue-chart-container {
-    width: 100%;
-    padding: 20px;
-    background-color: #f0f7ff; /* Light blue background */
-    font-family: 'Inter', sans-serif;
-    position: relative;
-    overflow: hidden;
-    background-image: 
-      radial-gradient(circle at 10% 10%, rgba(37, 99, 235, 0.05) 0%, transparent 20%),
-      radial-gradient(circle at 90% 90%, rgba(37, 99, 235, 0.05) 0%, transparent 20%);
-    background-size: 100% 100%, 100% 100%;
-  }
-  .chart-and-stats {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    width: 100%;
-  }
-  .chart-area {
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
-    padding: 24px;
-    margin-bottom: 20px;
-    width: 100%;
-    border: 1px solid rgba(37, 99, 235, 0.1);
-    margin-top: 10px;
-  }
-  .chart-area::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #2563eb, #60a5fa);
-    border-radius: 16px 16px 0 0;
-    opacity: 0.8;
-  }
-  .chart-area:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 35px rgba(37, 99, 235, 0.15);
-  }
-  .customer-box-wrapper {
-    flex: 1 1 0%;
-    margin-top: 32px; /* hoặc giá trị bạn muốn */
-    display: flex;
-    justify-content: flex-start;
-  }
+  width: 100%;
+  padding: 16px;
+  background-color: #f8fafc;
+  font-family: 'Inter', sans-serif;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+}
 
+/* Stats boxes container */
+.stats-boxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Smaller min width for compact boxes */
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* Individual stat box */
+.stat-box {
+  background-color: white;
+  border-radius: 10px;
+  padding: 12px; /* Reduced padding for smaller size */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  min-height: 200px; /* Ensure minimum height to fit content */
+}
+
+.stat-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #3b82f6, #60a5fa);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.stat-box:hover::before {
+  opacity: 1;
+}
+
+/* Stat icon */
+.stat-icon, .revenue-icon, .appointment-icon {
+  width: 32px; /* Smaller icon size */
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+/* Revenue and appointment icons with distinct colors */
+.revenue-icon {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.appointment-icon {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+}
+
+/* Stat text styling */
+.stat-title {
+  font-size: 12px; /* Smaller font for compactness */
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  font-size: 18px; /* Reduced font size */
+  font-weight: 700;
+  color: #1e40af;
+  margin-bottom: 6px;
+}
+
+.stat-info {
+  font-size: 10px; /* Smaller font for secondary text */
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.world-icon {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #60a5fa;
+}
+
+.world-icon::before {
+  content: "•";
+  color: #60a5fa;
+}
+
+/* Stat items (user roles, revenue flow, appointment status) */
+.stat-user-roles, .stat-revenue-flow, .stat-appointment-status {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* Reduced gap */
+}
+
+.role-item, .flow-item, .status-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px; /* Smaller font */
+  color: #1e293b;
+}
+
+.role-item span, .flow-item span, .status-item span {
+  display: flex;
+  justify-content: space-between;
+  flex-grow: 1;
+}
+
+.status-item {
+  border-bottom: 1px dashed rgba(59, 130, 246, 0.05); /* Lighter border */
+  padding-bottom: 4px;
+}
+
+.status-item:last-child {
+  border-bottom: none;
+}
+
+/* Colors for status items */
+.status-item:nth-child(1) strong { color: #10b981; }
+.status-item:nth-child(2) strong { color: #3b82f6; }
+.status-item:nth-child(3) strong { color: #ef4444; }
+.status-item:nth-child(4) strong { color: #f59e0b; }
+
+/* Chart area */
+.chart-area {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  padding: 16px;
+  margin-bottom: 16px;
+  position: relative;
+  border: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.chart-area::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  border-radius: 10px 10px 0 0;
+}
+
+.chart-area:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Sales header */
+.sales-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.sales-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.sales-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e40af;
+  margin-bottom: 8px;
+}
+
+.sales-change {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.sales-change .change-value.positive { color: #10b981; }
+.sales-change .change-value.negative { color: #ef4444; }
+
+/* Time filter buttons */
+.time-filter {
+  display: flex;
+  background-color: #f1f5f9;
+  border-radius: 8px;
+  padding: 2px;
+  border: 1px solid #e2e8f0;
+}
+
+.filter-btn {
+  padding: 6px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: #1e293b;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.filter-btn.active {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.filter-btn:hover:not(.active) {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #1e40af;
+}
+
+/* Chart wrapper */
+.chart-wrapper {
+  position: relative;
+  min-height: 250px;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  font-size: 14px;
+  color: #3b82f6;
+  font-weight: 500;
+}
+
+.loading-spinner::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  border: 2px solid #bfdbfe;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spinner 0.8s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spinner {
+  to { transform: rotate(360deg); }
+}
+
+/* Custom tooltip */
+.custom-tooltip {
+  background-color: white;
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.tooltip-date {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e40af;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.tooltip-label {
+  font-size: 12px;
+  color: #64748b;
+  margin-right: 6px;
+}
+
+.tooltip-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+/* Top Services Section */
+.top-services-section {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.section-title svg {
+  color: #3b82f6;
+}
+
+.section-period {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.services-table-container {
+  overflow-x: auto;
+}
+
+.services-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.services-table th {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.services-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1e293b;
+}
+
+.services-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.services-table .rank-column { width: 50px; text-align: center; }
+.services-table .name-column { width: 60%; }
+.services-table .count-column { text-align: center; }
+
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.rank-1 { background-color: #fef3c7; color: #d97706; }
+.rank-2 { background-color: #e2e8f0; color: #4b5563; }
+.rank-3 { background-color: #fed7aa; color: #9a3412; }
+.top-rank { font-weight: 600; }
+.no-data { text-align: center; color: #64748b; padding: 20px 0; }
+
+/* Error and no-data messages */
+.error-message, .no-data-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  background-color: #fef2f2;
+  border-radius: 8px;
+  border: 1px dashed #f87171;
+  padding: 16px;
+  text-align: center;
+  color: #b91c1c;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.no-data-message {
+  background-color: #f8fafc;
+  border: 1px dashed #cbd5e1;
+}
+
+.no-data-message p {
+  color: #64748b;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.retry-button, .login-button {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.retry-button:hover, .login-button:hover {
+  background-color: #2563eb;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
   .stats-boxes {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1.5rem;
-    gap: 1rem;
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .revenue-chart-container {
+    padding: 12px;
   }
 
-  .stat-box {
-    background-color: white;
-    border-radius: 8px;
-    padding: 1.25rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    flex: 1;
-    min-width: 220px;
+  .chart-area {
+    padding: 12px;
+    margin-bottom: 12px;
   }
 
-  .stat-box:before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 6px;
-    height: 100%;
-    background: linear-gradient(180deg, #2563eb 0%, #3b82f6 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .stat-box:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 35px rgba(37, 99, 235, 0.15);
-  }
-
-  .stat-box:hover:before {
-    opacity: 1;
-  }
-
-  .stat-icon {
-    width: 48px;
-    height: 48px;
-    background: rgba(37, 99, 235, 0.1);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #2563eb; /* Royal blue */
-    margin-bottom: 16px;
-  }
-
-  .revenue-icon {
-    background: rgba(16, 185, 129, 0.1);
-    color: #10b981;
-  }
-
-  .stat-content {
-    flex: 1;
-  }
-
-  .stat-title {
-    font-size: 15px; /* Giảm kích thước font */
-    font-weight: 600;
-    color: #3b82f6;
-    margin-bottom: 10px; /* Giảm margin */
-  }
-
-  .stat-value {
-    font-size: 28px; /* Giảm kích thước font */
-    font-weight: 700;
-    color: #1e40af;
-    margin-bottom: 10px; /* Giảm margin */
-  }
-
-  .stat-info {
-    font-size: 12px; /* Giảm kích thước font */
-    margin-bottom: 10px; /* Giảm margin */
-  }
-
-  .world-icon {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: #60a5fa; /* Light blue */
-  }
-
-  .world-icon:before {
-    content: "•";
-    color: #60a5fa;
-  }
-
-  .stat-change {
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    color: #3b82f6;
-    font-weight: 500;
-  }
-
-  .stat-change svg {
-    color: #10b981;
-    margin-right: 6px;
-  }
-
-  .stat-change span {
-    color: #10b981;
-    font-weight: 600;
-    margin-right: 5px;
-  }
-
-  /* Traffic Share specific styles */
-  .traffic-share {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .stat-traffic-devices {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 16px;
-  }
-
-  .device-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    color: #3b82f6;
-    padding: 6px 0;
-  }
-
-  .device-item svg {
-    color: #2563eb;
-  }
-
-  .device-item span {
-    flex: 1;
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .device-item strong {
-    color: #1e40af;
-    font-weight: 600;
-  }
-
-  .traffic-chart {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-    flex: 1;
-    align-items: center;
-  }
-
-  .donut-chart {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background: conic-gradient(
-      #2563eb 0% 60%,
-      #3b82f6 60% 90%, 
-      #60a5fa 90% 100%
-    );
-    position: relative;
-  }
-
-  .donut-chart:after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 60px;
-    height: 60px;
-    background: white;
-    border-radius: 50%;
-  }
-
-  .donut-chart-center {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 2;
-    color: #2563eb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Sales header styling */
   .sales-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #dbeafe;
-    padding-bottom: 16px;
-  }
-
-  .sales-info {
-    display: flex;
     flex-direction: column;
-  }
-
-  .sales-title {
-    font-size: 16px;
-    color: #3b82f6; /* Medium blue */
-    margin: 0 0 8px 0;
-    font-weight: 600;
-  }
-
-  .sales-value {
-    font-size: 32px;
-    font-weight: 700;
-    color: #1e40af; /* Dark blue */
-    margin-bottom: 8px;
-  }
-
-  .sales-change {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 14px;
-  }
-
-  .sales-change span:first-child {
-    color: #60a5fa; /* Light blue text */
-  }
-
-  .change-value {
-    display: flex;
-    align-items: center;
-    font-weight: 600;
-  }
-
-  .change-value.positive {
-    color: #10b981;
-  }
-
-  .change-value.negative {
-    color: #ef4444;
+    gap: 12px;
+    align-items: flex-start;
   }
 
   .time-filter {
-    display: flex;
-    background-color: #dbeafe; /* Light blue bg */
-    border-radius: 10px;
-    overflow: hidden;
-    padding: 2px;
-    border: 1px solid #bfdbfe;
+    width: 100%;
+    justify-content: space-between;
   }
 
   .filter-btn {
-    padding: 8px 20px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    color: #3b82f6; /* Medium blue */
-    font-weight: 500;
-    transition: background-color 0.2s ease;
-    border-radius: 8px;
-  }
-
-  .filter-btn.active {
-    background-color: #2563eb; /* Royal blue */
-    color: white;
-  }
-
-  .filter-btn:hover:not(.active) {
-    background-color: rgba(147, 197, 253, 0.5);
-    color: #1e40af;
-  }
-
-  /* Chart styling */
-  .revenue-line-chart {
-    background-color: rgba(240, 249, 255, 0.5);
-    border-radius: 12px;
-    padding: 16px;
-  }
-
-  /* Chart wrapper for loading state */
-  .chart-wrapper {
-    position: relative;
-    min-height: 200px;
-    background: rgba(240, 249, 255, 0.5);
-    border-radius: 12px;
-    padding: 16px;
-  }
-
-  .loading-spinner {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 12px;
-    font-size: 16px;
-    color: #2563eb; /* Royal blue */
-    font-weight: 500;
-  }
-
-  .loading-spinner::before {
-    content: "";
-    width: 24px;
-    height: 24px;
-    border: 3px solid #bfdbfe;
-    border-top-color: #2563eb;
-    border-radius: 50%;
-    animation: spinner 0.8s linear infinite;
-    margin-right: 12px;
-  }
-
-  @keyframes spinner {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  /* Custom tooltip */
-  .custom-tooltip {
-    background-color: rgba(255, 255, 255, 0.98);
-    border-radius: 8px;
-    padding: 12px 16px;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
-    border: 1px solid #dbeafe;
-  }
-
-  .tooltip-date {
-    font-size: 14px;
-    font-weight: 600;
-    color: #1e40af; /* Dark blue for headers */
-    margin: 0 0 8px 0;
-    border-bottom: 1px solid #dbeafe;
-    padding-bottom: 8px;
-  }
-
-  .tooltip-revenue {
-    display: flex;
-    align-items: center;
-    margin: 0;
-  }
-
-  .tooltip-label {
-    font-size: 13px;
-    color: #60a5fa;
-    margin-right: 6px;
-  }
-
-  .tooltip-value {
-    font-size: 14px;
-    font-weight: 600;
-    color: #2563eb;
-  }
-
-  /* Responsive adjustments */
-  @media (max-width: 1024px) {
-    .stats-boxes {
-      flex-direction: column;
-      gap: 16px;
-    }
-    
-    .stat-box {
-      margin-bottom: 0;
-    }
-    
-    .sales-value {
-      font-size: 28px;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .revenue-chart-container {
-      padding: 15px;
-    }
-    
-    .chart-area {
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    
-    .sales-header {
-      flex-direction: column;
-      gap: 16px;
-    }
-    
-    .time-filter {
-      width: 100%;
-    }
-    
-    .filter-btn {
-      flex: 1;
-      text-align: center;
-      padding: 8px 16px;
-    }
-    
-    .stat-box {
-      padding: 16px;
-    }
-    
-    .stat-value {
-      font-size: 24px;
-    }
-  }
-
-  /* Thêm stye cho appointment icon */
-  .appointment-icon {
-    background: rgba(16, 185, 129, 0.1);
-    color: #10b981;
-  }
-
-  /* Styling cho donut chart appointments */
-  .appointment-donut {
-    background: conic-gradient(
-      #10b981 0% 57%,  /* Completed */
-      #3b82f6 57% 90%, /* In Progress */
-      #ef4444 90% 100% /* Cancelled */
-    );
-  }
-
-  /* Styles cho status items */
-  .stat-appointment-status {
-    margin-top: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .status-item {
-    display: flex;
-    align-items: center;
-    font-size: 0.875rem;
-    gap: 0.5rem;
-  }
-
-  .status-item span {
-    display: flex;
-    justify-content: space-between;
-    flex-grow: 1;
-  }
-
-  .status-item strong {
-    color: #1e40af;
-    font-weight: 600;
-  }
-
-  .appointment-chart {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
     flex: 1;
+
     align-items: center;
   }
 
@@ -539,30 +506,6 @@
     border-bottom: none;
   }
 
-  /* Thêm style cho Customer categories */
-  .stat-customer-categories,
-  .stat-revenue-categories,
-  .stat-appointment-status {
-    margin-top: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .category-item,
-  .status-item {
-    display: flex;
-    align-items: center;
-    font-size: 0.875rem;
-    gap: 0.5rem;
-  }
-
-  .category-item span,
-  .status-item span {
-    display: flex;
-    justify-content: space-between;
-    flex-grow: 1;
-  }
 
   /* Thêm style cho User roles và Revenue flow */
   .stat-user-roles,
@@ -688,7 +631,7 @@
     margin-bottom: 10px;
   }
 
-  /* Add styles for the date selector */
+  /* Add styles for the date selector
   .date-selector {
     display: flex;
     align-items: center;
@@ -731,7 +674,7 @@
   .year-selector:focus {
     border-color: #3b82f6;
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-  }
+  } */
 
   /* Top Services Section */
   .top-services-section {
@@ -764,88 +707,473 @@
 
   .section-title svg {
     color: #3b82f6;
-  }
 
-  .section-period {
-    font-size: 14px;
-    color: #64748b;
-  }
-
-  .services-table-container {
-    overflow-x: auto;
-    margin-top: 15px;
-  }
-
-  .services-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-  }
-
-  .services-table th {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #e0e0e0;
-    color: #666;
-    font-weight: 600;
-  }
-
-  .services-table td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #f0f0f0;
-    color: #333;
-  }
-
-  .services-table tbody tr:hover {
-    background-color: #f9f9f9;
-  }
-
-  .services-table .rank-column {
-    width: 60px;
     text-align: center;
+    padding: 6px 12px;
+
   }
 
-  .services-table .name-column {
-    width: 50%;
+  .stat-box {
+    padding: 10px;
+    min-height: 180px; /* Adjust for mobile */
   }
 
-  .services-table .count-column {
-    width: 50%;
-    text-align: center;
+  .stat-value {
+    font-size: 16px;
   }
 
-  .rank-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    font-weight: 600;
-    font-size: 12px;
+  .sales-value {
+    font-size: 20px;
   }
 
-  .rank-1 {
-    background-color: #FFD700;
-    color: #333;
-  }
-
-  .rank-2 {
-    background-color: #C0C0C0;
-    color: #333;
-  }
-
-  .rank-3 {
-    background-color: #CD7F32;
-    color: #fff;
-  }
-
-  .top-rank {
-    font-weight: 600;
-  }
 
   .no-data {
     text-align: center;
     color: #888;
     padding: 30px 0 !important;
   }
+
+  /* Add these styles at the end of the file to enhance the chart appearance */
+
+  /* Chart container styling */
+  .revenue-chart-container .chart-container {
+    padding: 20px;
+    border-radius: 12px;
+    background: linear-gradient(to bottom, #ffffff, #f9fbff);
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.1);
+    margin: 20px 0;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .revenue-chart-container .chart-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(37, 99, 235, 0.15);
+  }
+
+  .revenue-chart-container .chart-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(to right, #6366f1, #8b5cf6);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .revenue-chart-container .chart-container:hover::before {
+    opacity: 1;
+  }
+
+  /* Chart header styling */
+  .revenue-chart-container .chart-header {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+
+  .revenue-chart-container .chart-subtitle {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-top: -10px;
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+
+  /* Update the h3 selector to target within chart-header */
+  .revenue-chart-container .chart-header h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e40af;
+    margin-bottom: 15px;
+    position: relative;
+    padding-bottom: 10px;
+    display: inline-block;
+  }
+
+  .revenue-chart-container .chart-header h3:after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(to right, #3b82f6, #60a5fa);
+    border-radius: 3px;
+  }
+
+  /* Enhanced tooltip animation */
+  .revenue-chart-container .recharts-tooltip-wrapper {
+    transition: transform 0.2s ease !important;
+  }
+
+  .revenue-chart-container .recharts-tooltip-wrapper:hover {
+    transform: scale(1.05) !important;
+  }
+
+  /* Add a subtle glow effect to active dots */
+  .revenue-chart-container .recharts-dot.recharts-active-dot {
+    filter: drop-shadow(0 0 5px rgba(99, 102, 241, 0.6));
+  }
+
+  /* Add a subtle pulse animation to the chart title on hover */
+  .revenue-chart-container .chart-header h3:hover::after {
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      opacity: 0.6;
+      width: 60px;
+    }
+    50% {
+      opacity: 1;
+      width: 80px;
+    }
+    100% {
+      opacity: 0.6;
+      width: 60px;
+    }
+  }
+
+  /* Add a subtle hover effect to the chart area */
+  .revenue-chart-container .recharts-layer.recharts-line:hover {
+    filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.4));
+  }
+
+  /* Enhance the CartesianGrid */
+  .revenue-chart-container .recharts-cartesian-grid-horizontal line,
+  .revenue-chart-container .recharts-cartesian-grid-vertical line {
+    stroke: rgba(203, 213, 225, 0.5);
+    stroke-dasharray: 3 3;
+  }
+
+  /* Style the line in LineChart */
+  .revenue-chart-container .recharts-line-curve {
+    stroke-width: 3;
+    filter: drop-shadow(0 4px 6px rgba(37, 99, 235, 0.2));
+  }
+
+  /* Style the dots in LineChart */
+  .revenue-chart-container .recharts-dot {
+    fill: #ffffff;
+    stroke: #8884d8;
+    stroke-width: 2;
+  }
+
+  .revenue-chart-container .recharts-dot:hover {
+    r: 6;
+    stroke-width: 3;
+    transition: all 0.2s ease;
+  }
+
+  /* Style the X and Y axis */
+  .revenue-chart-container .recharts-xAxis .recharts-cartesian-axis-tick-value,
+  .revenue-chart-container .recharts-yAxis .recharts-cartesian-axis-tick-value {
+    font-size: 12px;
+    fill: #64748b;
+    font-weight: 500;
+  }
+
+  /* Style the tooltip */
+  .revenue-chart-container .recharts-tooltip-wrapper .recharts-default-tooltip {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15) !important;
+    padding: 12px !important;
+  }
+
+  .revenue-chart-container .recharts-tooltip-label {
+    color: #334155 !important;
+    font-weight: 600 !important;
+    margin-bottom: 5px !important;
+  }
+
+  .revenue-chart-container .recharts-tooltip-item {
+    color: #3b82f6 !important;
+    font-weight: 500 !important;
+  }
+
+  .revenue-chart-container .recharts-tooltip-item-name,
+  .revenue-chart-container .recharts-tooltip-item-separator {
+    color: #64748b !important;
+  }
+
+  .revenue-chart-container .recharts-tooltip-item-value {
+    color: #1e40af !important;
+    font-weight: 700 !important;
+  }
+
+  /* Add a gradient background to the chart area */
+  .revenue-chart-container .recharts-area-area {
+    fill: url(#colorRevenue);
+    opacity: 0.6;
+  }
+
+  /* Add a container for the chart with responsive design */
+  .revenue-chart-container .chart-wrapper {
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+  }
+
+  /* Add animation to chart elements */
+  .revenue-chart-container .recharts-line-curve {
+    animation: fadeIn 1s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Add a nice background to the chart section */
+  .revenue-chart-container > div {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Style the chart container specifically */
+  .revenue-chart-container > div > div {
+    margin-top: 20px;
+    position: relative;
+  }
+
+  /* Add a subtle pattern to the chart background */
+  .revenue-chart-container > div > div::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(circle at 10px 10px, #f1f5f9 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: 0.5;
+    z-index: -1;
+    border-radius: 12px;
+  }
+
+  /* Simple chart styling */
+  .revenue-chart-container h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e40af;
+    margin-bottom: 15px;
+    text-align: center;
+    position: relative;
+    padding-bottom: 10px;
+  }
+
+  .revenue-chart-container h3:after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(to right, #3b82f6, #60a5fa);
+    border-radius: 3px;
+  }
+
+  /* Chart container with shadow and border */
+  .revenue-chart-container > div > div {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.1);
+    padding: 20px;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  .revenue-chart-container > div > div:hover {
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.15);
+    transform: translateY(-3px);
+  }
+
+  /* Style the line in LineChart */
+  .revenue-chart-container .recharts-line-curve {
+    stroke-width: 3;
+    stroke: #6366f1 !important;
+    filter: drop-shadow(0 4px 6px rgba(99, 102, 241, 0.2));
+  }
+
+  /* Style the dots in LineChart */
+  .revenue-chart-container .recharts-dot {
+    fill: #ffffff;
+    stroke: #6366f1;
+    stroke-width: 2;
+  }
+
+  .revenue-chart-container .recharts-dot:hover {
+    r: 6;
+    stroke-width: 3;
+    transition: all 0.2s ease;
+  }
+
+  /* Style the CartesianGrid */
+  .revenue-chart-container .recharts-cartesian-grid-horizontal line,
+  .revenue-chart-container .recharts-cartesian-grid-vertical line {
+    stroke: rgba(203, 213, 225, 0.5);
+    stroke-dasharray: 3 3;
+  }
+
+  /* Style the X and Y axis */
+  .revenue-chart-container .recharts-xAxis .recharts-cartesian-axis-tick-value,
+  .revenue-chart-container .recharts-yAxis .recharts-cartesian-axis-tick-value {
+    font-size: 12px;
+    fill: #64748b;
+    font-weight: 500;
+  }
+
+  /* Style the tooltip */
+  .revenue-chart-container .recharts-tooltip-wrapper .recharts-default-tooltip {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15) !important;
+    padding: 12px !important;
+  }
+
+  .revenue-chart-container .recharts-tooltip-item-value {
+    color: #1e40af !important;
+    font-weight: 700 !important;
+  }
+
+  /* Chart title styling */
+  .revenue-chart-container .chart-title {
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .revenue-chart-container .chart-title h3 {
+    display: inline-block;
+    position: relative;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e40af;
+    margin-bottom: 0;
+    padding-bottom: 10px;
+  }
+
+  .revenue-chart-container .chart-title h3:after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(to right, #3b82f6, #6366f1);
+    border-radius: 3px;
+    transition: all 0.3s ease;
+  }
+
+  .revenue-chart-container .chart-title:hover h3:after {
+    width: 100px;
+  }
+
+  /* Enhance Y-axis styling */
+  .revenue-chart-container .recharts-yAxis .recharts-cartesian-axis-tick-value {
+    font-size: 12px;
+    font-weight: 600;
+    fill: #4b5563;
+    letter-spacing: 0.5px;
+  }
+
+  .revenue-chart-container .recharts-yAxis .recharts-cartesian-axis-line {
+    stroke: #9ca3af;
+    stroke-width: 1;
+  }
+
+  .revenue-chart-container .recharts-yAxis .recharts-cartesian-axis-tick-line {
+    stroke: #d1d5db;
+    stroke-width: 1;
+  }
+
+  /* Add subtle background for Y-axis values */
+  .revenue-chart-container .recharts-yAxis .recharts-cartesian-axis-tick {
+    transition: all 0.2s ease;
+  }
+
+  .revenue-chart-container .recharts-yAxis .recharts-cartesian-axis-tick:hover .recharts-cartesian-axis-tick-value {
+    fill: #1e40af;
+    font-weight: 700;
+    transform: translateX(-2px);
+  }
+
+  /* Enhance X-axis styling */
+  .revenue-chart-container .recharts-xAxis .recharts-cartesian-axis-tick-value {
+    font-size: 12px;
+    font-weight: 600;
+    fill: #4b5563;
+    letter-spacing: 0.2px;
+  }
+
+  .revenue-chart-container .recharts-xAxis .recharts-cartesian-axis-line {
+    stroke: #9ca3af;
+    stroke-width: 1;
+  }
+
+  .revenue-chart-container .recharts-xAxis .recharts-cartesian-axis-tick-line {
+    stroke: #d1d5db;
+    stroke-width: 1;
+  }
+
+  /* Add subtle animation for X-axis values */
+  .revenue-chart-container .recharts-xAxis .recharts-cartesian-axis-tick {
+    transition: all 0.2s ease;
+  }
+
+  .revenue-chart-container .recharts-xAxis .recharts-cartesian-axis-tick:hover .recharts-cartesian-axis-tick-value {
+    fill: #1e40af;
+    font-weight: 700;
+    transform: translateY(2px);
+  }
+
+  /* Add grid styling for better readability */
+  .revenue-chart-container .recharts-cartesian-grid-horizontal line {
+    stroke: rgba(203, 213, 225, 0.4);
+    stroke-dasharray: 4 4;
+  }
+
+  .revenue-chart-container .recharts-cartesian-grid-vertical line {
+    stroke: rgba(203, 213, 225, 0.3);
+    stroke-dasharray: 3 5;
+  }
+
+  /* Add axis domain styling */
+  .revenue-chart-container .recharts-yAxis .recharts-cartesian-axis-domain,
+  .revenue-chart-container .recharts-xAxis .recharts-cartesian-axis-domain {
+    stroke: #9ca3af;
+    stroke-width: 1.5;
+  }
+
+  /* Add subtle animation when hovering over the chart */
+  .revenue-chart-container .recharts-wrapper {
+    transition: all 0.3s ease;
+  }
+
+  .revenue-chart-container .recharts-wrapper:hover {
+    transform: scale(1.01);
+  }
+
+}
+

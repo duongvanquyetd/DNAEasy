@@ -2,13 +2,15 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Calendar, Users, CheckCircle, Clock, XCircle, RefreshCw, TrendingUp, BarChart3, PieChart, Filter } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
 import { GetAppointmentReport } from '../../service/appointment';
+import AdminHeader from '../AdminHeader'; // Import the header component
 
 // CSS Styles
 const styles = {
   dashboard: {
     minHeight: '100vh',
     backgroundColor: '#f8fafc',
-    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif'
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif',
+    display: 'flex' // Added to enable flex layout with sidebar
   },
   header: {
     backgroundColor: '#ffffff',
@@ -33,7 +35,8 @@ const styles = {
   main: {
     padding: '2rem',
     maxWidth: '1400px',
-    margin: '0 auto'
+    margin: '0 auto',
+    flex: 1 // Allow main content to take remaining space
   },
   dateFilter: {
     backgroundColor: '#ffffff',
@@ -175,12 +178,18 @@ const styles = {
     color: '#d97706'
   }
 };
+
 const DNATestingAdminDashboard = () => {
   const [dateRange, setDateRange] = useState('today');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [hoveredCard, setHoveredCard] = useState(null);
+
   const [reportData, setReportData] = useState([]);
+
+
+  const [reportData, setReportData] = useState([]);
+
   const getDateRange = () => {
     const today = new Date();
     if (dateRange === 'today') {
@@ -204,7 +213,6 @@ const DNATestingAdminDashboard = () => {
     if (dateRange === 'custom' && startDate && endDate) {
       return { fromdate: startDate, todate: endDate };
     }
-    // fallback: today
     const d = today.toISOString().slice(0, 10);
     return { fromdate: d, todate: d };
   };
@@ -217,8 +225,13 @@ const DNATestingAdminDashboard = () => {
         setReportData(res.data || []);
       })
       .catch(() => setReportData([]));
+
     
   }, [dateRange, startDate, endDate]);
+
+  }, [dateRange, startDate, endDate]);
+
+
   const currentData = useMemo(() => {
     let total = 0, completed = 0, inProgress = 0, cancelled = 0, refunded = 0;
     reportData.forEach(item => {
@@ -277,25 +290,13 @@ const DNATestingAdminDashboard = () => {
 
   return (
     <div style={styles.dashboard}>
-      <header style={styles.header}>
-        <div>
-          <h1 style={styles.title}>DNA Testing Admin Dashboard</h1>
-          <p style={styles.subtitle}>Manage and analyze DNA testing appointments</p>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Calendar style={styles.icon} />
-          <span style={{ fontSize: '0.875rem', color: '#64748b' }}>
-            {new Date().toLocaleDateString('en-US', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })}
-          </span>
-        </div>
-      </header>
+      {/* Sidebar Header */}
+      <AdminHeader />
 
-      <main style={styles.main}>
+      {/* Main Content */}
+      <div style={styles.main}>
+      
+
         {/* Date Filter */}
         <div style={styles.dateFilter}>
           <div style={styles.filterHeader}>
@@ -428,8 +429,6 @@ const DNATestingAdminDashboard = () => {
                   </span>
                 </div>
               </div>
-
-         
             </div>
           </div>
         </div>
@@ -546,9 +545,8 @@ const DNATestingAdminDashboard = () => {
               ))}
             </div>
           </div>
-
         </div>
-      </main>
+      </div>
     </div>
   );
 };

@@ -40,3 +40,7 @@ export const GetAppointmentCounts = () => {
 export const GetAppointmentReport = (dateRange) => {
   return api.get("/appointment/reports", { params: dateRange });
 };
+ export const AppointmnetforAdminOverview = ()=>{
+  return api.get("/appointment/stats")
+ }
+ 
