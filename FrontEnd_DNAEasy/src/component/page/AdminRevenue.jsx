@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import "./../css/AdminRevenue.css";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+
 import { FaChartLine, FaDollarSign, FaWallet, FaArrowUp, FaArrowDown, FaMoneyBillWave, FaHandHoldingUsd, FaCalendarAlt, FaSync } from "react-icons/fa";
 
 import * as revenueAPI from "../../service/revenue";
@@ -26,6 +27,7 @@ const getTimeRange = () => {
   } else if (filter === 'year') {
     from = `${startYear}-01-01`;
     to = `${currentYear}-12-31`;
+
   }
 
   return { from, to };
@@ -48,6 +50,7 @@ const FILTERS = {
 };
 
 const AdminRevenue = () => {
+
   const [timeRangeDisplay, setTimeRangeDisplay] = useState('');
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -286,6 +289,7 @@ const AdminRevenue = () => {
             <div className="expenses-placeholder" style={{fontWeight: 700, fontSize: 22, color: '#0a1d56', opacity: 0.9}}>
               {statsData.expenses.value.toLocaleString()} ₫
               <span style={{fontSize: 15, marginLeft: 10, fontWeight: 700, color: statsData.expenses.isUp ? '#16c784' : '#ff4d4f'}}>
+
                 {statsData.expenses.isUp ? <FaArrowUp /> : <FaArrowDown />} {Math.abs(statsData.expenses.change)}%
               </span>
             </div>
@@ -302,6 +306,7 @@ const AdminRevenue = () => {
             </div>
           </div>
         </div>
+
         <div className="dashboard-row">
           <div className="dashboard-card chart-card" style={{flex: 1}}>
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 12}}>
@@ -323,10 +328,11 @@ const AdminRevenue = () => {
                       }
                     }}
                   style={{padding: '6px 14px', borderRadius: 8, border: '1.5px solid #e0e6f7', fontWeight: 600, fontSize: 15, color: '#0a1d56', background: '#f5f8ff', outline: 'none', boxShadow: '0 2px 8px rgba(58,111,248,0.04)'}}
+
                 >
-                  <option value="day">Theo ngày</option>
-                  <option value="month">Theo tháng</option>
-                  <option value="year">Theo năm</option>
+                  <option value="day">By Day</option>
+                  <option value="month">By Month</option>
+                  <option value="year">By Year</option>
                 </select>
                   
                   {filter === 'month' && (
@@ -346,22 +352,36 @@ const AdminRevenue = () => {
                     <input
                       type="date"
                       value={fromDate}
+
+                      min={chartData.length ? chartData[0].name : ''}
+                      max={toDate || chartData[chartData.length - 1]?.name}
+
                       onChange={e => setFromDate(e.target.value)}
-                      style={{padding: '6px 10px', borderRadius: 8, border: '1.5px solid #e0e6f7', fontWeight: 500, fontSize: 15, color: '#0a1d56', background: '#f5f8ff', outline: 'none'}}
+                      className="date-input"
                     />
+
                       <span style={{margin: '0 4px', fontWeight: 600}}>đến</span>
                     <input
                       type="date"
                       value={toDate}
                         min={fromDate}
+
+                    <span className="date-separator">to</span>
+                    <input
+                      type="date"
+                      value={toDate}
+                      min={fromDate || chartData[0].name}
+                      max={chartData.length ? chartData[chartData.length - 1].name : ''}
+
                       onChange={e => setToDate(e.target.value)}
-                      style={{padding: '6px 10px', borderRadius: 8, border: '1.5px solid #e0e6f7', fontWeight: 500, fontSize: 15, color: '#0a1d56', background: '#f5f8ff', outline: 'none'}}
+                      className="date-input"
                     />
                     </div>
                 )}
                 </div>
               </div>
             </div>
+
             {/* asdas ===============================*/}
             <div style={{ width: '100%', height: 400 }}>
               <ResponsiveContainer>
@@ -376,6 +396,7 @@ const AdminRevenue = () => {
                   <Legend />
                   <Line type="monotone" dataKey="revenue" stroke="#82ca9d" name="Doanh thu (VND)" />
                   <Line type="monotone" dataKey="refund" stroke="#ff6961" name="Hoàn tiền (VND)" />
+
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -386,4 +407,6 @@ const AdminRevenue = () => {
   );
 };
 
+
 export default AdminRevenue; 
+

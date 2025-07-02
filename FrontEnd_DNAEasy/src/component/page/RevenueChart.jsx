@@ -1,4 +1,6 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
+
 
 import { 
   Users, DollarSign, Globe, ChevronUp, ArrowUpRight, 
@@ -12,11 +14,13 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area
 } from 'recharts';
 import "../../component/css/RevenueChart.css";
+
 import { GetRevenueForOverview } from '../../service/revenue';
 import { GetTop5Service } from '../../service/service';
 import { ReportUser } from '../../service/user';
 import { AppointmnetforAdminOverview } from '../../service/appointment';
 import { ChartOverview } from '../../service/payment';
+
 
 
 const RevenueChart = () => {
@@ -71,6 +75,7 @@ const RevenueChart = () => {
   // State for revenue flow data
   const [revenueFlowData, setRevenueFlowData] = useState([]);
   useEffect(() => {
+
     
     featchRevenueFlowStats();
     featchTopServices();
@@ -79,6 +84,7 @@ const RevenueChart = () => {
     fetchdatachart();
     setIsLoading(false);
  }, []);
+
 
  const featchRevenueFlowStats = async () => {
   GetRevenueForOverview({startPeriod:"2024-01", endPeriod:"2025-12"}).then((response) => {
@@ -95,11 +101,13 @@ const RevenueChart = () => {
       console.log("Updated revenueFlowStats with:", updatedStats);
       setRevenueFlowStats(updatedStats);
      
+
     }
    ).catch((error)=>{
     console.error("Error fetching revenue flow stats:", error);
    })
  }
+
 
 const featchTopServices = async () => {
 
@@ -181,28 +189,13 @@ const featchTopServices = async () => {
       color: "#f59e0b", 
       icon: AlertCircle
     }
+
   ];
 
-  // User role data
   const userRoleData = [
-    { 
-      name: "Staff", 
-      value: userRoleStats.staff || 0,
-      color: "#3b82f6", 
-      icon: Briefcase
-    },
-    { 
-      name: "Manager", 
-      value: userRoleStats.manager || 0,
-      color: "#10b981", 
-      icon: Shield
-    },
-    { 
-      name: "Admin", 
-      value: userRoleStats.admin || 0,
-      color: "#f59e0b", 
-      icon: User
-    }
+    { name: "Staff", value: userRoleStats.staff || 0, color: "#3b82f6", icon: Briefcase },
+    { name: "Manager", value: userRoleStats.manager || 0, color: "#10b981", icon: Shield },
+    { name: "Admin", value: userRoleStats.admin || 0, color: "#f59e0b", icon: User }
   ];
 
   return (
@@ -377,16 +370,32 @@ const featchTopServices = async () => {
                       </td>
                       <td className="name-column">{service.serviceName}</td>
                       <td className="count-column">{service.totalAppointments || service.count}</td>
+
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="3" className="no-data">No services data available</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          )}
+                  </thead>
+                  <tbody>
+                    {topServices.length > 0 ? (
+                      topServices.map((service, index) => (
+                        <tr key={index} className={index < 3 ? 'top-rank' : ''}>
+                          <td className="rank-column">
+                            <div className={`rank-badge rank-${index + 1}`}>
+                              {index < 3 ? <Star size={12} /> : index + 1}
+                            </div>
+                          </td>
+                          <td className="name-column">{service.serviceName}</td>
+                          <td className="count-column">{service.totalAppointments}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="3" className="no-data">No services data available</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

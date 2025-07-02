@@ -1,268 +1,148 @@
-// import React, { useState, useEffect } from 'react';
-// import { Search, Users, UserCheck, Crown, Edit3, Trash2, Plus, Filter, Download, RefreshCw, Eye, MoreVertical, Shield } from 'lucide-react';
-// import { GetAllUsers, GetUserStats, UpdateUserRole, DeleteUser } from '../../service/user';
-// import '../css/AdminUser.css';
 
-// const AdminUserManagement = () => {
-//   const [activeTab, setActiveTab] = useState('USER');
-//   const [users, setUsers] = useState([]);
-//   const [editUser, setEditUser] = useState(null);
-//   const [viewUser, setViewUser] = useState(null);
-//   const [searchQuery, setSearchQuery] = useState('');
-//   const [currentPage, setCurrentPage] = useState(1);
-//   const [totalPages, setTotalPages] = useState(1);
-//   const [isLoading, setIsLoading] = useState(false);
-//   const [showModal, setShowModal] = useState(false);
-//   const [showViewModal, setShowViewModal] = useState(false);
-//   const [selectedRole, setSelectedRole] = useState('');
-//   const [showFilters, setShowFilters] = useState(false);
-//   const [pageSize] = useState(10);
-//   const [error, setError] = useState(null);
+import React, { useState, useEffect } from 'react';
+import { Search, Users, UserCheck, Crown, Edit3, Trash2, Plus, Filter, Download, RefreshCw, Eye, MoreVertical, Shield } from 'lucide-react';
+import '../css/AdminUser.css';
+import { ActiveUser, DeleteUser, GetAllUsers, ReportUser, UpdateUserRole } from '../../service/user';
+import AdminHeader from '../AdminHeader';
+const AdminUserManagement = () => {
+  const [activeTab, setActiveTab] = useState('USER');
+  const [users, setUsers] = useState([]);
+  const [editUser, setEditUser] = useState(null);
+  const [viewUser, setViewUser] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [selectedRole, setSelectedRole] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+  const [totalPages, setTotalPages] = useState(0);
+  const [fromdate, setFromdate] = useState('');
+  const [todate, setTodate] = useState('');
+  const [active, setActive] = useState(true);
+  const [numberUser, setNumberUser] = useState();
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalStaff: 0,
+    totalAdmins: 0,
+    totalManagers: 0
+  });
 
-//   const [stats, setStats] = useState({
-//     totalUsers: 0,
-//     totalStaff: 0,
-//     totalManagers: 0,
-//     totalAdmins: 0,
-//     lastUpdated: new Date().toLocaleString('en-US')
-//   });
+  const tabs = [
+    { id: 'CUSTOMER', label: 'Users', icon: Users, count: stats.totalUsers, color: { from: '#1e3a8a', to: '#3b82f6' } },
+    { id: 'STAFF', label: 'Staff', icon: UserCheck, count: stats.totalStaff, color: { from: '#3b82f6', to: '#60a5fa' } },
+    { id: 'MANAGER', label: 'Managers', icon: Crown, count: stats.totalManagers, color: { from: '#1d4ed8', to: '#2563eb' } },
+    { id: 'ADMIN', label: 'Admins', icon: Shield, count: stats.totalAdmins, color: { from: '#7e22ce', to: '#a855f7' } },
+  ];
 
-//   const tabs = [
-//     { id: 'USER', label: 'Users', icon: Users, count: stats.totalUsers, color: { from: '#1e3a8a', to: '#3b82f6' } },
-//     { id: 'STAFF', label: 'Staff', icon: UserCheck, count: stats.totalStaff, color: { from: '#3b82f6', to: '#60a5fa' } },
-//     { id: 'MANAGER', label: 'Managers', icon: Crown, count: stats.totalManagers, color: { from: '#1d4ed8', to: '#2563eb' } },
-//     { id: 'ADMIN', label: 'Admins', icon: Shield, count: stats.totalAdmins, color: { from: '#7e22ce', to: '#a855f7' } },
-//   ];
+  useEffect(() => {
+    fetchUserStats();
+  }, [currentPage, searchQuery, activeTab, active, fromdate, todate]);
 
-//   // Fetch user stats
-//   useEffect(() => {
-//     const fetchUserStats = async () => {
-//       try {
-//         console.log('Calling GetUserStats API');
-//         const response = await GetUserStats();
-//         console.log('Stats response:', response);
-        
-//         // Kiểm tra cấu trúc response - phù hợp với API từ backend
-//         if (response && response.data) {
-//           console.log('Stats data processed:', response.data);
-          
-//           // Xác định các biến từ dữ liệu trả về
-//           // USER, STAFF, MANAGER, ADMIN là các key được trả về từ API
-//           const totalUsers = response.data.USER || 0;
-//           const totalStaff = response.data.STAFF || 0;
-//           const totalManagers = response.data.MANAGER || 0;
-//           const totalAdmins = response.data.ADMIN || 0;
-          
-//           setStats({
-//             totalUsers,
-//             totalStaff, 
-//             totalManagers,
-//             totalAdmins,
-//             lastUpdated: new Date().toLocaleString('en-US')
-//           });
-//         }
-//       } catch (err) {
-//         console.error('Error fetching user stats:', err);
-//         setError('Failed to load user statistics');
-//       }
-//     };
+  const fetchUserStats = async () => {
+    try {
+      ReportUser().then((response) => {
+        setStats({
+          totalUsers: response.data.customer,
+          totalStaff: response.data.staff,
+          totalManagers: response.data.manager,
+          totalAdmins: response.data.admin
+        });
+      });
 
-//     fetchUserStats();
-//   }, []);
+      const datasearch = {
+        name: searchQuery,
+        rolename: activeTab,
+        active: active,
+        createdDateform: fromdate,
+        createdDateTo: todate
+      };
 
-//   // Fetch users based on active tab
-//   useEffect(() => {
-//     const fetchUsers = async () => {
-//       setIsLoading(true);
-//       setError(null);
-      
-//       try {
-//         console.log('Fetching users with params:', {
-//           role: activeTab,
-//           page: currentPage - 1,
-//           size: pageSize,
-//           keyword: searchQuery
-//         });
-        
-//         const response = await GetAllUsers(
-//           activeTab,
-//           currentPage - 1, // API uses 0-based indexing
-//           pageSize,
-//           searchQuery
-//         );
-        
-//         console.log('API Response (full):', response);
-//         console.log('Response data:', response.data);
-//         console.log('Response headers:', response.headers);
-//         console.log('Response status:', response.status);
-        
-//         // Kiểm tra token để xem có vấn đề về authentication không
-//         console.log('Current token:', localStorage.getItem('token'));
-        
-//         // Backend trả về mảng trực tiếp, không có cấu trúc pagination
-//         if (response.data) {
-//           // Thêm log chi tiết để debug
-//           console.log('Setting users with:', response.data);
-//           console.log('Users array type:', Array.isArray(response.data));
-//           console.log('Users array length:', Array.isArray(response.data) ? response.data.length : 'not an array');
-          
-//           setUsers(response.data || []);
-//           // Nếu API không trả về thông tin trang, giả định 1 trang
-//           setTotalPages(1);
-//         } else {
-//           console.error('Unexpected API response structure:', response);
-//           setError('Unexpected API response format');
-//         }
-//       } catch (err) {
-//         console.error('Error fetching users:', err);
-//         console.error('Error details:', err.response ? {
-//           status: err.response.status,
-//           statusText: err.response.statusText,
-//           data: err.response.data
-//         } : 'No response');
-        
-//         setError(`Failed to load users: ${err.message || 'Unknown error'}`);
-//         setUsers([]);
-//       } finally {
-//         setIsLoading(false);
-//       }
-//     };
+      const response = await GetAllUsers(currentPage, pageSize, datasearch);
+      setUsers(response.data.content);
+      setTotalPages(response.data.totalPages);
+      setNumberUser(response.data.totalElements);
+    } catch (err) {
+      console.error('Error fetching user stats:', err);
+      setError('Failed to load user statistics');
+    }
+  };
 
-//     fetchUsers();
-//   }, [activeTab, currentPage, pageSize, searchQuery]);
+  const handleEditUser = (user) => {
+    if (!user.name) {
+      setError('Cannot edit user: User name is missing');
+      return;
+    }
+    setEditUser(user);
+    setSelectedRole(user.rolename);
+    setShowModal(true);
+  };
 
-//   // Debounced search
-//   useEffect(() => {
-//     const debounceTimer = setTimeout(() => {
-//       setCurrentPage(1); // Reset to first page on new search
-//     }, 500);
-
-//     return () => clearTimeout(debounceTimer);
-//   }, [searchQuery]);
-
-//   const handleEditUser = (user) => {
-//     console.log('User object to edit:', user);
-//     console.log('Available properties:', Object.keys(user));
-    
-//     // Sử dụng name thay vì id để xác định người dùng
-//     if (!user.name) {
-//       setError('Cannot edit user: User name is missing');
-//       return;
-//     }
-    
-//     setEditUser(user);
-//     setSelectedRole(user.role);
-//     setShowModal(true);
-//   };
 
 //   const handleViewUser = (user) => {
 //     setViewUser(user);
 //     setShowViewModal(true);
 //   };
 
-//   const handleUpdateUser = async () => {
-//     if (editUser) {
-//       setIsLoading(true);
-//       try {
-//         // Kiểm tra name có tồn tại không
-//         if (!editUser.name) {
-//           throw new Error('User name is missing');
-//         }
-        
-//         console.log('Updating user with name:', editUser.name, 'to role:', selectedRole);
-        
-//         // Sử dụng name thay vì id
-//         await UpdateUserRole(editUser.name, selectedRole);
-        
-//         // Update the user in the local state
-//         setUsers(prevUsers => 
-//           prevUsers.map(user =>
-//             user.name === editUser.name ? { ...user, role: selectedRole } : user
-//           )
-//         );
-        
-//         // Refresh user stats after updating role
-//         const response = await GetUserStats();
-//         if (response && response.data) {
-//           const totalUsers = response.data.USER || 0;
-//           const totalStaff = response.data.STAFF || 0;
-//           const totalManagers = response.data.MANAGER || 0;
-//           const totalAdmins = response.data.ADMIN || 0;
-          
-//           setStats({
-//             totalUsers,
-//             totalStaff,
-//             totalManagers,
-//             totalAdmins,
-//             lastUpdated: new Date().toLocaleString('en-US')
-//           });
-//         }
-        
-//         setShowModal(false);
-//         setEditUser(null);
-//       } catch (err) {
-//         console.error('Error updating user:', err);
-//         setError(`Failed to update user: ${err.message || 'Unknown error'}`);
-//       } finally {
-//         setIsLoading(false);
-//       }
-//     }
-//   };
 
-//   const handleDeleteUser = async (user) => {
-//     if (!user || !user.name) {
-//       setError('Cannot delete: User name is missing');
-//       return;
-//     }
-    
-//     if (window.confirm(`Are you sure you want to delete user "${user.name}"?`)) {
-//       setIsLoading(true);
-//       try {
-//         // Sử dụng name thay vì id
-//         await DeleteUser(user.name);
-        
-//         // Xóa user khỏi state
-//         setUsers(users.filter(u => u.name !== user.name));
-        
-//         // Cập nhật lại thống kê sau khi xóa
-//         const response = await GetUserStats();
-//         if (response.data) {
-//           const totalUsers = response.data.USER || 0;
-//           const totalStaff = response.data.STAFF || 0;
-//           const totalManagers = response.data.MANAGER || 0;
-//           const totalAdmins = response.data.ADMIN || 0;
-          
-//           setStats({
-//             totalUsers,
-//             totalStaff,
-//             totalManagers,
-//             totalAdmins,
-//             lastUpdated: new Date().toLocaleString('en-US')
-//           });
-//         }
-//       } catch (err) {
-//         console.error('Error deleting user:', err);
-//         setError(`Failed to delete user: ${err.message || 'Unknown error'}`);
-//       } finally {
-//         setIsLoading(false);
-//       }
-//     }
-//   };
+  const handleUpdateUser = async () => {
+    if (editUser) {
+      setIsLoading(true);
+      try {
+        const updatuser = {
+          personId: editUser.personId,
+          role: selectedRole
+        };
+        await UpdateUserRole(updatuser).then((response) => {
+          fetchUserStats();
+        });
+        setShowModal(false);
+        setEditUser(null);
+      } catch (err) {
+        console.error('Error updating user:', err);
+        setError(`Failed to update user: ${err.message || 'Unknown error'}`);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
 
-//   const getStatusBadge = (status) => {
-//     // Chuyển đổi status từ boolean sang text
-//     const isActive = status === true;
-    
-//     return isActive ? (
-//       <div className="status-badge active">
-//         Active
-//       </div>
-//     ) : (
-//       <div className="status-badge inactive">
-//         Inactive
-//       </div>
-//     );
-//   };
+  const handleDeleteUser = async (userId) => {
+    await DeleteUser(userId).then((response) => {
+      fetchUserStats();
+    });
+  };
+
+  const handleActiveeUser = async (userId) => {
+    await ActiveUser(userId).then((response) => {
+      fetchUserStats();
+    });
+  };
+
+  const renderPagination = (total, current) => (
+    <div className="pagination">
+      {Array.from({ length: total }, (_, i) => i + 1).map((i) => (
+        <button
+          key={i}
+          className={`page-button ${i === current ? 'active' : ''}`}
+          onClick={() => setCurrentPage(i)}
+        >
+          {i}
+        </button>
+      ))}
+    </div>
+  );
+
+  const getStatusBadge = (status) => {
+    return status === true ? (
+      <div className="status-badge active">Active</div>
+    ) : (
+      <div className="status-badge inactive">Inactive</div>
+    );
+  };
+
 
 //   const getAvatarColor = (index) => {
 //     const gradients = [
@@ -275,253 +155,252 @@
 //     return gradients[index % gradients.length];
 //   };
 
-//   return (
-//     <div className="aum-root">
-//       {/* Header */}
-//       <header className="aum-header">
-//         <div className="aum-header-content">
-//           <div className="aum-header-title">
-//             <Users size={36} className="aum-header-icon" />
-//             <div>
-//               <h1>User Management</h1>
-//               <p>Efficiently manage customers, staff, and system managers</p>
-//             </div>
-//           </div>
-//         </div>
-//       </header>
 
-//       <main className="aum-main">
-//         {/* Stats Cards */}
-//         <section className="aum-stats-row">
-//           {tabs.map((tab) => {
-//             const Icon = tab.icon;
-//             return (
-//               <div
-//                 key={`stat-${tab.id}`}
-//                 className={`aum-stats-card${activeTab === tab.id ? ' active' : ''}`}
-//                 onClick={() => setActiveTab(tab.id)}
-//                 tabIndex={0}
-//                 title={tab.label}
-//               >
-//                 <div className="aum-stats-icon"><Icon size={32} /></div>
-//                 <div className="aum-stats-info">
-//                   <span className="aum-stats-label">{tab.label}</span>
-//                   <span className="aum-stats-value">{tab.count.toLocaleString()}</span>
-//                 </div>
-//               </div>
-//             );
-//           })}
-//         </section>
+  return (
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
+      {/* Sidebar Header */}
+      <AdminHeader />
 
-//         {/* Tabs */}
-//         <nav className="aum-tabs">
-//           {tabs.map((tab) => (
-//             <button
-//               key={`tab-${tab.id}`}
-//               className={`aum-tab-btn${activeTab === tab.id ? ' active' : ''}`}
-//               onClick={() => { setActiveTab(tab.id); setCurrentPage(1); }}
-//             >
-//               {tab.label}
-//               <span className="aum-tab-count">{tab.count}</span>
-//             </button>
-//           ))}
-//         </nav>
+      {/* Main Content */}
+      <div style={{ flex: 1, padding: '20px', backgroundColor: '#f8fafc' }}>
+        <div className="aum-root">
+         
 
-//         {/* Search & Filter */}
-//         <div className="aum-search-filter-row">
-//           <div className="aum-search-box">
-//             <Search size={18} />
-//             <input
-//               type="text"
-//               placeholder={`Search ${tabs.find(t => t.id === activeTab)?.label.toLowerCase()}...`}
-//               value={searchQuery}
-//               onChange={(e) => setSearchQuery(e.target.value)}
-//             />
-//           </div>
-//           <div className="aum-filter-box">
-//             <button onClick={() => setShowFilters(!showFilters)} className="aum-filter-btn">
-//               <Filter size={18} /> Filter
-//             </button>
-//             {showFilters && (
-//               <div className="aum-filter-dropdown">
-//                 <select>
-//                   <option key="all-statuses">All Statuses</option>
-//                   <option key="active">Active</option>
-//                   <option key="inactive">Inactive</option>
-//                 </select>
-//               </div>
-//             )}
-//           </div>
-//         </div>
+          <main className="aum-main">
+            <section className="aum-stats-row">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <div
+                    key={`stat-${tab.id}`}
+                    className={`aum-stats-card${activeTab === tab.id ? ' active' : ''}`}
+                    onClick={() => setActiveTab(tab.id)}
+                    tabIndex={0}
+                    title={tab.label}
+                  >
+                    <div className="aum-stats-icon"><Icon size={32} /></div>
+                    <div className="aum-stats-info">
+                      <span className="aum-stats-label">{tab.label}</span>
+                      <span className="aum-stats-value">{tab.count}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </section>
 
-//         {/* Error display */}
-//         {error && (
-//           <div className="aum-error-display">
-//             <p>{error}</p>
-//             <button onClick={() => setError(null)}>&times;</button>
-//           </div>
-//         )}
+            <nav className="aum-tabs">
+              {tabs.map((tab) => (
+                <button
+                  key={`tab-${tab.id}`}
+                  className={`aum-tab-btn${activeTab === tab.id ? ' active' : ''}`}
+                  onClick={() => { setActiveTab(tab.id); setCurrentPage(1); }}
+                >
+                  {tab.label}
+                  {activeTab === tab.id && (<span className="aum-tab-count">{activeTab === tab.id ? numberUser : ''}</span>)}
+                </button>
+              ))}
+            </nav>
 
-//         {/* Table */}
-//         <section className="aum-table-section">
-//           <div className="aum-table-wrapper">
-//             {isLoading ? (
-//               <div className="aum-loading">
-//                 <div className="aum-spinner"></div>
-//                 <p>Loading data...</p>
-//               </div>
-//             ) : (
-//               <table className="aum-table">
-//                 <thead>
-//                   <tr>
-//                     <th>User</th>
-//                     <th>Contact</th>
-//                     <th>Status</th>
-//                     <th>Join Date</th>
-//                     <th>Last Login</th>
-//                     <th>Actions</th>
-//                   </tr>
-//                 </thead>
-//                 <tbody>
-//                   {users.map((user, i) => (
-//                     <tr key={user.id}>
-//                       <td>
-//                         <div className="aum-user-info">
-//                           <div className="aum-avatar" style={{ background: getAvatarColor(i) }}>
-//                             {user.name ? user.name.substring(0, 2).toUpperCase() : 'NA'}
-//                           </div>
-//                           <div className="aum-user-name">{user.name}</div>
-//                         </div>
-//                       </td>
-//                       <td>
-//                         <div className="aum-user-contact">
-//                           <span key="email">{user.email || "N/A"}</span>
-//                           <span key="phone">{user.phone || "N/A"}</span>
-//                         </div>
-//                       </td>
-//                       <td>{getStatusBadge(user.status)}</td>
-//                       <td>{user.createdDate ? new Date(user.createdDate).toLocaleDateString('en-US') : 'N/A'}</td>
-//                       <td>{user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('en-US') : 'N/A'}</td>
-//                       <td>
-//                         <div className="aum-actions">
-//                           <button title="View" onClick={() => handleViewUser(user)} className="aum-action-view"><Eye size={18} /></button>
-//                           <button title="Edit" onClick={() => handleEditUser(user)} className="aum-action-edit"><Edit3 size={18} /></button>
-//                           <button title="Delete" onClick={() => handleDeleteUser(user)} className="aum-action-delete"><Trash2 size={18} /></button>
-//                         </div>
-//                       </td>
-//                     </tr>
-//                   ))}
-//                 </tbody>
-//               </table>
-//             )}
-//           </div>
-//         </section>
+            <div className="aum-search-filter-row">
+              <div className="aum-search-box">
+                <Search size={18} />
+                <input
+                  type="text"
+                  placeholder={`Search ${selectedRole} by name ...`}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <div className="aum-filter-box">
+                <button onClick={() => setShowFilters(!showFilters)} className="aum-filter-btn">
+                  <Filter size={18} /> Filter
+                </button>
+                <input
+                  type="date"
+                  value={fromdate}
+                  onChange={(e) => setFromdate(e.target.value)}
+                />
+                <span style={{ color: '#64748b' }}>to</span>
+                <input
+                  type="date"
+                  value={todate}
+                  onChange={(e) => setTodate(e.target.value)}
+                />
+                {showFilters && (
+                  <div className="aum-filter-dropdown">
+                    <select value={active} onChange={(e) => setActive(e.target.value)}>
+                      <option value={true}>Active</option>
+                      <option value={false}>Inactive</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+            </div>
 
-//         {/* Pagination */}
-//         <div className="aum-pagination-row">
-//           <div className="aum-pagination-info">
-//             Showing <span>{users.length}</span> of <span>{tabs.find(t => t.id === activeTab)?.count}</span> results
-//           </div>
-//           <div className="aum-pagination-btns">
-//             <button disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>&larr; Previous</button>
-//             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-//               <button
-//                 key={`page-${page}`}
-//                 className={page === currentPage ? 'active' : ''}
-//                 onClick={() => setCurrentPage(page)}
-//               >
-//                 {page}
-//               </button>
-//             ))}
-//             <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)}>Next &rarr;</button>
-//           </div>
-//         </div>
+            {error && (
+              <div className="aum-error-display">
+                <p>{error}</p>
+                <button onClick={() => setError(null)}>×</button>
+              </div>
+            )}
 
-//         {/* Edit Modal */}
-//         {showModal && editUser && (
-//           <div className="aum-modal-overlay">
-//             <div className="aum-modal">
-//               <div className="aum-modal-header">
-//                 <h3>Edit User</h3>
-//                 <p>Update user information and role</p>
-//               </div>
-//               <div className="aum-modal-body">
-//                 <div className="aum-modal-user">
-//                   <div className="aum-avatar" style={{ background: getAvatarColor(0) }}>
-//                     {editUser.name ? editUser.name.substring(0, 2).toUpperCase() : 'NA'}
-//                   </div>
-//                   <div>
-//                     <h4>{editUser.name}</h4>
-//                     <p>{editUser.email || "N/A"}</p>
-//                   </div>
-//                 </div>
-//                 <div className="aum-modal-info-grid">
-//                   <div key="status"><span>Status:</span> <p>{editUser.status === true ? 'Active' : 'Inactive'}</p></div>
-//                   <div key="join-date"><span>Join Date:</span> <p>{editUser.createdDate ? new Date(editUser.createdDate).toLocaleDateString('en-US') : 'N/A'}</p></div>
-//                 </div>
-//                 <div className="aum-modal-role">
-//                   <label>User Role</label>
-//                   <div className="aum-modal-role-options">
-//                     {tabs.map((tab) => {
-//                       const Icon = tab.icon;
-//                       return (
-//                         <label key={`role-${tab.id}`} className={`aum-role-option${selectedRole === tab.id ? ' selected' : ''}`}>
-//                           <input
-//                             type="radio"
-//                             name="role"
-//                             value={tab.id}
-//                             checked={selectedRole === tab.id}
-//                             onChange={(e) => setSelectedRole(e.target.value)}
-//                           />
-//                           <span className="aum-role-icon"><Icon size={20} /></span>
-//                           <span>{tab.label}</span>
-//                         </label>
-//                       );
-//                     })}
-//                   </div>
-//                 </div>
-//               </div>
-//               <div className="aum-modal-footer">
-//                 <button className="aum-btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
-//                 <button className="aum-btn-update" onClick={handleUpdateUser}>Update</button>
-//               </div>
-//             </div>
-//           </div>
-//         )}
+            <section className="aum-table-section">
+              <div className="aum-table-wrapper">
+                {isLoading ? (
+                  <div className="aum-loading">
+                    <div className="aum-spinner"></div>
+                    <p>Loading data...</p>
+                  </div>
+                ) : (
+                  <table className="aum-table">
+                    <thead>
+                      <tr>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Join Date</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {users.map((user, i) => (
+                        <tr key={user.personId}>
+                          <td>
+                            <div className="aum-user-info">
+                              <div className="aum-avatar" style={{ background: getAvatarColor(i) }}>
+                                {user.name ? user.name.substring(0, 2).toUpperCase() : 'NA'}
+                              </div>
+                              <div className="aum-user-name">{user.name}</div>
+                            </div>
+                          </td>
+                          <td>
+                            <div className="aum-user-contact">
+                              <span>{user.rolename || "N/A"}</span>
+                            </div>
+                          </td>
+                          <td>{getStatusBadge(user.active)}</td>
+                          <td>{user.createdDate ? new Date(user.createdDate).toLocaleDateString('en-US') : 'N/A'}</td>
+                          <td>
+                            <div className="aum-actions">
+                              <button title="View" onClick={() => handleViewUser(user)} className="aum-action-view"><Eye size={18} /></button>
+                              <button title="Edit" onClick={() => handleEditUser(user)} className="aum-action-edit"><Edit3 size={18} /></button>
+                              {user.active ? (
+                                <button title="Delete" onClick={() => handleDeleteUser(user.personId)} className="aum-action-delete"><Trash2 size={18} /></button>
+                              ) : (
+                                <button title="Restore" onClick={() => handleActiveeUser(user.personId)} className="aum-action-restore">Restore</button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </section>
 
-//         {/* View Modal */}
-//         {showViewModal && viewUser && (
-//           <div className="aum-modal-overlay">
-//             <div className="aum-modal">
-//               <div className="aum-modal-header">
-//                 <h3>View User</h3>
-//                 <p>User details</p>
-//               </div>
-//               <div className="aum-modal-body">
-//                 <div className="aum-modal-user">
-//                   <div className="aum-avatar" style={{ background: getAvatarColor(0) }}>
-//                     {viewUser.name ? viewUser.name.substring(0, 2).toUpperCase() : 'NA'}
-//                   </div>
-//                   <div>
-//                     <h4>{viewUser.name}</h4>
-//                     <p>{viewUser.email || "N/A"}</p>
-//                   </div>
-//                 </div>
-//                 <div className="aum-modal-info-grid">
-//                   <div key="status"><span>Status:</span> <p>{viewUser.status === true ? 'Active' : 'Inactive'}</p></div>
-//                   <div key="join-date"><span>Join Date:</span> <p>{viewUser.createdDate ? new Date(viewUser.createdDate).toLocaleDateString('en-US') : 'N/A'}</p></div>
-//                   <div key="role"><span>Role:</span> <p>{viewUser.role || 'N/A'}</p></div>
-//                 </div>
-//               </div>
-//               <div className="aum-modal-footer">
-//                 <button className="aum-btn-cancel" onClick={() => setShowViewModal(false)}>Close</button>
-//               </div>
-//             </div>
-//           </div>
-//         )}
-//       </main>
-//     </div>
-//   );
-// };
+            <div className="aum-pagination-row">
+              <div className="aum-pagination-info">
+                Showing <span>{currentPage}</span> of <span>{totalPages}</span> results
+              </div>
+              {renderPagination(totalPages, currentPage)}
+            </div>
 
-// export default AdminUserManagement;
+            {showModal && editUser && (
+              <div className="aum-modal-overlay">
+                <div className="aum-modal">
+                  <div className="aum-modal-header">
+                    <h3>Edit User</h3>
+                    <p>Update user information and role</p>
+                  </div>
+                  <div className="aum-modal-body">
+                    <div className="aum-modal-user">
+                      <div className="aum-avatar" style={{ background: getAvatarColor(0) }}>
+                        {editUser.name ? editUser.name.substring(0, 2).toUpperCase() : 'NA'}
+                      </div>
+                      <div>
+                        <h4>{editUser.name}</h4>
+                        <p>{editUser.email || "N/A"}</p>
+                      </div>
+                    </div>
+                    <div className="aum-modal-info-grid">
+                      <div><span>Status:</span> <p>{editUser.active === true ? 'Active' : 'Inactive'}</p></div>
+                      <div><span>Join Date:</span> <p>{editUser.createdDate ? new Date(editUser.createdDate).toLocaleDateString('vn') : 'N/A'}</p></div>
+                    </div>
+                    <div className="aum-modal-role">
+                      <label>User Role</label>
+                      <div className="aum-modal-role-options">
+                        <label className={`aum-role-option${selectedRole === "CUSTOMER" ? ' selected' : ''}`}>
+                          <input type="radio" name="role" value="CUSTOMER" onChange={(e) => setSelectedRole(e.target.value)} />
+                          <span className="aum-role-icon"></span>
+                          <span>CUSTOMER</span>
+                        </label>
+                        <label className={`aum-role-option${selectedRole === "STAFF_RECEPTION" ? ' selected' : ''}`}>
+                          <input type="radio" name="role" value="STAFF_RECEPTION" onChange={(e) => setSelectedRole(e.target.value)} />
+                          <span className="aum-role-icon"></span>
+                          <span>STAFF RECEPTION</span>
+                        </label>
+                        <label className={`aum-role-option${selectedRole === "STAFF_LAB" ? ' selected' : ''}`}>
+                          <input type="radio" name="role" value="STAFF_LAB" onChange={(e) => setSelectedRole(e.target.value)} />
+                          <span className="aum-role-icon"></span>
+                          <span>STAFF LAB</span>
+                        </label>
+                        <label className={`aum-role-option${selectedRole === "STAFF_TEST" ? ' selected' : ''}`}>
+                          <input type="radio" name="role" value="STAFF_TEST" onChange={(e) => setSelectedRole(e.target.value)} />
+                          <span className="aum-role-icon"></span>
+                          <span>STAFF TEST</span>
+                        </label>
+                        <label className={`aum-role-option${selectedRole === "MANAGER" ? ' selected' : ''}`}>
+                          <input type="radio" name="role" value="MANAGER" onChange={(e) => setSelectedRole(e.target.value)} />
+                          <span className="aum-role-icon"></span>
+                          <span>MANAGER</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="aum-modal-footer">
+                    <button className="aum-btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
+                    <button className="aum-btn-update" onClick={handleUpdateUser}>Update</button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {showViewModal && viewUser && (
+              <div className="aum-modal-overlay">
+                <div className="aum-modal">
+                  <div className="aum-modal-header">
+                    <h3>View User</h3>
+                    <p>User details</p>
+                  </div>
+                  <div className="aum-modal-body">
+                    <div className="aum-modal-user">
+                      <div className="aum-avatar" style={{ background: getAvatarColor(0) }}>
+                        {viewUser.name ? viewUser.name.substring(0, 2).toUpperCase() : 'NA'}
+                      </div>
+                      <div>
+                        <h4>{viewUser.name}</h4>
+                        <p>{viewUser.email || "N/A"}</p>
+                      </div>
+                    </div>
+                    <div className="aum-modal-info-grid">
+                      <div><span>Status:</span> <p>{viewUser.active === true ? 'Active' : 'Inactive'}</p></div>
+                      <div><span>Join Date:</span> <p>{viewUser.createdDate ? new Date(viewUser.createdDate).toLocaleDateString('en-US') : 'N/A'}</p></div>
+                      <div><span>Role:</span> <p>{viewUser.rolename || 'N/A'}</p></div>
+                    </div>
+                  </div>
+                  <div className="aum-modal-footer">
+                    <button className="aum-btn-cancel" onClick={() => setShowViewModal(false)}>Close</button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AdminUserManagement;
+
