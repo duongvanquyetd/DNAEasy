@@ -159,17 +159,7 @@ const AdminUserManagement = () => {
       {/* Main Content */}
       <div style={{ flex: 1, padding: '20px', backgroundColor: '#f8fafc' }}>
         <div className="aum-root">
-          <header className="aum-header">
-            <div className="aum-header-content">
-              <div className="aum-header-title">
-                <Users size={36} className="aum-header-icon" />
-                <div>
-                  <h1>User Management</h1>
-                  <p>Efficiently manage customers, staff, and system managers</p>
-                </div>
-              </div>
-            </div>
-          </header>
+         
 
           <main className="aum-main">
             <section className="aum-stats-row">

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./../css/AdminRevenue.css";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Label } from "recharts";
-import { FaChartLine, FaDollarSign, FaWallet, FaArrowUp, FaArrowDown, FaUsers } from "react-icons/fa";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { FaChartLine, FaDollarSign, FaArrowUp, FaArrowDown, FaUsers } from "react-icons/fa";
 import AdminHeader from '../AdminHeader';
 
 const dataByDay = [
@@ -38,23 +38,23 @@ const dataByYear = [
 ];
 
 const FILTERS = {
-  day: { label: 'Ngày', data: dataByDay },
-  month: { label: 'Tháng', data: dataByMonth },
-  year: { label: 'Năm', data: dataByYear },
+  day: { label: 'Day', data: dataByDay },
+  month: { label: 'Month', data: dataByMonth },
+  year: { label: 'Year', data: dataByYear },
 };
 
 const statsData = {
   statistics: {
-    title: 'Tổng giao dịch',
+    title: 'Total Transactions',
     value: 1280,
-    icon: <FaUsers size={22} style={{color: '#3a6ff8'}} />,
+    icon: <FaUsers size={22} style={{ color: '#3a6ff8' }} />,
     change: 5.2,
     isUp: true
   },
   expenses: {
-    title: 'Tổng chi phí',
+    title: 'Total Expenses',
     value: 45141,
-    icon: <FaDollarSign size={22} style={{color: '#f8c63a'}} />,
+    icon: <FaDollarSign size={22} style={{ color: '#f8c63a' }} />,
     change: 1.7,
     isUp: true
   }
@@ -76,48 +76,41 @@ const AdminRevenue = () => {
 
   return (
     <div className="admin-revenue-dashboard">
-      {/* Sidebar Header */}
       <AdminHeader />
-
-      {/* Main Content */}
-      <div className="dashboard-main">
-        <div className="dashboard-header">
-          <FaChartLine size={30} />
-          <h2>Admin Revenue Dashboard</h2>
-        </div>
-        <div className="dashboard-row" style={{ gap: 40, marginBottom: 18 }}>
-          <div className="dashboard-card stats-card sleep-card">
+      <div className="dashboard-content">
+        <div className="dashboard-row dashboard-stats">
+          <div className="dashboard-card stats-card">
             <div className="card-title">{statsData.statistics.icon} {statsData.statistics.title}</div>
-            <div className="stats-placeholder" style={{ fontWeight: 700, fontSize: 22, color: '#0a1d56', opacity: 0.9 }}>
+            <div className="stats-value">
               {statsData.statistics.value.toLocaleString()}
-              <span style={{ fontSize: 15, marginLeft: 10, fontWeight: 700, color: statsData.statistics.isUp ? '#16c784' : '#ff4d4f' }}>
+              <span className={statsData.statistics.isUp ? 'value-up' : 'value-down'}>
                 {statsData.statistics.isUp ? <FaArrowUp /> : <FaArrowDown />} {Math.abs(statsData.statistics.change)}%
               </span>
             </div>
           </div>
-          <div className="dashboard-card expenses-card sleep-card">
+          <div className="dashboard-card expenses-card">
             <div className="card-title">{statsData.expenses.icon} {statsData.expenses.title}</div>
-            <div className="expenses-placeholder" style={{ fontWeight: 700, fontSize: 22, color: '#0a1d56', opacity: 0.9 }}>
+            <div className="stats-value">
               ${statsData.expenses.value.toLocaleString()}
-              <span style={{ fontSize: 15, marginLeft: 10, fontWeight: 700, color: statsData.expenses.isUp ? '#16c784' : '#ff4d4f' }}>
+              <span className={statsData.expenses.isUp ? 'value-up' : 'value-down'}>
                 {statsData.expenses.isUp ? <FaArrowUp /> : <FaArrowDown />} {Math.abs(statsData.expenses.change)}%
               </span>
             </div>
           </div>
         </div>
-        <div className="dashboard-row">
-          <div className="dashboard-card chart-card" style={{ flex: 1 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 12 }}>
-              <div className="card-title"><FaChartLine size={22} /> Thống kê doanh thu, hoàn tiền</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div className="dashboard-row dashboard-chart">
+          <div className="dashboard-card chart-card">
+            <div className="chart-header">
+              <div className="card-title"><FaChartLine size={22} /> Revenue and Refund Statistics</div>
+              <div className="chart-controls">
                 <select
                   value={filter}
                   onChange={e => { setFilter(e.target.value); setFromDate(''); setToDate(''); }}
-                  style={{ padding: '6px 14px', borderRadius: 8, border: '1.5px solid #e0e6f7', fontWeight: 600, fontSize: 15, color: '#0a1d56', background: '#f5f8ff', outline: 'none', boxShadow: '0 2px 8px rgba(58,111,248,0.04)' }}
+                  className="filter-select"
                 >
-                  <option value="day">Theo ngày</option>
-                  <option value="month">Theo tháng</option>
-                  <option value="year">Theo năm</option>
+                  <option value="day">By Day</option>
+                  <option value="month">By Month</option>
+                  <option value="year">By Year</option>
                 </select>
                 {filter === 'day' && (
                   <>
@@ -127,31 +120,31 @@ const AdminRevenue = () => {
                       min={chartData.length ? chartData[0].name : ''}
                       max={toDate || chartData[chartData.length - 1]?.name}
                       onChange={e => setFromDate(e.target.value)}
-                      style={{ padding: '6px 10px', borderRadius: 8, border: '1.5px solid #e0e6f7', fontWeight: 500, fontSize: 15, color: '#0a1d56', background: '#f5f8ff', outline: 'none' }}
+                      className="date-input"
                     />
-                    <span style={{ margin: '0 4px' }}>đến</span>
+                    <span className="date-separator">to</span>
                     <input
                       type="date"
                       value={toDate}
                       min={fromDate || chartData[0].name}
                       max={chartData.length ? chartData[chartData.length - 1].name : ''}
                       onChange={e => setToDate(e.target.value)}
-                      style={{ padding: '6px 10px', borderRadius: 8, border: '1.5px solid #e0e6f7', fontWeight: 500, fontSize: 15, color: '#0a1d56', background: '#f5f8ff', outline: 'none' }}
+                      className="date-input"
                     />
                   </>
                 )}
               </div>
             </div>
-            <div className="chart-placeholder" style={{ height: 320, background: 'none', color: 'inherit', padding: 0 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e0e6f7" vertical={true} />
+            <div className="chart-placeholder">
+              <ResponsiveContainer width="100%" height={400}>
+                <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e0e6f7" />
                   <XAxis dataKey="name" stroke="#0a1d56" />
                   <YAxis stroke="#0a1d56" />
                   <Tooltip formatter={v => v.toLocaleString() + " ₫"} />
                   <Legend />
-                  <Line type="monotone" dataKey="Revenue" name="Doanh thu" stroke="#0a1d56" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                  <Line type="monotone" dataKey="Refund" name="Hoàn tiền" stroke="#f8c63a" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                  <Line type="monotone" dataKey="Revenue" name="Revenue" stroke="#0a1d56" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                  <Line type="monotone" dataKey="Refund" name="Refund" stroke="#f8c63a" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>

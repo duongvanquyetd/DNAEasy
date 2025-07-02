@@ -286,25 +286,7 @@ const DNATestingAdminDashboard = () => {
 
       {/* Main Content */}
       <div style={styles.main}>
-        <header style={styles.header}>
-          <div>
-            <h1 style={styles.title}>DNA Testing Admin Dashboard</h1>
-            <p style={styles.subtitle}>Manage and analyze DNA testing appointments</p>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Calendar style={styles.icon} />
-            <span style={{ fontSize: '0.875rem', color: '#64748b' }}>
-              {new Date().toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              }) + ' +07'} {/* Updated to include time and timezone */}
-            </span>
-          </div>
-        </header>
+      
 
         {/* Date Filter */}
         <div style={styles.dateFilter}>
