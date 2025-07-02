@@ -18,17 +18,10 @@ import BlogDetail from './component/page/BlogDetail.jsx';
 import ManageBlog from './component/page/ManageBlog';
 import ManageService from './component/page/ManageService';
 import { AssignStaff } from './component/page/AssignStaff.jsx';
-
 import RevenueChart from './component/page/RevenueChart.jsx';
-
-
-
 import { ManageComment } from './component/page/ManageComment.jsx';
 import UserAdminDashboard from "./component/page/AdminUser.jsx";
-
 import DNATestingAdminDashboard from './component/page/AdminAppointment.jsx';
-
-
 import AdminRevenue from './component/page/AdminRevenue.jsx';
 
 
@@ -62,13 +55,9 @@ function App() {
 
         <Route path="/ManageComment" element={<ManageComment />} />
         <Route path="/user-admin-dashboard" element={<UserAdminDashboard />} />
-
         <Route path="/AdminAppoinment" element={<DNATestingAdminDashboard />} />
-
         <Route path="/AdminRevenue" element={<AdminRevenue />}/>
         <Route path="/Notification" element={<UserAdminDashboard />} />
-
-
         <Route path="*" element={<div>404 - Page Not Found</div>} />
       </Routes>
     </BrowserRouter>

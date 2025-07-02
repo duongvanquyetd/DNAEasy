@@ -175,19 +175,12 @@ const styles = {
     color: '#d97706'
   }
 };
-
-// ...styles giữ nguyên...
-
 const DNATestingAdminDashboard = () => {
   const [dateRange, setDateRange] = useState('today');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [hoveredCard, setHoveredCard] = useState(null);
-
-  // Thay mockData bằng state lấy từ API
   const [reportData, setReportData] = useState([]);
-
-  // Xác định khoảng ngày gửi lên API
   const getDateRange = () => {
     const today = new Date();
     if (dateRange === 'today') {
@@ -216,7 +209,7 @@ const DNATestingAdminDashboard = () => {
     return { fromdate: d, todate: d };
   };
 
-  // Gọi API khi đổi filter
+
   useEffect(() => {
     const range = getDateRange();
     GetAppointmentReport(range)
@@ -224,10 +217,8 @@ const DNATestingAdminDashboard = () => {
         setReportData(res.data || []);
       })
       .catch(() => setReportData([]));
-    // eslint-disable-next-line
+    
   }, [dateRange, startDate, endDate]);
-
-  // Tổng hợp số liệu cho các card
   const currentData = useMemo(() => {
     let total = 0, completed = 0, inProgress = 0, cancelled = 0, refunded = 0;
     reportData.forEach(item => {
@@ -240,7 +231,6 @@ const DNATestingAdminDashboard = () => {
     return { total, completed, inProgress, cancelled, refunded };
   }, [reportData]);
 
-  // Chuẩn bị dữ liệu cho biểu đồ
   const chartData = useMemo(() => {
     return reportData.map(item => ({
       date: item.appointmentDate,
