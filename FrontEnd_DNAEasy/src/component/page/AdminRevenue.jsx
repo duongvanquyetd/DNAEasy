@@ -5,7 +5,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { FaChartLine, FaDollarSign, FaWallet, FaArrowUp, FaArrowDown, FaMoneyBillWave, FaHandHoldingUsd, FaCalendarAlt, FaSync } from "react-icons/fa";
 
 
-import { FetchRevenueRefundStats } from "../../service/revenue";
+import { FetchRevenueRefundStats, GetRevenueForOverview } from "../../service/revenue";
 
 
 // const getTimeRange = () => {
@@ -55,9 +55,9 @@ const FILTERS = {
   const [fromDate, setFromDate] = useState(new Date().toISOString().slice(0,10));
   const [toDate, setToDate] = useState(new Date().toISOString().slice(0,10));
   const currentYear = new Date().getFullYear();
-  const[revenue,setRevenue] = useState(0);
-  const[expenses,setExpenses] = useState(0);
-  const[remain,setRemain] = useState(0);
+  const [income, setIncome] = useState(0);
+  const [expenses, setExpenses] = useState(0);
+  const [profit, setProfit] = useState(0);
 
 
 
@@ -77,7 +77,7 @@ console.log("Reponse ",revenueChartRes.data)
         }));
         setChartData(chartData);
       } catch (error) {
-        console.error("Lỗi khi gọi API", error);
+        // console.error("Lỗi khi gọi API", error);
         setChartData([]);
         setStatsData(defaultStatsData);
       }
@@ -86,13 +86,58 @@ console.log("Reponse ",revenueChartRes.data)
     loadRevenueAndStats();
   }, [filter, toDate,fromDate]);
   
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Chuẩn bị dữ liệu theo định dạng API yêu cầu
+        let startPeriod, endPeriod;
+        
+        if (filter === 'day') {
+          // Chuyển từ YYYY-MM-DD sang YYYY-MM
+          startPeriod = fromDate ? fromDate.substring(0, 7) : new Date().toISOString().substring(0, 7);
+          endPeriod = toDate ? toDate.substring(0, 7) : startPeriod;
+        } else if (filter === 'month') {
+          // Nếu chọn theo tháng, lấy cả năm
+          const currentYear = new Date().getFullYear();
+          startPeriod = `${currentYear}-01`;
+          endPeriod = `${currentYear}-12`;
+        } else { // filter === 'year'
+          // Nếu chọn theo năm, lấy 5 năm gần đây
+          const currentYear = new Date().getFullYear();
+          const startYear = currentYear - 4;
+          startPeriod = `${startYear}-01`;
+          endPeriod = `${currentYear}-12`;
+        }
+        
+        console.log(`Fetching revenue stats: ${startPeriod} to ${endPeriod}, filter: ${filter}`);
+        
+        // Gọi API với payload chuẩn
+        const res = await GetRevenueForOverview({
+          startPeriod: startPeriod,
+          endPeriod: endPeriod
+        });
+        
+        console.log("Revenue Overview API response:", res);
+        const data = res.data;
+
+        // Cập nhật state với dữ liệu mới
+        setIncome(Number(data.revenue) || 0);
+        setExpenses(Number(data.totalExpense) || 0);
+        setProfit(Number(data.remain) || 0);
+      } catch (err) {
+        console.error("Lỗi khi lấy dữ liệu thống kê:", err);
+      }
+    };
+
+    fetchData();
+  }, [filter, fromDate, toDate]); // Thêm dependencies để cập nhật khi thay đổi
 
 
   function DateRequest (){
     let date;
          if(filter.includes("day"))
          {
-            ate = {
+            date = {
              type: "day",
              from: fromDate,
              to: toDate
@@ -137,7 +182,7 @@ console.log("Reponse ",revenueChartRes.data)
           <div className="dashboard-card income-card sleep-card">
             <div className="card-title">{<FaDollarSign size={22} style={{color: '#16c784'}} />} Thu nhập</div>
             <div className="income-placeholder" style={{fontWeight: 700, fontSize: 22, color: '#0a1d56', opacity: 0.9}}>
-              ₫
+              <p>{income.toLocaleString()} đ</p>
               
             </div>
           </div>
@@ -146,7 +191,7 @@ console.log("Reponse ",revenueChartRes.data)
           <div className="dashboard-card expenses-card sleep-card">
             <div className="card-title">{<FaWallet size={22} style={{color: '#f8c63a'}} />} Chi phí</div>
             <div className="expenses-placeholder" style={{fontWeight: 700, fontSize: 22, color: '#0a1d56', opacity: 0.9}}>
-              đ
+                     <p>{expenses.toLocaleString()} đ</p>
             </div>
           </div>
           
@@ -154,7 +199,7 @@ console.log("Reponse ",revenueChartRes.data)
           <div className="dashboard-card profit-card sleep-card">
             <div className="card-title">{<FaHandHoldingUsd size={22} style={{color: '#9c27b0'}} />} Lợi nhuận</div>
             <div className="profit-placeholder" style={{fontWeight: 700, fontSize: 22, color: '#0a1d56', opacity: 0.9}}>
-             đ
+             <p>{profit.toLocaleString()} đ</p>
             </div>
           </div>
         </div>
@@ -203,6 +248,7 @@ console.log("Reponse ",revenueChartRes.data)
                 )}
                 </div>
               </div>
+              
             </div>
 
             {/* asdas ===============================*/}
