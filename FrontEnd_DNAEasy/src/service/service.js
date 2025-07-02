@@ -33,3 +33,7 @@ export const ActiveSerive=(id)=>{
 export const ServiceReportCommnent=(id)=>{
     return axios.get(`http://localhost:8080/api/service/starAndNumber/${id}`)
 }
+
+export const GetTop5Service = () => {
+    return api.get(`/appointment/topservice`)
+}

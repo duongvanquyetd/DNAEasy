@@ -38,6 +38,40 @@ api.interceptors.response.use(
       status: response.status,
       data: response.data
     });
+    
+    // Add detailed logging for statistics endpoint
+    if (response.config.url.includes('/statistics')) {
+      console.log('STATISTICS ENDPOINT DETAILS:');
+      console.log('Response data type:', typeof response.data);
+      console.log('Response data full:', JSON.stringify(response.data));
+      console.log('Response headers:', response.headers);
+      console.log('Response status text:', response.statusText);
+      
+      // Try to handle various response formats
+      if (typeof response.data === 'string') {
+        try {
+          const parsedData = JSON.parse(response.data);
+          console.log('Parsed response data:', parsedData);
+          return {
+            ...response,
+            data: parsedData
+          };
+        } catch (e) {
+          console.error('Failed to parse response data:', e);
+        }
+      }
+      
+      // If data is an empty object or missing expected fields, log details
+      if (response.data && typeof response.data === 'object') {
+        if (Object.keys(response.data).length === 0) {
+          console.warn('WARNING: Statistics response data is an empty object');
+        } else if (!response.data.revenue && !response.data.totalExpense && !response.data.remain) {
+          console.warn('WARNING: Statistics response missing expected fields (revenue, totalExpense, remain)');
+          console.log('Available keys:', Object.keys(response.data));
+        }
+      }
+    }
+    
     return response;
   },
   error => {
@@ -88,4 +122,6 @@ api.interceptors.request.use(
   }
 );  
 
+// Export cả default và named export
+export { api };
 export default api;
