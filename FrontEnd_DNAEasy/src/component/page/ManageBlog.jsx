@@ -60,7 +60,8 @@ import {
   PictureOutlined,
   TagsOutlined,
   HeartOutlined,
-  TagOutlined
+  TagOutlined,
+  QuestionCircleOutlined
 } from '@ant-design/icons';
 import DynamicHeader from '../DynamicHeader';
 import Footer from '../Footer';
@@ -75,14 +76,11 @@ const { Option } = Select;
 const ManageBlog = () => {
   const [blogs, setBlogs] = useState([]);
   const [form] = Form.useForm();
-  const [createform, setCreateForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const pagesize = 6; // Increased page size for better UX
+  const pagesize = 6;
   const [totalPages, setTotalPages] = useState(0);
   const [category, setCategory] = useState('');
-  const [edit, setEdit] = useState(false);
-  const [removeUrls, setRemovedUrls] = useState([]);
   const [active, setActive] = useState(true);
   const [viewContent, setViewContent] = useState(null);
   const [sortColumn, setSortColumn] = useState(null);
@@ -90,14 +88,13 @@ const ManageBlog = () => {
   const [loading, setLoading] = useState(false);
   const [searchOptions, setSearchOptions] = useState([]);
   const [imageModal, setImageModal] = useState({ open: false, images: [], current: 0 });
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [bulkLoading, setBulkLoading] = useState(false);
   const [statsLoading, setStatsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('all');
+  const [activeTab, setActiveTab] = useState('active');
   const slideshowRef = useRef(null);
   const [categories, setCategories] = useState([]);
+  const [createform, setCreateForm] = useState(false);
+  const [helpModal, setHelpModal] = useState(false);
 
-  // Enhanced statistics with more details
   const [stats, setStats] = useState({
     total: 0,
     active: 0,
@@ -123,18 +120,16 @@ const ManageBlog = () => {
     }).finally(() => {
       setStatsLoading(false);
     });
-  }, [searchQuery]);
+  }, []);
 
   useEffect(() => {
     setLoading(true);
-    // Tìm kiếm theo loại
     const params = { keywordSearch: searchQuery, keywordType: category };
     SearchByTitleAndCatagery(params, currentPage, pagesize, active, sortColumn, modesort)
       .then((response) => {
-        setTotalPages(response.data.totalPages);
-        setBlogs(response.data.content);
-        // Cập nhật categories từ blogs
-        const uniqueCategories = [...new Set(response.data.content.map(blog => blog.blogType))];
+        setTotalPages(response.data.totalPages || 1); // Default to 1 if undefined
+        setBlogs(response.data.content || []);
+        const uniqueCategories = [...new Set((response.data.content || []).map(blog => blog.blogType))];
         setCategories(uniqueCategories);
         console.log("Response", response.data);
         console.log("Blogs loaded:", response.data.content);
@@ -143,13 +138,14 @@ const ManageBlog = () => {
       .catch((error) => {
         console.log("Error", error);
         message.error('Failed to load blogs');
+        setBlogs([]);
+        setTotalPages(1);
       })
       .finally(() => {
         setLoading(false);
       });
   }, [currentPage, searchQuery, category, active, sortColumn, modesort]);
 
-  // Sửa fetchBlogSuggestions để đúng loại
   const fetchBlogSuggestions = async (value) => {
     if (!value || value.length < 2) {
       setSearchOptions([]);
@@ -166,24 +162,23 @@ const ManageBlog = () => {
 
   const handleSearch = () => {
     setCurrentPage(1);
-    setSelectedRowKeys([]);
   };
 
   const openImageModal = (images, idx) => {
-    setImageModal({ open: true, images, current: idx });
+    setImageModal({ open: true, images: images || [], current: idx || 0 });
   };
 
   const nextImage = () => {
     setImageModal((prev) => ({
       ...prev,
-      current: (prev.current + 1) % prev.images.length
+      current: (prev.current + 1) % (prev.images.length || 1)
     }));
   };
 
   const prevImage = () => {
     setImageModal((prev) => ({
       ...prev,
-      current: (prev.current - 1 + prev.images.length) % prev.images.length
+      current: (prev.current - 1 + (prev.images.length || 1)) % (prev.images.length || 1)
     }));
   };
 
@@ -194,10 +189,9 @@ const ManageBlog = () => {
           ...prev,
           current: (prev.current + 1) % prev.images.length
         }));
-      }, 30000); // Increased to 30 seconds
+      }, 30000);
       return () => clearInterval(slideshowRef.current);
     }
-    return () => {};
   }, [imageModal.open, imageModal.images.length]);
 
   useEffect(() => {
@@ -209,7 +203,6 @@ const ManageBlog = () => {
     return () => document.body.classList.remove('blurred-bg');
   }, [imageModal.open]);
 
-  // Enhanced pagination with better UX
   const renderPagination = (total, current, setPage) => (
     <div className="manage-blog-pagination" role="navigation" aria-label="Blog pagination">
       {current > 1 && (
@@ -218,10 +211,9 @@ const ManageBlog = () => {
           onClick={() => setPage(current - 1)}
           aria-label="Previous page"
         >
-          &#8592;
+          ←
         </button>
       )}
-      
       {Array.from({ length: total }, (_, i) => i + 1).map((i) => (
         <button
           key={i}
@@ -233,137 +225,83 @@ const ManageBlog = () => {
           {i}
         </button>
       ))}
-      
       {current < total && (
         <button
           className="manage-blog-page-button"
           onClick={() => setPage(current + 1)}
           aria-label="Next page"
         >
-          &#8594;
+          →
         </button>
       )}
     </div>
   );
 
-  // Enhanced action handlers with better feedback
   function handleActive(id) {
     console.log("Attempting to activate blog with ID:", id);
-    setBulkLoading(true);
     ActiveBlog(id).then((response) => {
       console.log("Active Successfully", response.data);
       message.success({
         content: 'Blog activated successfully!',
         duration: 3,
-        style: {
-          marginTop: '20vh',
-        },
+        style: { marginTop: '20vh' },
       });
-      setSearchQuery((pre) => pre + " ");
-      setSelectedRowKeys([]);
+      setBlogs(prevBlogs => prevBlogs.map(blog => 
+        blog.blogId === id ? { ...blog, active: true } : blog
+      ));
+      setStats(prev => ({
+        ...prev,
+        active: prev.active + 1,
+        inactive: prev.inactive - 1,
+      }));
+      setCurrentPage(1);
     }).catch((error) => {
       console.log("Error", error);
       message.error({
         content: 'Failed to activate blog. Please try again.',
         duration: 3,
-        style: {
-          marginTop: '20vh',
-        },
+        style: { marginTop: '20vh' },
       });
+    });
+  }
+
+  function reloadStats() {
+    setStatsLoading(true);
+    MangerReportBlog().then((response) => {
+      setStats({
+        total: response.data.totalblogActive + response.data.totalblogInactive,
+        active: response.data.totalblogActive,
+        inactive: response.data.totalblogInactive,
+        categories: response.data.categories || {},
+        recentActivity: response.data.recentActivity || []
+      });
+    }).catch(() => {
+      message.error('Failed to load blog statistics');
     }).finally(() => {
-      setBulkLoading(false);
+      setStatsLoading(false);
     });
   }
 
   function handleDelete(id) {
     console.log("Attempting to delete blog with ID:", id);
-    setBulkLoading(true);
     DeleteBlogs(id).then((response) => {
       console.log("Delete Successfully", response.data);
       message.success({
         content: 'Blog deleted successfully!',
         duration: 3,
-        style: {
-          marginTop: '20vh',
-        },
+        style: { marginTop: '20vh' },
       });
-      setSearchQuery((pre) => pre + " ");
-      setSelectedRowKeys([]);
+      setBlogs(prevBlogs => prevBlogs.filter(blog => blog.blogId !== id));
+      reloadStats();
+      setCurrentPage(1);
     }).catch((error) => {
       console.log("Error", error);
       message.error({
         content: 'Failed to delete blog. Please try again.',
         duration: 3,
-        style: {
-          marginTop: '20vh',
-        },
+        style: { marginTop: '20vh' },
       });
-    }).finally(() => {
-      setBulkLoading(false);
     });
-  }
-
-  // Enhanced bulk operations
-  const handleBulkDelete = async () => {
-    if (selectedRowKeys.length === 0) {
-      message.warning('Please select blogs to delete');
-      return;
-    }
-    
-    setBulkLoading(true);
-    try {
-      await Promise.all(selectedRowKeys.map(id => DeleteBlogs(id)));
-      message.success(`Successfully deleted ${selectedRowKeys.length} blogs`);
-      setSelectedRowKeys([]);
-      setSearchQuery((pre) => pre + " ");
-    } catch {
-      message.error('Some blogs failed to delete. Please try again.');
-    } finally {
-      setBulkLoading(false);
-    }
-  };
-
-  function handleCreateAndEdit(values) {
-    const formdata = new FormData();
-    const createBlogs = {
-      blogTitle: values.blogTitle,
-      blogContent: values.blogContent,
-      blogType: values.blogType,
-    };
-    formdata.append("blog", new Blob([JSON.stringify(createBlogs)], { type: "application/json" }));
-    if (values.imageUrls) {
-      values.imageUrls.forEach(file => {
-        formdata.append("file", file.originFileObj);
-      });
-    }
-    if (edit) {
-      formdata.append("removeimg", new Blob([JSON.stringify(removeUrls)], { type: "application/json" }));
-      UpdateBlog(edit.blogId, formdata).then(() => {
-        message.success('Blog updated successfully');
-        setEdit(false);
-        setSearchQuery((pre) => pre + " ");
-        setCreateForm(false);
-        form.resetFields();
-      }).catch(() => {
-        message.error('Failed to update blog');
-      });
-    } else {
-      CreateBlog(formdata)
-        .then(() => {
-          message.success({
-            content: 'Tạo blog thành công!',
-            duration: 3,
-            style: { marginTop: '20vh', fontSize: 18, zIndex: 9999 }
-          });
-          setCreateForm(false);
-          form.resetFields();
-          setSearchQuery((pre) => pre + ' ');
-        })
-        .catch((err) => {
-          message.error('Tạo blog thất bại!');
-          console.log('CreateBlog error:', err);
-        });
-    }
   }
 
   const getSortIcon = (columnName) => {
@@ -373,7 +311,6 @@ const ManageBlog = () => {
     return null;
   };
 
-  // Enhanced table columns with better styling
   const columns = [
     {
       title: 'Image',
@@ -387,7 +324,7 @@ const ManageBlog = () => {
             shape="square"
             src={images && images.length > 0 ? images[0] : "https://via.placeholder.com/64x64?text=No+Image"}
             alt={record.blogTitle}
-            style={{ 
+            style={ { 
               borderRadius: 12, 
               cursor: 'pointer',
               border: '2px solid #e2e8f0',
@@ -401,8 +338,8 @@ const ManageBlog = () => {
     {
       title: (
         <Space>
-          <FileTextOutlined />
-          Blog Title
+          <FileTextOutlined style={{color:'#fff'}} />
+          <span style={{color:'#fff'}}>Blog Title</span>
           {getSortIcon('blogTitle')}
         </Space>
       ),
@@ -419,7 +356,7 @@ const ManageBlog = () => {
               ellipsis={{ rows: 2, tooltip: record.blogContent }}
               style={{ 
                 fontSize: 12, 
-                color: '#64748b', 
+                color: '#fff', 
                 margin: '4px 0 0 0',
                 lineHeight: 1.4
               }}
@@ -433,8 +370,8 @@ const ManageBlog = () => {
     {
       title: (
         <Space>
-          <TagsOutlined />
-          Category
+          <TagsOutlined style={{color:'#fff'}} />
+          <span style={{color:'#fff'}}>Category</span>
           {getSortIcon('blogType')}
         </Space>
       ),
@@ -456,7 +393,7 @@ const ManageBlog = () => {
       ),
     },
     {
-      title: 'Content',
+      title: <span style={{color:'#fff'}}>Content</span>,
       dataIndex: 'blogContent',
       key: 'content',
       width: 80,
@@ -480,8 +417,8 @@ const ManageBlog = () => {
     {
       title: (
         <Space>
-          <CalendarOutlined />
-          Created Date
+          <CalendarOutlined style={{color:'#fff'}} />
+          <span style={{color:'#fff'}}>Created Date</span>
           {getSortIcon('createDate')}
         </Space>
       ),
@@ -497,7 +434,7 @@ const ManageBlog = () => {
       ),
     },
     {
-      title: 'Status',
+      title: <span style={{color:'#fff'}}>Status</span>,
       dataIndex: 'active',
       key: 'status',
       width: 100,
@@ -517,7 +454,7 @@ const ManageBlog = () => {
       ),
     },
     {
-      title: 'Actions',
+      title: <span style={{color:'#fff'}}>Actions</span>,
       key: 'actions',
       width: 180,
       render: (_, record) => (
@@ -531,19 +468,11 @@ const ManageBlog = () => {
                   <p style={{ fontWeight: 'bold', color: '#ef4444' }}>
                     "{record.blogTitle}"
                   </p>
-                  <p style={{ fontSize: '12px', color: '#64748b' }}>
-                    This action cannot be undone.
-                  </p>
+                  <p style={{ fontSize: '12px', color: '#64748b' }}>This action cannot be undone.</p>
                 </div>
               }
-              onConfirm={() => {
-                console.log("Delete confirmed for blog:", record.blogTitle, "ID:", record.blogId);
-                handleDelete(record.blogId);
-              }}
-              onCancel={() => {
-                console.log("Delete cancelled for blog:", record.blogTitle);
-                message.info("Delete operation cancelled");
-              }}
+              onConfirm={() => handleDelete(record.blogId)}
+              onCancel={() => message.info("Delete operation cancelled")}
               okText="Yes, Delete"
               cancelText="Cancel"
               okType="danger"
@@ -556,12 +485,8 @@ const ManageBlog = () => {
                 icon={<DeleteOutlined />}
                 size="small"
                 title="Delete Blog"
-                loading={bulkLoading}
-                style={{ 
-                  borderRadius: 8,
-                  height: 32,
-                  width: 32
-                }}
+                style={{ borderRadius: 8, height: 32, width: 32 }}
+                loading={loading}
               />
             </Popconfirm>
           ) : (
@@ -575,14 +500,8 @@ const ManageBlog = () => {
                   </p>
                 </div>
               }
-              onConfirm={() => {
-                console.log("Activate confirmed for blog:", record.blogTitle, "ID:", record.blogId);
-                handleActive(record.blogId);
-              }}
-              onCancel={() => {
-                console.log("Activate cancelled for blog:", record.blogTitle);
-                message.info("Activate operation cancelled");
-              }}
+              onConfirm={() => handleActive(record.blogId)}
+              onCancel={() => message.info("Activate operation cancelled")}
               okText="Yes, Activate"
               cancelText="Cancel"
               okType="primary"
@@ -593,33 +512,19 @@ const ManageBlog = () => {
                 type="text"
                 icon={<CheckCircleOutlined />}
                 size="small"
-                style={{ 
-                  color: '#10b981',
-                  borderRadius: 8,
-                  height: 32,
-                  width: 32
-                }}
+                style={{ color: '#10b981', borderRadius: 8, height: 32, width: 32 }}
                 title="Activate Blog"
-                loading={bulkLoading}
+                loading={loading}
               />
             </Popconfirm>
           )}
-
           <Button
             type="text"
             icon={<EditOutlined />}
             size="small"
-            style={{ 
-              color: '#2563eb',
-              borderRadius: 8,
-              height: 32,
-              width: 32
-            }}
+            style={{ color: '#2563eb', borderRadius: 8, height: 32, width: 32 }}
             title="Edit Blog"
             onClick={() => {
-              console.log("Edit clicked for blog:", record.blogTitle, "ID:", record.blogId);
-              setEdit(record);
-              setCreateForm(true);
               form.setFieldsValue({
                 blogTitle: record.blogTitle,
                 blogContent: record.blogContent,
@@ -638,49 +543,65 @@ const ManageBlog = () => {
     },
   ];
 
-  // Enhanced row selection
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: setSelectedRowKeys,
-    getCheckboxProps: (record) => ({
-      disabled: record.active === false,
-    }),
-  };
+  function handleCreateAndEdit(values) {
+    const formdata = new FormData();
+    const createBlogs = {
+      blogTitle: values.blogTitle,
+      blogContent: values.blogContent,
+      blogType: values.blogType,
+    };
+    formdata.append("blog", new Blob([JSON.stringify(createBlogs)], { type: "application/json" }));
+    if (values.imageUrls) {
+      values.imageUrls.forEach(file => {
+        formdata.append("file", file.originFileObj);
+      });
+    }
+    CreateBlog(formdata)
+      .then(() => {
+        message.success({
+          content: 'Tạo blog thành công!',
+          duration: 3,
+          style: { marginTop: '20vh', fontSize: 18, zIndex: 9999 }
+        });
+        setCreateForm(false);
+        form.resetFields();
+        setCurrentPage(1);
+      })
+      .catch((error) => {
+        message.error('Tạo blog thất bại!');
+        console.log('CreateBlog error:', error);
+      });
+  }
 
   return (
     <div style={{ padding: '24px', background: '#f8fafc', minHeight: '100vh' }}>
       <DynamicHeader />
+      {/* Blog Management Header - Minimalist, đặt ngay dưới DynamicHeader */}
+      <div className="manage-blog-header minimal">
+        <BookOutlined className="manage-blog-header-icon" />
+        <div>
+          <div className="manage-blog-header-title-row">
+            <span className="manage-blog-header-title">Blog Management</span>
+          </div>
+          <div className="manage-blog-header-desc" style={{display:'flex',alignItems:'center',gap:8}}>
+            Easily add, edit, search, and manage your blog posts in a professional way.
+            <QuestionCircleOutlined 
+              className="manage-blog-header-info"
+              title="User Guide"
+              onClick={() => setHelpModal(true)}
+              style={{fontSize: 22, color: '#2563eb', cursor: 'pointer'}}
+            />
+          </div>
+        </div>
+      </div>
+      {/* End Blog Management Header */}
       
-      {/* Debug info */}
       {console.log('Render - blogs length:', blogs.length)}
       {console.log('Render - categories:', categories)}
       {console.log('Render - category state:', category)}
       
-      {/* Enhanced Header Section */}
-      <div style={{ marginBottom: 32 }}>
-        <Title level={2} style={{ margin: 0, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{
-            background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
-            borderRadius: 12,
-            padding: 12,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <BookOutlined style={{ fontSize: 24, color: 'white' }} />
-          </div>
-          <div>
-            <div style={{ fontSize: 28, fontWeight: 700, background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Blog Management
-            </div>
-            <Text type="secondary" style={{ fontSize: 14, marginTop: 4, display: 'block' }}>
-              Manage and organize your blog content efficiently
-            </Text>
-          </div>
-        </Title>
-      </div>
 
-      {/* Enhanced Statistics Cards */}
+
       <Row gutter={[20, 20]} style={{ marginBottom: 32 }}>
         <Col xs={24} sm={12} lg={6}>
           <Card>
@@ -732,7 +653,6 @@ const ManageBlog = () => {
         </Col>
       </Row>
 
-      {/* Enhanced Search and Filter Section */}
       <Card style={{ marginBottom: 24, borderRadius: 16 }}>
         <div className="filter-action-row">
           <form className="searchBar" onSubmit={e => { e.preventDefault(); handleSearch(); }} style={{
@@ -748,10 +668,7 @@ const ManageBlog = () => {
             maxWidth: 1000,
             margin: '0 auto',
             overflow: 'visible',
-            position: 'relative',
-            // marginLeft: 80
           }}>
-            {/* Input search bo tròn, có icon search bên trong */}
             <AutoComplete
               options={searchOptions}
               value={searchQuery}
@@ -771,7 +688,6 @@ const ManageBlog = () => {
                   boxShadow: '0 2px 12px rgba(30,58,138,0.04)',
                   gap: 30,
                   minWidth: 400,
-             
                 }}
                 suffix={
                   <SearchOutlined
@@ -782,7 +698,6 @@ const ManageBlog = () => {
                 onPressEnter={handleSearch}
               />
             </AutoComplete>
-            {/* Dropdown category là native select bo tròn */}
             <select 
               name="category" 
               aria-label="Chọn thể loại" 
@@ -805,7 +720,6 @@ const ManageBlog = () => {
                 <option key={type} value={type}>{type}</option>
               ))}
             </select>
-            {/* Nút reset là icon riêng */}
             <Button
               type="text"
               icon={<ReloadOutlined />}
@@ -832,7 +746,6 @@ const ManageBlog = () => {
               tabIndex={0}
               title="Reset bộ lọc"
             />
-            {/* Nút tạo blog style đồng bộ */}
             <Button 
               className="primary-btn small-btn"
               onClick={() => setCreateForm(true)} 
@@ -858,83 +771,81 @@ const ManageBlog = () => {
           </form>
         </div>
 
-        {/* Enhanced Filter Tabs */}
-        <Tabs 
+        <Tabs
           className="custom-tabs"
-          activeKey={activeTab} 
-          style={{ marginTop: 20 }}
+          activeKey={activeTab}
           items={[
-            {
-              key: 'all',
-              label: (
-                <span>
-                  <GlobalOutlined />
-                  All Blogs
-                  <span className="tab-badge">{stats.total}</span>
-                </span>
-              ),
-            },
             {
               key: 'active',
               label: (
-                <span>
+                <span
+                  style={{
+                    background: activeTab === 'active' ? '#22c55e' : 'none',
+                    color: '#222',
+                    borderRadius: 20,
+                    padding: '6px 24px',
+                    fontWeight: 600,
+                    transition: 'all 0.2s',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6
+                  }}
+                >
                   <CheckCircleOutlined />
-                  Active
-                  <span className="tab-badge">{stats.active}</span>
+                  <span>Active</span>
+                  <span
+                    style={{
+                      background: 'transparent',
+                      color: '#222',
+                      fontWeight: 700,
+                      marginLeft: 4
+                    }}
+                  >
+                    {stats.active}
+                  </span>
                 </span>
               ),
             },
             {
               key: 'inactive',
               label: (
-                <span>
+                <span
+                  style={{
+                    background: activeTab === 'inactive' ? '#ef4444' : 'none',
+                    color: '#222',
+                    borderRadius: 20,
+                    padding: '6px 24px',
+                    fontWeight: 600,
+                    transition: 'all 0.2s',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6
+                  }}
+                >
                   <StopOutlined />
-                  Inactive
-                  <span className="tab-badge">{stats.inactive}</span>
+                  <span>Inactive</span>
+                  <span
+                    style={{
+                      background: 'transparent',
+                      color: '#222',
+                      fontWeight: 700,
+                      marginLeft: 4
+                    }}
+                  >
+                    {stats.inactive}
+                  </span>
                 </span>
               ),
             },
           ]}
           onChange={(key) => {
             setActiveTab(key);
-            if (key === 'all') setActive(undefined);
-            else if (key === 'active') setActive(true);
-            else if (key === 'inactive') setActive(false);
+            setActive(key === 'active');
             setCurrentPage(1);
           }}
         />
       </Card>
 
-      {/* Enhanced Bulk Actions */}
-      {selectedRowKeys.length > 0 && (
-        <Alert
-          message={`${selectedRowKeys.length} blog(s) selected`}
-          description={
-            <Space>
-              <Button 
-                danger 
-                size="small" 
-                icon={<DeleteOutlined />}
-                onClick={handleBulkDelete}
-                loading={bulkLoading}
-              >
-                Delete Selected
-              </Button>
-              <Button 
-                size="small" 
-                onClick={() => setSelectedRowKeys([])}
-              >
-                Clear Selection
-              </Button>
-            </Space>
-          }
-          type="info"
-          showIcon
-          style={{ marginBottom: 16, borderRadius: 12 }}
-        />
-      )}
-
-      {/* Enhanced Pagination Description */}
       <div className="pagination-desc">
         <Space>
           <InfoCircleOutlined />
@@ -942,15 +853,14 @@ const ManageBlog = () => {
         </Space>
       </div>
 
-      {/* Enhanced Blog Table */}
       <Card style={{ borderRadius: 16, overflow: 'hidden' }}>
         <Table
+          className="blog-table"
           columns={columns}
-          dataSource={blogs}
+          dataSource={blogs.filter(blog => activeTab === 'active' ? blog.active : !blog.active)}
           rowKey="blogId"
           loading={loading}
           pagination={false}
-          rowSelection={rowSelection}
           onChange={(pagination, filters, sorter) => {
             if (sorter.field) {
               setSortColumn(sorter.field);
@@ -972,7 +882,6 @@ const ManageBlog = () => {
             )
           }}
         />
-        
         {totalPages > 1 && (
           <div style={{ marginTop: 24, textAlign: 'center' }}>
             {renderPagination(totalPages, currentPage, setCurrentPage)}
@@ -980,13 +889,223 @@ const ManageBlog = () => {
         )}
       </Card>
 
-      {/* Enhanced Create/Edit Modal */}
       <Modal
         title={
           <Space>
-            {edit ? <EditOutlined /> : <PlusOutlined />}
+            <FileTextOutlined />
             <span style={{ fontSize: 18, fontWeight: 600 }}>
-              {edit ? "Edit Blog" : "Create New Blog"}
+              {viewContent?.blogTitle}
+            </span>
+          </Space>
+        }
+        open={!!viewContent}
+        onCancel={() => setViewContent(null)}
+        footer={null}
+        width={800}
+        bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
+      >
+        <div style={{ padding: '20px 0' }}>
+          <div style={{ marginBottom: 20 }}>
+            <Space wrap>
+              <Tag color="blue" style={{ borderRadius: 8, padding: '6px 12px' }}>
+                {viewContent?.blogType}
+              </Tag>
+              <Text type="secondary" style={{ fontSize: 14 }}>
+                <CalendarOutlined style={{ marginRight: 6 }} />
+                {viewContent?.createDate}
+              </Text>
+            </Space>
+          </div>
+          <Divider />
+          <div style={{ 
+            whiteSpace: 'pre-line', 
+            fontSize: 16, 
+            lineHeight: 1.8,
+            color: '#1e293b',
+            fontFamily: 'Inter, sans-serif'
+          }}>
+            {viewContent?.blogContent}
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        className="service-image-modal"
+        open={imageModal.open}
+        onCancel={() => setImageModal({ open: false, images: [], current: 0 })}
+        footer={null}
+        width={1000}
+        centered
+        bodyStyle={{ textAlign: 'center', padding: 0, background: 'transparent' }}
+        closable={false}
+      >
+        {imageModal.images.length > 0 && (
+          <div style={{ position: 'relative', width: 'fit-content', margin: '0 auto' }}>
+            <img
+              src={imageModal.images[imageModal.current]}
+              alt="blog"
+              style={{
+                maxWidth: '100%',
+                maxHeight: 600,
+                objectFit: 'contain',
+                borderRadius: 16,
+                background: 'transparent',
+                margin: '0 auto',
+                display: 'block',
+                border: 'none',
+                boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
+              }}
+            />
+            <button
+              className="custom-close-btn"
+              onClick={() => setImageModal({ open: false, images: [], current: 0 })}
+              aria-label="Close"
+              style={{
+                position: 'absolute',
+                top: 16,
+                right: 16,
+                zIndex: 10,
+                background: 'rgba(37,99,235,0.09)',
+                border: 'none',
+                borderRadius: '50%',
+                width: 44,
+                height: 44,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                boxShadow: '0 4px 16px rgba(37,99,235,0.13)',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseOver={e => e.currentTarget.style.background = '#2563eb'}
+              onMouseOut={e => e.currentTarget.style.background = 'rgba(37,99,235,0.09)'}
+            >
+              <span style={{ fontSize: 32, color: '#222', fontWeight: 700, lineHeight: 1 }}>×</span>
+            </button>
+            {imageModal.images.length > 1 && (
+              <>
+                <button
+                  onClick={() => { clearInterval(slideshowRef.current); prevImage(); }}
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: 16,
+                    transform: 'translateY(-50%)',
+                    background: 'rgba(37,99,235,0.9)',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: 48,
+                    height: 48,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 16px rgba(37,99,235,0.3)',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseOver={e => e.currentTarget.style.background = '#2563eb'}
+                  onMouseOut={e => e.currentTarget.style.background = 'rgba(37,99,235,0.9)'}
+                  aria-label="Previous image"
+                >
+                  ←
+                </button>
+                <button
+                  onClick={() => { clearInterval(slideshowRef.current); nextImage(); }}
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    right: 16,
+                    transform: 'translateY(-50%)',
+                    background: 'rgba(37,99,235,0.9)',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: 48,
+                    height: 48,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 16px rgba(37,99,235,0.3)',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseOver={e => e.currentTarget.style.background = '#2563eb'}
+                  onMouseOut={e => e.currentTarget.style.background = 'rgba(37,99,235,0.9)'}
+                  aria-label="Next image"
+                >
+                  →
+                </button>
+              </>
+            )}
+            <div style={{
+              position: 'absolute',
+              top: 16,
+              left: 16,
+              background: 'rgba(0,0,0,0.7)',
+              color: 'white',
+              padding: '8px 12px',
+              borderRadius: 20,
+              fontSize: 14,
+              fontWeight: 600,
+              zIndex: 10
+            }}>
+              {imageModal.current + 1} / {imageModal.images.length}
+            </div>
+            {imageModal.images.length > 1 && (
+              <div style={{ 
+                marginTop: 20,
+                display: 'flex',
+                flexWrap: 'nowrap',
+                gap: 12,
+                justifyContent: 'center',
+                alignItems: 'center',
+                maxWidth: 800,
+                margin: '20px auto 0',
+                background: 'rgba(255,255,255,0.1)',
+                borderRadius: 16,
+                padding: 16,
+                boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                overflowX: 'auto',
+                scrollbarWidth: 'thin'
+              }}>
+                {imageModal.images.map((img, idx) => (
+                  <img
+                    key={idx}
+                    src={img}
+                    alt={`thumb-${idx}`}
+                    onClick={() => { 
+                      clearInterval(slideshowRef.current); 
+                      setImageModal((prev) => ({ ...prev, current: idx })); 
+                    }}
+                    style={{
+                      width: 80,
+                      height: 60,
+                      objectFit: 'cover',
+                      borderRadius: 8,
+                      border: idx === imageModal.current ? '3px solid #2563eb' : '2px solid rgba(255,255,255,0.3)',
+                      boxShadow: idx === imageModal.current ? '0 0 16px rgba(37,99,235,0.5)' : '0 2px 8px rgba(0,0,0,0.1)',
+                      cursor: 'pointer',
+                      opacity: idx === imageModal.current ? 1 : 0.7,
+                      transition: 'all 0.3s ease',
+                      background: idx === imageModal.current ? '#e0e7ff' : 'transparent'
+                    }}
+                    onMouseOver={e => e.currentTarget.style.border = '3px solid #60a5fa'}
+                    onMouseOut={e => e.currentTarget.style.border = idx === imageModal.current ? '3px solid #2563eb' : '2px solid rgba(255,255,255,0.3)'}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
+
+      <Modal
+        title={
+          <Space>
+            <PlusOutlined />
+            <span style={{ fontSize: 18, fontWeight: 600 }}>
+              Create New Blog
             </span>
           </Space>
         }
@@ -994,11 +1113,10 @@ const ManageBlog = () => {
         onCancel={() => {
           setCreateForm(false);
           form.resetFields();
-          setEdit(false);
         }}
         width={900}
         onOk={() => form.submit()}
-        okText={edit ? "Update Blog" : "Create Blog"}
+        okText="Create Blog"
         cancelText="Cancel"
         okButtonProps={{ 
           style: { 
@@ -1058,7 +1176,6 @@ const ManageBlog = () => {
               </Form.Item>
             </Col>
           </Row>
-
           <Form.Item
             label={
               <Space>
@@ -1077,7 +1194,6 @@ const ManageBlog = () => {
               style={{ borderRadius: 8, fontSize: 14 }}
             />
           </Form.Item>
-
           <Form.Item
             label={
               <Space>
@@ -1088,18 +1204,12 @@ const ManageBlog = () => {
             name="imageUrls"
             valuePropName="fileList"
             getValueFromEvent={(e) => Array.isArray(e) ? e : e?.fileList}
-            rules={[{ required: !edit, message: 'Please upload at least one image' }]}
+            rules={[{ required: true, message: 'Please upload at least one image' }]}
           >
             <Upload
               listType="picture-card"
               multiple
               beforeUpload={() => false}
-              onRemove={(file) => {
-                if (!file.originFileObj) {
-                  setRemovedUrls(prev => [...prev, file.url]);
-                }
-                return true;
-              }}
               style={{ borderRadius: 8 }}
             >
               <div>
@@ -1111,223 +1221,21 @@ const ManageBlog = () => {
         </Form>
       </Modal>
 
-      {/* Enhanced View Content Modal */}
       <Modal
-        title={
-          <Space>
-            <FileTextOutlined />
-            <span style={{ fontSize: 18, fontWeight: 600 }}>
-              {viewContent?.blogTitle}
-            </span>
-          </Space>
-        }
-        open={!!viewContent}
-        onCancel={() => setViewContent(null)}
+        open={helpModal}
+        onCancel={() => setHelpModal(false)}
         footer={null}
-        width={800}
-        bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
+        title={<span style={{display:'flex',alignItems:'center',gap:8}}><QuestionCircleOutlined style={{color:'#2563eb',fontSize:24}}/>Blog Management Guide</span>}
+        className="help-modal-custom"
       >
-        <div style={{ padding: '20px 0' }}>
-          <div style={{ marginBottom: 20 }}>
-            <Space wrap>
-              <Tag color="blue" style={{ borderRadius: 8, padding: '6px 12px' }}>
-                {viewContent?.blogType}
-              </Tag>
-              <Text type="secondary" style={{ fontSize: 14 }}>
-                <CalendarOutlined style={{ marginRight: 6 }} />
-                {viewContent?.createDate}
-              </Text>
-            </Space>
-          </div>
-          <Divider />
-          <div style={{ 
-            whiteSpace: 'pre-line', 
-            fontSize: 16, 
-            lineHeight: 1.8,
-            color: '#1e293b',
-            fontFamily: 'Inter, sans-serif'
-          }}>
-            {viewContent?.blogContent}
-          </div>
-        </div>
+        <ul style={{textAlign:'left',fontSize:'1.08rem',lineHeight:'1.7',margin:'18px 0'}}>
+          <li><b>Create blog:</b> Click <span style={{color:'#2563eb'}}>Create Blog</span> to add a new blog post.</li>
+          <li><b>Filter & search:</b> Use the search box and filters to quickly find blog posts.</li>
+          <li><b>Edit/Delete:</b> Click the <EditOutlined style={{color:'#2563eb'}}/> or <DeleteOutlined style={{color:'#dc2626'}}/> icon to edit/delete a blog (with confirmation).</li>
+          <li><b>Help:</b> Click <QuestionCircleOutlined style={{color:'#2563eb'}}/> to view this guide at any time.</li>
+        </ul>
       </Modal>
 
-      {/* Enhanced Image Modal */}
-      <Modal
-        className="service-image-modal"
-        open={imageModal.open}
-        onCancel={() => setImageModal({ open: false, images: [], current: 0 })}
-        footer={null}
-        width={1000}
-        centered
-        bodyStyle={{ textAlign: 'center', padding: 0, background: 'transparent' }}
-        closable={false}
-      >
-        {imageModal.images.length > 0 && (
-          <div style={{ position: 'relative', width: 'fit-content', margin: '0 auto' }}>
-            <img
-              src={imageModal.images[imageModal.current]}
-              alt="blog"
-              style={{
-                maxWidth: '100%',
-                maxHeight: 600,
-                objectFit: 'contain',
-                borderRadius: 16,
-                background: 'transparent',
-                margin: '0 auto',
-                display: 'block',
-                border: 'none',
-                boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
-              }}
-            />
-            <button
-              onClick={() => setImageModal({ open: false, images: [], current: 0 })}
-              style={{
-                position: 'absolute',
-                top: 16,
-                right: 16,
-                zIndex: 10,
-                background: 'rgba(37,99,235,0.9)',
-                border: 'none',
-                borderRadius: '50%',
-                width: 44,
-                height: 44,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                boxShadow: '0 4px 16px rgba(37,99,235,0.3)',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseOver={e => e.currentTarget.style.background = '#2563eb'}
-              onMouseOut={e => e.currentTarget.style.background = 'rgba(37,99,235,0.9)'}
-              aria-label="Close"
-            >
-              <CloseCircleFilled style={{ fontSize: 24, color: '#fff' }} />
-            </button>
-            {imageModal.images.length > 1 && (
-              <>
-                <button
-                  onClick={() => { clearInterval(slideshowRef.current); prevImage(); }}
-                  style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: 16,
-                    transform: 'translateY(-50%)',
-                    background: 'rgba(37,99,235,0.9)',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '50%',
-                    width: 48,
-                    height: 48,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 16px rgba(37,99,235,0.3)',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseOver={e => e.currentTarget.style.background = '#2563eb'}
-                  onMouseOut={e => e.currentTarget.style.background = 'rgba(37,99,235,0.9)'}
-                  aria-label="Previous image"
-                >
-                  ←
-                </button>
-                <button
-                  onClick={() => { clearInterval(slideshowRef.current); nextImage(); }}
-                  style={{
-                    position: 'absolute',
-                    top: '50%',
-                    right: 16,
-                    transform: 'translateY(-50%)',
-                    background: 'rgba(37,99,235,0.9)',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '50%',
-                    width: 48,
-                    height: 48,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 16px rgba(37,99,235,0.3)',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseOver={e => e.currentTarget.style.background = '#2563eb'}
-                  onMouseOut={e => e.currentTarget.style.background = 'rgba(37,99,235,0.9)'}
-                  aria-label="Next image"
-                >
-                  →
-                </button>
-              </>
-            )}
-            
-            {/* Enhanced Image Counter */}
-            <div style={{
-              position: 'absolute',
-              top: 16,
-              left: 16,
-              background: 'rgba(0,0,0,0.7)',
-              color: 'white',
-              padding: '8px 12px',
-              borderRadius: 20,
-              fontSize: 14,
-              fontWeight: 600,
-              zIndex: 10
-            }}>
-              {imageModal.current + 1} / {imageModal.images.length}
-            </div>
-            
-            {/* Enhanced Thumbnail Row */}
-            {imageModal.images.length > 1 && (
-              <div style={{ 
-                marginTop: 20,
-                display: 'flex',
-                flexWrap: 'nowrap',
-                gap: 12,
-                justifyContent: 'center',
-                alignItems: 'center',
-                maxWidth: 800,
-                margin: '20px auto 0',
-                background: 'rgba(255,255,255,0.1)',
-                borderRadius: 16,
-                padding: 16,
-                boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                overflowX: 'auto',
-                scrollbarWidth: 'thin'
-              }}>
-                {imageModal.images.map((img, idx) => (
-                  <img
-                    key={idx}
-                    src={img}
-                    alt={`thumb-${idx}`}
-                    onClick={() => { 
-                      clearInterval(slideshowRef.current); 
-                      setImageModal((prev) => ({ ...prev, current: idx })); 
-                    }}
-                    style={{
-                      width: 80,
-                      height: 60,
-                      objectFit: 'cover',
-                      borderRadius: 8,
-                      border: idx === imageModal.current ? '3px solid #2563eb' : '2px solid rgba(255,255,255,0.3)',
-                      boxShadow: idx === imageModal.current ? '0 0 16px rgba(37,99,235,0.5)' : '0 2px 8px rgba(0,0,0,0.1)',
-                      cursor: 'pointer',
-                      opacity: idx === imageModal.current ? 1 : 0.7,
-                      transition: 'all 0.3s ease',
-                      background: idx === imageModal.current ? '#e0e7ff' : 'transparent'
-                    }}
-                    onMouseOver={e => e.currentTarget.style.border = '3px solid #60a5fa'}
-                    onMouseOut={e => e.currentTarget.style.border = idx === imageModal.current ? '3px solid #2563eb' : '2px solid rgba(255,255,255,0.3)'}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </Modal>
-
-      {/* Footer full width chỉ cho ManageBlog */}
       <div style={{ width: '100vw', marginLeft: 'calc(50% - 50vw)', background: '#f4f8ff', marginTop: '40px' }}>
         <Footer />
       </div>

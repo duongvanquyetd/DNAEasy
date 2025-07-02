@@ -70,7 +70,9 @@ import Footer from '../Footer.jsx';
                 <img src={blog.imageUrl || 'https://images.pexels.com/photos/7088526/pexels-photo-7088526.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'} alt={blog.title || 'Blog Image'} className="blog-image" />
                 <h3>{blog.title || 'Default Title'}</h3>
                 <p>{blog.description || 'No description available.'}</p>
-                <Link to={`/blog/${blog.id || 'default'}`} className="blog-btn">Read More</Link>
+                <div className="blog-btn-wrapper">
+                  <Link to={`/blog/${blog.id || 'default'}`} className="blog-btn">Read More</Link>
+                </div>
               </div>
             ))
           ) : (
@@ -79,19 +81,25 @@ import Footer from '../Footer.jsx';
                 <img src="https://images.pexels.com/photos/7088526/pexels-photo-7088526.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Home DNA Tests Guide" className="blog-image" />
                 <h3>Home DNA Tests: Guide</h3>
                 <p>Home DNA tests are easy to use and confidential.</p>
-                <Link to="/blog" className="blog-btn">Read More</Link>
+                <div className="blog-btn-wrapper">
+                  <Link to="/blog" className="blog-btn">Read More</Link>
+                </div>
               </div>
               <div className="blog-column card-right">
                 <img src="https://images.pexels.com/photos/7089401/pexels-photo-7089401.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Home DNA Tests" className="blog-image" />
                 <h3>Home DNA Tests</h3>
                 <p>Discover the accuracy of home DNA tests and why using an accredited lab is important.</p>
-                <Link to="/blog" className="blog-btn">Read More</Link>
+                <div className="blog-btn-wrapper">
+                  <Link to="/blog" className="blog-btn">Read More</Link>
+                </div>
               </div>
               <div className="blog-column card-left">
                 <img src="https://images.pexels.com/photos/3825527/pexels-photo-3825527.jpeg?auto=compress&cs=tinysrgb&w=600" alt="DNA Inbreeding Testing" className="blog-image" />
                 <h3>DNA for Inbreeding Testing</h3>
                 <p>Information about DNA tests for consanguinity in French.</p>
-                <Link to="/blog" className="blog-btn">Read More</Link>
+                <div className="blog-btn-wrapper">
+                  <Link to="/blog" className="blog-btn">Read More</Link>
+                </div>
               </div>
             </React.Fragment>
           )}
@@ -108,7 +116,9 @@ import Footer from '../Footer.jsx';
                 <img src={service.imageUrl || 'https://images.pexels.com/photos/3825527/pexels-photo-3825527.jpeg?auto=compress&cs=tinysrgb&w=600'} alt={service.title || 'Service Image'} className="service-image" />
                 <h3>{service.title || 'Default Title'}</h3>
                 <p>{service.description || 'No description available.'}</p>
-                <Link to={`/service/${service.id || 'default'}`} className="service-btn">Learn More</Link>
+                <div className="service-btn-wrapper">
+                  <Link to={`/service/${service.id || 'default'}`} className="service-btn">Learn More</Link>
+                </div>
               </div>
             ))
           ) : (
@@ -117,19 +127,25 @@ import Footer from '../Footer.jsx';
                 <img src="https://images.pexels.com/photos/3825527/pexels-photo-3825527.jpeg?auto=compress&cs=tinysrgb&w=600" alt="DNA Paternity Test" className="service-image" />
                 <h3>DNA Paternity Test</h3>
                 <p>Accurate and confidential paternity testing services.</p>
-                <Link to="/service" className="service-btn">Learn More</Link>
+                <div className="service-btn-wrapper">
+                  <Link to="/service" className="service-btn">Learn More</Link>
+                </div>
               </div>
               <div className="service-column card-right">
                 <img src="https://images.pexels.com/photos/7088526/pexels-photo-7088526.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="DNA Ancestry Test" className="service-image" />
                 <h3>DNA Ancestry Test</h3>
                 <p>Discover your ancestry and family history with our DNA ancestry tests.</p>
-                <Link to="/service" className="service-btn">Learn More</Link>
+                <div className="service-btn-wrapper">
+                  <Link to="/service" className="service-btn">Learn More</Link>
+                </div>
               </div>
               <div className="service-column card-left">
                 <img src="https://images.pexels.com/photos/3825527/pexels-photo-3825527.jpeg?auto=compress&cs=tinysrgb&w=600" alt="DNA Relationship Test" className="service-image" />
                 <h3>DNA Relationship Test</h3>
                 <p>Explore your genetic relationships with our DNA relationship tests.</p>
-                <Link to="/service" className="service-btn">Learn More</Link>
+                <div className="service-btn-wrapper">
+                  <Link to="/service" className="service-btn">Learn More</Link>
+                </div>
               </div>
             </React.Fragment>
           )}
