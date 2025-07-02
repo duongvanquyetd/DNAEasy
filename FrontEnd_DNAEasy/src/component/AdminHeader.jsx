@@ -1,6 +1,6 @@
 import React from 'react';
-import { Home, Users, Calendar, BarChart2, MessageSquare, Settings } from 'lucide-react';
-import '../component/css/HeaderManager.css'; // Tận dụng style cũ nếu có, hoặc sẽ tạo mới nếu cần
+import { Home, Users, Calendar, BarChart2 } from 'lucide-react';
+import '../component/css/HeaderManager.css'; // Tận dụng style cũ nếu có
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const menuItems = [
@@ -8,7 +8,6 @@ const menuItems = [
   { label: 'Users', icon: <Users size={22} />, path: '/user-admin-dashboard' },
   { label: 'Appointments', icon: <Calendar size={22} />, path: '/AdminAppoinment' },
   { label: 'Analytics', icon: <BarChart2 size={22} />, path: '/AdminRevenue' },
-
 ];
 
 const AdminHeader = () => {
@@ -37,21 +36,17 @@ const AdminHeader = () => {
         borderBottom: '1px solid rgba(255,255,255,0.08)',
         marginBottom: 16,
       }}>
-        <div style={{
-          width: 48,
-          height: 48,
-          borderRadius: '50%',
-          background: '#dbeafe',
-          color: '#1e3a8a',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontWeight: 700,
-          fontSize: 20,
-          marginRight: 16,
-        }}>
-          DA
-        </div>
+        <img 
+          src="../../assets/logo/Logo.jpg" 
+          alt="DNAEASY Logo"
+          style={{
+            width: 48,
+            height: 48,
+            borderRadius: '50%',
+            objectFit: 'cover',
+            marginRight: 16,
+          }}
+        />
         <span style={{ fontWeight: 700, fontSize: 22, color: '#1e3a8a', letterSpacing: 1 }}>DNAEASY</span>
       </div>
       {/* Menu */}
