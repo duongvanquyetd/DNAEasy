@@ -22,3 +22,6 @@ export const VNPay_Return = ()=>
 export const  CreateRefund = (appoinment) =>{
     return api.post("payment/create",appoinment)
 }
+export const ChartOverview = (data)=>{
+    return api.post("/appointment/revenue_chart",data)
+}

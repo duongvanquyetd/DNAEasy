@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Search, Users, UserCheck, Crown, Edit3, Trash2, Plus, Filter, Download, RefreshCw, Eye, MoreVertical, Shield } from 'lucide-react';
 import '../css/AdminUser.css';
@@ -79,10 +80,12 @@ const AdminUserManagement = () => {
     setShowModal(true);
   };
 
-  const handleViewUser = (user) => {
-    setViewUser(user);
-    setShowViewModal(true);
-  };
+
+//   const handleViewUser = (user) => {
+//     setViewUser(user);
+//     setShowViewModal(true);
+//   };
+
 
   const handleUpdateUser = async () => {
     if (editUser) {
@@ -140,16 +143,18 @@ const AdminUserManagement = () => {
     );
   };
 
-  const getAvatarColor = (index) => {
-    const gradients = [
-      'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
-      'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)',
-      'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
-      'linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%)',
-      'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)'
-    ];
-    return gradients[index % gradients.length];
-  };
+
+//   const getAvatarColor = (index) => {
+//     const gradients = [
+//       'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+//       'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)',
+//       'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
+//       'linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%)',
+//       'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)'
+//     ];
+//     return gradients[index % gradients.length];
+//   };
+
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
@@ -398,3 +403,4 @@ const AdminUserManagement = () => {
 };
 
 export default AdminUserManagement;
+

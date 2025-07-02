@@ -1,15 +1,27 @@
-import React from 'react';
-import { useEffect, useState, useCallback } from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Area, AreaChart } from "recharts";
+
+import React, { useState, useEffect, useMemo } from 'react';
+
+
 import { 
-  Users, TrendingUp, Smartphone, Tablet, Monitor, DollarSign, Globe, ChevronUp, ArrowUpRight, Activity, 
-  Calendar, CheckCircle, Clock, AlertCircle, UserCheck, Award, UserPlus, Shield, Briefcase, User, AlertTriangle,
-  BarChart2, ArrowUp, Layers, Star
+  Users, DollarSign, Globe, ChevronUp, ArrowUpRight, 
+  Calendar, CheckCircle, Clock, AlertCircle, Shield, Briefcase, User,
+  BarChart2, Star, ChevronDown
 } from "lucide-react";
-import { GetRevenueChartData, GetAppointmentCountsByStatus, GetRevenueFlowStats, GetTopBookedServices } from "../../service/revenueService";
-import { GetUserRoleStats } from "../../service/user";
+import { GetRevenueChartData, GetAppointmentCountsByStatus } from "../../service/revenueService";
+// import * as revenueAPI from "../../service/revenue";
+
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area
+} from 'recharts';
 import "../../component/css/RevenueChart.css";
-import AdminHeader from '../AdminHeader'; // Import the header component
+
+import { GetRevenueForOverview } from '../../service/revenue';
+import { GetTop5Service } from '../../service/service';
+import { ReportUser } from '../../service/user';
+import { AppointmnetforAdminOverview } from '../../service/appointment';
+import { ChartOverview } from '../../service/payment';
+
+
 
 const RevenueChart = () => {
   const [data, setData] = useState([]);
@@ -25,6 +37,7 @@ const RevenueChart = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // Current month (1-12)
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); // Current year
   const [topServices, setTopServices] = useState([]);
+  const [chartKey, setChartKey] = useState(Date.now()); // Key for chart re-render
 
   // State for statistics
   const [userRoleStats, setUserRoleStats] = useState({
@@ -48,169 +61,135 @@ const RevenueChart = () => {
     cancelled: 0,
     refunded: 0
   });
+  const [datachart, setdatachart] = useState([]);
 
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-  // Format number as currency
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
+  // Hàm format tiền VND
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
+      currency: 'VND',
       maximumFractionDigits: 0
-    }).format(amount);
+    }).format(value);
   };
-
-  // Format number with commas
-  const formatNumber = (num) => {
-    return new Intl.NumberFormat('en-US').format(num);
-  };
-
-  // Fetch all necessary data when component mounts or month/year changes
+  // State for revenue flow data
+  const [revenueFlowData, setRevenueFlowData] = useState([]);
   useEffect(() => {
-    const fetchAllData = async () => {
-      setIsLoading(true);
-      
-      try {
-        const startDate = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-01`;
-        const lastDay = new Date(selectedYear, selectedMonth, 0).getDate();
-        const endDate = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
-        
-        setDateRange({
-          start: startDate,
-          end: endDate,
-          display: `${new Date(startDate).toLocaleString('default', { month: 'short' })} 1 - ${new Date(endDate).toLocaleString('default', { month: 'short' })} ${lastDay}`
-        });
-        
-        const revenueResponse = await GetRevenueChartData(startDate, endDate);
-        if (revenueResponse && revenueResponse.data) {
-          processChartData(revenueResponse.data, timeFilter);
-        }
-        
-        const userResponse = await GetUserRoleStats(selectedMonth, selectedYear);
-        if (userResponse && userResponse.data) {
-          setUserRoleStats(userResponse.data);
-        }
-        
-        const revenueFlowResponse = await GetRevenueFlowStats(selectedMonth, selectedYear);
-        if (revenueFlowResponse && revenueFlowResponse.data) {
-          setRevenueFlowStats(revenueFlowResponse.data);
-        }
-        
-        const appointmentResponse = await GetAppointmentCountsByStatus();
-        if (appointmentResponse && appointmentResponse.data) {
-          const apiData = appointmentResponse.data;
-          setAppointmentStatusCounts({
-            total: apiData.total || 0,
-            completed: apiData.completed || 0,
-            inProgress: apiData.inProgress || 0,
-            cancelled: apiData.cancelled || 0,
-            refunded: apiData.refunded || 0
-          });
-        }
-        
-        const topServicesResponse = await GetTopBookedServices(selectedMonth, selectedYear);
-        if (topServicesResponse && topServicesResponse.data) {
-          setTopServices(Array.isArray(topServicesResponse.data) 
-            ? topServicesResponse.data.slice(0, 10) 
-            : topServicesResponse.data);
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchAllData();
-  }, [selectedMonth, selectedYear]);
 
-  useEffect(() => {
-    if (data.length > 0) {
-      processChartData(data, timeFilter);
-    }
-  }, [timeFilter]);
-  
-  const processChartData = (apiData, viewType) => {
-    if (!Array.isArray(apiData)) {
-      console.error("API data is not an array:", apiData);
-      return;
-    }
     
-    let total = 0;
-    const chartData = apiData.map(item => {
-      const revenue = Number(item.revenue) || 0;
-      total += revenue;
-      const date = new Date(item.date);
-      const formattedDate = `${date.getDate()} ${date.toLocaleDateString('en-US', { month: 'short' })}`;
-      const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+    featchRevenueFlowStats();
+    featchTopServices();
+    fetchUserRoleStats();
+    fetchAppointmentStatusCounts();
+    fetchdatachart();
+    setIsLoading(false);
+ }, []);
+
+
+ const featchRevenueFlowStats = async () => {
+  GetRevenueForOverview({startPeriod:"2024-01", endPeriod:"2025-12"}).then((response) => {
       
-      return {
-        date: item.date,
-        formattedDate: formattedDate,
-        day: dayName,
-        revenue: revenue,
-        formattedRevenue: formatCurrency(revenue)
+    console.log("Revenue for overview:", response.data);
+        
+      const updatedStats = {
+        total: response.data.revenue || 0,
+        income: response.data.revenue || 0,
+        expenses: response.data.totalExpense || 0,
+        profit: response.data.remain || 0 
       };
+      
+      console.log("Updated revenueFlowStats with:", updatedStats);
+      setRevenueFlowStats(updatedStats);
+     
+
+    }
+   ).catch((error)=>{
+    console.error("Error fetching revenue flow stats:", error);
+   })
+ }
+
+
+const featchTopServices = async () => {
+
+  GetTop5Service().then((response) => {
+    console.log("Top 5 service:", response.data);
+    setTopServices(response.data);
+   }).catch((error)=>{
+    console.error("Error fetching top services:", error);
+   })
+
+}
+  const fetchUserRoleStats = async () => {
+    const response = await ReportUser();
+    console.log("User role stats:", response.data);
+    setUserRoleStats({
+      total: response.data.total,
+    staff: response.data.staff,
+    manager: response.data.manager,
+    admin: response.data.admin
     });
     
-    chartData.sort((a, b) => new Date(a.date) - new Date(b.date));
-    
-    if (chartData.length >= 2) {
-      const lastDay = chartData[chartData.length - 1].revenue;
-      const prevDay = chartData[chartData.length - 2].revenue;
-      if (prevDay > 0) {
-        const change = ((lastDay - prevDay) / prevDay) * 100;
-        setDailyChange(change.toFixed(1));
-      }
-    }
-    
-    setData(chartData);
-    setTotalRevenue(total);
-  };
+  }
+  const fetchAppointmentStatusCounts = async () => {
 
-  const formatXAxis = (tickItem) => {
-    if (timeFilter === 'Week') {
-      return tickItem;
-    } else {
-      const parts = tickItem.split(' ');
-      if (parts.length >= 2) {
-        return `${parts[0]}/${parts[1].substring(0, 3)}`;
-      }
-      return tickItem;
-    }
-  };
 
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="custom-tooltip">
-          <p className="tooltip-label">{payload[0].payload.formattedDate}</p>
-          <p className="tooltip-value">
-            <span className="tooltip-label">Revenue: </span>
-            <span className="tooltip-amount">{payload[0].payload.formattedRevenue}</span>
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
-
-  const CustomActiveDot = (props) => {
-    const { cx, cy, stroke, dataKey } = props;
-    return (
-      <svg x={cx - 8} y={cy - 8} width={16} height={16} viewBox="0 0 16 16">
-        <circle cx="8" cy="8" r="6" stroke={stroke} strokeWidth="2" fill="white" />
-        <circle cx="8" cy="8" r="3" stroke="none" fill={stroke} />
-      </svg>
-    );
-  };
-
+    AppointmnetforAdminOverview().then((response)=>{
+      console.log("Appointment status counts:", response.data);
+      setAppointmentStatusCounts({
+        total: response.data.total,
+        completed: response.data.completed,
+        inProgress: response.data.inProgress,
+        cancelled: response.data.cancelled,
+        refunded: response.data.refunded
+      });
+    }).catch((error)=>{
+      console.error("Error fetching appointment status counts:", error);
+    })
+  }
+  const fetchdatachart = () => {
+    console.log("fetchdatachart==========================");
+    const today = new Date();
+    const enddate =today.toISOString().slice(0,10);
+    const startdate =new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().slice(0,10);
+    console.log("startdate:", startdate);
+    console.log("enddate:", enddate);
+    ChartOverview({startPeriod:startdate, endPeriod:enddate}).then((response)=>{
+      console.log("Appointment status counts:", response.data);
+      setdatachart(response.data);
+    }).catch((error)=>{
+      console.error("Error fetching appointment status counts:", error);
+    })
+  }
   const appointmentStatusData = [
-    { name: "Completed", value: appointmentStatusCounts.total ? Math.round((appointmentStatusCounts.completed / appointmentStatusCounts.total) * 100) : 0, count: appointmentStatusCounts.completed || 0, color: "#10b981", icon: CheckCircle },
-    { name: "In Progress", value: appointmentStatusCounts.total ? Math.round((appointmentStatusCounts.inProgress / appointmentStatusCounts.total) * 100) : 0, count: appointmentStatusCounts.inProgress || 0, color: "#3b82f6", icon: Clock },
-    { name: "Cancelled", value: appointmentStatusCounts.total ? Math.round((appointmentStatusCounts.cancelled / appointmentStatusCounts.total) * 100) : 0, count: appointmentStatusCounts.cancelled || 0, color: "#ef4444", icon: AlertCircle },
-    { name: "Refunded", value: appointmentStatusCounts.total ? Math.round((appointmentStatusCounts.refunded / appointmentStatusCounts.total) * 100) : 0, count: appointmentStatusCounts.refunded || 0, color: "#f59e0b", icon: Activity }
+    { 
+      name: "Completed", 
+      value: appointmentStatusCounts.total ? Math.round((appointmentStatusCounts.completed / appointmentStatusCounts.total) * 100) : 0,
+      count: appointmentStatusCounts.completed || 0,
+      color: "#10b981", 
+      icon: CheckCircle
+    },
+    { 
+      name: "In Progress", 
+      value: appointmentStatusCounts.total ? Math.round((appointmentStatusCounts.inProgress / appointmentStatusCounts.total) * 100) : 0,
+      count: appointmentStatusCounts.inProgress || 0,
+      color: "#3b82f6", 
+      icon: Clock
+    },
+    { 
+      name: "Cancelled", 
+      value: appointmentStatusCounts.total ? Math.round((appointmentStatusCounts.cancelled / appointmentStatusCounts.total) * 100) : 0,
+      count: appointmentStatusCounts.cancelled || 0,
+      color: "#ef4444", 
+      icon: AlertCircle
+    },
+    { 
+      name: "Refunded", 
+      value: appointmentStatusCounts.total ? Math.round((appointmentStatusCounts.refunded / appointmentStatusCounts.total) * 100) : 0,
+      count: appointmentStatusCounts.refunded || 0,
+      color: "#f59e0b", 
+      icon: AlertCircle
+    }
+
   ];
 
   const userRoleData = [
@@ -219,212 +198,179 @@ const RevenueChart = () => {
     { name: "Admin", value: userRoleStats.admin || 0, color: "#f59e0b", icon: User }
   ];
 
-  const revenueFlowData = [
-    { name: "Income", amount: revenueFlowStats.income || 0, color: "#10b981" },
-    { name: "Expenses", amount: revenueFlowStats.expenses || 0, color: "#ef4444" },
-    { name: "Profit", amount: revenueFlowStats.profit || 0, color: "#3b82f6" }
-  ];
-
-  const getCurrentMonthYear = () => {
-    return new Date(selectedYear, selectedMonth - 1).toLocaleString('default', { month: 'long', year: 'numeric' });
-  };
-
-  const handleMonthChange = (e) => {
-    setSelectedMonth(parseInt(e.target.value));
-  };
-
-  const handleYearChange = (e) => {
-    setSelectedYear(parseInt(e.target.value));
-  };
-
-  const handleTimeFilterChange = (filter) => {
-    setTimeFilter(filter);
-  };
-
-  const getFilteredData = () => {
-    if (timeFilter === 'Week') {
-      if (data.length <= 7) return data;
-      return data.slice(data.length - 7);
-    }
-    return data;
-  };
-
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
-      {/* Sidebar Header */}
-      <AdminHeader />
+    <div className="revenue-chart-container">
+     
 
-      {/* Main Content */}
-      <div style={{ flex: 1, padding: '20px', backgroundColor: '#f8fafc' }}>
-        <div className="revenue-chart-container">
-          {/* Stats Boxes */}
-          <div className="stats-boxes">
-            <div className="stat-box">
-              <div className="stat-icon">
-                <Users size={18} />
-              </div>
-              <div className="stat-title">Users</div>
-              <div className="stat-value">{formatNumber(userRoleStats.total || 0)}</div>
-              <div className="stat-info">
-                <span>{getCurrentMonthYear()}</span>
-                <span className="world-icon">
-                  <Globe size={12} /> WorldWide
+      {/* Stats Boxes */}
+      <div className="stats-boxes">
+        {/* Users Box */}
+        <div className="stat-box">
+          <div className="stat-icon">
+            <Users size={24} />
+          </div>
+          <div className="stat-title">Users</div>
+          <div className="stat-value">{(userRoleStats.total || 0)}</div>
+          <div className="stat-info">
+           
+            <span className="world-icon">
+              <Globe size={12} /> WorldWide
+            </span>
+          </div>
+          <div className="stat-user-roles">
+            {userRoleData.map((item, index) => (
+              <div key={index} className="role-item">
+                <item.icon size={16} color={item.color} />
+                <span>
+                  {item.name} <strong>{item.value}</strong>
                 </span>
               </div>
-              <div className="stat-user-roles">
-                {userRoleData.map((item, index) => (
-                  <div key={index} className="role-item">
-                    <item.icon size={16} color={item.color} />
-                    <span>
-                      {item.name} <strong>{item.value}</strong>
-                    </span>
-                  </div>
-                ))}
-              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Revenue Box */}
+        <div className="stat-box">
+          <div className="stat-icon revenue-icon">
+            <DollarSign size={24} />
+          </div>
+          <div className="stat-title">Revenue</div>
+          <div className="stat-value">
+            {revenueFlowStats && revenueFlowStats.total ? revenueFlowStats.total.toLocaleString() : '0'}
+          </div>
+          <div className="stat-info">
+          
+            <span className="world-icon">
+              <Globe size={12} /> WorldWide
+            </span>
+          </div>
+          <div className="stat-revenue-flow">
+            <div className="flow-item">
+              <div style={{ width: '16px', height: '16px', backgroundColor: "#10b981", borderRadius: '50%' }} />
+              <span>
+                Income <strong>{revenueFlowStats && revenueFlowStats.income ? revenueFlowStats.income.toLocaleString() : '0'}</strong>
+              </span>
             </div>
-            
-            <div className="stat-box">
-              <div className="stat-icon revenue-icon">
-                <DollarSign size={18} />
-              </div>
-              <div className="stat-title">Revenue</div>
-              <div className="stat-value">{formatCurrency(revenueFlowStats.total || 0)}</div>
-              <div className="stat-info">
-                <span>{getCurrentMonthYear()}</span>
-                <span className="world-icon">
-                  <Globe size={12} /> WorldWide
-                </span>
-              </div>
-              <div className="stat-revenue-flow">
-                {revenueFlowData.map((item, index) => (
-                  <div key={index} className="flow-item">
-                    <div style={{ width: '16px', height: '16px', backgroundColor: item.color, borderRadius: '50%' }} />
-                    <span>
-                      {item.name} <strong>{formatCurrency(item.amount)}</strong>
-                    </span>
-                  </div>
-                ))}
-              </div>
+            <div className="flow-item">
+              <div style={{ width: '16px', height: '16px', backgroundColor: "#ef4444", borderRadius: '50%' }} />
+              <span>
+                Expenses <strong>{revenueFlowStats && revenueFlowStats.expenses ? revenueFlowStats.expenses.toLocaleString() : '0'}</strong>
+              </span>
             </div>
-            
-            <div className="stat-box">
-              <div className="stat-icon appointment-icon">
-                <Calendar size={18} />
-              </div>
-              <div className="stat-title">Appointments</div>
-              <div className="stat-value">{formatNumber(appointmentStatusCounts.total || 0)}</div>
-              <div className="stat-info">
-                <span>{dateRange.display || 'Loading...'}</span>
-                <span className="world-icon">
-                  <Globe size={12} /> WorldWide
-                </span>
-              </div>
-              <div className="stat-appointment-status">
-                {appointmentStatusData.map((item, index) => (
-                  <div key={index} className="status-item">
-                    <item.icon size={16} color={item.color} />
-                    <span>
-                      {item.name} <strong>{item.count} ({item.value}%)</strong>
-                    </span>
-                  </div>
-                ))}
-              </div>
+            <div className="flow-item">
+              <div style={{ width: '16px', height: '16px', backgroundColor: "#3b82f6", borderRadius: '50%' }} />
+              <span>
+                Profit <strong>{revenueFlowStats && revenueFlowStats.profit ? revenueFlowStats.profit.toLocaleString() : '0'}</strong>
+              </span>
             </div>
           </div>
-          
-          {/* Chart Area */}
-          <div className="chart-area">
-            <div className="sales-header">
-              <div className="sales-info">
-                <h2 className="sales-title">Sales Value</h2>
-                <div className="sales-value">{formatCurrency(totalRevenue)}</div>
-                <div className="sales-change">
-                  <span>Yesterday</span>
-                  <span className={`change-value ${parseFloat(dailyChange) >= 0 ? 'positive' : 'negative'}`}>
-                    <ArrowUpRight size={16} />
-                    {dailyChange}%
-                  </span>
-                </div>
-              </div>
-              <div className="time-filter">
-                <button 
-                  className={`filter-btn ${timeFilter === 'Month' ? 'active' : ''}`}
-                  onClick={() => handleTimeFilterChange('Month')}
-                >
-                  Month
-                </button>
-                <button 
-                  className={`filter-btn ${timeFilter === 'Week' ? 'active' : ''}`}
-                  onClick={() => handleTimeFilterChange('Week')}
-                >
-                  Week
-                </button>
-              </div>
-            </div>
-            
-            <div className="chart-wrapper">
-              {isLoading ? (
-                <div className="loading-spinner">Loading revenue data...</div>
-              ) : (
-                <div className="chart-container">
-                  <ResponsiveContainer width="100%" height={300}>
-                    <AreaChart data={getFilteredData()} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                          <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                      </linearGradient>
-                    </defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis 
-                        dataKey={timeFilter === 'Week' ? "day" : "formattedDate"} 
-                        tickLine={false}
-                      axisLine={false}
-                        tickFormatter={formatXAxis}
-                        tick={{ fontSize: 12, fill: '#64748b' }}
-                    />
-                    <YAxis
-                        tickFormatter={(value) => `${value / 1000000}M`}
-                        tickLine={false}
-                      axisLine={false}
-                        tick={{ fontSize: 12, fill: '#64748b' }}
-                    />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Area
-                      type="monotone"
-                      dataKey="revenue"
-                        stroke="#3b82f6" 
-                        fillOpacity={1} 
-                      fill="url(#colorRevenue)"
-                        activeDot={<CustomActiveDot />}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-                </div>
-              )}
-            </div>
+        </div>
+        
+        {/* Appointments Box */}
+        <div className="stat-box">
+          <div className="stat-icon appointment-icon">
+            <Calendar size={24} />
           </div>
-          
-          {/* Top Services Table */}
-          <div className="top-services-section">
-            <div className="section-header">
-              <div className="section-title">
-                <BarChart2 size={20} />
-                <h2>Top 10 Most Booked Services</h2>
+          <div className="stat-title">Appointments</div>
+          <div className="stat-value">{(appointmentStatusCounts.total || 0)}</div>
+          <div className="stat-info">
+            <span>{dateRange.display || 'Loading...'}</span>
+            <span className="world-icon">
+              <Globe size={12} /> WorldWide
+            </span>
+          </div>
+          <div className="stat-appointment-status">
+            {appointmentStatusData.map((item, index) => (
+              <div key={index} className="status-item">
+                <item.icon size={16} color={item.color} />
+                <span>
+                  {item.name} <strong>{item.count} ({item.value}%)</strong>
+                </span>
               </div>
-              <div className="section-period">{getCurrentMonthYear()}</div>
-            </div>
-            
-            <div className="services-table-container">
-              {isLoading ? (
-                <div className="loading-spinner">Loading services data...</div>
-              ) : (
-                <table className="services-table">
-                  <thead>
-                    <tr>
-                      <th className="rank-column">#</th>
-                      <th className="name-column">Service Name</th>
-                      <th className="count-column">Total Appointments</th>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div>
+      <div style={{ width: '100%', height: 400 }}>
+        <div className="chart-title">
+          <h3>Biểu đồ doanh thu theo ngày</h3>
+        </div>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={datachart} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+            <defs>
+              <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.8}/>
+                <stop offset="95%" stopColor="#6366f1" stopOpacity={0.1}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis 
+              tickFormatter={value => {
+                if (value >= 1000000) {
+                  return `${(value / 1000000).toFixed(1)}M`;
+                } else if (value >= 1000) {
+                  return `${(value / 1000).toFixed(0)}K`;
+                }
+                return value;
+              }} 
+            />
+            <Tooltip formatter={(value) => formatCurrency(value)} />
+            <Area 
+              type="monotone" 
+              dataKey="revenue" 
+              stroke="#6366f1" 
+              strokeWidth={3}
+              fill="url(#colorRevenue)" 
+              fillOpacity={0.3}
+            />
+            <Line 
+              type="monotone" 
+              dataKey="revenue" 
+              stroke="#6366f1" 
+              strokeWidth={3} 
+              dot={{ r: 4, strokeWidth: 2, fill: "white" }}
+              activeDot={{ r: 6, strokeWidth: 2, fill: "white" }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+      {/* Top Services Table */}
+      <div className="top-services-section">
+        <div className="section-header">
+          <div className="section-title">
+            <BarChart2 size={20} />
+            <h2>Top 10 Most Booked Services</h2>
+          </div>
+       
+        </div>
+        
+        <div className="services-table-container">
+          {isLoading ? (
+            <div className="loading-spinner">Loading services data...</div>
+          ) : (
+            <table className="services-table">
+              <thead>
+                <tr>
+                  <th className="rank-column">#</th>
+                  <th className="name-column">Service Name</th>
+                  <th className="count-column">Total Appointments</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topServices.length > 0 ? (
+                  topServices.map((service, index) => (
+                    <tr key={index} className={index < 3 ? 'top-rank' : ''}>
+                      <td className="rank-column">
+                        <div className={`rank-badge rank-${index + 1}`}>
+                          {index < 3 ? <Star size={12} /> : index + 1}
+                        </div>
+                      </td>
+                      <td className="name-column">{service.serviceName}</td>
+                      <td className="count-column">{service.totalAppointments || service.count}</td>
+
                     </tr>
                   </thead>
                   <tbody>
