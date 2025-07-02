@@ -6,7 +6,7 @@ import { GetMyInfor } from '../service/user';
 import { Logout } from '../service/login';
 
 const navItems = [
-  { name: 'Home', path: '/Home' },
+  // { name: 'Home', path: '/Home' },
   { name: 'Manage Service', path: '/ManageService' },
   { name: 'Manage Blog', path: '/ManageBlog' },
   { name: 'Manage Staff', path: '/assign-staff' },

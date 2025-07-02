@@ -198,6 +198,15 @@ body, .manage-service-main-content {
 .service-stat-card:hover .stat-icon {
   color: #2563eb;
 }
+.stat-icon,
+.statistic-icon,
+.anticon,
+.statistic-box svg {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
 .stat-icon {
   font-size: 1.5rem;
   color: #2563eb;

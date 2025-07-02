@@ -60,7 +60,8 @@ import {
   PictureOutlined,
   TagsOutlined,
   HeartOutlined,
-  TagOutlined
+  TagOutlined,
+  QuestionCircleOutlined
 } from '@ant-design/icons';
 import DynamicHeader from '../DynamicHeader';
 import Footer from '../Footer';
@@ -92,6 +93,7 @@ const ManageBlog = () => {
   const slideshowRef = useRef(null);
   const [categories, setCategories] = useState([]);
   const [createform, setCreateForm] = useState(false);
+  const [helpModal, setHelpModal] = useState(false);
 
   const [stats, setStats] = useState({
     total: 0,
@@ -574,33 +576,31 @@ const ManageBlog = () => {
   return (
     <div style={{ padding: '24px', background: '#f8fafc', minHeight: '100vh' }}>
       <DynamicHeader />
+      {/* Blog Management Header - Minimalist, đặt ngay dưới DynamicHeader */}
+      <div className="manage-blog-header minimal">
+        <BookOutlined className="manage-blog-header-icon" />
+        <div>
+          <div className="manage-blog-header-title-row">
+            <span className="manage-blog-header-title">Blog Management</span>
+          </div>
+          <div className="manage-blog-header-desc" style={{display:'flex',alignItems:'center',gap:8}}>
+            Easily add, edit, search, and manage your blog posts in a professional way.
+            <QuestionCircleOutlined 
+              className="manage-blog-header-info"
+              title="User Guide"
+              onClick={() => setHelpModal(true)}
+              style={{fontSize: 22, color: '#2563eb', cursor: 'pointer'}}
+            />
+          </div>
+        </div>
+      </div>
+      {/* End Blog Management Header */}
       
       {console.log('Render - blogs length:', blogs.length)}
       {console.log('Render - categories:', categories)}
       {console.log('Render - category state:', category)}
       
-      <div style={{ marginBottom: 32 }}>
-        <Title level={2} style={{ margin: 0, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{
-            background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
-            borderRadius: 12,
-            padding: 12,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <BookOutlined style={{ fontSize: 24, color: 'white' }} />
-          </div>
-          <div>
-            <div style={{ fontSize: 28, fontWeight: 700, background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Blog Management
-            </div>
-            <Text type="secondary" style={{ fontSize: 14, marginTop: 4, display: 'block' }}>
-              Manage and organize your blog content efficiently
-            </Text>
-          </div>
-        </Title>
-      </div>
+
 
       <Row gutter={[20, 20]} style={{ marginBottom: 32 }}>
         <Col xs={24} sm={12} lg={6}>
@@ -957,13 +957,15 @@ const ManageBlog = () => {
               }}
             />
             <button
+              className="custom-close-btn"
               onClick={() => setImageModal({ open: false, images: [], current: 0 })}
+              aria-label="Close"
               style={{
                 position: 'absolute',
                 top: 16,
                 right: 16,
                 zIndex: 10,
-                background: 'rgba(37,99,235,0.9)',
+                background: 'rgba(37,99,235,0.09)',
                 border: 'none',
                 borderRadius: '50%',
                 width: 44,
@@ -972,14 +974,13 @@ const ManageBlog = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
-                boxShadow: '0 4px 16px rgba(37,99,235,0.3)',
+                boxShadow: '0 4px 16px rgba(37,99,235,0.13)',
                 transition: 'all 0.3s ease'
               }}
               onMouseOver={e => e.currentTarget.style.background = '#2563eb'}
-              onMouseOut={e => e.currentTarget.style.background = 'rgba(37,99,235,0.9)'}
-              aria-label="Close"
+              onMouseOut={e => e.currentTarget.style.background = 'rgba(37,99,235,0.09)'}
             >
-              <CloseCircleFilled style={{ fontSize: 24, color: '#fff' }} />
+              <span style={{ fontSize: 32, color: '#222', fontWeight: 700, lineHeight: 1 }}>×</span>
             </button>
             {imageModal.images.length > 1 && (
               <>
@@ -1218,6 +1219,21 @@ const ManageBlog = () => {
             </Upload>
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        open={helpModal}
+        onCancel={() => setHelpModal(false)}
+        footer={null}
+        title={<span style={{display:'flex',alignItems:'center',gap:8}}><QuestionCircleOutlined style={{color:'#2563eb',fontSize:24}}/>Blog Management Guide</span>}
+        className="help-modal-custom"
+      >
+        <ul style={{textAlign:'left',fontSize:'1.08rem',lineHeight:'1.7',margin:'18px 0'}}>
+          <li><b>Create blog:</b> Click <span style={{color:'#2563eb'}}>Create Blog</span> to add a new blog post.</li>
+          <li><b>Filter & search:</b> Use the search box and filters to quickly find blog posts.</li>
+          <li><b>Edit/Delete:</b> Click the <EditOutlined style={{color:'#2563eb'}}/> or <DeleteOutlined style={{color:'#dc2626'}}/> icon to edit/delete a blog (with confirmation).</li>
+          <li><b>Help:</b> Click <QuestionCircleOutlined style={{color:'#2563eb'}}/> to view this guide at any time.</li>
+        </ul>
       </Modal>
 
       <div style={{ width: '100vw', marginLeft: 'calc(50% - 50vw)', background: '#f4f8ff', marginTop: '40px' }}>
