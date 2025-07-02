@@ -27,8 +27,8 @@ public interface IsPaymentResponsitory extends JpaRepository<Payment, Integer> {
     Payment findByAppointment_AppointmentId(int appointmentAppointmentId);
 
     @Query(value = """
-    select sum(p.payment_amount) from payment p join  appoinment a on a.appointment_id = p.apppointment_id
-    where p.payment_status = 1 and is_expense = 0 and  a.curent_status_appointment = 'COMPLETED'
+    select sum(p.payment_amount) from payment p join appoinment a on a.appointment_id = p.apppointment_id
+    where p.payment_status = 1 and is_expense = 0 and a.curent_status_appointment = 'COMPLETED'
     and p.pay_date between :startDate and :endDate
     """, nativeQuery = true)
     BigDecimal getTodayRevenueToday(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
@@ -36,17 +36,44 @@ public interface IsPaymentResponsitory extends JpaRepository<Payment, Integer> {
     @Query(value = """
     select sum(p.payment_amount) 
     from payment p 
-    join appoinment a on a.appointment_id = p.apppointment_id
     where p.payment_status = 1 
       and p.is_expense = 0 
-      and a.curent_status_appointment = 'COMPLETED'
       and cast(p.pay_date as date) = :targetDate
 """, nativeQuery = true)
     BigDecimal getRevenueByDate(@Param("targetDate") LocalDate targetDate);
-
-    @Query("SELECT SUM(p.paymentAmount) FROM Payment p WHERE p.isExpense = true AND p.paymentDate BETWEEN :start AND :end")
-    BigDecimal getTotalExpense(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
-
+    
+    @Query(value = """
+    select sum(p.payment_amount) 
+    from payment p 
+    where p.payment_status = 1 
+      and p.is_expense = 1
+      and cast(p.pay_date as date) = :targetDate
+""", nativeQuery = true)
+    BigDecimal getRefundByDate(@Param("targetDate") LocalDate targetDate);
+    
+    @Query(value = """
+    select sum(p.payment_amount) 
+    from payment p 
+    where p.payment_status = 1 
+      and p.is_expense = 0 
+      and p.pay_date between :startDate and :endDate
+""", nativeQuery = true)
+    BigDecimal getRevenueByPeriod(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+    
+    @Query(value = """
+    select sum(p.payment_amount) 
+    from payment p 
+    where p.payment_status = 1 
+      and p.is_expense = 1
+      and p.pay_date between :startDate and :endDate
+""", nativeQuery = true)
+    BigDecimal getRefundByPeriod(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+    
+    @Query(value = """
+    select sum(p.payment_amount) from payment p
+    where p.is_expense = 1 and p.pay_date between :startDate and :endDate
+    """, nativeQuery = true)
+    BigDecimal getTotalExpense(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
    @Query("select p from Payment p where p.isExpense = false and p.appointment.appointmentId =:appointmentid")
     Payment findByAppointmentIdAndExpenseIsFalse(int appointmentid);
@@ -70,4 +97,26 @@ public interface IsPaymentResponsitory extends JpaRepository<Payment, Integer> {
     List<Payment> findAllByPaymentStatusIsTrueAndPaymentDateIsBetween(LocalDateTime start, LocalDateTime end);
 
     List<Payment> findALLByPaycode(String paycode);
+    
+    // Phương thức mới để kiểm tra trực tiếp các khoản thanh toán refund cho một ngày cụ thể
+    @Query(value = """
+    select * from payment p 
+    where p.payment_status = 1 
+      and p.is_expense = 1
+      and CONVERT(date, p.pay_date) = CONVERT(date, :targetDate)
+    """, nativeQuery = true)
+    List<Payment> findRefundPaymentsForDate(@Param("targetDate") LocalDate targetDate);
+    
+    // Phương thức kiểm tra không sử dụng CAST/CONVERT để thử cách khác
+    @Query(value = """
+    select * from payment p 
+    where p.payment_status = 1 
+      and p.is_expense = 1
+      and p.pay_date >= :startOfDay
+      and p.pay_date < :endOfDay
+    """, nativeQuery = true)
+    List<Payment> findRefundPaymentsForDateRange(
+        @Param("startOfDay") LocalDateTime startOfDay, 
+        @Param("endOfDay") LocalDateTime endOfDay
+    );
 }

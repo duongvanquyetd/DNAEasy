@@ -1,17 +1,13 @@
 package com.dnaeasy.dnaeasy.dto.response;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class StaticReponse {
-    private BigDecimal revenue;
-    private BigDecimal totalExpense;
-    private BigDecimal remain;
-}
+public class RevenueDataPoint {
+    private String date;
+    private Integer revenue;
+} 

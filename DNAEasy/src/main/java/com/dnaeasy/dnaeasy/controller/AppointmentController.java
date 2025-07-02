@@ -1,8 +1,17 @@
 package com.dnaeasy.dnaeasy.controller;
 
+
+import com.dnaeasy.dnaeasy.dto.request.AppoinmetnAssignRequest;
+import com.dnaeasy.dnaeasy.dto.request.AppointmentCreateRequest;
+import com.dnaeasy.dnaeasy.dto.request.RevenueStatsRequest;
+import com.dnaeasy.dnaeasy.dto.request.StaticRequest;
+import com.dnaeasy.dnaeasy.dto.request.StatusUpdateAppointment;
+
 import com.dnaeasy.dnaeasy.dto.request.*;
+=
 
 import com.dnaeasy.dnaeasy.dto.response.*;
+import com.dnaeasy.dnaeasy.dto.response.RevenueDataPoint;
 
 import com.dnaeasy.dnaeasy.dto.response.AppointCreateResponse;
 import com.dnaeasy.dnaeasy.dto.response.AppointmentResponse;
@@ -34,6 +43,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 @CrossOrigin("*")
 @RestController
@@ -93,9 +103,9 @@ public class AppointmentController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/topservice")
-    public ResponseEntity<List<TopServiceReponse>> getTopService(@RequestBody StaticRequest request) {
-        List<TopServiceReponse> reponse = appointmentService.findTopService(request);
+    @GetMapping("/topservice")
+    public ResponseEntity<List<TopServiceReponse>> getTopService() {
+        List<TopServiceReponse> reponse = appointmentService.findTopService();
         return ResponseEntity.ok(reponse);
     }
 
@@ -131,15 +141,31 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.getAppointmentReport(request));
     }
     @PostMapping("/revenue_chart")
-    public ResponseEntity<List<RevenueChartResponse>> getRevenueChart(@RequestBody StaticRequest request) {
-        LocalDate start = LocalDate.parse(request.getStartPeriod());
-        LocalDate end = LocalDate.parse(request.getEndPeriod());
-
-        List<RevenueChartResponse> chart = appointmentService.getRevenueByDay(
+    public ResponseEntity<List<RevenueDataPoint>> getRevenueChart(@RequestBody StaticRequest request) {
+        List<RevenueDataPoint> chart = appointmentService.getSimplifiedRevenueData(
                 request.getStartPeriod(),
                 request.getEndPeriod()
         );
         return ResponseEntity.ok(chart);
+    }
+    
+    @PostMapping("/chart/revenue")
+    public ResponseEntity<List<RevenueDataPoint>> getSimpleRevenueChart(@RequestBody StaticRequest request) {
+        List<RevenueDataPoint> chart = appointmentService.getSimplifiedRevenueData(
+                request.getStartPeriod(),
+                request.getEndPeriod()
+        );
+        return ResponseEntity.ok(chart);
+    }
+
+    @PostMapping("/revenue-stats")
+    public ResponseEntity<List<RevenueChartResponse>> getRevenueStats(@RequestBody RevenueStatsRequest request) {
+        return ResponseEntity.ok(appointmentService.getRevenueStats(
+            request.getType(),
+            request.getFrom(),
+            request.getTo(),
+            request.getYear()
+        ));
     }
     
     @GetMapping("/stats")

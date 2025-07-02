@@ -40,6 +40,7 @@ import java.sql.Timestamp;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +50,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import com.dnaeasy.dnaeasy.dto.response.RevenueDataPoint;
+import java.time.YearMonth;
+import java.time.Year;
 
 @Service
 public class AppointmentService implements IsAppointmentService {
@@ -115,7 +119,6 @@ public class AppointmentService implements IsAppointmentService {
         SystemConfig hourclose = isSystemConfigRepo.findByName("hourclose");
         int hour_open = Integer.valueOf(houropen.getValue());
         int hour_close = Integer.valueOf(hourclose.getValue());
-        System.out.println(hour_open + " " + hour_close);
 
         if (!request.getTypeCollect().equals(SampleMethod.Self_collection)) {
             if (request.getDateCollect().isBefore(LocalDateTime.now().plusHours(4)) || request.getDateCollect().getHour() < hour_open || request.getDateCollect().getHour() >= hour_close) {
@@ -576,14 +579,6 @@ public class AppointmentService implements IsAppointmentService {
         return false;
     }
 
-
-//    @Override
-//    public int getCompletedAppointmentsToday() {
-//        LocalDateTime startDay = LocalDateTime.now().toLocalDate().atStartOfDay();
-//        LocalDateTime endDay = startDay.plusDays(1);
-//        return isAppointmentResponsitory.countCompletedAppointmentsToday(startDay, endDay);
-//    }
-
     @Override
     public List<RevenueChartResponse> getRevenueByDay(String startDate, String endDate) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -593,18 +588,166 @@ public class AppointmentService implements IsAppointmentService {
 
         List<RevenueChartResponse> chartData = new ArrayList<>();
         LocalDate current = start;
-
+        // Duyệt qua từng ngày trong khoảng thời gian
         while (!current.isAfter(end)) {
+            // Get revenue cho ngày hiện tại (chỉ lấy completed payments)
             BigDecimal dailyRevenue = isPaymentResponsitory.getRevenueByDate(current);
             if (dailyRevenue == null) dailyRevenue = BigDecimal.ZERO;
-
-            chartData.add(new RevenueChartResponse(current, dailyRevenue));
+            
+            // Get refund amount for this day 
+            BigDecimal refund = BigDecimal.ZERO;
+            // Kiểm tra trực tiếp xem có khoản thanh toán refund nào cho ngày này không
+            List<Payment> directRefunds = isPaymentResponsitory.findRefundPaymentsForDate(current);
+            if (!directRefunds.isEmpty()) {
+                for (Payment p : directRefunds) {
+                    refund = refund.add(p.getPaymentAmount());
+                }
+            } else {
+                // Nếu không tìm thấy qua phương thức trực tiếp, thử phương thức khác
+                LocalDateTime startOfDay = current.atStartOfDay();
+                LocalDateTime endOfDay = current.plusDays(1).atStartOfDay();
+                List<Payment> rangeRefunds = isPaymentResponsitory.findRefundPaymentsForDateRange(startOfDay, endOfDay);
+                if (!rangeRefunds.isEmpty()) {
+                    for (Payment p : rangeRefunds) {
+                        refund = refund.add(p.getPaymentAmount());
+                    }
+                }
+            }
+            RevenueChartResponse chartItem = new RevenueChartResponse();
+            chartItem.setDate(current);
+            chartItem.setRevenue(dailyRevenue);
+            chartItem.setName(current.toString());
+            chartItem.setRefund(refund);
+            chartData.add(chartItem);
             current = current.plusDays(1);
         }
-
         return chartData;
     }
 
+    @Override
+    public List<RevenueChartResponse> getRevenueStats(String type, LocalDate from, LocalDate to, Integer year) {
+        List<RevenueChartResponse> result = new ArrayList<>();
+        
+        switch (type) {
+            case "day":
+                if (from == null || to == null) {
+                    throw new BadRequestException("From and to dates are required for day type");
+                }
+                
+                // Xử lý từng ngày trong khoảng thời gian
+                LocalDate current = from;
+                while (!current.isAfter(to)) {
+                    // Lấy doanh thu ngày
+                    BigDecimal revenue = isPaymentResponsitory.getRevenueByDate(current);
+                    if (revenue == null) revenue = BigDecimal.ZERO;
+                    
+                    // Lấy hoàn tiền ngày
+                    BigDecimal refund = calculateRefundForDate(current);
+                    
+                    // Tạo response
+                    RevenueChartResponse item = new RevenueChartResponse();
+                    item.setDate(current);
+                    item.setRevenue(revenue);
+                    item.setName(current.toString());
+                    item.setRefund(refund);
+                    result.add(item);
+                    
+                    current = current.plusDays(1);
+                }
+                break;
+            case "month":
+                if (year == null) {
+                    year = LocalDate.now().getYear();
+                }
+                
+                // Xử lý 12 tháng trong năm
+                for (int month = 1; month <= 12; month++) {
+                    String monthName = Month.of(month).getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
+                    LocalDate firstDay = LocalDate.of(year, month, 1);
+                    LocalDate lastDay = firstDay.withDayOfMonth(firstDay.lengthOfMonth());
+                    
+                    // Lấy doanh thu tháng
+                    BigDecimal revenue = isPaymentResponsitory.getRevenueByPeriod(
+                            firstDay.atStartOfDay(), 
+                            lastDay.atTime(23, 59, 59)
+                    );
+                    if (revenue == null) revenue = BigDecimal.ZERO;
+                    
+                    // Lấy hoàn tiền tháng
+                    BigDecimal refund = calculateRefundForDateRange(firstDay, lastDay);
+                    
+                    // Tạo response
+                    RevenueChartResponse item = new RevenueChartResponse();
+                    item.setDate(firstDay);
+                    item.setRevenue(revenue);
+                    item.setName(monthName);
+                    item.setRefund(refund);
+                    result.add(item);
+                }
+                break;
+            case "year":
+                // Lấy 5 năm gần nhất
+                int currentYear = LocalDate.now().getYear();
+                int startYear = currentYear - 4;
+                
+                for (int yr = startYear; yr <= currentYear; yr++) {
+                    LocalDate firstDay = LocalDate.of(yr, 1, 1);
+                    LocalDate lastDay = LocalDate.of(yr, 12, 31);
+                    
+                    // Lấy doanh thu năm
+                    BigDecimal revenue = isPaymentResponsitory.getRevenueByPeriod(
+                            firstDay.atStartOfDay(), 
+                            lastDay.atTime(23, 59, 59)
+                    );
+                    if (revenue == null) revenue = BigDecimal.ZERO;
+                    
+                    // Lấy hoàn tiền năm
+                    BigDecimal refund = calculateRefundForDateRange(firstDay, lastDay);
+                    
+                    // Tạo response
+                    RevenueChartResponse item = new RevenueChartResponse();
+                    item.setDate(firstDay);
+                    item.setRevenue(revenue);
+                    item.setName(String.valueOf(yr));
+                    item.setRefund(refund);
+                    result.add(item);
+                }
+                break;
+                
+            default:
+                throw new BadRequestException("Invalid type. Must be 'day', 'month', or 'year'");
+        }
+        
+        return result;
+    }
+
+    private BigDecimal calculateRefundForDate(LocalDate date) {
+        BigDecimal total = BigDecimal.ZERO;
+        // Tìm refund bằng truy vấn trực tiếp
+        List<Payment> refunds = isPaymentResponsitory.findRefundPaymentsForDate(date);
+        if (refunds.isEmpty()) {
+            // Thử cách khác nếu không tìm thấy
+            LocalDateTime start = date.atStartOfDay();
+            LocalDateTime end = date.plusDays(1).atStartOfDay();
+            refunds = isPaymentResponsitory.findRefundPaymentsForDateRange(start, end);
+        }
+        // Tính tổng
+        for (Payment p : refunds) {
+            total = total.add(p.getPaymentAmount());
+        }
+        return total;
+    }
+    private BigDecimal calculateRefundForDateRange(LocalDate startDate, LocalDate endDate) {
+        BigDecimal total = BigDecimal.ZERO;
+        LocalDate current = startDate;
+        // Duyệt qua từng ngày và tính tổng
+        while (!current.isAfter(endDate)) {
+            total = total.add(calculateRefundForDate(current));
+            current = current.plusDays(1);
+        }
+        
+        return total;
+    }
 
     @Override
     public StaticReponse getStaticByDate(StaticRequest request) {
@@ -636,90 +779,27 @@ public class AppointmentService implements IsAppointmentService {
             } else {
                 throw new IllegalArgumentException("Invalid startPeriod/endPeriod format (must be yyyy or yyyy-MM)");
             }
-
-        } else if (request.getDate() != null && request.getMonth() != null && request.getYear() != null) {
-            LocalDate d = LocalDate.of(request.getYear(), request.getMonth(), request.getDate());
-            start = d.atStartOfDay();
-            end = d.atTime(23, 59, 59);
-
-        } else if (request.getMonth() != null && request.getYear() != null) {
-            LocalDate d = LocalDate.of(request.getYear(), request.getMonth(), 1);
-            start = d.atStartOfDay();
-            end = d.withDayOfMonth(d.lengthOfMonth()).atTime(23, 59, 59);
-
-        } else if (request.getYear() != null) {
-            start = LocalDate.of(request.getYear(), 1, 1).atStartOfDay();
-            end = LocalDate.of(request.getYear(), 12, 31).atTime(23, 59, 59);
-
         } else {
             throw new IllegalArgumentException("Please provide valid date info");
-
         }
 
-
-        int totalBills = isAppointmentResponsitory.countCompletedAppointmentsToday(start, end);
         BigDecimal revenue = isPaymentResponsitory.getTodayRevenueToday(start, end);
         if (revenue == null) revenue = BigDecimal.ZERO;
 
-        BigDecimal expense = isPaymentResponsitory.getTotalExpense(start, end); // cần viết hàm này
+        BigDecimal expense = isPaymentResponsitory.getTotalExpense(start, end);
         if (expense == null) expense = BigDecimal.ZERO;
 
         BigDecimal remain = revenue.subtract(expense);
         StaticReponse response = new StaticReponse();
-        response.setTotalBills(totalBills);
         response.setRevenue(revenue);
         response.setTotalExpense(expense);
         response.setRemain(remain);
-        return new StaticReponse(totalBills, revenue, expense, remain);
-
+        return new StaticReponse(revenue, expense, remain);
     }
 
 
     @Override
-    public List<TopServiceReponse> findTopService(StaticRequest request) {
-        LocalDateTime start, end;
-
-        DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("yyyy-MM");
-        DateTimeFormatter yearFormatter = DateTimeFormatter.ofPattern("yyyy");
-
-        if (request.getStartDate() != null && request.getEndDate() != null) {
-            start = request.getStartDate().atStartOfDay();
-            end = request.getEndDate().atTime(23, 59, 59);
-
-        } else if (request.getStartPeriod() != null && request.getEndPeriod() != null) {
-            if (request.getStartPeriod().length() == 7 && request.getEndPeriod().length() == 7) {
-                // khoảng tháng
-                YearMonth ymStart = YearMonth.parse(request.getStartPeriod(), monthFormatter);
-                YearMonth ymEnd = YearMonth.parse(request.getEndPeriod(), monthFormatter);
-                start = ymStart.atDay(1).atStartOfDay();
-                end = ymEnd.atEndOfMonth().atTime(23, 59, 59);
-            } else if (request.getStartPeriod().length() == 4 && request.getEndPeriod().length() == 4) {
-                // khoảng năm
-                Year yStart = Year.parse(request.getStartPeriod(), yearFormatter);
-                Year yEnd = Year.parse(request.getEndPeriod(), yearFormatter);
-                start = yStart.atMonth(1).atDay(1).atStartOfDay();
-                end = yEnd.atMonth(12).atEndOfMonth().atTime(23, 59, 59);
-            } else {
-                throw new IllegalArgumentException("startPeriod or endPeriod must be 'yyyy' or 'yyyy-MM'");
-            }
-
-        } else if (request.getDate() != null && request.getMonth() != null && request.getYear() != null) {
-            LocalDate d = LocalDate.of(request.getYear(), request.getMonth(), request.getDate());
-            start = d.atStartOfDay();
-            end = d.atTime(23, 59, 59);
-
-        } else if (request.getMonth() != null && request.getYear() != null) {
-            LocalDate d = LocalDate.of(request.getYear(), request.getMonth(), 1);
-            start = d.atStartOfDay();
-            end = d.withDayOfMonth(d.lengthOfMonth()).atTime(23, 59, 59);
-
-        } else if (request.getYear() != null) {
-            start = LocalDate.of(request.getYear(), 1, 1).atStartOfDay();
-            end = LocalDate.of(request.getYear(), 12, 31).atTime(23, 59, 59);
-
-        } else {
-            throw new IllegalArgumentException("Please provide valid date or period input");
-        }
+    public List<TopServiceReponse> findTopService() {
 
         return isAppointmentResponsitory.findTop10Service();
     }
@@ -735,6 +815,31 @@ public class AppointmentService implements IsAppointmentService {
         return new AppointmentStatsResponse(total, completed, inProgress, cancelled, refunded);
     }
 
+
+    @Override
+    public List<RevenueDataPoint> getSimplifiedRevenueData(String startDate, String endDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        LocalDate start = LocalDate.parse(startDate, formatter);
+        LocalDate end = LocalDate.parse(endDate, formatter);
+
+        List<RevenueDataPoint> chartData = new ArrayList<>();
+        LocalDate current = start;
+        // Iterate through each day in the date range
+        while (!current.isAfter(end)) {
+            // Get revenue for the current day (only completed payments)
+            BigDecimal dailyRevenue = isPaymentResponsitory.getRevenueByDate(current);
+            if (dailyRevenue == null) dailyRevenue = BigDecimal.ZERO;
+            
+            // Create data point with the date in yyyy-MM-dd format and revenue
+            RevenueDataPoint dataPoint = new RevenueDataPoint();
+            dataPoint.setDate(current.format(formatter));
+            dataPoint.setRevenue(dailyRevenue.intValue());
+            chartData.add(dataPoint);
+            
+            current = current.plusDays(1);
+        }
+        return chartData;
 
     @Override
     public List<AppointmentReportResponse> getAppointmentReport(AppointmnetReportRequest request) {
@@ -770,6 +875,7 @@ public class AppointmentService implements IsAppointmentService {
 
         }
         return responses;
+
     }
 
 }

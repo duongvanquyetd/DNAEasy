@@ -9,9 +9,9 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class StaticRequest {
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private String startPeriod;
-    private String endPeriod;
-}
+public class RevenueStatsRequest {
+    private String type;
+    private LocalDate from;
+    private LocalDate to;
+    private Integer year;
+} 
