@@ -1,11 +1,11 @@
 /* Main container */
 .revenue-chart-container {
   width: 100%;
-  padding: 16px; /* Reduced padding for compactness */
-  background-color: #f8fafc; /* Softer neutral background */
+  padding: 16px;
+  background-color: #f8fafc;
   font-family: 'Inter', sans-serif;
-  border-radius: 12px; /* Rounded corners for modern look */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Subtle shadow for depth */
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   position: relative;
   overflow: hidden;
 }
@@ -13,24 +13,25 @@
 /* Stats boxes container */
 .stats-boxes {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Flexible grid for responsiveness */
-  gap: 12px; /* Reduced gap for compactness */
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Smaller min width for compact boxes */
+  gap: 12px;
   margin-bottom: 16px;
 }
 
 /* Individual stat box */
 .stat-box {
   background-color: white;
-  border-radius: 10px; /* Softer corners */
-  padding: 16px; /* Reduced padding */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06); /* Lighter shadow */
+  border-radius: 10px;
+  padding: 12px; /* Reduced padding for smaller size */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   position: relative;
   overflow: hidden;
+  min-height: 200px; /* Ensure minimum height to fit content */
 }
 
 .stat-box:hover {
-  transform: translateY(-2px); /* Subtle lift effect */
+  transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
@@ -39,7 +40,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 4px; /* Thinner accent bar */
+  width: 4px;
   height: 100%;
   background: linear-gradient(180deg, #3b82f6, #60a5fa);
   opacity: 0;
@@ -52,14 +53,14 @@
 
 /* Stat icon */
 .stat-icon, .revenue-icon, .appointment-icon {
-  width: 40px; /* Smaller icon size */
-  height: 40px;
-  border-radius: 8px;
+  width: 32px; /* Smaller icon size */
+  height: 32px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 12px;
-  background: rgba(59, 130, 246, 0.1); /* Unified background for consistency */
+  margin-bottom: 8px;
+  background: rgba(59, 130, 246, 0.1);
   color: #3b82f6;
 }
 
@@ -76,29 +77,29 @@
 
 /* Stat text styling */
 .stat-title {
-  font-size: 14px; /* Smaller, cleaner font */
+  font-size: 12px; /* Smaller font for compactness */
   font-weight: 600;
-  color: #1e293b; /* Darker for better contrast */
-  margin-bottom: 8px;
+  color: #1e293b;
+  margin-bottom: 6px;
 }
 
 .stat-value {
-  font-size: 24px; /* Slightly smaller for compactness */
+  font-size: 18px; /* Reduced font size */
   font-weight: 700;
   color: #1e40af;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .stat-info {
-  font-size: 12px;
-  color: #64748b; /* Softer gray for secondary text */
-  margin-bottom: 8px;
+  font-size: 10px; /* Smaller font for secondary text */
+  color: #64748b;
+  margin-bottom: 6px;
 }
 
 .world-icon {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   color: #60a5fa;
 }
 
@@ -109,17 +110,17 @@
 
 /* Stat items (user roles, revenue flow, appointment status) */
 .stat-user-roles, .stat-revenue-flow, .stat-appointment-status {
-  margin-top: 12px;
+  margin-top: 8px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px; /* Reduced gap */
 }
 
 .role-item, .flow-item, .status-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
+  gap: 6px;
+  font-size: 10px; /* Smaller font */
   color: #1e293b;
 }
 
@@ -130,8 +131,8 @@
 }
 
 .status-item {
-  border-bottom: 1px dashed rgba(59, 130, 246, 0.1);
-  padding-bottom: 8px;
+  border-bottom: 1px dashed rgba(59, 130, 246, 0.05); /* Lighter border */
+  padding-bottom: 4px;
 }
 
 .status-item:last-child {
@@ -139,10 +140,10 @@
 }
 
 /* Colors for status items */
-.status-item:nth-child(1) strong { color: #10b981; } /* Completed */
-.status-item:nth-child(2) strong { color: #3b82f6; } /* In Progress */
-.status-item:nth-child(3) strong { color: #ef4444; } /* Cancelled */
-.status-item:nth-child(4) strong { color: #f59e0b; } /* Refunded */
+.status-item:nth-child(1) strong { color: #10b981; }
+.status-item:nth-child(2) strong { color: #3b82f6; }
+.status-item:nth-child(3) strong { color: #ef4444; }
+.status-item:nth-child(4) strong { color: #f59e0b; }
 
 /* Chart area */
 .chart-area {
@@ -161,7 +162,7 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 3px; /* Thinner header bar */
+  height: 3px;
   background: linear-gradient(90deg, #3b82f6, #60a5fa);
   border-radius: 10px 10px 0 0;
 }
@@ -175,7 +176,7 @@
 .sales-header {
   display: flex;
   justify-content: space-between;
-  align-items: center; /* Center align for better balance */
+  align-items: center;
   margin-bottom: 16px;
   padding-bottom: 12px;
   border-bottom: 1px solid rgba(59, 130, 246, 0.1);
@@ -189,7 +190,7 @@
 }
 
 .sales-value {
-  font-size: 28px; /* Slightly smaller */
+  font-size: 28px;
   font-weight: 700;
   color: #1e40af;
   margin-bottom: 8px;
@@ -209,14 +210,14 @@
 /* Time filter buttons */
 .time-filter {
   display: flex;
-  background-color: #f1f5f9; /* Softer background */
+  background-color: #f1f5f9;
   border-radius: 8px;
   padding: 2px;
   border: 1px solid #e2e8f0;
 }
 
 .filter-btn {
-  padding: 6px 16px; /* Smaller buttons */
+  padding: 6px 16px;
   background: none;
   border: none;
   cursor: pointer;
@@ -240,7 +241,7 @@
 /* Chart wrapper */
 .chart-wrapper {
   position: relative;
-  min-height: 250px; /* Slightly taller for better chart visibility */
+  min-height: 250px;
   background: #f8fafc;
   border-radius: 10px;
   padding: 12px;
@@ -389,9 +390,9 @@
   font-size: 11px;
 }
 
-.rank-1 { background-color: #fef3c7; color: #d97706; } /* Gold */
-.rank-2 { background-color: #e2e8f0; color: #4b5563; } /* Silver */
-.rank-3 { background-color: #fed7aa; color: #9a3412; } /* Bronze */
+.rank-1 { background-color: #fef3c7; color: #d97706; }
+.rank-2 { background-color: #e2e8f0; color: #4b5563; }
+.rank-3 { background-color: #fed7aa; color: #9a3412; }
 .top-rank { font-weight: 600; }
 .no-data { text-align: center; color: #64748b; padding: 20px 0; }
 
@@ -442,7 +443,7 @@
 /* Responsive adjustments */
 @media (max-width: 1024px) {
   .stats-boxes {
-    grid-template-columns: 1fr; /* Stack on smaller screens */
+    grid-template-columns: 1fr;
   }
 }
 
@@ -474,14 +475,15 @@
   }
 
   .stat-box {
-    padding: 12px;
+    padding: 10px;
+    min-height: 180px; /* Adjust for mobile */
   }
 
   .stat-value {
-    font-size: 22px;
+    font-size: 16px;
   }
 
   .sales-value {
-    font-size: 24px;
+    font-size: 20px;
   }
 }
