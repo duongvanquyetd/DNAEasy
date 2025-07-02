@@ -1176,4 +1176,6 @@
   }
 
 }
-
+.style-dashboard{
+  display: flex;
+}

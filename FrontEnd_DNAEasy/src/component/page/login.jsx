@@ -36,7 +36,18 @@ if(searchParams.get('token') && searchParams.get('rolename')) {
           setInValid('');
           localStorage.setItem('token', response.data.token);
           localStorage.setItem('rolename', response.data.rolename);
-          navigate('/home');
+
+          if(response.data.rolename.includes("MANAGER"))
+          {
+               navigate("/ManageService")
+          }
+          else if (response.data.rolename.includes("ADMIN"))
+          {
+            navigate("/revenue")
+          }else{
+             navigate('/home');
+          }
+         
         })
         .catch((error) => {
           console.log('Login error:', error.response);

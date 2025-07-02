@@ -142,7 +142,7 @@ const styles = {
   footer: {
     background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
     color: '#fff',
-
+    
   },
   footerContent: {
     maxWidth: '1200px',

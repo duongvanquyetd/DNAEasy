@@ -81,10 +81,10 @@ const AdminUserManagement = () => {
   };
 
 
-//   const handleViewUser = (user) => {
-//     setViewUser(user);
-//     setShowViewModal(true);
-//   };
+  //   const handleViewUser = (user) => {
+  //     setViewUser(user);
+  //     setShowViewModal(true);
+  //   };
 
 
   const handleUpdateUser = async () => {
@@ -143,19 +143,6 @@ const AdminUserManagement = () => {
     );
   };
 
-
-//   const getAvatarColor = (index) => {
-//     const gradients = [
-//       'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
-//       'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)',
-//       'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
-//       'linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%)',
-//       'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)'
-//     ];
-//     return gradients[index % gradients.length];
-//   };
-
-
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       {/* Sidebar Header */}
@@ -164,7 +151,7 @@ const AdminUserManagement = () => {
       {/* Main Content */}
       <div style={{ flex: 1, padding: '20px', backgroundColor: '#f8fafc' }}>
         <div className="aum-root">
-         
+
 
           <main className="aum-main">
             <section className="aum-stats-row">
@@ -267,8 +254,8 @@ const AdminUserManagement = () => {
                         <tr key={user.personId}>
                           <td>
                             <div className="aum-user-info">
-                              <div className="aum-avatar" style={{ background: getAvatarColor(i) }}>
-                                {user.name ? user.name.substring(0, 2).toUpperCase() : 'NA'}
+                              <div >
+                                <img className="aum-avatar" src={user.avatarUrl}></img>
                               </div>
                               <div className="aum-user-name">{user.name}</div>
                             </div>
@@ -315,8 +302,8 @@ const AdminUserManagement = () => {
                   </div>
                   <div className="aum-modal-body">
                     <div className="aum-modal-user">
-                      <div className="aum-avatar" style={{ background: getAvatarColor(0) }}>
-                        {editUser.name ? editUser.name.substring(0, 2).toUpperCase() : 'NA'}
+                      <div >
+                        <img className="aum-avatar" src={editUser.avatarUrl}></img>
                       </div>
                       <div>
                         <h4>{editUser.name}</h4>
@@ -375,8 +362,8 @@ const AdminUserManagement = () => {
                   </div>
                   <div className="aum-modal-body">
                     <div className="aum-modal-user">
-                      <div className="aum-avatar" style={{ background: getAvatarColor(0) }}>
-                        {viewUser.name ? viewUser.name.substring(0, 2).toUpperCase() : 'NA'}
+                      <div >
+                        <img className="aum-avatar" src={viewUser.avatarUrl}></img>
                       </div>
                       <div>
                         <h4>{viewUser.name}</h4>

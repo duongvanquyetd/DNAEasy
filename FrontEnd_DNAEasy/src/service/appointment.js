@@ -23,23 +23,15 @@ export const GetAppointmetnForStaff_reception = () => {
 export const CanRefund = (appointmentId) => {
     return api.get(`/appointment/canrefund/${appointmentId}`);
 }
-
 export const GetAppointForManagerAssign=(page,size)=>{
     return api.get("/appointment/managershift?"+"page="+page+"&size="+size)
 }
 export const AssignForAppoint=(AssigneStaff)=>{
     return api.post("/appointment/assignStaff",AssigneStaff)
 } 
-
-// Thêm API để lấy thống kê số lượng cuộc hẹn
-export const GetAppointmentCounts = () => {
-  return api.get("/appointment/count");
-};
-
-// Thêm API để lấy báo cáo cuộc hẹn theo khoảng thời gian
-export const GetAppointmentReport = (dateRange) => {
-  return api.get("/appointment/reports", { params: dateRange });
-};
+export const GetAppointmentReport=(date)=>{
+    return api.post("/appointment/reportappointment",date)
+}
  export const AppointmnetforAdminOverview = ()=>{
   return api.get("/appointment/stats")
  }
