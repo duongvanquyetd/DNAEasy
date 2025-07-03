@@ -143,7 +143,7 @@ export const YourAppointment = () => {
     });
   }
   const renderPagination = (total, current, setPage) => (
-    <div className="pagination">
+    <div className="pagination-yourappointment">
       {Array.from({ length: total }, (_, i) => i + 1).map((i) => (
         <button
           key={i}
@@ -436,7 +436,7 @@ export const YourAppointment = () => {
         {
           statusform && (
             <div className="modal">
-              <div className="modal-content">
+              <div className="modal-content-yourappoint">
                 <div className="modal-header">
                   <h5>
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -507,7 +507,7 @@ export const YourAppointment = () => {
         {
           cancelForm && (
             <div className="modal">
-              <div className="modal-content">
+              <div className="modal-content-yourappoint">
                 <div className="modal-header">
                   <h5>
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -582,10 +582,10 @@ export const YourAppointment = () => {
 
         {
           resultform && (
-            <div className="modal show d-block" tabIndex="-1" role="dialog">
-              <div className="modal-dialog modal-lg" role="document">
-                <div className="modal-content">
-                  <div className="modal-header">
+            <div className="modal">
+              <div className="modal-content-yourappoint">
+                <div className="modal-header">
+                 
                     <h5 className="modal-title">Confirm test result</h5>
                     <button
                       type="button"
@@ -598,6 +598,7 @@ export const YourAppointment = () => {
                     <form
                       onSubmit={(e) => {
                         e.preventDefault();
+                            setErrorResult(""); 
                         const formData = new FormData();
 
                         const resultDataArray = [];
@@ -687,7 +688,7 @@ export const YourAppointment = () => {
                   </div>
                 </div>
               </div>
-            </div>
+           
           )
         }
 
@@ -695,7 +696,7 @@ export const YourAppointment = () => {
         {
           sampleform && (
             <div className="modal">
-              <div className="modal-content large">
+              <div className="modal-content-yourappoint large">
                 <div className="modal-header">
                   <h5>
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -4,16 +4,12 @@ export const GetMyInfor = ()=>
 {
 return api.get("user/myinfor")
 }
-
 export const UpdateInfor = (user) =>{
     return api.post("/user/update",user)
 }
-
 export const GetStaffForAppoint = (appointmentId,size,page,keyword)=>{
     return api.get(`/appointment/staffs/${appointmentId}?size=${size}&page=${page}&keyword=${keyword}`)
 }
-
-
 export const GetAllUsers = ( page, size, datasearch) => {
   return api.post(`/user/filter?page=${page}&size=${size}`,datasearch);
 };

@@ -2,7 +2,11 @@ import React from 'react';
 import { Home, Users, Calendar, BarChart2 } from 'lucide-react';
 import '../component/css/HeaderManager.css'; // Tận dụng style cũ nếu có
 import { useNavigate, useLocation } from 'react-router-dom';
+
+import Logo from "./image/logo/Logo.jpg"
+
 import { Logout } from '../service/login';
+
 
 const menuItems = [
   { label: 'Dashboard', icon: <Home size={22} />, path: '/revenue' },
@@ -29,8 +33,8 @@ const AdminHeader = () => {
       style={{
         width: 260,
         minHeight: '100vh',
-        background: 'linear-gradient(180deg, #7b8fff 0%, #7f53c0 100%)',
-        color: '#fff',
+        background: 'linear-gradient(90deg, #1e40af 0%, #38bdf8 100%)',
+        color: 'white',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-start',
@@ -48,7 +52,7 @@ const AdminHeader = () => {
         marginBottom: 16,
       }}>
         <img 
-          src="../../assets/logo/Logo.jpg" 
+          src={Logo} 
           alt="DNAEASY Logo"
           style={{
             width: 48,

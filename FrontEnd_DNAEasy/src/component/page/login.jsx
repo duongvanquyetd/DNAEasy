@@ -7,7 +7,7 @@ import { Search } from 'lucide-react';
 
 const LoginPage = () => {
 
-const [searchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState({ username: '', password: '' });
@@ -17,13 +17,22 @@ const [searchParams] = useSearchParams();
 
   useEffect(() => {
     // Check if token and rolename are already in localStorage  
-if(searchParams.get('token') && searchParams.get('rolename')) {
+    if (searchParams.get('token') && searchParams.get('rolename')) {
 
-  localStorage.setItem('token', searchParams.get('token'));
-  localStorage.setItem('rolename', searchParams.get('rolename')); 
-  console.log('Token and rolename set from URL parameters');
-  navigate('/home');
-}
+      localStorage.setItem('token', searchParams.get('token'));
+      localStorage.setItem('rolename', searchParams.get('rolename'));
+      console.log('Token and rolename set from URL parameters');
+      const role = localStorage.getItem('rolename')
+      if (role.includes("MANAGER")) {
+        navigate("/ManageService")
+      }
+      else if (role.includes("ADMIN")) {
+        navigate("/revenue")
+      } else {
+        navigate('/home');
+      }
+     
+    }
   }, []);
 
 
@@ -37,17 +46,15 @@ if(searchParams.get('token') && searchParams.get('rolename')) {
           localStorage.setItem('token', response.data.token);
           localStorage.setItem('rolename', response.data.rolename);
 
-          if(response.data.rolename.includes("MANAGER"))
-          {
-               navigate("/ManageService")
+          if (response.data.rolename.includes("MANAGER")) {
+            navigate("/ManageService")
           }
-          else if (response.data.rolename.includes("ADMIN"))
-          {
+          else if (response.data.rolename.includes("ADMIN")) {
             navigate("/revenue")
-          }else{
-             navigate('/home');
+          } else {
+            navigate('/home');
           }
-         
+
         })
         .catch((error) => {
           console.log('Login error:', error.response);

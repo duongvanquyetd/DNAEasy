@@ -567,7 +567,7 @@
   /* Modal */
   .your-appointment .modal {
   position: fixed;
-  top: 0;
+  top: 40px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -577,9 +577,10 @@
   justify-content: center;
   z-index: 1000; /* Đảm bảo modal nổi trên header */
   overflow-y: auto; /* Cho phép scroll nếu modal dài */
+  
 }
 
-  .your-appointment .modal-content {
+  .your-appointment .modal-content-yourappoint {
     background: #ffffff;
     /* bg-white */
     border-radius: 0.75rem;
@@ -597,12 +598,12 @@
     top: 37%; */
 
   }
-.your-appointment .modal-content,
-.your-appointment .modal-content.large {
+.your-appointment .modal-content-yourappoint,
+.your-appointment .modal-content-yourappoint.large {
   margin-top: 80px; /* Đẩy modal xuống dưới header */
   margin-bottom: 40px;
 }
-  .your-appointment .modal-content.large {
+  .your-appointment .modal-content-yourappoint.large {
     max-width: 48rem;
     /* max-w-2xl */
   }
@@ -958,4 +959,48 @@
   margin-right: 6px;
   width: 1.2em;
   height: 1.2em;
+}
+
+/* Pagination */
+.pagination-yourappointment {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+    gap: 12px;
+    flex-wrap: wrap;
+    position: fixed;
+    z-index: 1;
+
+}
+
+.page-btn {
+    padding: 14px 20px;
+    border: 2px solid rgba(50, 130, 184, 0.3);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    color: #0f4c75;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 700;
+    font-size: 14px;
+    min-width: 50px;
+    text-align: center;
+}
+
+.page-btn:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(15, 76, 117, 0.15);
+    border-color: rgba(50, 130, 184, 0.5);
+}
+
+.page-btn.active {
+    background: linear-gradient(135deg, #0f4c75 0%, #3282b8 100%);
+    color: white;
+    border-color: transparent;
+    box-shadow:
+        0 6px 20px rgba(15, 76, 117, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
 }
