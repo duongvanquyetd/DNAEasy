@@ -360,7 +360,134 @@
 
 .profit-placeholder {
   background: rgba(156,39,176,0.04);
-} 
-=======
+}
+
+/* Revenue and Expense Lists Styles */
+.revenue-list, .expense-list {
+  width: 100%;
+  max-height: 400px;
+  overflow-y: auto;
+  border-radius: 8px;
+}
+
+.revenue-list table, .expense-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.revenue-list th, .expense-list th {
+  position: sticky;
+  top: 0;
+  background-color: #fff;
+  z-index: 1;
+  padding: 12px 8px;
+  color: #3a6ff8;
+  font-weight: 600;
+  text-align: left;
+}
+
+.revenue-list tr, .expense-list tr {
+  border-bottom: 1px solid #f5f8ff;
+  transition: background-color 0.2s;
+}
+
+.revenue-list tr:hover, .expense-list tr:hover {
+  background-color: #f5f8ff;
+}
+
+.revenue-list td, .expense-list td {
+  padding: 12px 8px;
+}
+
+.revenue-list td:last-child {
+  color: #16c784;
+  font-weight: 600;
+  text-align: right;
+}
+
+.expense-list td:last-child {
+  color: #ff6961;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Pagination Styles */
+.payment-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding: 0 8px;
+}
+
+.pagination-info {
+  font-size: 14px;
+  color: #0a1d56;
+  font-weight: 500;
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.pagination-button {
+  padding: 6px 14px;
+  background-color: #f5f8ff;
+  border: 1px solid #e0e6f7;
+  border-radius: 6px;
+  color: #3a6ff8;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination-button:hover:not(:disabled) {
+  background-color: #3a6ff8;
+  color: white;
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Filter Button */
+.filter-button {
+  padding: 8px 16px;
+  background-color: #3a6ff8;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.filter-button:hover {
+  background-color: #0a1d56;
+  box-shadow: 0 4px 12px rgba(58, 111, 248, 0.2);
+}
+
+/* Date Input Styles */
+.date-input {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e0e6f7;
+  font-weight: 500;
+  font-size: 14px;
+  color: #0a1d56;
+  background: #f5f8ff;
+  outline: none;
+}
+
+@media (max-width: 768px) {
+  .dashboard-row {
+    flex-direction: column;
+  }
+  
+  .revenue-list, .expense-list {
+    margin-bottom: 20px;
+  }
 }
 
