@@ -26,7 +26,10 @@ const BlogListSidebar = () => {
           <li key={blog.blogId}>
             <button
               className="blog-list-link"
-              onClick={() => navigate(`/blog/${blog.blogId}`)}
+              onClick={() => {
+                navigate(`/blog/${blog.blogId}`);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
             >
               {blog.title}
             </button>
