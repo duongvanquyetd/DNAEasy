@@ -2,17 +2,28 @@ import React from 'react';
 import { Home, Users, Calendar, BarChart2 } from 'lucide-react';
 import '../component/css/HeaderManager.css'; // Tận dụng style cũ nếu có
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Logout } from '../service/login';
 
 const menuItems = [
   { label: 'Dashboard', icon: <Home size={22} />, path: '/revenue' },
   { label: 'Users', icon: <Users size={22} />, path: '/user-admin-dashboard' },
   { label: 'Appointments', icon: <Calendar size={22} />, path: '/AdminAppoinment' },
   { label: 'Analytics', icon: <BarChart2 size={22} />, path: '/AdminRevenue' },
+  
 ];
 
 const AdminHeader = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const handleLogout = () => {
+    const token = { token: localStorage.getItem('token') };
+    Logout(token).then(() => {
+      localStorage.clear();
+      navigate('/user/login');
+    });
+  };
+
   return (
     <aside
       style={{
@@ -52,6 +63,7 @@ const AdminHeader = () => {
       {/* Menu */}
       <nav style={{ width: '100%' }}>
         {menuItems.map((item) => (
+         
           <div
             key={item.label}
             onClick={() => item.path && navigate(item.path)}
@@ -73,7 +85,29 @@ const AdminHeader = () => {
             {item.icon}
             <span>{item.label}</span>
           </div>
+        
+          
         ))}
+        {/* Nút Logout */}
+        <div
+          onClick={handleLogout}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 16,
+            padding: '14px 32px',
+            color: '#fff',
+            fontWeight: 600,
+            fontSize: 17,
+            cursor: 'pointer',
+            marginTop: 24,
+            borderTop: '1px solid rgba(255,255,255,0.08)',
+          }}
+        >
+          <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <span>Logout</span>
+        </div>
+        
       </nav>
     </aside>
   );
