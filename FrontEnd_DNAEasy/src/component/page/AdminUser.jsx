@@ -5,7 +5,7 @@ import '../css/AdminUser.css';
 import { ActiveUser, DeleteUser, GetAllUsers, ReportUser, UpdateUserRole } from '../../service/user';
 import AdminHeader from '../AdminHeader';
 const AdminUserManagement = () => {
-  const [activeTab, setActiveTab] = useState('USER');
+  const [activeTab, setActiveTab] = useState('CUSTOMER');
   const [users, setUsers] = useState([]);
   const [editUser, setEditUser] = useState(null);
   const [viewUser, setViewUser] = useState(null);
@@ -59,8 +59,9 @@ const AdminUserManagement = () => {
         createdDateform: fromdate,
         createdDateTo: todate
       };
-
+      console.log("Request data search", datasearch)
       const response = await GetAllUsers(currentPage, pageSize, datasearch);
+      console.log("Reposne paging User", response.data)
       setUsers(response.data.content);
       setTotalPages(response.data.totalPages);
       setNumberUser(response.data.totalElements);
@@ -81,10 +82,10 @@ const AdminUserManagement = () => {
   };
 
 
-  //   const handleViewUser = (user) => {
-  //     setViewUser(user);
-  //     setShowViewModal(true);
-  //   };
+    const handleViewUser = (user) => {
+      setViewUser(user);
+      setShowViewModal(true);
+    };
 
 
   const handleUpdateUser = async () => {
