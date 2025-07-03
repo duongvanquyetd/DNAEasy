@@ -1,7 +1,9 @@
 package com.dnaeasy.dnaeasy.service;
 
+import com.dnaeasy.dnaeasy.dto.request.PaymentListRequest;
 import com.dnaeasy.dnaeasy.dto.request.PaymentRefundRequest;
 import com.dnaeasy.dnaeasy.dto.request.PaymentUpdateResquest;
+import com.dnaeasy.dnaeasy.dto.response.PaymentListResponse;
 import com.dnaeasy.dnaeasy.dto.response.PaymentResponse;
 import com.dnaeasy.dnaeasy.dto.response.VnpayResponse;
 import com.dnaeasy.dnaeasy.enity.Payment;
@@ -24,5 +26,7 @@ public interface IsPaymentService {
     PaymentResponse CreatePaymentRefund(PaymentRefundRequest request, MultipartFile file    );
 
     Double findAllByPaymentYesterday();
-
+    
+    // New method for admin payment listing
+    PaymentListResponse getPaymentList(PaymentListRequest request);
 }

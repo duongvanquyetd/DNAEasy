@@ -1,7 +1,9 @@
 package com.dnaeasy.dnaeasy.controller;
 
+import com.dnaeasy.dnaeasy.dto.request.PaymentListRequest;
 import com.dnaeasy.dnaeasy.dto.request.PaymentRefundRequest;
 import com.dnaeasy.dnaeasy.dto.request.PaymentUpdateResquest;
+import com.dnaeasy.dnaeasy.dto.response.PaymentListResponse;
 import com.dnaeasy.dnaeasy.dto.response.PaymentResponse;
 import com.dnaeasy.dnaeasy.dto.response.VnpayResponse;
 import com.dnaeasy.dnaeasy.enity.*;
@@ -10,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.view.RedirectView;
@@ -81,8 +84,14 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.findAllByPaymentYesterday());
 
     }
+    
     @PostMapping("/create")
     public ResponseEntity<PaymentResponse> createPaymentRefund(@RequestPart("payment") PaymentRefundRequest paymentRefundRequest,@RequestPart("file") MultipartFile file) {
         return ResponseEntity.ok(paymentService.CreatePaymentRefund(paymentRefundRequest,file));
+    }
+    
+    @PostMapping("/list")
+    public ResponseEntity<PaymentListResponse> getPaymentList(@RequestBody PaymentListRequest request) {
+        return ResponseEntity.ok(paymentService.getPaymentList(request));
     }
 }

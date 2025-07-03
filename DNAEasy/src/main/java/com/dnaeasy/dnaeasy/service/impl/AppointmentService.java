@@ -830,16 +830,17 @@ public class AppointmentService implements IsAppointmentService {
             // Get revenue for the current day (only completed payments)
             BigDecimal dailyRevenue = isPaymentResponsitory.getRevenueByDate(current);
             if (dailyRevenue == null) dailyRevenue = BigDecimal.ZERO;
-            
+
             // Create data point with the date in yyyy-MM-dd format and revenue
             RevenueDataPoint dataPoint = new RevenueDataPoint();
             dataPoint.setDate(current.format(formatter));
             dataPoint.setRevenue(dailyRevenue.intValue());
             chartData.add(dataPoint);
-            
+
             current = current.plusDays(1);
         }
         return chartData;
+    }
 
     @Override
     public List<AppointmentReportResponse> getAppointmentReport(AppointmnetReportRequest request) {

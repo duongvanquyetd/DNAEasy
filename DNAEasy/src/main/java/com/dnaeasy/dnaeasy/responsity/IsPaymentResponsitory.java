@@ -3,6 +3,8 @@ package com.dnaeasy.dnaeasy.responsity;
 import com.dnaeasy.dnaeasy.enity.Appointment;
 import com.dnaeasy.dnaeasy.enity.Payment;
 import com.dnaeasy.dnaeasy.enums.PaymentMehtod;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -119,4 +121,10 @@ public interface IsPaymentResponsitory extends JpaRepository<Payment, Integer> {
         @Param("startOfDay") LocalDateTime startOfDay, 
         @Param("endOfDay") LocalDateTime endOfDay
     );
+    
+    //  methods for admin payment listing
+    Page<Payment> findByPaymentDateBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+    
+    // Get all payments with pagination
+    Page<Payment> findAll(Pageable pageable);
 }
