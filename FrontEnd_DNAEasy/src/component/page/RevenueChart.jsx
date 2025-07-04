@@ -10,7 +10,8 @@ import {
 // import * as revenueAPI from "../../service/revenue";
 
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area,
+  PieChart, Pie, Cell
 } from 'recharts';
 import "../../component/css/RevenueChart.css";
 
@@ -87,9 +88,12 @@ const RevenueChart = () => {
 
 
  const featchRevenueFlowStats = async () => {
-  GetRevenueForOverview({startPeriod:"2024-01", endPeriod:"2025-12"}).then((response) => {
+  GetRevenueForOverview({startPeriod:"2025-01", endPeriod:"2025-12"}).then((response) => {
       
     console.log("Revenue for overview:", response.data);
+    console.log("API revenue value:", response.data.revenue);
+    console.log("API totalExpense value:", response.data.totalExpense);
+    console.log("API remain value:", response.data.remain);
         
       const updatedStats = {
         total: response.data.revenue || 0,
@@ -198,6 +202,27 @@ const featchTopServices = async () => {
     { name: "Admin", value: userRoleStats.admin || 0, color: "#f59e0b", icon: User }
   ];
 
+  // Tạo dữ liệu cho biểu đồ tròn, xử lý giá trị âm và 0
+  const getRevenuePieData = () => {
+    // Lấy giá trị dương cho biểu đồ tròn
+    const income = Math.max(0, revenueFlowStats.income || 0);
+    const expenses = Math.max(0, revenueFlowStats.expenses || 0);
+    const profit = Math.max(0, revenueFlowStats.profit || 0);
+    
+    // Kiểm tra nếu tất cả đều bằng 0, trả về mảng trống
+    const total = income + expenses + profit;
+    if (total <= 0) return [];
+    
+    // Make sure all segments show in pie chart (use at least 1 for each value if they're zero)
+    const minDisplayValue = total * 0.01; // Use 1% of the total as minimum value for visibility
+    
+    return [
+      { name: 'Income', value: income > 0 ? income : minDisplayValue, color: "#10b981", actualValue: income },
+      { name: 'Expenses', value: expenses > 0 ? expenses : minDisplayValue, color: "#ef4444", actualValue: expenses },
+      { name: 'Profit', value: profit > 0 ? profit : minDisplayValue, color: "#3b82f6", actualValue: profit }
+    ].filter(item => item.actualValue >= 0); // Only filter out negative values
+  };
+
   return (
     <div className="style-dashboard">
       {/* Sidebar Header */}
@@ -243,29 +268,62 @@ const featchTopServices = async () => {
             {revenueFlowStats && revenueFlowStats.total ? revenueFlowStats.total.toLocaleString() : '0'}
           </div>
           <div className="stat-info">
-          
             <span className="world-icon">
               <Globe size={12} /> WorldWide
             </span>
           </div>
-          <div className="stat-revenue-flow">
-            <div className="flow-item">
-              <div style={{ width: '16px', height: '16px', backgroundColor: "#10b981", borderRadius: '50%' }} />
-              <span>
+          
+          <div className="revenue-box-content">
+            <div className="stat-revenue-flow">
+              <div className="flow-item">
+                <div style={{ width: '16px', height: '16px', backgroundColor: "#10b981", borderRadius: '50%' }} />
+                <span>
                 Income <strong>{revenueFlowStats && revenueFlowStats.income ? revenueFlowStats.income.toLocaleString() : '0'}</strong>
-              </span>
+                </span>
+              </div>
+              <div className="flow-item">
+                <div style={{ width: '16px', height: '16px', backgroundColor: "#ef4444", borderRadius: '50%' }} />
+                <span>
+                  Expenses <strong>{revenueFlowStats && revenueFlowStats.expenses ? revenueFlowStats.expenses.toLocaleString() : '0'}</strong>
+                </span>
+              </div>
+              <div className="flow-item">
+                <div style={{ width: '16px', height: '16px', backgroundColor: "#3b82f6", borderRadius: '50%' }} />
+                <span>
+                  Profit <strong>{revenueFlowStats && revenueFlowStats.profit ? revenueFlowStats.profit.toLocaleString() : '0'}</strong>
+                </span>
+              </div>
             </div>
-            <div className="flow-item">
-              <div style={{ width: '16px', height: '16px', backgroundColor: "#ef4444", borderRadius: '50%' }} />
-              <span>
-                Expenses <strong>{revenueFlowStats && revenueFlowStats.expenses ? revenueFlowStats.expenses.toLocaleString() : '0'}</strong>
-              </span>
-            </div>
-            <div className="flow-item">
-              <div style={{ width: '16px', height: '16px', backgroundColor: "#3b82f6", borderRadius: '50%' }} />
-              <span>
-                Profit <strong>{revenueFlowStats && revenueFlowStats.profit ? revenueFlowStats.profit.toLocaleString() : '0'}</strong>
-              </span>
+            
+            <div className="revenue-pie-chart">
+              {getRevenuePieData().length > 0 ? (
+                <ResponsiveContainer width="100%" height={120}>
+                  <PieChart>
+                    <Pie
+                      data={getRevenuePieData()}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={25}
+                      outerRadius={45}
+                      paddingAngle={2}
+                      dataKey="value"
+                    >
+                      {getRevenuePieData().map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value, name, props) => {
+                      // Use actualValue if available, otherwise use the display value
+                      const actualValue = props.payload.actualValue !== undefined ? props.payload.actualValue : value;
+                      return formatCurrency(actualValue);
+                    }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="no-data-pie">
+                  <span>Không đủ dữ liệu dương cho biểu đồ</span>
+                </div>
+              )}
             </div>
           </div>
         </div>

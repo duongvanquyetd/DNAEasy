@@ -1179,3 +1179,50 @@
 .style-dashboard{
   display: flex;
 }
+
+/* CSS cho biểu đồ tròn trong bảng revenue */
+.revenue-box-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.stat-revenue-flow {
+  flex: 1;
+}
+
+.revenue-pie-chart {
+  flex: 1;
+  max-width: 140px;
+  margin-left: 10px;
+}
+
+/* Đảm bảo responsive */
+@media (max-width: 1200px) {
+  .revenue-box-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .revenue-pie-chart {
+    margin-left: 0;
+    margin-top: 15px;
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+/* CSS cho thông báo khi không có dữ liệu cho biểu đồ tròn */
+.no-data-pie {
+  height: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #6c757d;
+  text-align: center;
+  padding: 10px;
+}
