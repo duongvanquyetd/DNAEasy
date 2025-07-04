@@ -30,7 +30,7 @@ public interface IsPaymentResponsitory extends JpaRepository<Payment, Integer> {
 
     @Query(value = """
     select sum(p.payment_amount) from payment p join appoinment a on a.appointment_id = p.apppointment_id
-    where p.payment_status = 1 and is_expense = 0 and a.curent_status_appointment = 'COMPLETED'
+    where p.payment_status = 1 and is_expense = 0
     and p.pay_date between :startDate and :endDate
     """, nativeQuery = true)
     BigDecimal getTodayRevenueToday(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
@@ -44,15 +44,15 @@ public interface IsPaymentResponsitory extends JpaRepository<Payment, Integer> {
 """, nativeQuery = true)
     BigDecimal getRevenueByDate(@Param("targetDate") LocalDate targetDate);
     
-    @Query(value = """
-    select sum(p.payment_amount) 
-    from payment p 
-    where p.payment_status = 1 
-      and p.is_expense = 1
-      and cast(p.pay_date as date) = :targetDate
-""", nativeQuery = true)
-    BigDecimal getRefundByDate(@Param("targetDate") LocalDate targetDate);
-    
+//    @Query(value = """
+//    select sum(p.payment_amount)
+//    from payment p
+//    where p.payment_status = 1
+//      and p.is_expense = 1
+//      and cast(p.pay_date as date) = :targetDate
+//""", nativeQuery = true)
+//    BigDecimal getRefundByDate(@Param("targetDate") LocalDate targetDate);
+//
     @Query(value = """
     select sum(p.payment_amount) 
     from payment p 
@@ -62,15 +62,15 @@ public interface IsPaymentResponsitory extends JpaRepository<Payment, Integer> {
 """, nativeQuery = true)
     BigDecimal getRevenueByPeriod(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
-    @Query(value = """
-    select sum(p.payment_amount) 
-    from payment p 
-    where p.payment_status = 1 
-      and p.is_expense = 1
-      and p.pay_date between :startDate and :endDate
-""", nativeQuery = true)
-    BigDecimal getRefundByPeriod(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
-    
+//    @Query(value = """
+//    select sum(p.payment_amount)
+//    from payment p
+//    where p.payment_status = 1
+//      and p.is_expense = 1
+//      and p.pay_date between :startDate and :endDate
+//""", nativeQuery = true)
+//    BigDecimal getRefundByPeriod(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+//
     @Query(value = """
     select sum(p.payment_amount) from payment p
     where p.is_expense = 1 and p.pay_date between :startDate and :endDate
