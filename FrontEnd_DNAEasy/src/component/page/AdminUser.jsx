@@ -26,7 +26,7 @@ const AdminUserManagement = () => {
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalStaff: 0,
-    totalAdmins: 0,
+    // totalAdmins: 0,
     totalManagers: 0
   });
 
@@ -34,7 +34,8 @@ const AdminUserManagement = () => {
     { id: 'CUSTOMER', label: 'Users', icon: Users, count: stats.totalUsers, color: { from: '#1e3a8a', to: '#3b82f6' } },
     { id: 'STAFF', label: 'Staff', icon: UserCheck, count: stats.totalStaff, color: { from: '#3b82f6', to: '#60a5fa' } },
     { id: 'MANAGER', label: 'Managers', icon: Crown, count: stats.totalManagers, color: { from: '#1d4ed8', to: '#2563eb' } },
-    { id: 'ADMIN', label: 'Admins', icon: Shield, count: stats.totalAdmins, color: { from: '#7e22ce', to: '#a855f7' } },
+    
+    // { id: 'ADMIN', label: 'Admins', icon: Shield, count: stats.totalAdmins, color: { from: '#7e22ce', to: '#a855f7' } },
   ];
 
   useEffect(() => {
@@ -48,7 +49,7 @@ const AdminUserManagement = () => {
           totalUsers: response.data.customer,
           totalStaff: response.data.staff,
           totalManagers: response.data.manager,
-          totalAdmins: response.data.admin
+          // totalAdmins: response.data.admin
         });
       });
 

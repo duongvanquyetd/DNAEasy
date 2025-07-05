@@ -25,20 +25,20 @@ import AdminHeader from '../AdminHeader';
 
 
 const RevenueChart = () => {
-  const [data, setData] = useState([]);
-  const [totalRevenue, setTotalRevenue] = useState(0);
+  // const [data, setData] = useState([]);
+  // const [totalRevenue, setTotalRevenue] = useState(0);
   const [dateRange, setDateRange] = useState({ 
     start: '', 
     end: '',
     display: 'Jun 1 - Jun 30'
   });
-  const [timeFilter, setTimeFilter] = useState('Month');
-  const [dailyChange, setDailyChange] = useState(0);
+  // const [timeFilter, setTimeFilter] = useState('Month');
+  // const [dailyChange, setDailyChange] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // Current month (1-12)
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); // Current year
+  // const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // Current month (1-12)
+  // const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); // Current year
   const [topServices, setTopServices] = useState([]);
-  const [chartKey, setChartKey] = useState(Date.now()); // Key for chart re-render
+  // const [chartKey, setChartKey] = useState(Date.now()); // Key for chart re-render
 
   // State for statistics
   const [userRoleStats, setUserRoleStats] = useState({
@@ -74,7 +74,7 @@ const RevenueChart = () => {
     }).format(value);
   };
   // State for revenue flow data
-  const [revenueFlowData, setRevenueFlowData] = useState([]);
+  // const [revenueFlowData, setRevenueFlowData] = useState([]);
   useEffect(() => {
 
     
@@ -90,10 +90,10 @@ const RevenueChart = () => {
  const featchRevenueFlowStats = async () => {
   GetRevenueForOverview({startPeriod:"2025-01", endPeriod:"2025-12"}).then((response) => {
       
-    console.log("Revenue for overview:", response.data);
-    console.log("API revenue value:", response.data.revenue);
-    console.log("API totalExpense value:", response.data.totalExpense);
-    console.log("API remain value:", response.data.remain);
+    // console.log("Revenue for overview:", response.data);
+    // console.log("API revenue value:", response.data.revenue);
+    // console.log("API totalExpense value:", response.data.totalExpense);
+    // console.log("API remain value:", response.data.remain);
         
       const updatedStats = {
         total: response.data.revenue || 0,
@@ -153,8 +153,13 @@ const featchTopServices = async () => {
   const fetchdatachart = () => {
     console.log("fetchdatachart==========================");
     const today = new Date();
-    const enddate =today.toISOString().slice(0,10);
-    const startdate =new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().slice(0,10);
+    const enddate = today.toISOString().slice(0,10);
+    // const enddate =today.toISOString().slice(0,10);
+    // const startdate =new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().slice(0,10);
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(today.getDate() - 7);
+    const startdate = oneWeekAgo.toISOString().slice(0,10);
+
     console.log("startdate:", startdate);
     console.log("enddate:", enddate);
     ChartOverview({startPeriod:startdate, endPeriod:enddate}).then((response)=>{
@@ -164,6 +169,7 @@ const featchTopServices = async () => {
       console.error("Error fetching appointment status counts:", error);
     })
   }
+  
   const appointmentStatusData = [
     { 
       name: "Completed", 
@@ -209,11 +215,10 @@ const featchTopServices = async () => {
     const expenses = Math.max(0, revenueFlowStats.expenses || 0);
     const profit = Math.max(0, revenueFlowStats.profit || 0);
     
-    // Kiểm tra nếu tất cả đều bằng 0, trả về mảng trống
     const total = income + expenses + profit;
     if (total <= 0) return [];
     
-    // Make sure all segments show in pie chart (use at least 1 for each value if they're zero)
+
     const minDisplayValue = total * 0.01; // Use 1% of the total as minimum value for visibility
     
     return [
@@ -354,7 +359,7 @@ const featchTopServices = async () => {
         </div>
       </div>
       <div>
-      <div style={{ width: '100%', height: 400 }}>
+      <div style={{ width: '100%', height: 400,marginBottom: '45px' }}>
         <div className="chart-title">
           <h3>Biểu đồ doanh thu theo ngày</h3>
         </div>
