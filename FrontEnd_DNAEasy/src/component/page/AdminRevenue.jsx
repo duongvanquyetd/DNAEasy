@@ -172,18 +172,10 @@ const AdminRevenue = () => {
     <div className="style-dashboard">
       <AdminHeader />
       <div className="admin-revenue-dashboard">
-        <div className="dashboard-header" style={{ marginBottom: 20, padding: '24px 32px 16px 32px' }}>
-          <FaChartLine size={30} style={{ marginRight: 10, color: '#fff', filter: 'drop-shadow(0 2px 8px #3a6ff8)' }} />
-          <h2 style={{ fontSize: '2rem', margin: 0, letterSpacing: 0.5 }}>Admin Revenue Dashboard</h2>
-        </div>
-
         <div className="dashboard-main" style={{ width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
-          <div className="time-period-indicator">
-            <FaCalendarAlt size={16} />
-            <span>{timeRangeDisplay}</span>
-          </div>
+         
 
-          <div className="dashboard-row stats-row" style={{ gap: 20, marginBottom: 18 }}>
+          <div className="dashboard-row stats-row" style={{ gap: 20, marginBottom: 15, marginTop: 15 }}>
             <div className="dashboard-card income-card sleep-card">
               <div className="card-title">{<FaDollarSign size={22} style={{ color: '#16c784' }} />} Thu nhập</div>
               <div className="income-placeholder" style={{ fontWeight: 700, fontSize: 22, color: '#0a1d56', opacity: 0.9 }}>
