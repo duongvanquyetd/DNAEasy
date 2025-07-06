@@ -815,6 +815,23 @@ public class AppointmentService implements IsAppointmentService {
         return new AppointmentStatsResponse(total, completed, inProgress, cancelled, refunded);
     }
 
+    @Override
+    public Page<AppointmentResponse> getAppointmentByDate(AppointmnetReportRequest request, Pageable pageabl) {
+
+         Page<Appointment> appointments = isAppointmentResponsitory.getAppointmentsByCreatedateAndCurentStatusAppointmentIsIn(request.getFromdate().atStartOfDay(),request.getTodate().plusDays(1).atStartOfDay(),request.getCurrentStatus(),pageabl);
+
+
+
+        return appointments.map(appointmentMapper::AppointmentCreateResponse);
+    }
+
+    @Override
+    public List<AppointmentResponse> recentAppointments(Pageable pageable) {
+
+        List<Appointment> list = isAppointmentResponsitory.findTop10(pageable);
+        return list.stream().map(appointmentMapper::AppointmentCreateResponse).collect(Collectors.toList());
+    }
+
 
     @Override
     public List<RevenueDataPoint> getSimplifiedRevenueData(String startDate, String endDate) {
@@ -844,23 +861,25 @@ public class AppointmentService implements IsAppointmentService {
 
     @Override
     public List<AppointmentReportResponse> getAppointmentReport(AppointmnetReportRequest request) {
+        List<Appointment> appointments= null;
 
-        List<Appointment> appointments = isAppointmentResponsitory.findAllByDateCollect(request.getFromdate().atStartOfDay(), request.getTodate().atStartOfDay());
+            appointments = isAppointmentResponsitory.findAllByDateCollect(request.getFromdate().atStartOfDay(), request.getTodate().plusDays(1).atStartOfDay());
+
         List<AppointmentReportResponse> responses = new ArrayList<>();
         for (Appointment a : appointments) {
             int cout = 0;
             if (responses.size() > 0) {
 
                 for (AppointmentReportResponse r : responses) {
-                    if (LocalDate.from(a.getDateCollect()).equals(r.getAppointmentDate())) {
+                    if (LocalDate.from(a.getCreatedate()).equals(r.getAppointmentDate())) {
                         cout++;
                     }
                 }
             }
             if (cout == 0) {
                 AppointmentReportResponse response = new AppointmentReportResponse();
-                response.setAppointmentDate(LocalDate.from(a.getDateCollect()));
-                LocalDate time = LocalDate.from(a.getDateCollect());
+                response.setAppointmentDate(LocalDate.from(a.getCreatedate()));
+                LocalDate time = LocalDate.from(a.getCreatedate());
                 response.setComplete(isAppointmentResponsitory.countByDateCollectAndCurentStatusAppointmentIsLike(time.atStartOfDay(), time.plusDays(1).atStartOfDay(), "COMPLETE"));
                 response.setCancle(isAppointmentResponsitory.countByDateCollectAndCurentStatusAppointmentIsLike(time.atStartOfDay(), time.plusDays(1).atStartOfDay(), "CANCLE"));
                 response.setRefunded(isAppointmentResponsitory.countByDateCollectAndCurentStatusAppointmentIsLike(time.atStartOfDay(), time.plusDays(1).atStartOfDay(), "REFUNDED"));

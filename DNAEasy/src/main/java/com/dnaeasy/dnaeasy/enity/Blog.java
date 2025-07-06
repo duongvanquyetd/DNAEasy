@@ -22,7 +22,7 @@ public class Blog {
     @Lob
     private String blogContent;
     private String blogType;
-    private LocalDateTime createDate;
+    private LocalDateTime createDate = LocalDateTime.now();
 
     @Column(name = "active", nullable = false, columnDefinition = "BIT DEFAULT 1")
     private boolean active = true;

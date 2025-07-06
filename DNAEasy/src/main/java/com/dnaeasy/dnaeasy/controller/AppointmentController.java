@@ -52,34 +52,38 @@ public class AppointmentController {
     AppointmentService appointmentService;
 
     @PostMapping("/updateStatus")
-    public ResponseEntity<AppointmentResponse> UpdateStatus(@RequestPart("appointmentUpdate") StatusUpdateAppointment request,@RequestPart(value = "file",required = false) MultipartFile file) {
-        return ResponseEntity.ok(appointmentService.UpdateStatusAppoinment(request,file));
+    public ResponseEntity<AppointmentResponse> UpdateStatus(@RequestPart("appointmentUpdate") StatusUpdateAppointment request, @RequestPart(value = "file", required = false) MultipartFile file) {
+        return ResponseEntity.ok(appointmentService.UpdateStatusAppoinment(request, file));
     }
+
     @PostMapping("/create")
     public ResponseEntity<AppointCreateResponse> createAppointment(@Valid @RequestBody AppointmentCreateRequest appointment, HttpServletRequest request) {
 
-        return ResponseEntity.ok(appointmentService.createAppointment(appointment,request));
+        return ResponseEntity.ok(appointmentService.createAppointment(appointment, request));
     }
+
     @GetMapping("/getAllCompleteFlowCurrentUser")
     public ResponseEntity<Page<AppointmentResponse>> getAllFlowCurrentUser(@RequestParam("page") int page,
                                                                            @RequestParam("size") int size,
                                                                            @RequestParam("keysearch") String keysearch) {
-        Pageable pagable = PageRequest.of(page-1, size, Sort.by("dateCollect").descending());
-        return ResponseEntity.ok(appointmentService.getAllFlowCurentUser(keysearch,pagable));
+        Pageable pagable = PageRequest.of(page - 1, size, Sort.by("dateCollect").descending());
+        return ResponseEntity.ok(appointmentService.getAllFlowCurentUser(keysearch, pagable));
     }
+
     @GetMapping("/getALl")
     public ResponseEntity<List<AppointmentResponse>> getAll() {
         return ResponseEntity.ok(appointmentService.getAll());
     }
+
     @GetMapping("/getAppointmentInprocess")
-    public ResponseEntity<Page<AppointmentResponse>> getAppointmentInprocess( @RequestParam("page") int page,
-                                                                              @RequestParam("size") int size,
-                                                                              @RequestParam("keysearch") String keysearch
+    public ResponseEntity<Page<AppointmentResponse>> getAppointmentInprocess(@RequestParam("page") int page,
+                                                                             @RequestParam("size") int size,
+                                                                             @RequestParam("keysearch") String keysearch
 
     ) {
-        Pageable pagable = PageRequest.of(page-1, size, Sort.by("createdate").descending());
+        Pageable pagable = PageRequest.of(page - 1, size, Sort.by("createdate").descending());
 
-        return ResponseEntity.ok(appointmentService.getAppoinmentinprocess(keysearch.trim(),pagable));
+        return ResponseEntity.ok(appointmentService.getAppoinmentinprocess(keysearch.trim(), pagable));
     }
 //    @GetMapping("/getForStaffLab")
 //    public ResponseEntity<List<AppointmentResponse>> getForStaffLab() {
@@ -90,9 +94,6 @@ public class AppointmentController {
 //    public ResponseEntity<List<AppointmentResponse>> getForStaffReception() {
 //        return  ResponseEntity.ok(appointmentService.getAppoinmentFofStaff_Reception());
 //    }
-
-
-
 
 
     @PostMapping("/statistics")
@@ -109,29 +110,29 @@ public class AppointmentController {
     }
 
     @GetMapping("/managershift")
-    public ResponseEntity<Page<AppointmentAssingResponse>> getManager(@RequestParam("size") int size , @RequestParam("page") int page){
-        Pageable pageable = PageRequest.of(page-1,size);
+    public ResponseEntity<Page<AppointmentAssingResponse>> getManager(@RequestParam("size") int size, @RequestParam("page") int page) {
+        Pageable pageable = PageRequest.of(page - 1, size);
 
         return ResponseEntity.ok(appointmentService.getAppointmnetForMangerShiftStaff(pageable));
     }
+
     @PostMapping("/assignStaff")
-    public ResponseEntity<AppointmentResponse>  assignStaffForApp(@RequestBody  AppoinmetnAssignRequest request)
-    {
-        return  ResponseEntity.ok(appointmentService.AssignStaffForApp(request));
+    public ResponseEntity<AppointmentResponse> assignStaffForApp(@RequestBody AppoinmetnAssignRequest request) {
+        return ResponseEntity.ok(appointmentService.AssignStaffForApp(request));
     }
 
     @GetMapping("/staffs/{id}")
     public ResponseEntity<Page<StaffResponse>> getStaffs(@PathVariable("id") int id
 
-    ,@RequestParam("page") int page, @RequestParam("size") int size, @RequestParam("keyword") String keyword) {
+            , @RequestParam("page") int page, @RequestParam("size") int size, @RequestParam("keyword") String keyword) {
 
-        Pageable pageable = PageRequest.of(page-1,size);
-        return ResponseEntity.ok(appointmentService.getStaffForAppointment(id,keyword,pageable));
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return ResponseEntity.ok(appointmentService.getStaffForAppointment(id, keyword, pageable));
     }
 
     @GetMapping("/canrefund/{id}")
     public ResponseEntity<Boolean> getCanRefund(@PathVariable("id") int id) {
-        return  ResponseEntity.ok(appointmentService.CanRefund(id));
+        return ResponseEntity.ok(appointmentService.CanRefund(id));
 
     }
 
@@ -139,6 +140,7 @@ public class AppointmentController {
     public ResponseEntity<List<AppointmentReportResponse>> getAppointmentReport(@RequestBody AppointmnetReportRequest request) {
         return ResponseEntity.ok(appointmentService.getAppointmentReport(request));
     }
+
     @PostMapping("/revenue_chart")
     public ResponseEntity<List<RevenueDataPoint>> getRevenueChart(@RequestBody StaticRequest request) {
         List<RevenueDataPoint> chart = appointmentService.getSimplifiedRevenueData(
@@ -147,7 +149,7 @@ public class AppointmentController {
         );
         return ResponseEntity.ok(chart);
     }
-    
+
     @PostMapping("/chart/revenue")
     public ResponseEntity<List<RevenueDataPoint>> getSimpleRevenueChart(@RequestBody StaticRequest request) {
         List<RevenueDataPoint> chart = appointmentService.getSimplifiedRevenueData(
@@ -160,16 +162,41 @@ public class AppointmentController {
     @PostMapping("/revenue-stats")
     public ResponseEntity<List<RevenueChartResponse>> getRevenueStats(@RequestBody RevenueStatsRequest request) {
         return ResponseEntity.ok(appointmentService.getRevenueStats(
-            request.getType(),
-            request.getFrom(),
-            request.getTo(),
-            request.getYear()
+                request.getType(),
+                request.getFrom(),
+                request.getTo(),
+                request.getYear()
         ));
     }
-    
+
     @GetMapping("/stats")
     public ResponseEntity<AppointmentStatsResponse> getAppointmentStats() {
         return ResponseEntity.ok(appointmentService.getAppointmentStats());
 
+    }
+
+    @PostMapping("/listreport")
+    public ResponseEntity<Page<AppointmentResponse>> getListReport(@RequestParam("page") int page, @RequestParam("size") int size, @RequestBody AppointmnetReportRequest request, @RequestParam("sortcolumn") String sortcolumn,
+                                                                   @RequestParam("sortmode") String mode) {
+
+        Pageable pageable = null;
+        if (!sortcolumn.equals("null")) {
+            if (mode.equals("asc")) {
+                pageable = PageRequest.of(page - 1, size, Sort.by(sortcolumn).ascending());
+            } else {
+                pageable = PageRequest.of(page - 1, size, Sort.by(sortcolumn).descending());
+            }
+
+        } else {
+            pageable = PageRequest.of(page - 1, size);
+        }
+        return ResponseEntity.ok(appointmentService.getAppointmentByDate(request, pageable));
+
+    }
+    @GetMapping("/recentappoint")
+    public  ResponseEntity<List<AppointmentResponse>> getRecentAppointment() {
+
+        Pageable pageable = PageRequest.of(0, 10);
+        return ResponseEntity.ok(appointmentService.recentAppointments(pageable));
     }
 }

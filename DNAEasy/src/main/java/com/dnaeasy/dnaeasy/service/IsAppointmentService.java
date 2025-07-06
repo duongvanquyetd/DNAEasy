@@ -56,6 +56,6 @@ public interface IsAppointmentService {
 
 
     AppointmentStatsResponse getAppointmentStats();
-
-
+   Page<AppointmentResponse> getAppointmentByDate(AppointmnetReportRequest request, Pageable pageabl);
+    List<AppointmentResponse> recentAppointments(Pageable pageable);
 }
