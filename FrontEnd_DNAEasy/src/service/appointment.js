@@ -35,4 +35,9 @@ export const GetAppointmentReport=(date)=>{
  export const AppointmnetforAdminOverview = ()=>{
   return api.get("/appointment/stats")
  }
- 
+ export const ListAppointReport=(page,size,sortcolumn,modesort,data)=>{
+    return api.post(`/appointment/listreport?page=${page}&size=${size}&sortcolumn=${sortcolumn}&sortmode=${modesort}`,data)
+ }
+  export const RecentAppointment = ()=>{
+  return api.get("/appointment/recentappoint")
+ }

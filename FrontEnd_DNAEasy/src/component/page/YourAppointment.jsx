@@ -502,7 +502,6 @@ export const YourAppointment = () => {
             </div>
           )
         }
-
         {/* Cancel Form Modal */}
         {
           cancelForm && (

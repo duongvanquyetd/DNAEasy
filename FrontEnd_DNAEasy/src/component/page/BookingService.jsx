@@ -51,6 +51,10 @@ export const BookingServicePage = () => {
     getServiceById(id)
       .then((response) => {
         setServices(response.data);
+        if(response.data.typeService === 'legal')
+        {
+          setTypeCollect("Hospital_collection")
+        }
       })
       .catch((error) => {
         console.error('Error fetching service details:', error);
@@ -153,9 +157,10 @@ export const BookingServicePage = () => {
                 onChange={(e) => setTypeCollect(e.target.value)}
                 required
               >
-                <option value="">--Select--</option>
+                
                 {services.typeService === 'civil' && (
                   <>
+                  <option value="">--Select--</option>
                     <option value="Self_collection">Self Collection</option>
                     <option value="Home_collection">Home Collection</option>
                     <option value="Hospital_collection">Hospital Collection</option>

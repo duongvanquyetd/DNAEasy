@@ -1,9 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Calendar, Users, CheckCircle, Clock, XCircle, RefreshCw, TrendingUp, BarChart3, PieChart, Filter } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
-import { GetAppointmentReport } from '../../service/appointment';
-import AdminHeader from '../AdminHeader'; // Import the header component
-
+import { GetAppointmentReport, ListAppointReport, RecentAppointment } from '../../service/appointment';
+import AdminHeader from '../AdminHeader';
+// Import the header component
+import '../css/AdminAppointment.css';
 // CSS Styles
 const styles = {
   dashboard: {
@@ -184,12 +185,15 @@ const DNATestingAdminDashboard = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [hoveredCard, setHoveredCard] = useState(null);
-
   const [reportData, setReportData] = useState([]);
-
-
-  
-
+  const [listapp, setListapp] = useState([]);
+  const [type, setType] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+  const [totalPages, setTotalPages] = useState(0);
+  const [sortColumn, setSortColumn] = useState(null);
+  const [modesort, setModeSort] = useState("asc")
+  const [recentappoint, setRecentappoint] = useState([])
   const getDateRange = () => {
     const today = new Date();
     if (dateRange === 'today') {
@@ -216,18 +220,54 @@ const DNATestingAdminDashboard = () => {
     const d = today.toISOString().slice(0, 10);
     return { fromdate: d, todate: d };
   };
+  const range = getDateRange();
 
 
   useEffect(() => {
-    const range = getDateRange();
+    RecentAppointment().then((response => {
+      console.log("recent appointment", response.data)
+      setRecentappoint(response.data)
+    })).catch((error) => {
+      console.log("Erorr get recent appoint", error)
+    })
+  }, [])
+
+  useEffect(() => {
+
+    console.log("date get report", range)
     GetAppointmentReport(range)
       .then(res => {
-        setReportData(res.data || []);
+         setReportData(res.data || []);
+        
       })
       .catch(() => setReportData([]));
+
+
+
+
   }, [dateRange, startDate, endDate]);
 
+  useEffect(() => {
+    const request = {
+      ...range,
+      currentStatus: type
+    }
+    ListAppointReport(currentPage, pageSize, sortColumn, modesort, request).then((response) => {
+      console.log("Reponse list", response.data)
+    
+      setListapp(response.data.content || []);
+      if(response.data.content.length === 0 && type != null)
+      {
+        setType(null);
+      }
+      setTotalPages(response.data.totalPages)
+     
 
+
+    }).catch((error) => {
+      console.log("Erorr get list appoit by date", error)
+    })
+  }, [dateRange, startDate, endDate, currentPage, type, sortColumn, modesort])
 
 
   const currentData = useMemo(() => {
@@ -285,6 +325,41 @@ const DNATestingAdminDashboard = () => {
       </div>
     </div>
   );
+  const renderPagination = (total, current, setPage) => (
+    <div className="pagination-admin-appoint">
+      {Array.from({ length: total }, (_, i) => i + 1).map((i) => (
+        <button
+          key={i}
+          className={`page-admin-appoint-button ${i === current ? 'active' : ''}`}
+          onClick={() => setPage(i)}
+        >
+          {i}
+        </button>
+      ))}
+    </div>
+  );
+  function formatdate(date) {
+    if (!date) return "";
+    const d = typeof date === "string" ? new Date(date) : date;
+    if (isNaN(d)) return "";
+    return d.toLocaleDateString("en-GB"); // hoặc "vi-VN" nếu muốn định dạng Việt Nam
+  }
+  function formatVND(amount) {
+    if (amount == null || isNaN(amount)) return "";
+    return amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
+  }
+
+
+  function getStatusClass(status) {
+    if (!status) return "";
+    const s = status.toLowerCase();
+    if (s.includes("complete")) return "status-completed";
+    if (s.includes("cancle") || s.includes("cancel")) return "status-canceled";
+    if (s.includes("refunded")) return "status-refunded";
+    if (s.includes("process")) return "status-processing";
+    return "status-other";
+  }
+
 
   return (
     <div style={styles.dashboard}>
@@ -293,7 +368,7 @@ const DNATestingAdminDashboard = () => {
 
       {/* Main Content */}
       <div style={styles.main}>
-      
+
 
         {/* Date Filter */}
         <div style={styles.dateFilter}>
@@ -379,7 +454,7 @@ const DNATestingAdminDashboard = () => {
             color="#f59e0b"
             type="refunded"
           />
-          
+
           {/* Summary Card */}
           <div style={styles.chartCard}>
             <h3 style={styles.chartTitle}>Performance Summary</h3>
@@ -544,6 +619,130 @@ const DNATestingAdminDashboard = () => {
             </div>
           </div>
         </div>
+
+
+        <div className="orders-container">
+          {listapp.length > 0 ? (
+            <>
+              <div className="orders-header">
+
+
+
+                <h2 className="orders-title">List appointmnet</h2>
+                <div className="orders-filter-btns">
+                  <button className={`filter-btn ${type === null ? 'active' : ''}`} onClick={() => setType(null)}>ALL</button>
+                  <button className={`filter-btn ${type === "COMPLETE" ? 'active' : ''}`} onClick={() => setType("COMPLETE")}>COMPLETE</button>
+                  <button className={`filter-btn ${type === "CANCLE" ? 'active' : ''}`} onClick={() => setType("CANCLE")}>CANCLE</button>
+                  <button className={`filter-btn ${type === "REFUNDED" ? 'active' : ''}`} onClick={() => setType("REFUNDED")}>REFUNDED</button>
+                </div>
+              </div>
+
+              <div className="table-container">
+                <table className="orders-table">
+                  <thead>
+                    <tr>
+                      <th >STT</th>
+                      <th>Service Name</th>
+                      <th onClick={(e) => {
+                        e.stopPropagation();
+                        setSortColumn("dateCollect");
+                        setModeSort(modesort === 'asc' ? 'desc' : 'asc')
+                      }}>Date Collect</th>
+                      <th onClick={(e) => {
+                        e.stopPropagation();
+                        setSortColumn("createdate");
+                        setModeSort(modesort === 'asc' ? 'desc' : 'asc')
+                      }}>Create Date</th>
+                      <th>Location</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {listapp.map((appoint, index) => (
+                      <tr key={appoint.appointmentId}>
+                        <td className="product-cell">{index + 1}</td>
+                        <td className="location-cell">{appoint.serviceName}</td>
+                        <td className="number-cell">{formatdate(appoint.dateCollect)}</td>
+                        <td className="date-cell">{formatdate(appoint.createdate)}</td>
+                        <td className="location-cell">{appoint.location}</td>
+                        <td className="amount-cell">{formatVND(appoint.totalAmount)}</td>
+                        <td className="status-cell">
+                          <span className={`status-badge ${getStatusClass(appoint.curentStatusAppointment)}`}>
+                            {appoint.curentStatusAppointment}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {renderPagination(totalPages, currentPage, setCurrentPage)}
+            </>
+          ) : (
+
+            <>
+              <div className="orders-header">
+
+                <div className="no-appointment-alert">
+                  <span className="icon-calendar"></span>
+                  <div>
+                    <div className="no-appointment-title">No Appointments Found</div>
+                    <div className="no-appointment-desc">
+                      There is no appointment suitable for your requirements.<br />
+                      Please adjust your filters or try again later.
+                    </div>
+                  </div>
+                </div>
+                <h2 className="orders-title styled-title">
+                  <span className="icon-star">&#11088;</span>
+                  Top 10 Recent Appointment
+                </h2>
+              </div>
+
+              <div className="table-container">
+                <table className="orders-table">
+                  <thead>
+                    <tr>
+                      <th >STT</th>
+                      <th>Service Name</th>
+                      <th>Date Collect</th>
+                      <th>Create Date</th>
+                      <th>Location</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentappoint.map((appoint, index) => (
+                      <tr key={appoint.appointmentId}>
+                        <td className="product-cell">{index + 1}</td>
+                        <td className="location-cell">{appoint.serviceName}</td>
+                        <td className="number-cell">{formatdate(appoint.dateCollect)}</td>
+                        <td className="date-cell">{formatdate(appoint.createdate)}</td>
+                        <td className="location-cell">{appoint.location}</td>
+                        <td className="amount-cell">{formatVND(appoint.totalAmount)}</td>
+                        <td className="status-cell">
+                          <span className={`status-badge ${getStatusClass(appoint.curentStatusAppointment)}`}>
+                            {appoint.curentStatusAppointment}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+
+          )}
+        </div>
+
+
+
+
       </div>
     </div>
   );
