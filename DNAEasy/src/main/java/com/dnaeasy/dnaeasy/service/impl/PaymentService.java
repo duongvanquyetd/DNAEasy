@@ -1,8 +1,10 @@
 package com.dnaeasy.dnaeasy.service.impl;
 
 import com.dnaeasy.dnaeasy.config.VnpayConfig;
+import com.dnaeasy.dnaeasy.dto.request.PaymentListRequest;
 import com.dnaeasy.dnaeasy.dto.request.PaymentRefundRequest;
 import com.dnaeasy.dnaeasy.dto.request.PaymentUpdateResquest;
+import com.dnaeasy.dnaeasy.dto.response.PaymentListResponse;
 import com.dnaeasy.dnaeasy.dto.response.PaymentResponse;
 import com.dnaeasy.dnaeasy.dto.response.VnpayResponse;
 import com.dnaeasy.dnaeasy.enity.Appointment;
@@ -20,6 +22,10 @@ import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
 import com.dnaeasy.dnaeasy.util.VnpayUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PaymentService implements IsPaymentService {
@@ -267,5 +274,46 @@ public class PaymentService implements IsPaymentService {
         return paymentMapper.PaymentToPaymentResponse(a.getPayment().getLast());
     }
 
+    @Override
+    public PaymentListResponse getPaymentList(PaymentListRequest request) {
+        // Set default dates if not provided and convert LocalDate to LocalDateTime
+        LocalDateTime startDate = request.getStartDate() != null 
+            ? request.getStartDate().atStartOfDay() 
+            : LocalDateTime.now().minusMonths(1);
+            
+        LocalDateTime endDate = request.getEndDate() != null 
+            ? request.getEndDate().atTime(23, 59, 59) 
+            : LocalDateTime.now();
+        
+        // Create pageable with default sorting by payment date descending
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), Sort.by(Sort.Direction.DESC, "paymentDate"));
+        
+        // Get payments with pagination
+        Page<Payment> paymentPage = isPaymentResponsitory.findByPaymentDateBetween(startDate, endDate, pageable);
+        
+        // Map payments to DTOs
+        List<PaymentListResponse.PaymentSummaryDTO> paymentDTOs = paymentPage.getContent().stream()
+                .map(this::mapToPaymentSummaryDTO)
+                .collect(Collectors.toList());
+        
+        // Build response
+        return PaymentListResponse.builder()
+                .payments(paymentDTOs)
+                .totalElements(paymentPage.getTotalElements())
+                .totalPages(paymentPage.getTotalPages())
+                .currentPage(paymentPage.getNumber())
+                .build();
+    }
+    
+    private PaymentListResponse.PaymentSummaryDTO mapToPaymentSummaryDTO(Payment payment) {
+        return PaymentListResponse.PaymentSummaryDTO.builder()
+                .paymentId(payment.getPaymentId())
+                .contenPayment(payment.getContenPayment())
+                .isExpense(payment.isExpense())
+                .paymentAmount(payment.getPaymentAmount())
+                .paymentDate(payment.getPaymentDate())
+                .paymentMethod(payment.getPaymentMethod() != null ? payment.getPaymentMethod().toString() : null)
+                .build();
+    }
 
 }

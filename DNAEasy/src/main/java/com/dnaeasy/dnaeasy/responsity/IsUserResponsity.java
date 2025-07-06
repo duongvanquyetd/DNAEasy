@@ -92,7 +92,7 @@ public interface IsUserResponsity extends JpaRepository<Person, String> {
     @Query("select count(p) from Person p")
     int countAllUser();
     
-    @Query("select count(p) from Person p where p.rolename = 'STAFF_TEST' or p.rolename = 'STAFF_LAB'")
+    @Query("select count(p) from Person p where p.rolename = 'STAFF_TEST' or p.rolename = 'STAFF_LAB' or p.rolename = 'STAFF_RECEPTION'")
     int countStaffUsers();
     
     @Query("select count(p) from Person p where p.rolename = 'MANAGER'")

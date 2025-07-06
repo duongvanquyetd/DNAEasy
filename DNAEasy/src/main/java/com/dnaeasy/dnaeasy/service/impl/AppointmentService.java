@@ -858,6 +858,7 @@ public class AppointmentService implements IsAppointmentService {
         }
         return chartData;
     }
+
     @Override
     public List<AppointmentReportResponse> getAppointmentReport(AppointmnetReportRequest request) {
         List<Appointment> appointments= null;

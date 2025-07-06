@@ -3,6 +3,8 @@ package com.dnaeasy.dnaeasy.responsity;
 import com.dnaeasy.dnaeasy.enity.Appointment;
 import com.dnaeasy.dnaeasy.enity.Payment;
 import com.dnaeasy.dnaeasy.enums.PaymentMehtod;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -28,7 +30,7 @@ public interface IsPaymentResponsitory extends JpaRepository<Payment, Integer> {
 
     @Query(value = """
     select sum(p.payment_amount) from payment p join appoinment a on a.appointment_id = p.apppointment_id
-    where p.payment_status = 1 and is_expense = 0 and a.curent_status_appointment = 'COMPLETED'
+    where p.payment_status = 1 and is_expense = 0
     and p.pay_date between :startDate and :endDate
     """, nativeQuery = true)
     BigDecimal getTodayRevenueToday(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
@@ -42,15 +44,15 @@ public interface IsPaymentResponsitory extends JpaRepository<Payment, Integer> {
 """, nativeQuery = true)
     BigDecimal getRevenueByDate(@Param("targetDate") LocalDate targetDate);
     
-    @Query(value = """
-    select sum(p.payment_amount) 
-    from payment p 
-    where p.payment_status = 1 
-      and p.is_expense = 1
-      and cast(p.pay_date as date) = :targetDate
-""", nativeQuery = true)
-    BigDecimal getRefundByDate(@Param("targetDate") LocalDate targetDate);
-    
+//    @Query(value = """
+//    select sum(p.payment_amount)
+//    from payment p
+//    where p.payment_status = 1
+//      and p.is_expense = 1
+//      and cast(p.pay_date as date) = :targetDate
+//""", nativeQuery = true)
+//    BigDecimal getRefundByDate(@Param("targetDate") LocalDate targetDate);
+//
     @Query(value = """
     select sum(p.payment_amount) 
     from payment p 
@@ -60,15 +62,15 @@ public interface IsPaymentResponsitory extends JpaRepository<Payment, Integer> {
 """, nativeQuery = true)
     BigDecimal getRevenueByPeriod(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
-    @Query(value = """
-    select sum(p.payment_amount) 
-    from payment p 
-    where p.payment_status = 1 
-      and p.is_expense = 1
-      and p.pay_date between :startDate and :endDate
-""", nativeQuery = true)
-    BigDecimal getRefundByPeriod(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
-    
+//    @Query(value = """
+//    select sum(p.payment_amount)
+//    from payment p
+//    where p.payment_status = 1
+//      and p.is_expense = 1
+//      and p.pay_date between :startDate and :endDate
+//""", nativeQuery = true)
+//    BigDecimal getRefundByPeriod(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+//
     @Query(value = """
     select sum(p.payment_amount) from payment p
     where p.is_expense = 1 and p.pay_date between :startDate and :endDate
@@ -119,4 +121,10 @@ public interface IsPaymentResponsitory extends JpaRepository<Payment, Integer> {
         @Param("startOfDay") LocalDateTime startOfDay, 
         @Param("endOfDay") LocalDateTime endOfDay
     );
+    
+    //  methods for admin payment listing
+    Page<Payment> findByPaymentDateBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+    
+    // Get all payments with pagination
+    Page<Payment> findAll(Pageable pageable);
 }
