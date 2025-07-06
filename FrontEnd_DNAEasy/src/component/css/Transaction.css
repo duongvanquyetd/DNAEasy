@@ -31,6 +31,7 @@
   font-weight: 700;
   margin: 0.5rem 0 0.2rem 0;
   letter-spacing: 0.5px;
+  text-align: center;
 }
 .transaction-modal-subtitle {
   color: #64748b;
@@ -117,7 +118,7 @@
 }
 
 .transaction-modal-content {
-  margin-top: 200px;   /* Đẩy modal xuống dưới header, chỉnh đúng chiều cao header thực tế */
+  margin-top: 350px;   /* Đẩy modal xuống dưới header, chỉnh đúng chiều cao header thực tế */
   margin-bottom: 40px;
   background: #fff;
   border-radius: 20px;
@@ -129,4 +130,5 @@
   position: relative;
   animation: transaction-fade-in 0.3s;
   border: 2px solid #2563eb0d;
+ 
 }

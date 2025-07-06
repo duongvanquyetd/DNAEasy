@@ -84,7 +84,7 @@ const TransactionModal = ({ isOpen, onClose, booking }) => {
 
   return (
     <div className="modal-overlay transaction-modal-overlay">
-      <div className="modal-content transaction-modal-content">
+      <div className="transaction-modal-content">
         <div className="transaction-modal-header">
           <svg width="48" height="48" fill="none" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="12" fill="#2563eb" opacity="0.08" />
