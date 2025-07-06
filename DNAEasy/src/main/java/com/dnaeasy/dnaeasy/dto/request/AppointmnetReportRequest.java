@@ -12,4 +12,5 @@ import java.time.LocalDateTime;
 public class AppointmnetReportRequest {
     LocalDate  fromdate;
     LocalDate  todate;
+    String currentStatus;
 }

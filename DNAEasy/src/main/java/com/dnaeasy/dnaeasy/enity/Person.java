@@ -78,6 +78,6 @@ public class Person {
     @CreationTimestamp
     private LocalDateTime createdDate;
 
-    @Column(name = "active")
+    @Column(name = "active",columnDefinition = "BIT DEFAULT 1")
     private Boolean active= true;
 }

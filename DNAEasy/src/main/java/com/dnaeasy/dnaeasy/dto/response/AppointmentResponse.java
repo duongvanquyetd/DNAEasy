@@ -33,5 +33,8 @@ public class AppointmentResponse {
     private Boolean paymentStatus;
     List<SampleResponse> listSample;
     List<AppointmentTrackingResponse> tracking;
+    private BigDecimal totalAmount;
+    private  LocalDateTime createdate;
+
 
 }

@@ -256,7 +256,7 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
 
 @Query("""
         select  a from Appointment  a where
-        a.dateCollect between :fromdate and :todate
+        a.createdate between :fromdate and :todate
         
 """)
     List<Appointment> findAllByDateCollect(LocalDateTime fromdate,LocalDateTime todate);
@@ -264,16 +264,29 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
 
     @Query("""
         select  count(*) from Appointment  a where
-        a.dateCollect between :star and :end
+        a.createdate between :star and :end
         and a.curentStatusAppointment = :list
 """)
     Long countByDateCollectAndCurentStatusAppointmentIsLike(LocalDateTime star , LocalDateTime end, String list);
 
     @Query("""
         select   count(*)  from Appointment  a where
-        a.dateCollect between :star and :end
+        a.createdate between :star and :end
         and a.curentStatusAppointment not in (:list)
 """)
     Long countAppointmentInprocess(LocalDateTime star , LocalDateTime end, List<String> list);
 
+
+    @Query("""
+        select  a from Appointment  a where
+        a.createdate between :start and :end
+        and (:status is null  or a.curentStatusAppointment =:status)
+""")
+    Page<Appointment> getAppointmentsByCreatedateAndCurentStatusAppointmentIsIn(LocalDateTime start,LocalDateTime end, String status,Pageable pageable);
+    @Query("""
+        select a  from Appointment  a 
+        order by 
+        a.createdate  desc
+""")
+    List<Appointment>findTop10(Pageable pageable);
 }
