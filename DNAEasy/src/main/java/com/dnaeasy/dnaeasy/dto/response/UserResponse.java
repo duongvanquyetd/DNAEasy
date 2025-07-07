@@ -12,6 +12,7 @@ import lombok.*;
 @Data
 public class UserResponse {
 
+    private int personId;
     private String name;
     private String phone;
     private GenderEnum gender;

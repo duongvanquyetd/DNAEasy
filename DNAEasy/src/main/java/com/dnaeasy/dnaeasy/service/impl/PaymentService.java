@@ -243,7 +243,7 @@ public class PaymentService implements IsPaymentService {
         List<Payment> p = isPaymentResponsitory.findALLByPaycode(request.getPaycode());
 
         if(p != null && p.size() > 0) {
-            throw  new BadRequestException("Transaction code existed");
+            throw  new BadRequestException("Transaction code "+request.getPaycode()+" already exists");
         }
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Person person = isUserResponsitory.findByUsername(username);

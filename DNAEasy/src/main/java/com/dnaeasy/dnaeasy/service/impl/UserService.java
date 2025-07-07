@@ -215,4 +215,14 @@ public class UserService implements IsUserService {
         p.setActive(true);
         personResponsity.save(p);
     }
+
+    @Override
+    public UserResponse VerifycustomerForStaffBooking(String phone) {
+      phone = phone.replace("=","");
+        Person  p = isPersonRepository.findByPhone(phone);
+        if(p == null) {
+             throw new BadRequestException("Do not have customer with phone " + phone);
+        }
+        return userMapper.PersonToUserResponse(p);
+    }
 }

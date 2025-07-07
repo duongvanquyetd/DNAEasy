@@ -112,8 +112,16 @@ public class AppointmentService implements IsAppointmentService {
         BigDecimal amout = service.getServicePrice().divide(BigDecimal.valueOf(2));// them bang configSystem
         payment.setPaymentAmount(amout);
         payment.setPaymentDate(LocalDateTime.now());
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Person person = isUserResponsity.findByUsername(username);
+        Person person = null;
+        if(request.getPersonId() >0)
+        {
+            person = isUserResponsity.findByPersonId(request.getPersonId());
+        }
+        else {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+             person = isUserResponsity.findByUsername(username);
+        }
+
         // thêm bảng system config và thay mấy hashcode này thành giá trị trong bảngt
         SystemConfig houropen = isSystemConfigRepo.findByName("houropen");
         SystemConfig hourclose = isSystemConfigRepo.findByName("hourclose");

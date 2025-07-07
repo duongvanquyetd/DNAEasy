@@ -36,4 +36,6 @@ public interface IsUserService {
     
     UserCountResponse getUserCounts();
     void ActiveUser(int id);
+
+    UserResponse VerifycustomerForStaffBooking(String phone);
 }
