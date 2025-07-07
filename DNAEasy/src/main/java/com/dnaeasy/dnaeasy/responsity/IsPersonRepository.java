@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface IsPersonRepository extends JpaRepository<Person, Long> {
     List<Person> findAllByCreatedDateBetween(LocalDateTime start, LocalDateTime end);
+
+    Person findByPhone(String phone);
 }

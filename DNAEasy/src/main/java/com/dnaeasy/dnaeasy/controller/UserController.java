@@ -103,4 +103,8 @@ public class UserController {
         userService.ActiveUser(id);
         return ResponseEntity.ok().build();
     }
+    @PostMapping("/byphone")
+    public ResponseEntity<UserResponse> getByphone(@RequestBody String phone) {
+      return ResponseEntity.ok( userService.VerifycustomerForStaffBooking(phone));
+    }
 }

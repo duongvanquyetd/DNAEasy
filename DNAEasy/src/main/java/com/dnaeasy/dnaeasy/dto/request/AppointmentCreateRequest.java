@@ -20,5 +20,6 @@ public class AppointmentCreateRequest {
     private PaymentMehtod paymentMethod;
     private String  phoneAppointment;
     private String  emailAppointment;
+    private int personId;
 
 }
