@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { getServiceById } from '../../service/service';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { CreateAppointment } from '../../service/appointment';
 import { GetMyInfor } from '../../service/user';
 import '/src/component/css/BookingService.css';
@@ -27,7 +27,8 @@ export const BookingServicePage = () => {
     phoneAppointment: '',
     emailAppointment: '',
   });
-
+  const locationn = useLocation();
+  const custommer = locationn.state;
   const { id } = useParams();
   const navigator = useNavigate();
   const formGroups = useRef([]);
@@ -35,24 +36,35 @@ export const BookingServicePage = () => {
   useEffect(() => {
 
     if (localStorage.getItem("token")) {
-      GetMyInfor()
-        .then((response) => {
-          const addr = response.data.address.split(',');
-          setLocation(!addr || addr === 'null' || addr === 'undefined' || addr[0] === 'null' ? '' : response.data.address);
-          setPhoneAppointment(response.data?.phone || '');
-          setEmailAppointment(response.data?.email || '');
-        })
-        .catch((error) => {
-          console.log('Error loading user', error);
-        });
+
+      if (!custommer) {
+        GetMyInfor()
+          .then((response) => {
+            const addr = response.data.address.split(',');
+            setLocation(!addr || addr === 'null' || addr === 'undefined' || addr[0] === 'null' ? '' : response.data.address);
+            setPhoneAppointment(response.data?.phone || '');
+            setEmailAppointment(response.data?.email || '');
+          })
+          .catch((error) => {
+            console.log('Error loading user', error);
+          });
+      }
+      else{
+        
+          const addr = custommer.address.split(',');
+          setLocation(!addr || addr === 'null' || addr === 'undefined' || addr[0] === 'null' ? '' : custommer.address);
+          setPhoneAppointment(custommer.phone || '');
+          setEmailAppointment(custommer.email || '');
+       
+      }
+
 
     }
 
     getServiceById(id)
       .then((response) => {
         setServices(response.data);
-        if(response.data.typeService === 'legal')
-        {
+        if (response.data.typeService === 'legal') {
           setTypeCollect("Hospital_collection")
         }
       })
@@ -98,6 +110,8 @@ export const BookingServicePage = () => {
   const handleBookingAppointment = (e) => {
     e.preventDefault();
     if (handleEmpty()) {
+
+      const personId = custommer ? custommer.personId : 0
       const bookingDetails = {
         typeCollect,
         dateCollect,
@@ -106,6 +120,7 @@ export const BookingServicePage = () => {
         serviceid: Number(id),
         phoneAppointment,
         emailAppointment,
+        personId
       };
       console.log("booking", bookingDetails)
       CreateAppointment(bookingDetails)
@@ -157,10 +172,10 @@ export const BookingServicePage = () => {
                 onChange={(e) => setTypeCollect(e.target.value)}
                 required
               >
-                
+
                 {services.typeService === 'civil' && (
                   <>
-                  <option value="">--Select--</option>
+                    <option value="">--Select--</option>
                     <option value="Self_collection">Self Collection</option>
                     <option value="Home_collection">Home Collection</option>
                     <option value="Hospital_collection">Hospital Collection</option>

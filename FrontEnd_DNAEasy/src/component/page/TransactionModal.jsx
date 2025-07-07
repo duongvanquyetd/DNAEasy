@@ -10,7 +10,7 @@ const TransactionModal = ({ isOpen, onClose, booking }) => {
     transferImage: null,
     payCode: '',
   });
-  const [er,setEr] = useState('');
+  const [err,setErr] = useState('');
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -67,7 +67,7 @@ const TransactionModal = ({ isOpen, onClose, booking }) => {
 
         if(errors.response.data)
         {
-          setEr(errors.response.data.error)
+          setErr(errors.response.data.error)
           
         }
         console.log(errors.response.data)
@@ -81,7 +81,6 @@ const TransactionModal = ({ isOpen, onClose, booking }) => {
 
   // ...existing code...
   if (!isOpen) return null;
-
   return (
     <div className="modal-overlay transaction-modal-overlay">
       <div className="transaction-modal-content">
@@ -94,6 +93,7 @@ const TransactionModal = ({ isOpen, onClose, booking }) => {
           <div className="transaction-modal-subtitle">
             Please fill in the information below to process your refund.
           </div>
+          {err && <span className='text-danger'> {err}</span>}
         </div>
         <form onSubmit={handleSubmit} encType="multipart/form-data" className="transaction-modal-form">
           <div className="transaction-form-group">
