@@ -34,7 +34,7 @@ const AdminUserManagement = () => {
     { id: 'CUSTOMER', label: 'Users', icon: Users, count: stats.totalUsers, color: { from: '#1e3a8a', to: '#3b82f6' } },
     { id: 'STAFF', label: 'Staff', icon: UserCheck, count: stats.totalStaff, color: { from: '#3b82f6', to: '#60a5fa' } },
     { id: 'MANAGER', label: 'Managers', icon: Crown, count: stats.totalManagers, color: { from: '#1d4ed8', to: '#2563eb' } },
-    
+
     // { id: 'ADMIN', label: 'Admins', icon: Shield, count: stats.totalAdmins, color: { from: '#7e22ce', to: '#a855f7' } },
   ];
 
@@ -83,10 +83,10 @@ const AdminUserManagement = () => {
   };
 
 
-    const handleViewUser = (user) => {
-      setViewUser(user);
-      setShowViewModal(true);
-    };
+  const handleViewUser = (user) => {
+    setViewUser(user);
+    setShowViewModal(true);
+  };
 
 
   const handleUpdateUser = async () => {
@@ -204,17 +204,27 @@ const AdminUserManagement = () => {
                 <button onClick={() => setShowFilters(!showFilters)} className="aum-filter-btn">
                   <Filter size={18} /> Filter
                 </button>
-                <input
-                  type="date"
-                  value={fromdate}
-                  onChange={(e) => setFromdate(e.target.value)}
-                />
-                <span style={{ color: '#64748b' }}>to</span>
-                <input
-                  type="date"
-                  value={todate}
-                  onChange={(e) => setTodate(e.target.value)}
-                />
+                <div className="aum-date-picker">
+                  <span className="aum-date-icon">
+                    <svg width="18" height="18" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="13" height="11" rx="2" /><path d="M16 2v2M5 2v2M3 7h13" /></svg>
+                  </span>
+                  <input
+                    type="date"
+                    value={fromdate}
+                    onChange={(e) => setFromdate(e.target.value)}
+                  />
+                </div>
+                <span style={{ color: '#64748b', margin: '0 0.5rem' }}>to</span>
+                <div className="aum-date-picker">
+                  <span className="aum-date-icon">
+                    <svg width="18" height="18" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="13" height="11" rx="2" /><path d="M16 2v2M5 2v2M3 7h13" /></svg>
+                  </span>
+                  <input
+                    type="date"
+                    value={todate}
+                    onChange={(e) => setTodate(e.target.value)}
+                  />
+                </div>
                 {showFilters && (
                   <div className="aum-filter-dropdown">
                     <select value={active} onChange={(e) => setActive(e.target.value)}>

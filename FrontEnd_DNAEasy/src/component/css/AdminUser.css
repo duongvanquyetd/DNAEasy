@@ -595,3 +595,66 @@
     padding: 0.5rem;
   }
 }
+/* ...existing code... */
+
+.aum-filter-box input[type="date"] {
+  border: 1.5px solid #cbd5e1;
+  border-radius: 0.7rem;
+  padding: 0.6rem 1.1rem;
+  background: #fff;
+  color: #1e293b;
+  font-size: 1rem;
+  margin: 0 0.3rem;
+  transition: border 0.18s, box-shadow 0.18s;
+  outline: none;
+  box-shadow: none;
+}
+
+.aum-filter-box input[type="date"]:focus {
+  border: 2px solid #2563eb;
+  box-shadow: 0 0 0 2px #dbeafe;
+}
+.aum-date-picker {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  background: #fff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 0.7rem;
+  box-shadow: 0 1px 4px rgba(30,41,59,0.04);
+  margin: 0 0.3rem;
+  transition: border 0.18s, box-shadow 0.18s;
+}
+
+.aum-date-picker input[type="date"] {
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #1e293b;
+  font-size: 1rem;
+  padding: 0.6rem 1.1rem 0.6rem 2.2rem;
+  border-radius: 0.7rem;
+  width: 130px;
+  transition: background 0.18s;
+}
+
+.aum-date-picker input[type="date"]:focus {
+  background: #f0f7ff;
+}
+
+.aum-date-icon {
+  position: absolute;
+  left: 0.7rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #2563eb;
+  opacity: 0.85;
+  display: flex;
+  align-items: center;
+}
+
+.aum-date-picker:focus-within {
+  border: 2px solid #2563eb;
+  box-shadow: 0 0 0 2px #dbeafe;
+}

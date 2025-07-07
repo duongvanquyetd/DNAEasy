@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, use } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Header from '../Header';
@@ -8,6 +8,7 @@ import '../css/ServiceDetail.css';
 import { GetFeedbacksByServiceId, AddFeedback } from '../../service/mockFeedbackAPI';
 import { getServiceById, ServiceReportCommnent } from '../../service/service';
 import { CanComment, createComment, getCommentsByServiceId } from '../../service/Comment';
+import { VerifiUserByPhone } from '../../service/user';
 
 
 
@@ -238,7 +239,11 @@ const ServiceDetail = () => {
     numberOfStar: 0,
     numberOfCommnent: 0
   })
-
+  const rolename = localStorage.getItem("rolename");
+  const [openform, setOpenform] = useState(false);
+  const [phone, setPhone] = useState('');
+  const [erorVerifi, setErroVeryfi] = useState('');
+  const [customer, setCustomer] = useState('');
   useEffect(() => {
     const fetchService = async () => {
       try {
@@ -300,6 +305,7 @@ const ServiceDetail = () => {
   const handleBookingClick = () => {
     navigate(`/booking/${serviceId}`);
   };
+
 
   const handleBackClick = useCallback(() => {
     navigate('/service');
@@ -366,6 +372,30 @@ const ServiceDetail = () => {
     // Assume user info is fetched from context or session
 
   };
+
+  const handleStaffbook = () => {
+    console.log("yessor")
+    if (!phone) {
+      setErroVeryfi("Phone required")
+      return;
+    }
+    console.log("phone", phone)
+    VerifiUserByPhone(phone).then((response) => {
+     
+      console.log("Response verify customer", response.data)
+      setCustomer(response.data)
+
+
+    }).catch((error) => {
+      console.log("Error verifi", error)
+      setErroVeryfi(error.response?.data?.error ? error.response.data.error : null)
+    })
+  }
+
+  const veryfiSucess = () => {
+     setOpenform(false)
+    navigate(`/booking/${serviceId}`, { state: customer });
+  }
 
   return (
     <ErrorBoundary>
@@ -492,18 +522,34 @@ const ServiceDetail = () => {
                   >
                     Complete analysis package
                   </p>
-                  <button className='button' type='button' onClick={handleBookingClick}
-                    style={{
+                  {rolename === "CUSTOMER" ? (
+                    <button className='button' type='button' onClick={handleBookingClick}
+                      style={{
 
-                      backgroundColor: "white",
-                      color: "#3b82f6",
-                      width: "100%",
-                      justifyContent: "center",
-                    }}
+                        backgroundColor: "white",
+                        color: "#3b82f6",
+                        width: "100%",
+                        justifyContent: "center",
+                      }}
 
-                  >
-                    📅 Book Now
-                  </button>
+                    >
+                      📅 Book Now
+                    </button>
+                  ) : rolename ==="STAFF_RECEPTION" && (
+                    <button className='button' type='button' onClick={() => setOpenform(true)}
+                      style={{
+
+                        backgroundColor: "white",
+                        color: "#3b82f6",
+                        width: "100%",
+                        justifyContent: "center",
+                      }}
+
+                    >
+                      📅 Staff Book
+                    </button>
+                  )}
+
                 </div>
 
 
@@ -723,7 +769,108 @@ const ServiceDetail = () => {
                 )}
               </div>
             </section>
+            {openform && (
+              <div className="detail-modal-overlay">
+                <div className="detail-modal">
+                  <div className="detail-modal-header">
+                    <h2> Verification Customer</h2>
+                    <button
+                      className="detail-modal-close"
+                      type="button"
+                      onClick={() => setOpenform(false)}
+                      aria-label="Close"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <form
+                    className="detail-modal-form"
+                    onSubmit={e => {
+                      e.preventDefault();
+                      handleStaffbook();
+                    }}
+                  >
+                    {erorVerifi && <span className="text-danger">{erorVerifi}</span>}
+                    <label htmlFor="staff-phone" style={{ fontWeight: 500, marginBottom: 8 }}>
+                      Enter phone number for verification
+                    </label>
+                    <input
+                      id="staff-phone"
+                      type="text"
+                      placeholder="Enter phone number"
+                      onChange={e => setPhone(e.target.value)}
+                      value={phone}
+                      className="detail-modal-input"
+                    />
+                    <button type="submit" className="detail-modal-btn">
+                      Verification
+                    </button>
+                  </form>
+                </div>
+              </div>
+            )}
+            {customer && (
+              <div className="detail-modal-overlay">
+                <div className="detail-modal" style={{ maxWidth: 430, width: "100%" }}>
+                  <div className="detail-modal-header">
+                    <h2>Customer Information</h2>
+                    <button
+                      className="detail-modal-close"
+                      type="button"
+                      onClick={() => {setCustomer(null);setPhone('');setErroVeryfi(null)}}
+                      aria-label="Close"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div className="customer-modal-body">
+                    <div className="customer-avatar-wrap">
+                      <img
+                        src={customer.avatarUrl}
+                        alt={customer.name}
+                        className="customer-avatar"
+                      />
+                    </div>
+                    <div className="customer-info-list">
+                      <div className="customer-info-row">
+                        <span className="customer-info-label">Name:</span>
+                        <span className="customer-info-value">{customer.name}</span>
+                      </div>
+                      <div className="customer-info-row">
+                        <span className="customer-info-label">Gender:</span>
+                        <span className="customer-info-value">{customer.gender === "F" ? "Female" : customer.gender === "M" ? "Male" : customer.gender}</span>
+                      </div>
+                      <div className="customer-info-row">
+                        <span className="customer-info-label">Phone:</span>
+                        <span className="customer-info-value">{customer.phone}</span>
+                      </div>
+                      <div className="customer-info-row">
+                        <span className="customer-info-label">Email:</span>
+                        <span className="customer-info-value">{customer.email}</span>
+                      </div>
+                      <div className="customer-info-row">
+                        <span className="customer-info-label">Address:</span>
+                        <span className="customer-info-value">{customer.address}</span>
+                      </div>
+                    </div>
+                  </div>
+                   <button
+                      className="detail-modal-submit"
+                      type="button"
+                      onClick={() => veryfiSucess()}
+                      aria-label="Close"
+                    >
+                      Booking
+                    </button>
+                </div>
+              </div>
+            )}
+
+
+
           </>
+
+
 
         )}
       </div>

@@ -197,8 +197,8 @@ const Header = () => {
 
       <nav style={styles.nav}>
         {[
-          { name: "Home", path: "/" },
-          { name: "Service", path: "/service" },
+          ...(rolename === "CUSTOMER" ? [{ name: "Home", path: "/" }] : []),
+          ...(rolename === "CUSTOMER" || rolename === "STAFF_RECEPTION" ? [{ name: "Service", path: "/service" }] : []),
           { name: "Blog", path: "/blog" },
           { name: "Your Appointment", path: "/yourappointment" },
           { name: "History Booking", path: "/historybooking" },

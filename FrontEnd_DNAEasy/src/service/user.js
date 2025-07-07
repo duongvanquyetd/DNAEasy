@@ -36,3 +36,6 @@ export const ReportUser= ()=>{
   return api.get("/user/count-by-role")
 
 }
+export  const VerifiUserByPhone=(data)=>{
+  return api.post("/user/byphone",data)
+}
