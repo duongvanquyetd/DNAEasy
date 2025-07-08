@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Header from '../Header';
 import Footer from '../Footer';
@@ -186,10 +186,8 @@ const ShareButtons = ({ title, url }) => {
 
 const BlogDetail = () => {
   const { blogId } = useParams();
-  const navigate = useNavigate();
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   const contentRef = useRef(null);
 
@@ -200,35 +198,19 @@ const BlogDetail = () => {
         setLoading(false);
         console.log('Blog fetched successfully:', response.data);
       }
-
       ).catch((err) => {
         console.error('Error fetching blog:', err);
       })
   }, [blogId]);
 
-
   useEffect(() => {
-    const handleScroll = () => {
-      if (!contentRef.current) return;
-
-      const element = contentRef.current;
-      const totalHeight = element.scrollHeight - window.innerHeight;
-      const progress = totalHeight > 0 ? (window.scrollY / totalHeight) * 100 : 0;
-      setReadingProgress(Math.min(progress, 100));
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-
+    window.scrollTo(0, 0);
+  }, [blogId]);
 
   const articleUrl = window.location.href;
   const articleTitle = blog?.title || 'Check out this article';
 
   return (
-
-
     <div className="blogDetailContainer redesigned">
       <Header />
       <div className="blogDetailMain redesigned">
@@ -240,11 +222,6 @@ const BlogDetail = () => {
               <div className="blogDetailSkeletonTitle"></div>
               <div className="blogDetailSkeletonMeta"></div>
               <div className="blogDetailSkeletonContent"></div>
-            </div>
-          ) : error ? (
-            <div className="blogDetailError">
-              <p>{error}</p>
-              <button onClick={fetchBlog} className="blogDetailRetry" aria-label="Retry loading blog">Retry</button>
             </div>
           ) : blog ? (
             <>
@@ -285,7 +262,6 @@ const BlogDetail = () => {
       </div>
       <Footer />
     </div>
-
   );
 };
 

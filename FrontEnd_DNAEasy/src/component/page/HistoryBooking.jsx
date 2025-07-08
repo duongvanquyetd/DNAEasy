@@ -8,12 +8,14 @@ import Footer from '../Footer.jsx';
 import { CanComment } from '../../service/Comment.js';
 import HardResultModal from './HardResultModal.jsx';
 import { CanConfirm, UpdateHardResult } from '../../service/hardresult.js';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export const HistoryBooking = () => {
     const [historyBooking, setHistoryBooking] = useState([]);
     const [zoomImage, setZoomImage] = useState(null);
-
     const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
+    const { appointmentId } = useParams();
+    const navigate = useNavigate();
     const rolename = localStorage.getItem('rolename') || null;
     const [createHardResult, setCreateHardResult] = useState(false);
     const [showUploadForm, setShowUploadForm] = useState(false);
@@ -65,6 +67,16 @@ export const HistoryBooking = () => {
         };
         fetchHistoryBooking();
     }, [currentPage, keysearch]);
+
+    // Khi có appointmentId trên URL, tự động chọn booking tương ứng
+    useEffect(() => {
+        if (appointmentId && historyBooking.length > 0) {
+            setSelectedAppointmentId(Number(appointmentId));
+        } else {
+            setSelectedAppointmentId(null);
+        }
+    }, [appointmentId, historyBooking]);
+
     const handleVnpay = (appointmentId) => {
         PayToview(appointmentId)
             .then((response) => {
@@ -153,11 +165,7 @@ export const HistoryBooking = () => {
                                 <div
                                     key={booking.appointmentId}
                                     className={`booking-card ${selectedAppointmentId === booking.appointmentId ? 'selected' : ''}`}
-                                    onClick={() =>
-                                        setSelectedAppointmentId(
-                                            selectedAppointmentId === booking.appointmentId ? null : booking.appointmentId
-                                        )
-                                    }
+                                    onClick={() => navigate(`/historybooking/${booking.appointmentId}`)}
                                 >
 
                                     <div className="card-header">
@@ -537,6 +545,229 @@ export const HistoryBooking = () => {
                                 >
                                     Upload
                                 </button>
+                            </div>
+                        </div>
+                    )}
+                    {/* Modal overlay hiển thị chi tiết booking nếu có appointmentId */}
+                    {appointmentId && selectedAppointmentId && (
+                        <div className="modal-overlay" onClick={() => navigate('/historybooking')}>
+                            <div className="modal-content" onClick={e => e.stopPropagation()}>
+                                {(() => {
+                                    const booking = historyBooking.find(b => b.appointmentId === Number(appointmentId));
+                                    if (!booking) return null;
+                                    return (
+                                        <div className="card-body">
+                                            {/* Basic details always visible */}
+                                            <div className="details-grid">
+                                                <div className="detail-item">
+                                                    <span className="detail-label">Customer:</span>
+                                                    <span className="detail-value">{booking.customerName}</span>
+                                                </div>
+                                                <div className="detail-item">
+                                                    <span className="detail-label">Location:</span>
+                                                    <span className="detail-value">{booking.location}</span>
+                                                </div>
+                                                <div className="detail-item">
+                                                    <span className="detail-label">Email:</span>
+                                                    <span className="detail-value">{booking.emailAppointment}</span>
+                                                </div>
+                                                <div className="detail-item">
+                                                    <span className="detail-label">Phone:</span>
+                                                    <span className="detail-value">{booking.phoneAppointment}</span>
+                                                </div>
+                                                <div className="detail-item">
+                                                    <span className="detail-label">Note:</span>
+                                                    <span className="detail-value">{booking.note || 'None'}</span>
+                                                </div>
+                                                <div className="detail-item">
+                                                    {booking.status && booking.cancomment && (
+                                                        <a href={`/service/${booking.serviceId}`} className="comment-button">Comment</a>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            {/* Payment warning if not paid and customer role with complete status */}
+                                            {!booking.status && rolename === "CUSTOMER" && booking.curentStatusAppointment === "COMPLETE" && (
+                                                <div className="payment-warning">
+                                                    <div>
+                                                        <h4>Payment required</h4>
+                                                        <p>Please make payment to complete the process.</p>
+                                                        <button onClick={() => handleVnpay(booking.appointmentId)} className="vnpay-button">
+                                                            Pay with VNPay
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            {/* Full details only visible after payment */}
+                                            <div className="payment-info">
+                                                <h4>Payment Method</h4>
+                                                <div>
+                                                    <p >
+                                                        {booking.paymentMethod === 'VNPay' ? (
+                                                            <img src="https://s-vnba-cdn.aicms.vn/vnba-media/23/8/16/vnpay-logo_64dc3da9d7a11.jpg" alt="VNPay" className="payment-logo" />
+                                                        ) : booking.paymentMethod === 'Cash' ? (
+                                                            <img src="https://www.creativefabrica.com/wp-content/uploads/2021/09/15/Money-finance-cash-payment-icon-Graphics-17346742-1.jpg" alt="Cash" className="payment-logo" />
+                                                        ) : (
+                                                            booking.paymentMethod
+                                                        )}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <p className="payment-amount">({booking.paymentAmount?.toLocaleString('vi-VN')} VND)</p>
+                                                </div>
+                                            </div>
+                                            <div className="tracking-grid">
+                                                {/* Appointment Progress Timeline */}
+                                                <div className="tracking-section timeline-section">
+                                                    <h4>Appointment Progress</h4>
+                                                    <div className="timeline">
+                                                        {booking.tracking?.length > 0 ? (
+                                                            booking.tracking.map((track, idx) => (
+                                                                <div key={idx} className="timeline-item">
+                                                                    <div className="timeline-dot appointment"></div>
+                                                                    <div className="timeline-content">
+                                                                        <div className="timeline-title">{track.statusName}</div>
+                                                                        <div className="timeline-date">{formatDate(track.statusDate)}</div>
+                                                                        {track.imageUrl && <img onClick={e => {e.stopPropagation(); setZoomImage(track.imageUrl);}} src={track.imageUrl} alt="Track" className="tracking-image" />}
+                                                                    </div>
+                                                                </div>
+                                                            ))
+                                                        ) : (
+                                                            <div className="timeline-empty">No data.</div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                {/* Sample Processing Progress Timeline */}
+                                                <div className="tracking-section timeline-section">
+                                                    <h4>Sample Processing Progress</h4>
+                                                    <div className="timeline">
+                                                        {booking.trackingSample?.length > 0 ? (
+                                                            booking.trackingSample.map((track, idx) => (
+                                                                <div key={idx} className="timeline-item">
+                                                                    <div className="timeline-dot sample"></div>
+                                                                    <div className="timeline-content">
+                                                                        <div className="timeline-title">{track.nameStatus}</div>
+                                                                        <div className="timeline-date">{formatDate(track.sampleTrackingTime)}</div>
+                                                                        {track.imageUrl && <img onClick={e => {e.stopPropagation(); setZoomImage(track.imageUrl);}} src={track.imageUrl} alt="Track" className="tracking-image" />}
+                                                                    </div>
+                                                                </div>
+                                                            ))
+                                                        ) : (
+                                                            <div className="timeline-empty">No data.</div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                {booking.status && (
+                                                    <>
+                                                        <div className="test-result-section">
+                                                            <h4 className="test-result-title">Test Result</h4>
+                                                            {booking.result?.length > 0 ? (
+                                                                <div className="test-result-list">
+                                                                    {booking.result.map((res, idx) => (
+                                                                        <div key={idx} className="test-result-card">
+                                                                            <div className="test-result-header">
+                                                                                <span className="test-result-label-main">Result #{idx + 1}</span>
+                                                                            </div>
+                                                                            <div className="test-result-body">
+                                                                                <div className="test-result-row">
+                                                                                    <span className="test-result-label">Collector:</span>
+                                                                                    <span className="test-result-value">{res.nameOfPerson}</span>
+                                                                                </div>
+                                                                                {res.relationName && (
+                                                                                    <div className="test-result-row">
+                                                                                        <span className="test-result-label">Relation:</span>
+                                                                                        <span className="test-result-value">{res.relationName}</span>
+                                                                                    </div>
+                                                                                )}
+                                                                                <div className="test-result-row">
+                                                                                    <span className="test-result-label">Sample Code:</span>
+                                                                                    <span className="test-result-value">{res.samplecode}</span>
+                                                                                </div>
+                                                                                {res.conclustionResult && (
+                                                                                    <div className="test-result-row">
+                                                                                        <span className="test-result-label">Conclusion:</span>
+                                                                                        <span className="test-result-value">{res.conclustionResult}</span>
+                                                                                    </div>
+                                                                                )}
+                                                                                <div className="test-result-row">
+                                                                                    <span className="test-result-label">Result Time:</span>
+                                                                                    <span className="test-result-value">{formatDate(res.resultTime)}</span>
+                                                                                </div>
+                                                                                {res.resulFilePDF && (
+                                                                                    <div className="test-result-row" style={{ marginTop: 8 }}>
+                                                                                        <img
+                                                                                            src={res.resulFilePDF}
+                                                                                            alt="Result"
+                                                                                            className="result-image zoomable-image"
+                                                                                            style={{ maxWidth: 120, borderRadius: 8, boxShadow: '0 2px 8px #2563eb22', cursor: 'pointer' }}
+                                                                                            onClick={e => {
+                                                                                                e.stopPropagation();
+                                                                                                setZoomImage(res.resulFilePDF);
+                                                                                            }}
+                                                                                        />
+                                                                                        <a href={res.resulFilePDF.replace('/upload/', '/upload/fl_attachment/')} className="download-button" style={{ marginLeft: 10 }}>
+                                                                                            Download
+                                                                                        </a>
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            ) : (
+                                                                <div className="timeline-empty">No result yet.</div>
+                                                            )}
+                                                            {rolename === "CUSTOMER" && booking.result[0]?.hardresultID === null && (
+                                                                <button
+                                                                    className="receive-hard-result-btn"
+                                                                    onClick={e => {
+                                                                        e.stopPropagation();
+                                                                        setCreateHardResult(true);
+                                                                    }}
+                                                                >
+                                                                    Receive Hard Result
+                                                                </button>
+                                                            )}
+                                                            {booking.canconfirm?.canConfirmHardResult && (
+                                                                <button
+                                                                    className="comment-button"
+                                                                    onClick={() => setShowUploadForm(booking)}
+                                                                >
+                                                                    {booking.canconfirm.nextStatus}
+                                                                </button>
+                                                            )}
+                                                            <HardResultModal
+                                                                isOpen={createHardResult}
+                                                                onClose={() => setCreateHardResult(false)}
+                                                                resultlist={booking.result}
+                                                            />
+                                                        </div>
+                                                        {/* Result Delivery Progress Timeline */}
+                                                        <div className="tracking-section timeline-section">
+                                                            <h4>Result Delivery Progress</h4>
+                                                            <div className="timeline">
+                                                                {booking.trackingReuslt?.length > 0 ? (
+                                                                    booking.trackingReuslt.map((track, idx) => (
+                                                                        <div key={idx} className="timeline-item">
+                                                                            <div className="timeline-dot appointment"></div>
+                                                                            <div className="timeline-content">
+                                                                                <div className="timeline-title">{track.statusName}</div>
+                                                                                <div className="timeline-date">{formatDate(track.trackingdate)}</div>
+                                                                                {track.imgUrl && <img onClick={e => {e.stopPropagation(); setZoomImage(track.imgUrl);}} src={track.imgUrl} alt="Track" className="tracking-image" />}
+                                                                            </div>
+                                                                        </div>
+                                                                    ))
+                                                                ) : (
+                                                                    <div className="timeline-empty">No data.</div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                            <button className="close-modal-btn" onClick={() => navigate('/historybooking')}>X</button>
+                                        </div>
+                                    );
+                                })()}
                             </div>
                         </div>
                     )}
