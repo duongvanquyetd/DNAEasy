@@ -6,8 +6,8 @@
   --text: #0a1d56;
   --card-bg: #fff;
   --card-border: #e0e6f7;
-  --shadow: 0 8px 32px 0 rgba(10,29,86,0.10);
-  --shadow-hover: 0 12px 32px 0 rgba(10,29,86,0.18);
+  --shadow: 0 8px 32px 0 rgba(10, 29, 86, 0.10);
+  --shadow-hover: 0 12px 32px 0 rgba(10, 29, 86, 0.18);
   --spacing-sm: 12px;
   --spacing-md: 24px;
   --spacing-lg: 32px;
@@ -22,7 +22,7 @@
   display: flex;
 
   flex-wrap: wrap;
-
+  padding: 50px;
 }
 
 .dashboard-content {
@@ -61,7 +61,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 4px 24px rgba(58,111,248,0.18), 0 1px 0 #fff;
+  text-shadow: 0 4px 24px rgba(58, 111, 248, 0.18), 0 1px 0 #fff;
   filter: drop-shadow(0 2px 8px #3a6ff8);
 }
 
@@ -154,7 +154,7 @@
   color: var(--text);
   background: #f5f8ff;
   outline: none;
-  box-shadow: 0 2px 8px rgba(58,111,248,0.04);
+  box-shadow: 0 2px 8px rgba(58, 111, 248, 0.04);
 }
 
 .date-input {
@@ -222,7 +222,7 @@
 .income-placeholder,
 .expenses-placeholder,
 .profit-placeholder {
-  background: rgba(58,111,248,0.04);
+  background: rgba(58, 111, 248, 0.04);
   border-radius: 10px;
   min-height: 60px;
   display: flex;
@@ -239,7 +239,10 @@
   opacity: 0.8;
 }
 
-.sleep-card .card-title, .sleep-card .stats-placeholder, .sleep-card .balance-placeholder, .sleep-card .expenses-placeholder {
+.sleep-card .card-title,
+.sleep-card .stats-placeholder,
+.sleep-card .balance-placeholder,
+.sleep-card .expenses-placeholder {
   background-color: #fff !important;
   color: #000;
 }
@@ -254,10 +257,10 @@
 .date-range-selector {
   display: flex;
   align-items: center;
-  background: rgba(58,111,248,0.04);
+  background: rgba(58, 111, 248, 0.04);
   padding: 6px 10px;
   border-radius: 8px;
-  border: 1px solid rgba(58,111,248,0.15);
+  border: 1px solid rgba(58, 111, 248, 0.15);
 }
 
 .date-range-selector input[type="date"] {
@@ -273,7 +276,7 @@
 .date-range-selector input[type="date"]:focus {
   outline: none;
   border-color: #3a6ff8 !important;
-  box-shadow: 0 0 0 2px rgba(58,111,248,0.2);
+  box-shadow: 0 0 0 2px rgba(58, 111, 248, 0.2);
 }
 
 @media (max-width: 1100px) {
@@ -281,19 +284,23 @@
     flex-direction: column;
     gap: var(--spacing-sm);
   }
+
   .stats-row {
     flex-direction: row;
     flex-wrap: wrap;
   }
+
   .stats-row .dashboard-card {
     min-width: calc(50% - 12px);
     flex: 0 0 calc(50% - 12px);
   }
+
   .dashboard-header {
     flex-direction: column;
     align-items: flex-start;
     padding: var(--spacing-sm);
   }
+
   .dashboard-content {
     margin-left: 0;
     padding: var(--spacing-md);
@@ -304,13 +311,17 @@
   .dashboard-header h2 {
     font-size: 1.5rem;
   }
+
   .card-title {
     font-size: 1rem;
   }
+
   .stats-value {
     font-size: 1.2rem;
   }
-  .filter-select, .date-input {
+
+  .filter-select,
+  .date-input {
     font-size: 0.9rem;
     padding: 6px 12px;
   }
@@ -331,8 +342,8 @@
   padding: 8px 16px;
   border-radius: 8px;
   margin-bottom: 16px;
-  box-shadow: 0 2px 8px rgba(10,29,86,0.08);
-  border: 1px solid rgba(58,111,248,0.15);
+  box-shadow: 0 2px 8px rgba(10, 29, 86, 0.08);
+  border: 1px solid rgba(58, 111, 248, 0.15);
   font-weight: 600;
   color: #3a6ff8;
   width: fit-content;
@@ -348,32 +359,35 @@
 }
 
 .income-placeholder {
-  background: rgba(22,199,132,0.04);
+  background: rgba(22, 199, 132, 0.04);
 }
 
 .expenses-placeholder {
-  background: rgba(248,198,58,0.04);
+  background: rgba(248, 198, 58, 0.04);
 }
 
 .profit-placeholder {
-  background: rgba(156,39,176,0.04);
+  background: rgba(156, 39, 176, 0.04);
 
 }
 
 /* Revenue and Expense Lists Styles */
-.revenue-list, .expense-list {
+.revenue-list,
+.expense-list {
   width: 100%;
   max-height: 400px;
   overflow-y: auto;
   border-radius: 8px;
 }
 
-.revenue-list table, .expense-list table {
+.revenue-list table,
+.expense-list table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.revenue-list th, .expense-list th {
+.revenue-list th,
+.expense-list th {
   position: sticky;
   top: 0;
   background-color: #fff;
@@ -384,16 +398,19 @@
   text-align: left;
 }
 
-.revenue-list tr, .expense-list tr {
+.revenue-list tr,
+.expense-list tr {
   border-bottom: 1px solid #f5f8ff;
   transition: background-color 0.2s;
 }
 
-.revenue-list tr:hover, .expense-list tr:hover {
+.revenue-list tr:hover,
+.expense-list tr:hover {
   background-color: #f5f8ff;
 }
 
-.revenue-list td, .expense-list td {
+.revenue-list td,
+.expense-list td {
   padding: 12px 8px;
 }
 
@@ -483,8 +500,9 @@
   .dashboard-row {
     flex-direction: column;
   }
-  
-  .revenue-list, .expense-list {
+
+  .revenue-list,
+  .expense-list {
     margin-bottom: 20px;
   }
 
