@@ -204,7 +204,17 @@ const AdminUserManagement = () => {
                 <button onClick={() => setShowFilters(!showFilters)} className="aum-filter-btn">
                   <Filter size={18} /> Filter
                 </button>
-                <div className="aum-date-picker">
+               
+                {showFilters && (
+                  <div className="aum-filter-dropdown">
+                    <select value={active} onChange={(e) => setActive(e.target.value)}>
+                      <option value={true}>Active</option>
+                      <option value={false}>Inactive</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+               <div className="aum-date-picker">
                   <span className="aum-date-icon">
                     <svg width="18" height="18" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="13" height="11" rx="2" /><path d="M16 2v2M5 2v2M3 7h13" /></svg>
                   </span>
@@ -225,15 +235,6 @@ const AdminUserManagement = () => {
                     onChange={(e) => setTodate(e.target.value)}
                   />
                 </div>
-                {showFilters && (
-                  <div className="aum-filter-dropdown">
-                    <select value={active} onChange={(e) => setActive(e.target.value)}>
-                      <option value={true}>Active</option>
-                      <option value={false}>Inactive</option>
-                    </select>
-                  </div>
-                )}
-              </div>
             </div>
 
             {error && (

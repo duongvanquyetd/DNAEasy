@@ -1,19 +1,20 @@
 import { useEffect, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { CreateSampleByAppointmentID } from '../../service/sample';
 import { UpdatePaymentStatus } from '../../service/payment';
+import { number } from 'prop-types';
 
 export const Payment = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-
+  const id = localStorage.getItem("id");
   const appointmentId = searchParams.get("appointmentId");
   const success = searchParams.get("success") === "true";
   const paymentfor = searchParams.get("paymentfor");
   const hasRun = useRef(true); // Dùng để khóa
 
   useEffect(() => {
-    if (!hasRun.current) return; 
+    if (!hasRun.current) return;
     hasRun.current = false;
 
     if (success) {
@@ -36,7 +37,13 @@ export const Payment = () => {
         UpdatePaymentStatus(paymentUpdate)
           .then((response) => {
             console.log("Cập nhật thanh toán thành công:", response.data);
-            navigate("/historybooking");
+
+            if (id) {
+              navigate(`/historybooking/${id}`);
+              localStorage.getItem("id")
+            }
+            
+
           })
           .catch((error) => {
             alert("Cập nhật trạng thái thanh toán thất bại.");

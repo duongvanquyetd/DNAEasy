@@ -74,6 +74,7 @@ body {
     padding: 3.5rem 2rem 2.5rem;
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     position: relative;
+    margin-top: 100px;
 }
 
 .booking-header::after {

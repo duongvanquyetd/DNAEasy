@@ -78,6 +78,8 @@ export const HistoryBooking = () => {
     }, [appointmentId, historyBooking]);
 
     const handleVnpay = (appointmentId) => {
+
+        localStorage.setItem("id", appointmentId);
         PayToview(appointmentId)
             .then((response) => {
                 window.location.href = response.data;
@@ -139,15 +141,7 @@ export const HistoryBooking = () => {
                         </button>
                     </form>
                 </div>
-                {/* Image Zoom Modal */}
-                {zoomImage && (
-                    <div className="zoom-modal" onClick={() => setZoomImage(null)}>
-                        <div className="zoom-modal-content" onClick={e => e.stopPropagation()}>
-                            <img src={zoomImage} alt="Zoomed Result" />
-                            <button className="zoom-modal-close" onClick={() => setZoomImage(null)}>×</button>
-                        </div>
-                    </div>
-                )}
+
                 <main className="main-container">
 
                     {historyBooking.length === 0 ? (
@@ -273,6 +267,7 @@ export const HistoryBooking = () => {
                                                     )}
                                                 </div>
                                             </div>
+
 
                                             {/* Payment warning if not paid and customer role with complete status */}
                                             {!booking.status && rolename === "CUSTOMER" && booking.curentStatusAppointment === "COMPLETE" && (
@@ -453,20 +448,58 @@ export const HistoryBooking = () => {
                                                                     Receive Hard Result
                                                                 </button>
                                                             )}
-                                                             {booking.canconfirm?.canConfirmHardResult && (
-                                                            <button
-                                                                className="comment-button"
-                                                                onClick={() => setShowUploadForm(booking)}
-                                                            >
-                                                                {booking.canconfirm.nextStatus}
-                                                            </button>
-                                                        )}
+                                                            {booking.canconfirm?.canConfirmHardResult && (
+                                                                <button
+                                                                    className="comment-button"
+                                                                    onClick={() => setShowUploadForm(booking)}
+                                                                >
+                                                                    {booking.canconfirm.nextStatus}
+                                                                </button>
+                                                            )}
+
                                                             <HardResultModal
                                                                 isOpen={createHardResult}
                                                                 onClose={() => setCreateHardResult(false)}
                                                                 resultlist={booking.result}
                                                             />
 
+                                                            {showUploadForm && (
+                                                                <div className="overlay-upload">
+                                                                    <div className="upload-box">
+                                                                        <h3>Upload Confirmation Image</h3>
+                                                                        <input
+                                                                            type="file"
+                                                                            accept="image/*"
+                                                                            required
+                                                                            onChange={(e) => setImageFile(e.target.files[0])}
+                                                                            className="upload-input"
+                                                                        />
+                                                                        <button
+                                                                            onClick={() => {
+                                                                                if (!imageFile) return alert("Please select an image.");
+                                                                                const formData = new FormData();
+                                                                                const update = {
+                                                                                    statusName: showUploadForm.canconfirm.nextStatus,
+                                                                                    hardresultID: showUploadForm.result[0].hardresultID
+                                                                                };
+                                                                                formData.append("hardresult", new Blob([JSON.stringify(update)], { type: "application/json" }));
+                                                                                formData.append("file", imageFile);
+                                                                                UpdateHardResult(formData)
+                                                                                    .then(() => {
+                                                                                        window.location.reload();
+                                                                                    })
+                                                                                    .catch((error) => {
+                                                                                        console.error("Error:", error);
+                                                                                    });
+                                                                                setShowUploadForm(false);
+                                                                            }}
+                                                                            className="upload-button"
+                                                                        >
+                                                                            Upload
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            )}
                                                         </div>
 
                                                         {/* Result Delivery Progress Timeline */}
@@ -499,9 +532,6 @@ export const HistoryBooking = () => {
                                                                 )}
                                                             </div>
                                                         </div>
-
-
-                                                       
                                                     </>
                                                 )}
                                             </div>
@@ -511,43 +541,7 @@ export const HistoryBooking = () => {
                             ))}
                         </div>
                     )}
-                    {showUploadForm && (
-                        <div className="overlay-upload">
-                            <div className="upload-box">
-                                <h3>Upload Confirmation Image</h3>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    required
-                                    onChange={(e) => setImageFile(e.target.files[0])}
-                                    className="upload-input"
-                                />
-                                <button
-                                    onClick={() => {
-                                        if (!imageFile) return alert("Please select an image.");
-                                        const formData = new FormData();
-                                        const update = {
-                                            statusName: showUploadForm.canconfirm.nextStatus,
-                                            hardresultID: showUploadForm.result[0].hardresultID
-                                        };
-                                        formData.append("hardresult", new Blob([JSON.stringify(update)], { type: "application/json" }));
-                                        formData.append("file", imageFile);
-                                        UpdateHardResult(formData)
-                                            .then(() => {
-                                                window.location.reload();
-                                            })
-                                            .catch((error) => {
-                                                console.error("Error:", error);
-                                            });
-                                        setShowUploadForm(false);
-                                    }}
-                                    className="upload-button"
-                                >
-                                    Upload
-                                </button>
-                            </div>
-                        </div>
-                    )}
+
                     {/* Modal overlay hiển thị chi tiết booking nếu có appointmentId */}
                     {appointmentId && selectedAppointmentId && (
                         <div className="modal-overlay" onClick={() => navigate('/historybooking')}>
@@ -627,7 +621,7 @@ export const HistoryBooking = () => {
                                                                     <div className="timeline-content">
                                                                         <div className="timeline-title">{track.statusName}</div>
                                                                         <div className="timeline-date">{formatDate(track.statusDate)}</div>
-                                                                        {track.imageUrl && <img onClick={e => {e.stopPropagation(); setZoomImage(track.imageUrl);}} src={track.imageUrl} alt="Track" className="tracking-image" />}
+                                                                        {track.imageUrl && <img onClick={e => { e.stopPropagation(); setZoomImage(track.imageUrl); }} src={track.imageUrl} alt="Track" className="tracking-image" />}
                                                                     </div>
                                                                 </div>
                                                             ))
@@ -647,7 +641,7 @@ export const HistoryBooking = () => {
                                                                     <div className="timeline-content">
                                                                         <div className="timeline-title">{track.nameStatus}</div>
                                                                         <div className="timeline-date">{formatDate(track.sampleTrackingTime)}</div>
-                                                                        {track.imageUrl && <img onClick={e => {e.stopPropagation(); setZoomImage(track.imageUrl);}} src={track.imageUrl} alt="Track" className="tracking-image" />}
+                                                                        {track.imageUrl && <img onClick={e => { e.stopPropagation(); setZoomImage(track.imageUrl); }} src={track.imageUrl} alt="Track" className="tracking-image" />}
                                                                     </div>
                                                                 </div>
                                                             ))
@@ -740,6 +734,55 @@ export const HistoryBooking = () => {
                                                                 onClose={() => setCreateHardResult(false)}
                                                                 resultlist={booking.result}
                                                             />
+
+                                                            {/* Image Zoom Modal */}
+                                                            {zoomImage && (
+                                                                <div className="zoom-modal" onClick={() => setZoomImage(null)}>
+                                                                    <div className="zoom-modal-content" onClick={e => e.stopPropagation()}>
+                                                                        <img src={zoomImage} alt="Zoomed Result" />
+                                                                        <button className="zoom-modal-close" onClick={() => setZoomImage(null)}>×</button>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            {showUploadForm && (
+                                                                <div className="overlay-upload">
+                                                                    <div className="upload-box">
+                                                                          <button className="button-close" onClick={() =>setShowUploadForm(null)}>×</button>
+                                                                        <h3>Upload Confirmation Image</h3>
+                                                                        <input
+                                                                            type="file"
+                                                                            accept="image/*"
+                                                                            required
+                                                                            onChange={(e) => setImageFile(e.target.files[0])}
+                                                                            className="upload-input"
+                                                                        />
+                                                                        <button
+                                                                            onClick={() => {
+                                                                                if (!imageFile) return alert("Please select an image.");
+                                                                                const formData = new FormData();
+                                                                                const update = {
+                                                                                    statusName: showUploadForm.canconfirm.nextStatus,
+                                                                                    hardresultID: showUploadForm.result[0].hardresultID
+                                                                                };
+                                                                                formData.append("hardresult", new Blob([JSON.stringify(update)], { type: "application/json" }));
+                                                                                formData.append("file", imageFile);
+                                                                                UpdateHardResult(formData)
+                                                                                    .then(() => {
+                                                                                        window.location.reload();
+                                                                                    })
+                                                                                    .catch((error) => {
+                                                                                        console.error("Error:", error);
+                                                                                    });
+                                                                                setShowUploadForm(false);
+                                                                            }}
+                                                                            className="upload-button"
+                                                                        >
+                                                                            Upload
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                         {/* Result Delivery Progress Timeline */}
                                                         <div className="tracking-section timeline-section">
@@ -752,7 +795,7 @@ export const HistoryBooking = () => {
                                                                             <div className="timeline-content">
                                                                                 <div className="timeline-title">{track.statusName}</div>
                                                                                 <div className="timeline-date">{formatDate(track.trackingdate)}</div>
-                                                                                {track.imgUrl && <img onClick={e => {e.stopPropagation(); setZoomImage(track.imgUrl);}} src={track.imgUrl} alt="Track" className="tracking-image" />}
+                                                                                {track.imgUrl && <img onClick={e => { e.stopPropagation(); setZoomImage(track.imgUrl); }} src={track.imgUrl} alt="Track" className="tracking-image" />}
                                                                             </div>
                                                                         </div>
                                                                     ))
