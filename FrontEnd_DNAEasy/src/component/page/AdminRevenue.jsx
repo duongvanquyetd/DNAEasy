@@ -338,14 +338,18 @@ const AdminRevenue = () => {
                   <thead>
                     <tr style={{ borderBottom: '1px solid #e0e6f7', textAlign: 'left' }}>
                       <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Ngày</th>
+                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Phương thức</th>
+                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Mã giao dịch</th>
                       <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600, textAlign: 'right' }}>Số tiền</th>
                     </tr>
                   </thead>
                   <tbody>
                     {paymentData.payments && paymentData.payments.filter(payment => !payment.expense).length > 0 ? (
                       paymentData.payments.filter(payment => !payment.expense).map((payment) => (
-                        <tr key={payment.paymentId} style={{ borderBottom: '1px solid #f5f8ff' }}>
+                        <tr key={payment.paymentId}>
                           <td style={{ padding: '12px 8px' }}>{new Date(payment.paymentDate).toLocaleDateString('vi-VN')}</td>
+                          <td style={{ padding: '12px 8px' }}>{payment.paymentMethod || "N/A"}</td>
+                          <td style={{ padding: '12px 8px' }}>{payment.paycode || "N/A"}</td>
                           <td style={{ padding: '12px 8px', fontWeight: 600, color: '#16c784', textAlign: 'right' }}>
                             {payment.paymentAmount.toLocaleString()} đ
                           </td>
@@ -353,7 +357,7 @@ const AdminRevenue = () => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="2" style={{ textAlign: 'center', padding: '20px' }}>Không có dữ liệu thu nhập</td>
+                        <td colSpan="4" style={{ textAlign: 'center', padding: '20px' }}>Không có dữ liệu thu nhập</td>
                       </tr>
                     )}
                   </tbody>
@@ -400,6 +404,8 @@ const AdminRevenue = () => {
                   <thead>
                     <tr style={{ borderBottom: '1px solid #e0e6f7', textAlign: 'left' }}>
                       <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Ngày</th>
+                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Phương thức</th>
+                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Mã giao dịch</th>
                       <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600, textAlign: 'right' }}>Số tiền</th>
                     </tr>
                   </thead>
@@ -408,6 +414,8 @@ const AdminRevenue = () => {
                       paymentData.payments.filter(payment => payment.expense).map((payment) => (
                         <tr key={payment.paymentId} style={{ borderBottom: '1px solid #f5f8ff' }}>
                           <td style={{ padding: '12px 8px' }}>{new Date(payment.paymentDate).toLocaleDateString('vi-VN')}</td>
+                          <td style={{ padding: '12px 8px' }}>{payment.paymentMethod || "N/A"}</td>
+                          <td style={{ padding: '12px 8px' }}>{payment.paycode || "N/A"}</td>
                           <td style={{ padding: '12px 8px', fontWeight: 600, color: '#ff6961', textAlign: 'right' }}>
                             {payment.paymentAmount.toLocaleString()} đ
                           </td>
@@ -415,7 +423,7 @@ const AdminRevenue = () => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="2" style={{ textAlign: 'center', padding: '20px' }}>Không có dữ liệu chi phí</td>
+                        <td colSpan="4" style={{ textAlign: 'center', padding: '20px' }}>Không có dữ liệu chi phí</td>
                       </tr>
                     )}
                   </tbody>
