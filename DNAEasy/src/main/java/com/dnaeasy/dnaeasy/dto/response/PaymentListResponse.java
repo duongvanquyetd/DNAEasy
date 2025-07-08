@@ -30,5 +30,6 @@ public class PaymentListResponse {
         private BigDecimal paymentAmount;
         private LocalDateTime paymentDate;
         private String paymentMethod;
+        private String paycode;
     }
 } 
