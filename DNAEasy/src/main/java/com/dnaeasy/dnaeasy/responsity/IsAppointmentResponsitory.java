@@ -141,7 +141,6 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
 
         select top 10 s.service_name as name, count (a.appointment_id) as total
         from appoinment a join service s on a.service_id = s.service_id
-        where a.curent_status_appointment = 'COMPLETED' 
         group by s.service_name order by total DESC
     """, nativeQuery = true)
     List<TopServiceReponse> findTop10Service();
