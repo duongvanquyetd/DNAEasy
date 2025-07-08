@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, useCallback, useRef, use } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Header from '../Header';
@@ -203,7 +202,6 @@ const ServiceDetail = () => {
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [feedbacks, setFeedbacks] = useState([]);
   const [newFeedback, setNewFeedback] = useState({
     rating: 0,
@@ -302,6 +300,10 @@ const ServiceDetail = () => {
     fetchFeedbacks();
   }, [serviceId]);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [serviceId]);
+
   const handleBookingClick = () => {
     navigate(`/booking/${serviceId}`);
   };
@@ -310,12 +312,6 @@ const ServiceDetail = () => {
   const handleBackClick = useCallback(() => {
     navigate('/service');
   }, [navigate]);
-
-  const testSteps = [
-    { label: 'Sample Collection', icon: '🧪' },
-    { label: 'Lab Analysis', icon: '🔬' },
-    { label: 'Results Delivery', icon: '📄' },
-  ];
 
   const handleFeedbackChange = (e) => {
     const { name, value } = e.target;
@@ -501,7 +497,6 @@ const ServiceDetail = () => {
                     color: "white",
                     padding: "24px",
                     borderRadius: "12px",
-                    padding: "45px",
                     textAlign: "center",
                   }}
                 >

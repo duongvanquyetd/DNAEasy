@@ -49,6 +49,7 @@ function App() {
         <Route path="/payment" element={<Payment />} />
         <Route path="/YourAppointment" element={<YourAppointment />} />
         <Route path="/HistoryBooking" element={<HistoryBooking />} />
+        <Route path="/HistoryBooking/:appointmentId" element={<HistoryBooking />} />
         <Route path="/AdminDashboard" element={<AdminDashboard />} />
         <Route path="/AdminDashboard/analytics" element={<AdminDashboard key="analytics" />} />
         <Route path="/ManageBlog" element={<ManageBlog />} />
