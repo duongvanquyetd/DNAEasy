@@ -313,6 +313,7 @@ public class PaymentService implements IsPaymentService {
                 .paymentAmount(payment.getPaymentAmount())
                 .paymentDate(payment.getPaymentDate())
                 .paymentMethod(payment.getPaymentMethod() != null ? payment.getPaymentMethod().toString() : null)
+                .paycode(payment.getPaycode()) // Thêm paycode
                 .build();
     }
 
