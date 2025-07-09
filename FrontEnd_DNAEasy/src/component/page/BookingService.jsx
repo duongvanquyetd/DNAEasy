@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getServiceById } from '../../service/service';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { CreateAppointment } from '../../service/appointment';
@@ -31,7 +31,6 @@ export const BookingServicePage = () => {
   const custommer = locationn.state;
   const { id } = useParams();
   const navigator = useNavigate();
-  const formGroups = useRef([]);
 
   useEffect(() => {
 
@@ -282,12 +281,40 @@ export const BookingServicePage = () => {
 
               {showDescription && (
                 <div className="modal-overlay">
-                  <div className="modal-content">
-                    <button className="modal-close" onClick={() => setShowDescription(false)}>✖</button>
-                    <div className="modal-body">
-                      {services.serviceDescription}
+                  {services.serviceDescription && (
+                    <div style={{ position: 'relative', display: 'inline-block' }}>
+                      <button
+                        className="modal-close"
+                        style={{
+                          position: 'absolute',
+                          top: 8,
+                          right: 8,
+                          fontSize: 20,
+                          background: 'transparent',
+                          border: 'none',
+                          color: '#666',
+                          cursor: 'pointer',
+                          zIndex: 2
+                        }}
+                        onClick={() => setShowDescription(false)}
+                      >✖</button>
+                      <img
+                        src={services.serviceDescription}
+                        alt="Service"
+                        className="modal-image"
+                        style={{
+                          display: 'block',
+                          maxWidth: '90vw',
+                          maxHeight: '90vh',
+                          margin: '0 auto',
+                          borderRadius: '8px',
+                          background: 'none',
+                          boxShadow: 'none',
+                          padding: 0
+                        }}
+                      />
                     </div>
-                  </div>
+                  )}
                 </div>
               )}
             </div>
