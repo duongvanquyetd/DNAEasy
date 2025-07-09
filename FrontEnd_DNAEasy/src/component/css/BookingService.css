@@ -481,14 +481,14 @@ input[type="datetime-local"] {
 
 /* Nội dung popup */
 .modal-content {
-  background-color: white;
+  /* background-color: white; */
   padding: 24px 28px;
   border-radius: 10px;
   max-width: 500px;
   width: 90%;
   position: relative;
   top:50px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  /* box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); */
   animation: slideUp 0.25s ease;
 
 }
@@ -521,4 +521,31 @@ input[type="datetime-local"] {
 @keyframes slideUp {
   from { transform: translateY(20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-image-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.modal-image-box {
+  display: inline-block;
+  max-width: 500px;
+  width: auto;
+  height: auto;
+  margin: 0 auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  background: #fff;
+  padding: 0; /* Sát hai bên, không padding ngang */
+}
+
+.modal-image {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+  display: block;
 }
