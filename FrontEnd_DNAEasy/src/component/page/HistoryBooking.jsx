@@ -171,10 +171,11 @@ export const HistoryBooking = () => {
                                             </div>
                                             <div className="status-info">
                                                 <span className={`status ${booking.status ? 'paid' : 'unpaid'}`}>
-                                                    {booking.curentStatusAppointment || (booking.status ? "Paid" : "Unpaid")}
+                                                    {booking.curentStatusAppointment === "CANCLE"
+                                                        ? "CANCELLED"
+                                                        : (!booking.status ? "PENDING" : (booking.curentStatusAppointment || "Paid"))}
                                                 </span>
                                                 <span className="toggle-details">
-                                                    {/* ...icon... */}
                                                 </span>
                                             </div>
                                         </div>
