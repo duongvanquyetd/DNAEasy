@@ -6,12 +6,12 @@ import Footer from '../Footer';
 import { useNavigate } from 'react-router-dom';
 import '../css/ManageBlog.css';
 import { ActiveBlog, CreateBlog, DeleteBlogs, MangerReportBlog, SearchByTitleAndCatagery, UpdateBlog } from '../../service/Blog';
-import { Modal as AntdModal } from 'antd';
 import dayjs from 'dayjs';
 
 const ManageBlog = () => {
   const [blogs, setBlogs] = useState([]);
   const [form] = Form.useForm();
+  const [toast, setToast] = useState(null);
 
 
 
@@ -85,30 +85,34 @@ const ManageBlog = () => {
   function handleActive(id) {
     ActiveBlog(id)
       .then(() => {
-        message.success('Activate blog successfully!');
+        setToast({ type: 'success', message: 'Activate blog successfully!' });
         setSearchQuery((pre) => pre + " ");
         MangerReportBlog().then((response) => {
           setTotalInActive(response.data.totalblogInactive);
           setTotalactive(response.data.totalblogActive);
         });
+        setTimeout(() => setToast(null), 1500);
       })
       .catch(() => {
-        message.error('Activate blog failed!');
+        setToast({ type: 'error', message: 'Activate blog failed!' });
+        setTimeout(() => setToast(null), 2000);
       });
   } 
 
   function handleDelete(id) {
     DeleteBlogs(id)
       .then(() => {
-        message.success('Delete blog successfully!');
+        setToast({ type: 'success', message: 'Delete blog successfully!' });
         setSearchQuery((pre) => pre + " ");
         MangerReportBlog().then((response) => {
           setTotalInActive(response.data.totalblogInactive);
           setTotalactive(response.data.totalblogActive);
         });
+        setTimeout(() => setToast(null), 1500);
       })
       .catch(() => {
-        message.error('Delete blog failed!');
+        setToast({ type: 'error', message: 'Delete blog failed!' });
+        setTimeout(() => setToast(null), 2000);
       });
   }
 
@@ -129,29 +133,33 @@ const ManageBlog = () => {
       formdata.append("removeimg", new Blob([JSON.stringify(removeUrls)], { type: "application/json" }));
       UpdateBlog(edit.blogId, formdata)
         .then(() => {
-          message.success('Update blog successfully!');
+          setToast({ type: 'success', message: 'Update blog successfully!' });
           setEdit(false);
           setSearchQuery((pre) => pre + " ");
           setCreateForm(false);
           form.resetFields();
           setError('');
+          setTimeout(() => setToast(null), 1500);
         })
         .catch((error) => {
-          message.error('Update blog failed!');
+          setToast({ type: 'error', message: 'Update blog failed!' });
           setError(error.response?.data?.error);
+          setTimeout(() => setToast(null), 2000);
         });
     } else {
       CreateBlog(formdata)
         .then(() => {
-          message.success('Create blog successfully!');
+          setToast({ type: 'success', message: 'Create blog successfully!' });
           setCurrentPage(totalPages);
           setCreateForm(false);
           form.resetFields();
           setError('');
+          setTimeout(() => setToast(null), 1500);
         })
         .catch((error) => {
-          message.error('Create blog failed!');
+          setToast({ type: 'error', message: 'Create blog failed!' });
           setError(error.response?.data?.error);
+          setTimeout(() => setToast(null), 2000);
         });
     }
   }
@@ -179,6 +187,12 @@ const ManageBlog = () => {
   return (
     <>
       <DynamicHeader />
+      
+      {toast && (
+        <div className={`toast-notification ${toast.type === 'error' ? 'error' : ''}`}>
+          {toast.message}
+        </div>
+      )}
       <div className="manage-blog-container">
         {/* Blog Management Header */}
         <div className="manage-blog-header">

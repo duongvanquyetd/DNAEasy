@@ -101,7 +101,7 @@ export const AssignStaff = () => {
 
     AssignForAppoint(request)
       .then(() => {
-        setToast({ type: 'success', message: personId ? 'Phân công thành công!' : 'Huỷ phân công thành công!' });
+        setToast({ type: 'success', message: personId ? 'Assignment successful!' : 'Cancel assignment successful!' });
         setSelectedAppointment(null)
         setCancle(null)
         GetAppointForManagerAssign(currentPage, pageSize)
@@ -113,7 +113,7 @@ export const AssignStaff = () => {
         setTimeout(() => setToast(null), 1500);
       })
       .catch((error) => {
-        setToast({ type: 'error', message: 'Có lỗi xảy ra, vui lòng thử lại!' });
+        setToast({ type: 'error', message: 'An error occurred, please try again!' });
         setTimeout(() => setToast(null), 2000);
         console.log("Error", error);
       });

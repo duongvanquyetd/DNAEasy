@@ -12,6 +12,7 @@ const { Title, Text } = Typography;
 const ManageService = () => {
   const [services, setServices] = useState([]);
   const [form] = Form.useForm();
+  const [toast, setToast] = useState(null);
   const [totalServices, setTotalservice] = useState('');
   const [totalValue, setTotalValue] = useState('');
   const [averagePrice, setAvaragePrice] = useState('');
@@ -77,7 +78,7 @@ const ManageService = () => {
       .catch((error) => {
         console.log("Error fetching services:", error);
         setLoading(false);
-        message.error('Lỗi khi tải dữ liệu!');
+        message.error('Error loading data!');
       });
   }, [currentPage, searchQuery, category, active, sortColumn, modesort])
 
@@ -118,11 +119,13 @@ const ManageService = () => {
   function handleActive(id) {
     ActiveSerive(id).then((response) => {
       console.log("Active Successfully", response.data);
-      message.success('Dịch vụ đã được kích hoạt thành công!');
+      setToast({ type: 'success', message: 'Service activated successfully!' });
       setSearchQuery((pre) => pre + " ")
+      setTimeout(() => setToast(null), 1500);
     }).catch((error) => {
       console.log("Error", error)
-      message.error('Lỗi khi kích hoạt dịch vụ!');
+      setToast({ type: 'error', message: 'Error activating service!' });
+      setTimeout(() => setToast(null), 2000);
     })
   }
 
@@ -130,11 +133,13 @@ const ManageService = () => {
     DeleteService(id)
       .then(() => {
         setSearchQuery((pre) => pre + " ");
-        message.success('Dịch vụ đã được xóa thành công!');
+        setToast({ type: 'success', message: 'Service deleted successfully!' });
+        setTimeout(() => setToast(null), 1500);
       })
       .catch((error) => {
         console.log("Error", error);
-        message.error('Lỗi khi xóa dịch vụ!');
+        setToast({ type: 'error', message: 'Error deleting service!' });
+        setTimeout(() => setToast(null), 2000);
       });
   }
 
@@ -183,10 +188,12 @@ const ManageService = () => {
         setSearchQuery((pre) => pre + " ")
         setCreateForm(false);       // Ẩn form
         form.resetFields();
-        message.success('Dịch vụ đã được cập nhật thành công!');
+        setToast({ type: 'success', message: 'Service updated successfully!' });
+        setTimeout(() => setToast(null), 1500);
       }).catch((error) => {
         console.log("Error", error.response?.data?.error)
-        message.error('Lỗi khi cập nhật dịch vụ!');
+        setToast({ type: 'error', message: 'Error updating service!' });
+        setTimeout(() => setToast(null), 2000);
       })
     }
     else {
@@ -195,10 +202,12 @@ const ManageService = () => {
         setCurrentPage(totalPages)
         setCreateForm(false);       // Ẩn form
         form.resetFields();
-        message.success('Dịch vụ đã được tạo thành công!');
+        setToast({ type: 'success', message: 'Service created successfully!' });
+        setTimeout(() => setToast(null), 1500);
       }).catch((error) => {
         console.log("Error", error.response?.data?.error)
-        message.error('Lỗi khi tạo dịch vụ!');
+        setToast({ type: 'error', message: 'Error creating service!' });
+        setTimeout(() => setToast(null), 2000);
       })
     }
   }
@@ -478,6 +487,12 @@ const ManageService = () => {
   return (
     <div className="manage-service-main-content">
             <DynamicHeader />
+            
+            {toast && (
+              <div className={`toast-notification ${toast.type === 'error' ? 'error' : ''}`}>
+                {toast.message}
+              </div>
+            )}
             <div className="manage-header">
               <AppstoreOutlined style={{fontSize: 38, color: '#2563eb', marginRight: 16}} />
               <div>
