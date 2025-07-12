@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Search, Users, UserCheck, Crown, Edit3, Trash2, Plus, Filter, Download, RefreshCw, Eye, MoreVertical, Shield } from 'lucide-react';
+import { Search, Users, UserCheck, Crown, Edit3, Trash2, Plus, Filter, Download, RefreshCw, Eye, MoreVertical, Shield, FlaskConical, TestTube } from 'lucide-react';
 import '../css/AdminUser.css';
 import { ActiveUser, DeleteUser, GetAllUsers, ReportUser, UpdateUserRole } from '../../service/user';
 import AdminHeader from '../AdminHeader';
@@ -332,27 +332,27 @@ const AdminUserManagement = () => {
                       <div className="aum-modal-role-options">
                         <label className={`aum-role-option${selectedRole === "CUSTOMER" ? ' selected' : ''}`}>
                           <input type="radio" name="role" value="CUSTOMER" onChange={(e) => setSelectedRole(e.target.value)} />
-                          <span className="aum-role-icon"></span>
+                          <span className="aum-role-icon"><Users size={20} /></span>
                           <span>CUSTOMER</span>
                         </label>
                         <label className={`aum-role-option${selectedRole === "STAFF_RECEPTION" ? ' selected' : ''}`}>
                           <input type="radio" name="role" value="STAFF_RECEPTION" onChange={(e) => setSelectedRole(e.target.value)} />
-                          <span className="aum-role-icon"></span>
+                          <span className="aum-role-icon"><UserCheck size={20} /></span>
                           <span>STAFF RECEPTION</span>
                         </label>
                         <label className={`aum-role-option${selectedRole === "STAFF_LAB" ? ' selected' : ''}`}>
                           <input type="radio" name="role" value="STAFF_LAB" onChange={(e) => setSelectedRole(e.target.value)} />
-                          <span className="aum-role-icon"></span>
+                          <span className="aum-role-icon"><FlaskConical size={20} /></span>
                           <span>STAFF LAB</span>
                         </label>
                         <label className={`aum-role-option${selectedRole === "STAFF_TEST" ? ' selected' : ''}`}>
                           <input type="radio" name="role" value="STAFF_TEST" onChange={(e) => setSelectedRole(e.target.value)} />
-                          <span className="aum-role-icon"></span>
+                          <span className="aum-role-icon"><TestTube size={20} /></span>
                           <span>STAFF TEST</span>
                         </label>
                         <label className={`aum-role-option${selectedRole === "MANAGER" ? ' selected' : ''}`}>
                           <input type="radio" name="role" value="MANAGER" onChange={(e) => setSelectedRole(e.target.value)} />
-                          <span className="aum-role-icon"></span>
+                          <span className="aum-role-icon"><Crown size={20} /></span>
                           <span>MANAGER</span>
                         </label>
                       </div>
