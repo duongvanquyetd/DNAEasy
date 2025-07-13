@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Users, UserCheck, Crown, Edit3, Trash2, Plus, Filter, Download, RefreshCw, Eye, MoreVertical, Shield, FlaskConical, TestTube } from 'lucide-react';
 import '../css/AdminUser.css';
-import { ActiveUser, DeleteUser, GetAllUsers, ReportUser, UpdateUserRole } from '../../service/user';
+import { ActiveUser, CanModifiUser, DeleteUser, GetAllUsers, ReportUser, UpdateUserRole } from '../../service/user';
 import AdminHeader from '../AdminHeader';
 const AdminUserManagement = () => {
   const [activeTab, setActiveTab] = useState('CUSTOMER');
@@ -60,12 +60,31 @@ const AdminUserManagement = () => {
         createdDateform: fromdate,
         createdDateTo: todate
       };
+      let userr ;
       console.log("Request data search", datasearch)
       const response = await GetAllUsers(currentPage, pageSize, datasearch);
       console.log("Reposne paging User", response.data)
-      setUsers(response.data.content);
+      userr= response.data.content;
       setTotalPages(response.data.totalPages);
       setNumberUser(response.data.totalElements);
+
+
+      const fullUser = await Promise.all(
+            userr.map(async(s)=>{
+
+                const canmodf = await CanModifiUser(s.personId)
+                console.log("Reponse can modifi",canmodf)
+                return{
+
+                  ...s,
+                  canmodifi : canmodf.data
+                };
+
+            })
+
+      );
+      console.log("full user", fullUser)
+      setUsers(fullUser);
     } catch (err) {
       console.error('Error fetching user stats:', err);
       setError('Failed to load user statistics');
@@ -283,10 +302,10 @@ const AdminUserManagement = () => {
                           <td>
                             <div className="aum-actions">
                               <button title="View" onClick={() => handleViewUser(user)} className="aum-action-view"><Eye size={18} /></button>
-                              <button title="Edit" onClick={() => handleEditUser(user)} className="aum-action-edit"><Edit3 size={18} /></button>
-                              {user.active ? (
+                           {user.canmodifi && (  <button title="Edit" onClick={() => handleEditUser(user)} className="aum-action-edit"><Edit3 size={18} /></button>)}
+                              {user.active && user.canmodifi ? (
                                 <button title="Delete" onClick={() => handleDeleteUser(user.personId)} className="aum-action-delete"><Trash2 size={18} /></button>
-                              ) : (
+                              ) : !user.active && (
                                 <button title="Restore" onClick={() => handleActiveeUser(user.personId)} className="aum-action-restore">Restore</button>
                               )}
                             </div>

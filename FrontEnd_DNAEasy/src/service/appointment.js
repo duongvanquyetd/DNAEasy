@@ -41,3 +41,4 @@ export const GetAppointmentReport=(date)=>{
   export const RecentAppointment = ()=>{
   return api.get("/appointment/recentappoint")
  }
+ 

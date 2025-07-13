@@ -63,7 +63,11 @@ const LoginPage = () => {
 
             console.log(inValid);
 
-          } else {
+          }else if(error.response?.data)
+          {
+            setInValid(error.response.data.error)
+          }
+           else {
             console.log('Unexpected login error:', error);
           }
         });
