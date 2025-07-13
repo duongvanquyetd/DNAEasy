@@ -109,31 +109,30 @@ const ManageService = () => {
     if (!total || total <= 0) return null;
 
     return (
-      <div className="pagination" style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', margin: '18px 0' }}>
+      <div className="custom-pagination">
         <button
-          className="page-button"
+          className="page-rect"
           onClick={() => setPage(current - 1)}
           disabled={current === 1}
-          style={{ opacity: current === 1 ? 0.5 : 1 }}
         >
-          <LeftOutlined /> Previous
+          <LeftOutlined style={{ marginRight: 6 }} /> Previous
         </button>
         {Array.from({ length: total }, (_, i) => i + 1).map((i) => (
           <button
             key={i}
-            className={`page-button ${i === current ? 'active' : ''}`}
+            className={`page-box${i === current ? ' active' : ''}`}
             onClick={() => setPage(i)}
+            aria-current={i === current ? 'page' : undefined}
           >
             {i}
           </button>
         ))}
         <button
-          className="page-button"
+          className="page-rect"
           onClick={() => setPage(current + 1)}
           disabled={current === total}
-          style={{ opacity: current === total ? 0.5 : 1 }}
         >
-          Next <RightOutlined />
+          Next <RightOutlined style={{ marginLeft: 6 }} />
         </button>
       </div>
     );

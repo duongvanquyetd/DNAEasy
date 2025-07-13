@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Table, Button, Modal, Form, Input, InputNumber, Space, message, Upload, Card, Row, Col, Statistic, Tag, Tooltip, Select, Popconfirm } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, UploadOutlined, EyeOutlined, DollarOutlined, AppstoreOutlined, TrophyOutlined, CheckCircleOutlined, CloseCircleOutlined, BookOutlined, QuestionCircleOutlined, SearchOutlined, ArrowUpOutlined, ArrowDownOutlined, SortAscendingOutlined, SortDescendingOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined, UploadOutlined, EyeOutlined, DollarOutlined, AppstoreOutlined, TrophyOutlined, CheckCircleOutlined, CloseCircleOutlined, BookOutlined, QuestionCircleOutlined, SearchOutlined, ArrowUpOutlined, ArrowDownOutlined, SortAscendingOutlined, SortDescendingOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import DynamicHeader from '../DynamicHeader';
 import Footer from '../Footer';
-import { useNavigate } from 'react-router-dom';
 import '../css/ManageBlog.css';
 import { ActiveBlog, CreateBlog, DeleteBlogs, MangerReportBlog, SearchByTitleAndCatagery, UpdateBlog } from '../../service/Blog';
 import dayjs from 'dayjs';
@@ -67,19 +66,37 @@ const ManageBlog = () => {
     return () => clearInterval(previewInterval.current);
   }, [preview.open, preview.images.length]);
 
-  const renderPagination = (total, current, setPage) => (
-    <div className="pagination">
-      {Array.from({ length: total }, (_, i) => i + 1).map((i) => (
+  const renderPagination = (total, current, setPage) => {
+    if (!total || total <= 0) return null;
+    return (
+      <div className="custom-pagination">
         <button
-          key={i}
-          className={`page-button ${i === current ? 'active' : ''}`}
-          onClick={() => setPage(i)}
+          className="page-rect"
+          onClick={() => setPage(current - 1)}
+          disabled={current === 1}
         >
-          {i}
+          <LeftOutlined style={{ marginRight: 6 }} /> Previous
         </button>
-      ))}
-    </div>
-  );
+        {Array.from({ length: total }, (_, i) => i + 1).map((i) => (
+          <button
+            key={i}
+            className={`page-box${i === current ? ' active' : ''}`}
+            onClick={() => setPage(i)}
+            aria-current={i === current ? 'page' : undefined}
+          >
+            {i}
+          </button>
+        ))}
+        <button
+          className="page-rect"
+          onClick={() => setPage(current + 1)}
+          disabled={current === total}
+        >
+          Next <RightOutlined style={{ marginLeft: 6 }} />
+        </button>
+      </div>
+    );
+  };
 
 
   function handleActive(id) {
