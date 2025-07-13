@@ -5,13 +5,16 @@ import com.dnaeasy.dnaeasy.dto.request.ServiceCreateRequest;
 import com.dnaeasy.dnaeasy.dto.response.ManagerServiceReponse;
 import com.dnaeasy.dnaeasy.dto.response.ServiceCommentResponse;
 import com.dnaeasy.dnaeasy.dto.response.ServiceResponse;
+import com.dnaeasy.dnaeasy.enity.Appointment;
 import com.dnaeasy.dnaeasy.enity.Comment;
 import com.dnaeasy.dnaeasy.enity.Service;
 import com.dnaeasy.dnaeasy.enity.ServiceImage;
 import com.dnaeasy.dnaeasy.exception.BadRequestException;
 import com.dnaeasy.dnaeasy.exception.ResourceNotFound;
 import com.dnaeasy.dnaeasy.mapper.ServiceMapper;
+import com.dnaeasy.dnaeasy.responsity.IsAppointmentResponsitory;
 import com.dnaeasy.dnaeasy.responsity.IsServiceResponsitory;
+import com.dnaeasy.dnaeasy.service.IsServiceService;
 import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -33,6 +36,8 @@ public class IsServiceServiceImpl implements IsServiceService {
 
     @Autowired
     private CloudinaryUtil cloudinaryUtil;
+    @Autowired
+    private IsAppointmentResponsitory appointmentRepo;
 
     @Override
     public ServiceResponse create(ServiceCreateRequest request, List<MultipartFile> files) {
@@ -200,6 +205,25 @@ public class IsServiceServiceImpl implements IsServiceService {
        }
 
         return response;
+    }
+
+    @Override
+    public boolean CanEditDelete(Long id) {
+
+        Service s = serviceRepo.findById(id).orElseThrow(() -> {
+                    throw new BadRequestException("Do not have this service with id" + id);
+                }
+
+        );
+        List<String> list = new ArrayList<>();
+        list.add("CANCLE");
+        list.add("COMPLETE");
+        list.add("REFUNDED");
+        List<Appointment> listapp = appointmentRepo.findByServiceAndCurentStatusAppointmentNotIn(s,list);
+        if (listapp.size() > 0) {
+            return false;
+        }
+        return true;
     }
 
     private ServiceResponse convertToResponse(Service s) {

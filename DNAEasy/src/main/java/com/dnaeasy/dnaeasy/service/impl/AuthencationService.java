@@ -85,8 +85,8 @@ public class AuthencationService implements IsAuthencationService {
         }
         Person p = userMapper.PersonRequestToPerson(userCreateRequest);
        if(p.getAvatarUrl() == null || p.getAvatarUrl().isEmpty()) {
-           if(p.getGender() == GenderEnum.F)
-           {
+               if(p.getGender() == GenderEnum.F)
+               {
                p.setAvatarUrl(avatarFemale);
            }
            else {

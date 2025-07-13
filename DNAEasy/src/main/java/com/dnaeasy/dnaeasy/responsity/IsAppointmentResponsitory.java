@@ -288,4 +288,10 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
         a.createdate  desc
 """)
     List<Appointment>findTop10(Pageable pageable);
+
+    List<Appointment> findByServiceAndCurentStatusAppointmentNotIn(Service service, Collection<String> curentStatusAppointments);
+
+    List<Appointment> findByCustomerAndCurentStatusAppointmentNotIn(Person customer, Collection<String> curentStatusAppointments);
+
+    List<Appointment> findAllByStaffAndCurentStatusAppointmentNotIn(Person staff, Collection<String> curentStatusAppointments);
 }

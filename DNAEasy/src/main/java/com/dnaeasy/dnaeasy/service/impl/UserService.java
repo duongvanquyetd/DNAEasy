@@ -19,6 +19,7 @@ import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
 import jakarta.validation.ConstraintViolationException;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -223,5 +224,28 @@ public class UserService implements IsUserService {
              throw new BadRequestException("Do not have customer with phone " + phone);
         }
         return userMapper.PersonToUserResponse(p);
+    }
+
+    @Override
+    public boolean canModifyUser(int id) {
+
+        Person p  = personResponsity.findByPersonId(id);
+        List<Appointment> a = new ArrayList<>();
+        List<String> list = new ArrayList<>();
+        list.add("CANCLE");
+        list.add("COMPLETE");
+        list.add("REFUNDED");
+        if(p.getRolename() == RoleName.CUSTOMER) {
+            a = isAppointmentResponsitory.findByCustomerAndCurentStatusAppointmentNotIn(p,list);
+
+        }else if(p.getRolename() == RoleName.STAFF_TEST) {
+
+
+            a = isAppointmentResponsitory.findAllByStaffAndCurentStatusAppointmentNotIn(p,list);
+        }
+
+
+
+        return a.size() > 0 ? false : true;
     }
 }
