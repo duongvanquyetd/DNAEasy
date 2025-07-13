@@ -24,6 +24,7 @@ import com.dnaeasy.dnaeasy.service.IsAppointmentService;
 import com.dnaeasy.dnaeasy.util.CloudinaryUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.util.Pair;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -135,14 +136,15 @@ public class AppointmentService implements IsAppointmentService {
             }
         }
 
-//        LocalDateTime stardate = request.getDateCollect().minusHours(2);
-//        LocalDateTime enddate = request.getDateCollect().plusHours(6);
-//        List<Person> stafflist = isUserResponsity.findStaffByWorkHour(stardate, enddate, Work_hour(request.getDateCollect()));
-//        System.out.println(stafflist.size());
-//
-//        if (stafflist == null || stafflist.size() == 0) {
-//            throw new BadRequestException("Appointment full in this time " + request.getDateCollect());
-//        }
+        LocalDateTime stardate = request.getDateCollect().minusHours(2);
+        LocalDateTime enddate = request.getDateCollect().plusHours(6);
+        Page<Person> stafflist = isUserResponsity.findStaffByWorkHour(stardate, enddate, Work_hour(request.getDateCollect()), PageRequest.of(0,10));
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd'/'MM'/'yyyy  HH:mm");
+
+        if (stafflist.getContent().isEmpty()) {
+            throw new BadRequestException("Appointment full in this time " +request.getDateCollect().format(formatter) );
+        }
 //
 //        Person staff = stafflist.get(0);
 

@@ -1,11 +1,10 @@
-package com.dnaeasy.dnaeasy.service.impl;
+package com.dnaeasy.dnaeasy.service;
 
 import com.dnaeasy.dnaeasy.dto.request.SearchRequest;
 import com.dnaeasy.dnaeasy.dto.request.ServiceCreateRequest;
 import com.dnaeasy.dnaeasy.dto.response.ManagerServiceReponse;
 import com.dnaeasy.dnaeasy.dto.response.ServiceCommentResponse;
 import com.dnaeasy.dnaeasy.dto.response.ServiceResponse;
-import com.dnaeasy.dnaeasy.enity.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,4 +22,5 @@ public interface IsServiceService {
     ServiceResponse Active(Long id);
 
     ServiceCommentResponse getNumberCommnentAndStar(int id);
+    boolean CanEditDelete(Long id);
 }

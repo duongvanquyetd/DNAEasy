@@ -107,4 +107,9 @@ public class UserController {
     public ResponseEntity<UserResponse> getByphone(@RequestBody String phone) {
       return ResponseEntity.ok( userService.VerifycustomerForStaffBooking(phone));
     }
+
+    @GetMapping("/canmodifi/{id}")
+    public ResponseEntity<Boolean> getCanmodifi(@PathVariable int id) {
+        return ResponseEntity.ok(userService.canModifyUser(id));
+    }
 }

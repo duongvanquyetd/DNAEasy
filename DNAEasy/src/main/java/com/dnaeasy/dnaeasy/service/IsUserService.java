@@ -38,4 +38,6 @@ public interface IsUserService {
     void ActiveUser(int id);
 
     UserResponse VerifycustomerForStaffBooking(String phone);
+
+    boolean canModifyUser(int id);
 }
