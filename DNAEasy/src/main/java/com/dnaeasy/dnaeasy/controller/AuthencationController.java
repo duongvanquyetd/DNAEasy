@@ -110,7 +110,7 @@ public class AuthencationController {
     }
 
     @GetMapping("/login/google")
-    public RedirectView UserGetInfo(OAuth2AuthenticationToken token) {
+    public RedirectView UserLoginWithGoogle(OAuth2AuthenticationToken token) {
 
         String email = token.getPrincipal().getAttributes().get("email").toString();
         String name = token.getPrincipal().getAttributes().get("name").toString();

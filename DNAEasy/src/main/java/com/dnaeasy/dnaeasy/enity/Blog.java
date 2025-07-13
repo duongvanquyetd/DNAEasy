@@ -4,6 +4,7 @@ import com.dnaeasy.dnaeasy.enums.BlogStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ public class Blog {
     @Lob
     private String blogContent;
     private String blogType;
+    @CreationTimestamp
     private LocalDateTime createDate = LocalDateTime.now();
 
     @Column(name = "active", nullable = false, columnDefinition = "BIT DEFAULT 1")

@@ -9,6 +9,7 @@ import com.dnaeasy.dnaeasy.enity.InvalidToken;
 import com.dnaeasy.dnaeasy.enity.Person;
 import com.dnaeasy.dnaeasy.enums.GenderEnum;
 import com.dnaeasy.dnaeasy.enums.RoleName;
+import com.dnaeasy.dnaeasy.exception.BadRequestException;
 import com.dnaeasy.dnaeasy.mapper.UserMapper;
 import com.dnaeasy.dnaeasy.responsity.IsInvalidateToken;
 import com.dnaeasy.dnaeasy.responsity.IsPersonTesting;
@@ -23,6 +24,7 @@ import lombok.AllArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -65,6 +67,9 @@ public class AuthencationService implements IsAuthencationService {
                 String token = generateToken(person);
                 AuthenctionResponse response = userMapper.PersonToAuthenctionResponse(person);
                 response.setToken(token);
+                if(!person.getActive()) {
+                    throw new BadRequestException("This account deleted by admin ");
+                }
                 return response;
             }
         }
@@ -102,10 +107,19 @@ public class AuthencationService implements IsAuthencationService {
     //test xem token co gia tri khong a ma
     public IntrospectResponse IsAuthencation(IntrospectRequest request) throws JOSEException, ParseException {
         var veri = verifyToken(request.getToken());
+        String usename = veri.getJWTClaimsSet().getSubject();
 
-        if (isInvalidateToken.existsInvalidTokenById(veri.getJWTClaimsSet().getJWTID())) {
+        Person p = personResponsity.findByUsername(usename);
+
+
+        if (p.getActive() == false) {
             return new IntrospectResponse(false);
         }
+        if (isInvalidateToken.existsInvalidTokenById(veri.getJWTClaimsSet().getJWTID())) {
+
+            return new IntrospectResponse(false);
+        }
+
 
         return new IntrospectResponse(true);
     }

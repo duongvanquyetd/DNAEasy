@@ -40,8 +40,6 @@ public class PaymentController {
                 + "success=" + response.isSuccess()
                 + "&appointmentId=" + response.getAppointmentId()
                 + "&paymentfor=" + response.getPaymentfor());
-
-
     }
 
     @GetMapping("/status/{id}")
