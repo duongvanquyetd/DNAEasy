@@ -275,7 +275,7 @@ export const BookingServicePage = () => {
               {errorEmail && <div className="text-danger">{errorEmail}</div>}
             </div>
             <div>
-              <button onClick={() => setShowDescription(true)} className="toggle-description-btn">
+              <button onClick={(e) => {e.stopPropagation();  setShowDescription(true)}} className="toggle-description-btn">
                 ℹ️ Xem mô tả
               </button>
 

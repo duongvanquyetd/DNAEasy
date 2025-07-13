@@ -30,6 +30,7 @@ const Header = () => {
         })
         .catch((error) => {
           console.log("Error load my infor", error)
+          localStorage.clear();
         })
     }
   }, [])
@@ -197,11 +198,11 @@ const Header = () => {
 
       <nav style={styles.nav}>
         {[
-          ...(rolename === "CUSTOMER" ? [{ name: "Home", path: "/" }] : []),
-          ...(rolename === "CUSTOMER" || rolename === "STAFF_RECEPTION" ? [{ name: "Service", path: "/service" }] : []),
+          ...(rolename === "CUSTOMER" || !rolename ? [{ name: "Home", path: "/" }] : []),
+          ...(rolename === "CUSTOMER" || rolename === "STAFF_RECEPTION" || !rolename ? [{ name: "Service", path: "/service" }] : []),
           { name: "Blog", path: "/blog" },
-          { name: "Your Appointment", path: "/yourappointment" },
-          { name: "History Booking", path: "/historybooking" },
+          ...(rolename ? [{ name: "Your Appointment", path: "/yourappointment" }] : []),
+          ...(rolename ? [{ name: "History Booking", path: "/historybooking" }] : []),
 
 
         ].map((item, index) => (

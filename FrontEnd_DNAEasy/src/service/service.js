@@ -37,3 +37,7 @@ export const ServiceReportCommnent=(id)=>{
 export const GetTop5Service = () => {
     return api.get(`/appointment/topservice`)
 }
+
+export const CanModifi = (id) => {
+    return api.get(`/service/canmodifi/${id}`)
+}

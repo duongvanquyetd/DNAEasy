@@ -39,3 +39,6 @@ export const ReportUser= ()=>{
 export  const VerifiUserByPhone=(data)=>{
   return api.post("/user/byphone",data)
 }
+export const CanModifiUser = (id) => {
+    return api.get(`/user/canmodifi/${id}`)
+}
