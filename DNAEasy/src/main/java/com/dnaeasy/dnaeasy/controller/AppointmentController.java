@@ -66,7 +66,7 @@ public class AppointmentController {
     public ResponseEntity<Page<AppointmentResponse>> getAllFlowCurrentUser(@RequestParam("page") int page,
                                                                            @RequestParam("size") int size,
                                                                            @RequestParam("keysearch") String keysearch) {
-        Pageable pagable = PageRequest.of(page - 1, size, Sort.by("dateCollect").descending());
+        Pageable pagable = PageRequest.of(page - 1, size, Sort.by("createdate").descending());
         return ResponseEntity.ok(appointmentService.getAllFlowCurentUser(keysearch, pagable));
     }
 
@@ -110,7 +110,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/managershift")
-    public ResponseEntity<Page<AppointmentAssingResponse>> getManager(@RequestParam("size") int size, @RequestParam("page") int page) {
+    public ResponseEntity<Page<AppointmentAssingResponse>> getAppointForManagerShift(@RequestParam("size") int size, @RequestParam("page") int page) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
         return ResponseEntity.ok(appointmentService.getAppointmnetForMangerShiftStaff(pageable));
