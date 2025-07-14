@@ -968,9 +968,9 @@
     margin-top: 40px;
     gap: 12px;
     flex-wrap: wrap;
-    position: fixed;
-    z-index: 1;
-
+    /* Xóa dòng position: fixed; và z-index: 1; */
+    position: static;
+    margin-bottom: 50px;
 }
 
 .page-btn {

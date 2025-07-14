@@ -324,7 +324,7 @@ export const YourAppointment = () => {
 
                       {/* Action Buttons */}
                       <div className="action-buttons">
-                        {((appointment.orderProcess === 0 && rolename === "CUSTOMER") || rolename === "STAFF_LAB" || rolename === "STAFF_TEST") && (
+                        {((appointment.orderProcess === 0 && rolename === "CUSTOMER") || (rolename === "STAFF_LAB" || rolename === "STAFF_TEST" ) && appointment.orderProcess != 0) && (
                           <button
                             className="btn cancel"
                             onClick={() => setCancelForm(appointment)}
@@ -832,8 +832,8 @@ export const YourAppointment = () => {
             </div>
           )
         }
-
       </div >
+      
       {renderPagination(totalPages, currentPage, setCurrentPage)}
       <Footer />
     </>
