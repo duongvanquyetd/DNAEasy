@@ -124,10 +124,10 @@ else{
 
         Result a = isResultResponsitory.findResultsByResultId(request.get(0).getResultId());
         Appointment appointment1 = a.getSampelist().iterator().next().getAppointment();
-        Person customer = appointment1.getCustomer();
+
 
         try {
-            emailSender.SendMail(customer.getEmail());
+            emailSender.SendMail(appointment1.getEmailAppointment());
         } catch (Exception e) {
             new RuntimeException(e);
         }

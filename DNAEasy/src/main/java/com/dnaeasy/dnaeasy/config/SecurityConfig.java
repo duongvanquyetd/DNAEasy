@@ -17,9 +17,12 @@ public class SecurityConfig {
 
 
     public String[] URL = {"/api/auth/*", "/api/payment/*","/api/comments/*","/api/blog","/api/blog/*"
+    ,"/api/service","/api/comments/*","/api/auth/*","/api/service","/api/service/*","/api/service/starAndNumber/*","/api/email/*","/oauth2/**","/api/auth/**"};
 
-    ,"/api/service","/api/payment/*","/api/comments/*","/api/auth/*","/api/service","/api/service/*","/api/service/starAndNumber/*","/api/email/*","/oauth2/**","/api/auth/**"};
 
+   private  String [] URLADMIN = {"/api/appointment/reportappointment","/api/appointment/stats","/api/appointment/recentappoint","/api/appointment/listreport","/api/appointment/topservice","/api/user/count-by-role","/api/user/filter","/api/appointment/statistics","/api/appointment/revenue-stats","/api/appointment/revenue_chart","/api/user/count-by-role","/api/payment/list"};
+
+   private  String [] URLMANAGGE={"/api/blog/report","/api/blog/delete","/api/blog/active","/api/blog/create","/api/blog/update","/api/appointment/assignStaff","/api/appointment/managershift","/api/appointment/staffs","/api/comments/managercomment","/api/comments/commentReport"};
     @Autowired
     private CustomJwtDecoder jwtDecoder;
 
@@ -32,11 +35,9 @@ public class SecurityConfig {
 
 //là cái link sau localhost://8080 nha
         httpSecurity.authorizeHttpRequests(request -> {
-            request.requestMatchers(HttpMethod.POST, URL).permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/user/get").hasAnyAuthority("SCOPE_ADMIN")
-                    .requestMatchers(HttpMethod.OPTIONS, URL).permitAll()
-                    .requestMatchers(HttpMethod.GET, URL).permitAll()
-                    .requestMatchers(URL).permitAll()
+            request.requestMatchers( URL).permitAll()
+                    .requestMatchers( URLADMIN).hasAnyAuthority("SCOPE_ADMIN")
+                    .requestMatchers( URLMANAGGE).hasAnyAuthority("SCOPE_MANAGER")
                     .anyRequest().authenticated();
 
 

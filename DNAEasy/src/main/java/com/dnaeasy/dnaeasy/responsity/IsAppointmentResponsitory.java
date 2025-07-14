@@ -71,6 +71,7 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
             or lower(a.emailAppointment) like lower(concat('%',:keysearch,'%')) 
             or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))    
             or lower(a.customer.name) like lower(concat('%',:keysearch,'%')) 
+            or a.appointmentId in (select s.appointment.appointmentId from Sample s where lower(s.samplecode) like lower(concat('%',:keysearch,'%') ))
              )
             and a.curentStatusAppointment not in (:list) 
             
@@ -91,6 +92,7 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
             or lower(a.customer.name) like lower(concat('%',:keysearch,'%')) 
              )
             and a.curentStatusAppointment  in (:list) 
+           
             
             """)
     Page<Appointment> findAllByStaffAndCurentStatusAppointmentIsIn(Person staff, Collection<String> list, String keysearch, Pageable pageable);
@@ -188,7 +190,8 @@ public interface IsAppointmentResponsitory extends JpaRepository<Appointment, In
             or lower(a.service.serviceName) like  lower(concat('%',:keysearch,'%'))  
             or lower(a.emailAppointment) like lower(concat('%',:keysearch,'%')) 
             or lower(a.phoneAppointment) like lower(concat('%',:keysearch,'%'))
-            or lower(a.customer.name) like lower(concat('%',:keysearch,'%'))     
+            or lower(a.customer.name) like lower(concat('%',:keysearch,'%'))    
+            or a.appointmentId in (select s.appointment.appointmentId from Sample s where lower(s.samplecode) like lower(concat('%',:keysearch,'%') )) 
              )
             and a.appointmentId in (select s.appointment.appointmentId  from Sample  s where s.sampleid in (:sampleid))
             """)
