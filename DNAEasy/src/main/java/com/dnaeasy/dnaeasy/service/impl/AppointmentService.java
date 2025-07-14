@@ -335,7 +335,7 @@ public class AppointmentService implements IsAppointmentService {
                 if (work.equals(p.getWork_hour())) {
 // tranh truong hop thanh toan bang tien mat no chua thanh toan ma da huy thi no se hien len tren ko hop ly
                     if (appointment.getCurentStatusAppointment().equals("CANCLE")) {
-                        if (appointment.getSampelist().size() > 0 && appointment.getSampelist().getFirst().getCureStatusSample() != null) {
+                        if (appointment.getSampelist().size() > 0 ) {
                             listpaging.add(appointment);
                         }
                     } else {
@@ -580,10 +580,10 @@ public class AppointmentService implements IsAppointmentService {
         Appointment appointment = isAppointmentResponsitory.findById(appointmentId).orElseThrow(() -> new BadRequestException("Appointment Not Found"));
         Work_hour time = Work_hour(appointment.getDateCollect());
 
-        if (appointment.getSampelist() == null || appointment.getSampelist().size() == 0) {
-            return false;
-        }
-        if (time == p.getWork_hour() && p.getRolename().equals(RoleName.STAFF_RECEPTION) && appointment.getSampelist().getFirst().getCureStatusSample() != null && appointment.getCurentStatusAppointment().equals("CANCLE")) {
+//        if (appointment.getSampelist() == null || appointment.getSampelist().size() == 0) {
+//            return false;
+//        }
+        if (time == p.getWork_hour() && p.getRolename().equals(RoleName.STAFF_RECEPTION) && appointment.getCurentStatusAppointment().equals("CANCLE")) {
             return true;
         }
         return false;
