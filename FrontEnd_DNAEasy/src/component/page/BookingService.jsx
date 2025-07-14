@@ -56,8 +56,6 @@ export const BookingServicePage = () => {
           setEmailAppointment(custommer.email || '');
        
       }
-
-
     }
 
     getServiceById(id)
