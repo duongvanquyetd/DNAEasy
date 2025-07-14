@@ -225,7 +225,7 @@ public class AppointmentService implements IsAppointmentService {
                 }
             }
 
-            appointmentList = isAppointmentResponsitory.findByStaffLabAndCurrentAppointmnetIsIn(sampleid, keysearch, pageable);
+            appointmentList = isAppointmentResponsitory.findByStaffLabAndCurrentAppointmnetIsIn(sampleid, !keysearch.trim().isEmpty() ? keysearch : null, pageable);
 
 //            if (!result.isEmpty()) {
 //                for (Result r : result) {
@@ -303,7 +303,7 @@ public class AppointmentService implements IsAppointmentService {
 
         } else if (p.getRolename().equals(RoleName.STAFF_LAB)) {
 
-            List<Appointment> app = isAppointmentResponsitory.findAllByCurentStatusAppointmentNotIn(list, keysearch);
+            List<Appointment> app = isAppointmentResponsitory.findAllByCurentStatusAppointmentNotIn(list, !keysearch.isEmpty() ? keysearch : null);
 
             for (Appointment appointment : app) {
 

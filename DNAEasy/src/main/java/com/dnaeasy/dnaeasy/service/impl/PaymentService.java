@@ -192,8 +192,6 @@ public class PaymentService implements IsPaymentService {
             appointmnentTracking.setStatusDate(LocalDateTime.now());
             appointmnentTracking.setStatusName("PAID_" + payment.getPaymentMethod());
             a.getAppointmnentTrackings().add(appointmnentTracking);
-
-
             if (a.getCurentStatusAppointment().equalsIgnoreCase("WAITING FOR PAYMENT")) {
 
 
