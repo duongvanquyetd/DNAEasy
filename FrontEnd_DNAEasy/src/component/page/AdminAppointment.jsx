@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Calendar, Users, CheckCircle, Clock, XCircle, RefreshCw, TrendingUp, BarChart3, PieChart, Filter } from 'lucide-react';
+import { Calendar, Users, CheckCircle, Clock, XCircle, RefreshCw, TrendingUp, BarChart3, PieChart, Filter, Type } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
 import { GetAppointmentReport, ListAppointReport, RecentAppointment } from '../../service/appointment';
 import AdminHeader from '../AdminHeader';
@@ -179,7 +179,6 @@ const styles = {
     color: '#d97706'
   }
 };
-
 const DNATestingAdminDashboard = () => {
   const [dateRange, setDateRange] = useState('today');
   const [startDate, setStartDate] = useState('');
@@ -194,6 +193,11 @@ const DNATestingAdminDashboard = () => {
   const [sortColumn, setSortColumn] = useState(null);
   const [modesort, setModeSort] = useState("asc")
   const [recentappoint, setRecentappoint] = useState([])
+  const [month, setMonth] = useState('');
+  const [year, setYear] = useState('');
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i); // 5 năm trước đến 5 năm sau
+  const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const getDateRange = () => {
     const today = new Date();
     if (dateRange === 'today') {
@@ -206,23 +210,37 @@ const DNATestingAdminDashboard = () => {
       const d = y.toISOString().slice(0, 10);
       return { fromdate: d, todate: d };
     }
-    if (dateRange === 'lastMonth') {
-      const first = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-      const last = new Date(today.getFullYear(), today.getMonth(), 0);
-      return {
-        fromdate: first.toISOString().slice(0, 10),
-        todate: last.toISOString().slice(0, 10)
-      };
+    if (dateRange === 'month') {
+      const startMonth = new Date(today.getFullYear(), month - 1, 1);
+      const endMonth = new Date(today.getFullYear(), month, 0);
+      const fromDate = startMonth.toISOString().slice(0, 10);
+      const toDate = endMonth.toISOString().slice(0, 10);
+      return { fromdate: fromDate, todate: toDate };
     }
-    if (dateRange === 'custom' && startDate && endDate) {
-      return { fromdate: startDate, todate: endDate };
+
+    if (dateRange === 'year') {
+      const y = Number(year) || today.getFullYear(); // Đảm bảo year là số, fallback về năm hiện tại nếu rỗng
+      const startYear = new Date(y, 0, 1);   // 1/1/yyyy
+      const endYear = new Date(y, 11, 31);   // 31/12/yyyy
+      const fromDate = startYear.toISOString().slice(0, 10);
+      const toDate = endYear.toISOString().slice(0, 10);
+      return { fromdate: fromDate, todate: toDate };
     }
+    if (dateRange === 'custom') {
+      if (!startDate || !endDate) {
+        return { fromdate: '', todate: '' };
+      }
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+
+
+      return { fromdate: start.toISOString().slice(0, 10), todate: end.toISOString().slice(0, 10) };
+    }
+
     const d = today.toISOString().slice(0, 10);
     return { fromdate: d, todate: d };
   };
   const range = getDateRange();
-
-
   useEffect(() => {
     RecentAppointment().then((response => {
       console.log("recent appointment", response.data)
@@ -233,19 +251,18 @@ const DNATestingAdminDashboard = () => {
   }, [])
 
   useEffect(() => {
-
     console.log("date get report", range)
-    GetAppointmentReport(range)
+    const request = {
+      ...range,
+      type: dateRange,
+    }
+
+    GetAppointmentReport(request)
       .then(res => {
-         setReportData(res.data || []);
-        
+        setReportData(res.data || []);
       })
       .catch(() => setReportData([]));
-
-
-
-
-  }, [dateRange, startDate, endDate]);
+  }, [dateRange, startDate, endDate, month, year, range.fromdate, range.todate]);
 
   useEffect(() => {
     const request = {
@@ -254,20 +271,16 @@ const DNATestingAdminDashboard = () => {
     }
     ListAppointReport(currentPage, pageSize, sortColumn, modesort, request).then((response) => {
       console.log("Reponse list", response.data)
-    
+
       setListapp(response.data.content || []);
-      if(response.data.content.length === 0 && type != null)
-      {
+      if (response.data.content.length === 0 && type != null) {
         setType(null);
       }
       setTotalPages(response.data.totalPages)
-     
-
-
     }).catch((error) => {
       console.log("Erorr get list appoit by date", error)
     })
-  }, [dateRange, startDate, endDate, currentPage, type, sortColumn, modesort])
+  }, [dateRange, startDate, endDate, currentPage, type, sortColumn, modesort, year, month]);
 
 
   const currentData = useMemo(() => {
@@ -281,8 +294,46 @@ const DNATestingAdminDashboard = () => {
     });
     return { total, completed, inProgress, cancelled, refunded };
   }, [reportData]);
-
   const chartData = useMemo(() => {
+    if (dateRange === "year") {
+      const grouped = {};
+
+      reportData.forEach(item => {
+        const date = new Date(item.appointmentDate);
+        const month = date.toLocaleString('default', { month: 'short' }); // "Jul", "Aug", etc.
+
+        if (!grouped[month]) {
+          grouped[month] = {
+            month,
+            appointments: 0,
+            completed: 0,
+            cancelled: 0,
+            inProgress: 0,
+            refunded: 0
+          };
+        }
+
+        grouped[month].appointments += (item.inprocess || 0) + (item.complete || 0) + (item.refunded || 0) + (item.cancle || 0);
+        grouped[month].completed += item.complete || 0;
+        grouped[month].cancelled += item.cancle || 0;
+        grouped[month].inProgress += item.inprocess || 0;
+        grouped[month].refunded += item.refunded || 0;
+      });
+
+      // Đảm bảo trả ra đủ 12 tháng nếu cần
+      const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      return MONTHS.map(m => grouped[m] || {
+        month: m,
+        appointments: 0,
+        completed: 0,
+        cancelled: 0,
+        inProgress: 0,
+        refunded: 0
+      });
+    }
+
+    // Trường hợp lọc theo ngày hoặc tháng
     return reportData.map(item => ({
       date: item.appointmentDate,
       appointments: (item.inprocess || 0) + (item.complete || 0) + (item.refunded || 0) + (item.cancle || 0),
@@ -291,7 +342,8 @@ const DNATestingAdminDashboard = () => {
       inProgress: item.inprocess || 0,
       refunded: item.refunded || 0
     }));
-  }, [reportData]);
+  }, [reportData, dateRange, year, month]);
+
 
   const pieData = [
     { name: 'Completed', value: currentData.completed, color: '#10b981' },
@@ -349,6 +401,11 @@ const DNATestingAdminDashboard = () => {
     return amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
   }
 
+  function getMaxEndDate(startDate) {
+    const date = new Date(startDate);
+    date.setDate(date.getDate() + 30);
+    return date.toISOString().split('T')[0]; // format yyyy-MM-dd
+  }
 
   function getStatusClass(status) {
     if (!status) return "";
@@ -359,7 +416,6 @@ const DNATestingAdminDashboard = () => {
     if (s.includes("process")) return "status-processing";
     return "status-other";
   }
-
 
   return (
     <div style={styles.dashboard}>
@@ -384,7 +440,8 @@ const DNATestingAdminDashboard = () => {
             >
               <option value="today">Today</option>
               <option value="yesterday">Yesterday</option>
-              <option value="lastMonth">Last Month</option>
+              <option value="month">Month</option>
+              <option value="year">Year</option>
               <option value="custom">Custom</option>
             </select>
             {dateRange === 'custom' && (
@@ -401,12 +458,37 @@ const DNATestingAdminDashboard = () => {
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                   style={styles.dateInput}
+                  min={startDate}
+                  max={startDate ? getMaxEndDate(startDate) : undefined}
                 />
+
               </>
+            )}
+            {dateRange === 'month' && (
+              <div className="admin-date-filter-controls">
+                <select value={month} onChange={(e) => setMonth(e.target.value)}>
+                  <option value=""> Month</option>
+                  {months.map((month) => (
+                    <option key={month} value={month}>
+                      {`Month ${month}`}
+                    </option>
+                  ))}
+                </select>
+
+              </div>
+            )}
+            {dateRange === 'year' && (
+              <div className="admin-date-filter-controls">
+                <select value={year} onChange={(e) => setYear(e.target.value)}>
+                  <option value=""> Year</option>
+                  {years.map((year) => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
             )}
           </div>
         </div>
-
         {/* Stats Cards */}
         <div style={styles.statsGrid}>
           <StatCard
@@ -515,7 +597,7 @@ const DNATestingAdminDashboard = () => {
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis
-                  dataKey="date"
+                  dataKey={dateRange === "year" ? "month" : "date"}
                   stroke="#64748b"
                   fontSize={12}
                 />
@@ -555,7 +637,7 @@ const DNATestingAdminDashboard = () => {
               <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis
-                  dataKey="date"
+                  dataKey={dateRange === "year" ? "month" : "date"}
                   stroke="#64748b"
                   fontSize={12}
                 />

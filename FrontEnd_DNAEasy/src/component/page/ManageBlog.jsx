@@ -161,7 +161,7 @@ const ManageBlog = () => {
         .catch((error) => {
           setToast({ type: 'error', message: 'Update blog failed!' });
           setError(error.response?.data?.error);
-          setTimeout(() => setToast(null), 2000);
+           setTimeout(() => setToast(null), 2000);
         });
     } else {
       CreateBlog(formdata)
@@ -171,12 +171,12 @@ const ManageBlog = () => {
           setCreateForm(false);
           form.resetFields();
           setError('');
-          setTimeout(() => setToast(null), 1500);
+          // setTimeout(() => setToast(null), 1500);
         })
         .catch((error) => {
           setToast({ type: 'error', message: 'Create blog failed!' });
           setError(error.response?.data?.error);
-          setTimeout(() => setToast(null), 2000);
+          // setTimeout(() => setToast(null), 2000);
         });
     }
   }
