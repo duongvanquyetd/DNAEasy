@@ -34,3 +34,7 @@ export const UpdateBlog =(id,data) =>{
 
     return api.post(`/blog/update/${id}`,data)
 }
+
+export const BLogType=()=>{
+    return api.get("/blog/typeblog")
+}

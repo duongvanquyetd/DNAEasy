@@ -1,17 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import "./../css/AdminRevenue.css";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-
-import { FaChartLine, FaDollarSign, FaWallet, FaArrowUp, FaArrowDown, FaMoneyBillWave, FaHandHoldingUsd, FaCalendarAlt, FaSync } from "react-icons/fa";
-
+import { FaChartLine, FaDollarSign, FaWallet, FaHandHoldingUsd, FaMoneyBillWave, FaCalendarAlt } from "react-icons/fa";
 import { FetchRevenueRefundStats, GetRevenueForOverview } from "../../service/revenue";
-
-
 import { GetPaymentList } from "../../service/payment";
-
-
 import AdminHeader from "../AdminHeader";
-
 
 const AdminRevenue = () => {
   const defaultStatsData = {
@@ -21,27 +14,26 @@ const AdminRevenue = () => {
     profit: { value: 0, change: 0, isUp: true }
   };
 
+
   const FILTERS = {
     day: { label: 'Day' },
     month: { label: 'Month' },
     year: { label: 'Year' }
   };
 
+
   const [timeRangeDisplay, setTimeRangeDisplay] = useState('');
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('day');
-
   const [statsData, setStatsData] = useState();
   const [fromDate, setFromDate] = useState(new Date().toISOString().slice(0, 10));
   const [toDate, setToDate] = useState(new Date().toISOString().slice(0, 10));
-  const currentYear = new Date().getFullYear();
   const [income, setIncome] = useState(0);
   const [expenses, setExpenses] = useState(0);
   const [profit, setProfit] = useState(0);
 
-  
   // Payment list state
   const [paymentData, setPaymentData] = useState({
     payments: [],
@@ -49,7 +41,7 @@ const AdminRevenue = () => {
     totalPages: 0,
     currentPage: 0
   });
-  
+
   // Payment filter state
   const [paymentFilter, setPaymentFilter] = useState({
     startDate: "2025-01-01",
@@ -57,34 +49,36 @@ const AdminRevenue = () => {
     page: 0,
     size: 10
   });
-  
+
   // Fetch payment data
   const fetchPaymentData = async () => {
     try {
       setLoading(true);
       const response = await GetPaymentList(paymentFilter);
-      console.log("Payment list response:", response.data);
       setPaymentData(response.data);
     } catch (error) {
+
       console.error("Error fetching payment list:", error);
       setError("Unable to load payment data");
+
+      setError("Cannot load payment data");
+
     } finally {
       setLoading(false);
     }
   };
-  
+
   // Load payment data when filter changes
   useEffect(() => {
     fetchPaymentData();
-  }, [paymentFilter.page]); // Only reload when page changes
-  
+    // eslint-disable-next-line
+  }, [paymentFilter.page]);
+
   // Handle filter apply
   const handleFilterApply = () => {
-    // Reset to page 0 when applying new filters
     setPaymentFilter(prev => ({ ...prev, page: 0 }));
     fetchPaymentData();
   };
-
 
   useEffect(() => {
     const loadRevenueAndStats = async () => {
@@ -104,13 +98,13 @@ const AdminRevenue = () => {
     };
 
     loadRevenueAndStats();
+    // eslint-disable-next-line
   }, [filter, toDate, fromDate]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         let startPeriod, endPeriod;
-
         if (filter === 'day') {
           startPeriod = fromDate ? fromDate.substring(0, 7) : new Date().toISOString().substring(0, 7);
           endPeriod = toDate ? toDate.substring(0, 7) : startPeriod;
@@ -135,11 +129,16 @@ const AdminRevenue = () => {
         setExpenses(Number(data.totalExpense) || 0);
         setProfit(Number(data.remain) || 0);
       } catch (err) {
+
         console.error("Error when fetching statistics data:", err);
+
+        // eslint-disable-next-line
+
       }
     };
 
     fetchData();
+    // eslint-disable-next-line
   }, [filter, fromDate, toDate]);
 
   function DateRequest() {
@@ -162,6 +161,7 @@ const AdminRevenue = () => {
     return date;
   }
 
+
   const formatDisplayDate = (dateStr) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
@@ -173,27 +173,23 @@ const AdminRevenue = () => {
       <AdminHeader />
       <div className="admin-revenue-dashboard">
         <div className="dashboard-main" style={{ width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
-         
-
           <div className="dashboard-row stats-row" style={{ gap: 20, marginBottom: 15, marginTop: 15 }}>
             <div className="dashboard-card income-card sleep-card">
               <div className="card-title">{<FaDollarSign size={22} style={{ color: '#16c784' }} />} Income</div>
               <div className="income-placeholder" style={{ fontWeight: 700, fontSize: 22, color: '#0a1d56', opacity: 0.9 }}>
-                <p>{income.toLocaleString()} đ</p>
+                <p>{income.toLocaleString()} VND</p>
               </div>
             </div>
-
             <div className="dashboard-card expenses-card sleep-card">
               <div className="card-title">{<FaWallet size={22} style={{ color: '#f8c63a' }} />} Expenses</div>
               <div className="expenses-placeholder" style={{ fontWeight: 700, fontSize: 22, color: '#0a1d56', opacity: 0.9 }}>
-                <p>{expenses.toLocaleString()} đ</p>
+                <p>{expenses.toLocaleString()} VND</p>
               </div>
             </div>
-
             <div className="dashboard-card profit-card sleep-card">
               <div className="card-title">{<FaHandHoldingUsd size={22} style={{ color: '#9c27b0' }} />} Profit</div>
               <div className="profit-placeholder" style={{ fontWeight: 700, fontSize: 22, color: '#0a1d56', opacity: 0.9 }}>
-                <p>{profit.toLocaleString()} đ</p>
+                <p>{profit.toLocaleString()} VND</p>
               </div>
             </div>
           </div>
@@ -201,7 +197,10 @@ const AdminRevenue = () => {
           <div className="dashboard-row">
             <div className="dashboard-card chart-card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 12 }}>
+
                 <div className="card-title"><FaChartLine size={22} /> Revenue and Refund Statistics</div>
+                <div className="card-title"><FaChartLine size={22} /> Revenue & Refund Statistics</div>
+
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
                   <div className="date-filter-label" style={{ fontWeight: 600, fontSize: 14, color: '#3a6ff8' }}>Select time range:</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -283,6 +282,10 @@ const AdminRevenue = () => {
                         return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
                       }}
                     />
+
+                    <YAxis tickFormatter={(value) => `${value.toLocaleString()} VND`} />
+                    <Tooltip formatter={(value) => `${value.toLocaleString()} VND`} />
+
                     <Legend
                       verticalAlign="top"
                       align="right"
@@ -309,6 +312,10 @@ const AdminRevenue = () => {
                       dot={{ stroke: '#ff6961', strokeWidth: 2, r: 4, fill: 'white' }}
                       activeDot={{ stroke: '#ff6961', strokeWidth: 2, r: 6, fill: 'white' }}
                     />
+
+                    <Line type="monotone" dataKey="revenue" stroke="#82ca9d" name="Revenue (VND)" />
+                    <Line type="monotone" dataKey="refund" stroke="#ff6961" name="Refund (VND)" />
+
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -316,11 +323,15 @@ const AdminRevenue = () => {
           </div>
         </div>
         
-        {/* Date Filter for Lists - MOVED TO TOP */}
+        {/* Date Filter for Lists */}
         <div className="dashboard-row" style={{ marginTop: '30px', marginBottom: '20px' }}>
           <div className="dashboard-card" style={{ flex: 1 }}>
             <div className="card-title">
+
               <FaCalendarAlt size={22} style={{ color: '#3a6ff8' }} /> List Filters
+
+              <FaCalendarAlt size={22} style={{ color: '#3a6ff8' }} /> List Filter
+
             </div>
             <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
               <div>
@@ -375,7 +386,7 @@ const AdminRevenue = () => {
           </div>
         </div>
         
-        {/* New section for revenue and expense lists */}
+        {/* Revenue and Expense Lists */}
         <div className="dashboard-row">
           {/* Revenue List */}
           <div className="dashboard-card" style={{ flex: 1 }}>
@@ -391,8 +402,12 @@ const AdminRevenue = () => {
                     <tr style={{ borderBottom: '1px solid #e0e6f7', textAlign: 'left' }}>
                       <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Date</th>
                       <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Method</th>
+
                       <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Transaction ID</th>
                       <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Payment Content</th>
+
+                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Transaction Code</th>
+
                       <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600, textAlign: 'right' }}>Amount</th>
                     </tr>
                   </thead>
@@ -400,18 +415,25 @@ const AdminRevenue = () => {
                     {paymentData.payments && paymentData.payments.filter(payment => !payment.expense).length > 0 ? (
                       paymentData.payments.filter(payment => !payment.expense).map((payment) => (
                         <tr key={payment.paymentId}>
+
                           <td style={{ padding: '12px 8px' }}>{new Date(payment.paymentDate).toLocaleDateString('en-US')}</td>
+                          <td style={{ padding: '12px 8px' }}>{new Date(payment.paymentDate).toLocaleDateString('en-GB')}</td>
+
                           <td style={{ padding: '12px 8px' }}>{payment.paymentMethod || "N/A"}</td>
                           <td style={{ padding: '12px 8px' }}>{payment.paycode || "N/A"}</td>
                           <td style={{ padding: '12px 8px' }}>{payment.contenPayment || "N/A"}</td>
                           <td style={{ padding: '12px 8px', fontWeight: 600, color: '#16c784', textAlign: 'right' }}>
-                            {payment.paymentAmount.toLocaleString()} đ
+                            {payment.paymentAmount.toLocaleString()} VND
                           </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
+
                         <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>No income data available</td>
+
+                        <td colSpan="4" style={{ textAlign: 'center', padding: '20px' }}>No income data</td>
+
                       </tr>
                     )}
                   </tbody>
@@ -461,8 +483,12 @@ const AdminRevenue = () => {
                     <tr style={{ borderBottom: '1px solid #e0e6f7', textAlign: 'left' }}>
                       <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Date</th>
                       <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Method</th>
+
                       <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Transaction ID</th>
                       <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Payment Content</th>
+
+                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Transaction Code</th>
+
                       <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600, textAlign: 'right' }}>Amount</th>
                     </tr>
                   </thead>
@@ -470,18 +496,26 @@ const AdminRevenue = () => {
                     {paymentData.payments && paymentData.payments.filter(payment => payment.expense).length > 0 ? (
                       paymentData.payments.filter(payment => payment.expense).map((payment) => (
                         <tr key={payment.paymentId} style={{ borderBottom: '1px solid #f5f8ff' }}>
+
                           <td style={{ padding: '12px 8px' }}>{new Date(payment.paymentDate).toLocaleDateString('en-US')}</td>
+
+                          <td style={{ padding: '12px 8px' }}>{new Date(payment.paymentDate).toLocaleDateString('en-GB')}</td>
+
                           <td style={{ padding: '12px 8px' }}>{payment.paymentMethod || "N/A"}</td>
                           <td style={{ padding: '12px 8px' }}>{payment.paycode || "N/A"}</td>
                           <td style={{ padding: '12px 8px' }}>{payment.contenPayment || "N/A"}</td>
                           <td style={{ padding: '12px 8px', fontWeight: 600, color: '#ff6961', textAlign: 'right' }}>
-                            {payment.paymentAmount.toLocaleString()} đ
+                            {payment.paymentAmount.toLocaleString()} VND
                           </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
+
                         <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>No expense data available</td>
+
+                        <td colSpan="4" style={{ textAlign: 'center', padding: '20px' }}>No expense data</td>
+
                       </tr>
                     )}
                   </tbody>

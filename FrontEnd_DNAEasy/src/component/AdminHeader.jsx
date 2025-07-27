@@ -33,7 +33,7 @@ const AdminHeader = () => {
       style={{
         width: 260,
         minHeight: '100vh',
-        background: 'linear-gradient(90deg, #1e40af 0%, #38bdf8 100%)',
+        background: "#87CEFA",
         color: 'white',
         display: 'flex',
         flexDirection: 'column',

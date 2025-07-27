@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import Header from '../Header';
 import Footer from '../Footer';
 import '../css/Blog.css'; // Ensure this points to the CSS file with the new class names
-import { SearchByTitleAndCatagery } from '../../service/Blog';
+import { BLogType, SearchByTitleAndCatagery } from '../../service/Blog';
 
 const ErrorBoundary = ({ children }) => {
   const [hasError, setHasError] = useState(false);
@@ -42,6 +42,15 @@ const Blog = () => {
   const [sortColumn, setSortColumn] = useState(null);
   const [modesort, setModeSort] = useState("asc")
   const [type, setType] = useState([]);
+    
+useEffect(() => {
+  BLogType().then((response) => {
+    setType(response.data);
+  }).catch((error) => {
+    console.error("Error fetching blog types:", error);
+  }
+  );
+}, []);
 
 
   useEffect(() => {
@@ -208,13 +217,13 @@ const Blog = () => {
                 >
                   All Types
                 </li>
-                {[...new Set(blogs.map((blog) => blog.blogType))].map((type) => (
+                {type.map((t) => (
                   <li
-                    key={type}
-                    className={`blogTypeItem${category === type ? ' active' : ''}`}
-                    onClick={() => setCategory(type)}
+                    key={t}
+                    className={`blogTypeItem${category === t ? ' active' : ''}`}
+                    onClick={() => setCategory(t)}
                   >
-                    {type}
+                    {t}
                   </li>
                 ))}
               </ul>

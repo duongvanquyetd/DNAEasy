@@ -26,7 +26,10 @@ export const BookingServicePage = () => {
     location: '',
     phoneAppointment: '',
     emailAppointment: '',
+    hour: ''
   });
+
+  const [hour, setHour] = useState('');
   const locationn = useLocation();
   const custommer = locationn.state;
   const { id } = useParams();
@@ -48,13 +51,13 @@ export const BookingServicePage = () => {
             console.log('Error loading user', error);
           });
       }
-      else{
-        
-          const addr = custommer.address.split(',');
-          setLocation(!addr || addr === 'null' || addr === 'undefined' || addr[0] === 'null' ? '' : custommer.address);
-          setPhoneAppointment(custommer.phone || '');
-          setEmailAppointment(custommer.email || '');
-       
+      else {
+
+        const addr = custommer.address.split(',');
+        setLocation(!addr || addr === 'null' || addr === 'undefined' || addr[0] === 'null' ? '' : custommer.address);
+        setPhoneAppointment(custommer.phone || '');
+        setEmailAppointment(custommer.email || '');
+
       }
     }
 
@@ -100,18 +103,25 @@ export const BookingServicePage = () => {
     if (!location) newErrors.location = 'Location is required';
     if (!phoneAppointment) newErrors.phoneAppointment = 'Phone number is required';
     if (!emailAppointment) newErrors.emailAppointment = 'Email is required';
+    if (!hour && !typeCollect.includes('Self_collection')) {newErrors.hour = 'Hour is required',setErrorHour('')};
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleBookingAppointment = (e) => {
     e.preventDefault();
+    console.log("Error", errorHour);
     if (handleEmpty()) {
 
       const personId = custommer ? custommer.personId : 0
+
+      let dateTimeLocal = "";
+      if (dateCollect && hour) {
+        dateTimeLocal = `${dateCollect}T${hour.padStart(5, "0")}`;
+      }
       const bookingDetails = {
         typeCollect,
-        dateCollect,
+        dateCollect: dateTimeLocal,
         paymentMethod,
         location,
         serviceid: Number(id),
@@ -189,7 +199,7 @@ export const BookingServicePage = () => {
               <div className="form-group">
                 <label htmlFor="dateCollect">Collection Date:</label>
                 <input
-                  type="datetime-local"
+                  type="date"
                   id="dateCollect"
                   className={`form-control ${errors.dateCollect ? 'is-invalid' : ''}`}
                   value={dateCollect}
@@ -200,6 +210,28 @@ export const BookingServicePage = () => {
 
               </div>
             )}
+            {dateCollect && !typeCollect.includes('Self_collection') && (
+              <div className="form-group">
+                <label htmlFor="hourSelect">Hour:</label>
+                <select
+                  id="hourSelect"
+                  className="form-select"
+                  value={hour}
+                  onChange={e => setHour(e.target.value)}
+                
+                >
+                  <option value="">--Select hour--</option>
+                  {Array.from({ length: 11 }, (_, i) => 7 + i).map(h => (
+                    <option key={h} value={`${h}:00`}>
+                      {`${h}:00`}
+                    </option>
+                  ))}
+                </select>
+
+              </div>
+
+            )}
+            {errors.hour && <div className="text-danger">{errors.hour}</div>}
             {errorHour && <div className="text-danger">{errorHour}</div>}
             <div className="form-group">
               <label htmlFor="paymentMethod">Payment Method:</label>
@@ -272,9 +304,9 @@ export const BookingServicePage = () => {
               )}
               {errorEmail && <div className="text-danger">{errorEmail}</div>}
             </div>
-            <div>
-              <button onClick={(e) => {e.stopPropagation();  setShowDescription(true)}} className="toggle-description-btn">
-                ℹ️ Xem mô tả
+            <div style={{ marginBottom: '20px' }}>
+              <button onClick={(e) => { e.stopPropagation(); setShowDescription(true) }} className="toggle-description-btn">
+                ℹ️ View process
               </button>
 
               {showDescription && (
@@ -297,7 +329,7 @@ export const BookingServicePage = () => {
                         onClick={() => setShowDescription(false)}
                       >✖</button>
                       <img
-                        src={services.serviceDescription}
+                        src="https://cdn.shopify.com/s/files/1/0456/3792/7068/files/Capture_600x600.png?v=1639486530"
                         alt="Service"
                         className="modal-image"
                         style={{
