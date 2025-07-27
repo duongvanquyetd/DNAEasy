@@ -22,9 +22,9 @@ const AdminRevenue = () => {
   };
 
   const FILTERS = {
-    day: { label: 'Ngày' },
-    month: { label: 'Tháng' },
-    year: { label: 'Năm' }
+    day: { label: 'Day' },
+    month: { label: 'Month' },
+    year: { label: 'Year' }
   };
 
   const [timeRangeDisplay, setTimeRangeDisplay] = useState('');
@@ -67,7 +67,7 @@ const AdminRevenue = () => {
       setPaymentData(response.data);
     } catch (error) {
       console.error("Error fetching payment list:", error);
-      setError("Không thể tải dữ liệu thanh toán");
+      setError("Unable to load payment data");
     } finally {
       setLoading(false);
     }
@@ -135,7 +135,7 @@ const AdminRevenue = () => {
         setExpenses(Number(data.totalExpense) || 0);
         setProfit(Number(data.remain) || 0);
       } catch (err) {
-        console.error("Lỗi khi lấy dữ liệu thống kê:", err);
+        console.error("Error when fetching statistics data:", err);
       }
     };
 
@@ -165,7 +165,7 @@ const AdminRevenue = () => {
   const formatDisplayDate = (dateStr) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
-    return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return date.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
   return (
@@ -177,21 +177,21 @@ const AdminRevenue = () => {
 
           <div className="dashboard-row stats-row" style={{ gap: 20, marginBottom: 15, marginTop: 15 }}>
             <div className="dashboard-card income-card sleep-card">
-              <div className="card-title">{<FaDollarSign size={22} style={{ color: '#16c784' }} />} Thu nhập</div>
+              <div className="card-title">{<FaDollarSign size={22} style={{ color: '#16c784' }} />} Income</div>
               <div className="income-placeholder" style={{ fontWeight: 700, fontSize: 22, color: '#0a1d56', opacity: 0.9 }}>
                 <p>{income.toLocaleString()} đ</p>
               </div>
             </div>
 
             <div className="dashboard-card expenses-card sleep-card">
-              <div className="card-title">{<FaWallet size={22} style={{ color: '#f8c63a' }} />} Chi phí</div>
+              <div className="card-title">{<FaWallet size={22} style={{ color: '#f8c63a' }} />} Expenses</div>
               <div className="expenses-placeholder" style={{ fontWeight: 700, fontSize: 22, color: '#0a1d56', opacity: 0.9 }}>
                 <p>{expenses.toLocaleString()} đ</p>
               </div>
             </div>
 
             <div className="dashboard-card profit-card sleep-card">
-              <div className="card-title">{<FaHandHoldingUsd size={22} style={{ color: '#9c27b0' }} />} Lợi nhuận</div>
+              <div className="card-title">{<FaHandHoldingUsd size={22} style={{ color: '#9c27b0' }} />} Profit</div>
               <div className="profit-placeholder" style={{ fontWeight: 700, fontSize: 22, color: '#0a1d56', opacity: 0.9 }}>
                 <p>{profit.toLocaleString()} đ</p>
               </div>
@@ -201,9 +201,9 @@ const AdminRevenue = () => {
           <div className="dashboard-row">
             <div className="dashboard-card chart-card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 12 }}>
-                <div className="card-title"><FaChartLine size={22} /> Thống kê doanh thu, hoàn tiền</div>
+                <div className="card-title"><FaChartLine size={22} /> Revenue and Refund Statistics</div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
-                  <div className="date-filter-label" style={{ fontWeight: 600, fontSize: 14, color: '#3a6ff8' }}>Chọn khoảng thời gian:</div>
+                  <div className="date-filter-label" style={{ fontWeight: 600, fontSize: 14, color: '#3a6ff8' }}>Select time range:</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <select
                       value={filter}
@@ -222,7 +222,7 @@ const AdminRevenue = () => {
                           onChange={e => setFromDate(e.target.value)}
                           className="date-input"
                         />
-                        <span style={{ margin: '0 4px', fontWeight: 600 }}>đến</span>
+                        <span style={{ margin: '0 4px', fontWeight: 600 }}>to</span>
                         <input
                           type="date"
                           value={toDate}
@@ -238,25 +238,77 @@ const AdminRevenue = () => {
                 <ResponsiveContainer width="100%" height={400}>
                   <LineChart
                     data={chartData}
-                    margin={{ top: 60, right: 30, left: 0, bottom: 80 }}
+                    margin={{ top: 60, right: 30, left: 20, bottom: 80 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e0e6f7" />
                     <XAxis
                       dataKey="date"
                       angle={-45}
                       textAnchor="end"
                       height={70}
-                      tickFormatter={(value) => value.substring(0, 10)}
+                      tickFormatter={(value) => {
+                        // Format date for better display
+                        const date = new Date(value);
+                        return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+                      }}
+                      tick={{ fill: '#0a1d56', fontSize: 12 }}
+                      axisLine={{ stroke: '#e0e6f7' }}
+                      tickLine={{ stroke: '#e0e6f7' }}
                     />
-                    <YAxis tickFormatter={(value) => `${value.toLocaleString()} đ`} />
-                    <Tooltip formatter={(value) => `${value.toLocaleString()} đ`} />
+                    <YAxis 
+                      tickFormatter={(value) => {
+                        // Format currency with proper spacing
+                        if (value >= 1000000) {
+                          return `${(value / 1000000).toFixed(1)}M đ`;
+                        } else if (value >= 1000) {
+                          return `${(value / 1000).toFixed(0)}K đ`;
+                        }
+                        return `${value} đ`;
+                      }}
+                      tick={{ fill: '#0a1d56', fontSize: 12 }}
+                      axisLine={{ stroke: '#e0e6f7' }}
+                      tickLine={{ stroke: '#e0e6f7' }}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'white', 
+                        borderRadius: '8px', 
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)', 
+                        border: '1px solid #e0e6f7',
+                        padding: '10px'
+                      }}
+                      formatter={(value) => [`${value.toLocaleString()} đ`, undefined]}
+                      labelFormatter={(label) => {
+                        const date = new Date(label);
+                        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                      }}
+                    />
                     <Legend
                       verticalAlign="top"
                       align="right"
                       height={50}
+                      iconType="circle"
+                      iconSize={10}
+                      wrapperStyle={{ paddingBottom: '20px' }}
                     />
-                    <Line type="monotone" dataKey="revenue" stroke="#82ca9d" name="Doanh thu (VND)" />
-                    <Line type="monotone" dataKey="refund" stroke="#ff6961" name="Hoàn tiền (VND)" />
+                    <Line 
+                      type="monotone" 
+                      dataKey="revenue" 
+                      stroke="#16c784" 
+                      strokeWidth={3} 
+                      name="Revenue (VND)" 
+                      dot={{ stroke: '#16c784', strokeWidth: 2, r: 4, fill: 'white' }}
+                      activeDot={{ stroke: '#16c784', strokeWidth: 2, r: 6, fill: 'white' }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="refund" 
+                      stroke="#ff6961" 
+                      strokeWidth={3} 
+                      name="Refund (VND)" 
+                      dot={{ stroke: '#ff6961', strokeWidth: 2, r: 4, fill: 'white' }}
+                      activeDot={{ stroke: '#ff6961', strokeWidth: 2, r: 6, fill: 'white' }}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -268,11 +320,11 @@ const AdminRevenue = () => {
         <div className="dashboard-row" style={{ marginTop: '30px', marginBottom: '20px' }}>
           <div className="dashboard-card" style={{ flex: 1 }}>
             <div className="card-title">
-              <FaCalendarAlt size={22} style={{ color: '#3a6ff8' }} /> Bộ lọc danh sách
+              <FaCalendarAlt size={22} style={{ color: '#3a6ff8' }} /> List Filters
             </div>
             <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
               <div>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Từ ngày:</label>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>From date:</label>
                 <input
                   type="date"
                   value={paymentFilter.startDate}
@@ -281,7 +333,7 @@ const AdminRevenue = () => {
                 />
               </div>
               <div>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Đến ngày:</label>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>To date:</label>
                 <input
                   type="date"
                   value={paymentFilter.endDate}
@@ -290,7 +342,7 @@ const AdminRevenue = () => {
                 />
               </div>
               <div>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Số mục mỗi trang:</label>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Items per page:</label>
                 <select
                   value={paymentFilter.size}
                   onChange={(e) => setPaymentFilter(prev => ({ ...prev, size: Number(e.target.value) }))}
@@ -316,7 +368,7 @@ const AdminRevenue = () => {
                     fontWeight: '600'
                   }}
                 >
-                  Áp dụng
+                  Apply
                 </button>
               </div>
             </div>
@@ -328,28 +380,30 @@ const AdminRevenue = () => {
           {/* Revenue List */}
           <div className="dashboard-card" style={{ flex: 1 }}>
             <div className="card-title">
-              <FaMoneyBillWave size={22} style={{ color: '#16c784' }} /> Danh sách thu nhập
+              <FaMoneyBillWave size={22} style={{ color: '#16c784' }} /> Income List
             </div>
             <div className="revenue-list">
               {loading ? (
-                <div style={{ textAlign: 'center', padding: '20px' }}>Đang tải dữ liệu...</div>
+                <div style={{ textAlign: 'center', padding: '20px' }}>Loading data...</div>
               ) : (
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid #e0e6f7', textAlign: 'left' }}>
-                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Ngày</th>
-                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Phương thức</th>
-                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Mã giao dịch</th>
-                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600, textAlign: 'right' }}>Số tiền</th>
+                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Date</th>
+                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Method</th>
+                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Transaction ID</th>
+                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Payment Content</th>
+                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600, textAlign: 'right' }}>Amount</th>
                     </tr>
                   </thead>
                   <tbody>
                     {paymentData.payments && paymentData.payments.filter(payment => !payment.expense).length > 0 ? (
                       paymentData.payments.filter(payment => !payment.expense).map((payment) => (
                         <tr key={payment.paymentId}>
-                          <td style={{ padding: '12px 8px' }}>{new Date(payment.paymentDate).toLocaleDateString('vi-VN')}</td>
+                          <td style={{ padding: '12px 8px' }}>{new Date(payment.paymentDate).toLocaleDateString('en-US')}</td>
                           <td style={{ padding: '12px 8px' }}>{payment.paymentMethod || "N/A"}</td>
                           <td style={{ padding: '12px 8px' }}>{payment.paycode || "N/A"}</td>
+                          <td style={{ padding: '12px 8px' }}>{payment.contenPayment || "N/A"}</td>
                           <td style={{ padding: '12px 8px', fontWeight: 600, color: '#16c784', textAlign: 'right' }}>
                             {payment.paymentAmount.toLocaleString()} đ
                           </td>
@@ -357,7 +411,7 @@ const AdminRevenue = () => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="4" style={{ textAlign: 'center', padding: '20px' }}>Không có dữ liệu thu nhập</td>
+                        <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>No income data available</td>
                       </tr>
                     )}
                   </tbody>
@@ -367,9 +421,9 @@ const AdminRevenue = () => {
             {/* Pagination for Revenue */}
             <div className="payment-pagination">
               <div className="pagination-info">
-                Trang {paymentData.currentPage + 1 || 1} / {Math.max(paymentData.totalPages, 1)} 
+                Page {paymentData.currentPage + 1 || 1} / {Math.max(paymentData.totalPages, 1)} 
                 <span style={{ marginLeft: '10px', fontSize: '0.9em', color: '#666' }}>
-                  Tổng: {paymentData.totalElements || 0} mục
+                  Total: {paymentData.totalElements || 0} items
                 </span>
               </div>
               <div className="pagination-controls">
@@ -378,44 +432,48 @@ const AdminRevenue = () => {
                   disabled={!paymentData.currentPage || paymentData.currentPage === 0}
                   onClick={() => setPaymentFilter(prev => ({ ...prev, page: prev.page - 1 }))}
                 >
-                  Trước
+                  Previous
                 </button>
                 <button 
                   className="pagination-button" 
                   disabled={!paymentData.totalPages || paymentData.currentPage >= paymentData.totalPages - 1}
                   onClick={() => setPaymentFilter(prev => ({ ...prev, page: prev.page + 1 }))}
                 >
-                  Tiếp
+                  Next
                 </button>
               </div>
             </div>
           </div>
-          
+        </div>
+        
+        <div className="dashboard-row" style={{ marginTop: '20px' }}>
           {/* Expense List */}
           <div className="dashboard-card" style={{ flex: 1 }}>
             <div className="card-title">
-              <FaMoneyBillWave size={22} style={{ color: '#f8c63a' }} /> Danh sách chi phí
+              <FaMoneyBillWave size={22} style={{ color: '#f8c63a' }} /> Expense List
             </div>
             <div className="expense-list">
               {loading ? (
-                <div style={{ textAlign: 'center', padding: '20px' }}>Đang tải dữ liệu...</div>
+                <div style={{ textAlign: 'center', padding: '20px' }}>Loading data...</div>
               ) : (
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid #e0e6f7', textAlign: 'left' }}>
-                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Ngày</th>
-                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Phương thức</th>
-                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Mã giao dịch</th>
-                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600, textAlign: 'right' }}>Số tiền</th>
+                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Date</th>
+                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Method</th>
+                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Transaction ID</th>
+                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Payment Content</th>
+                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600, textAlign: 'right' }}>Amount</th>
                     </tr>
                   </thead>
                   <tbody>
                     {paymentData.payments && paymentData.payments.filter(payment => payment.expense).length > 0 ? (
                       paymentData.payments.filter(payment => payment.expense).map((payment) => (
                         <tr key={payment.paymentId} style={{ borderBottom: '1px solid #f5f8ff' }}>
-                          <td style={{ padding: '12px 8px' }}>{new Date(payment.paymentDate).toLocaleDateString('vi-VN')}</td>
+                          <td style={{ padding: '12px 8px' }}>{new Date(payment.paymentDate).toLocaleDateString('en-US')}</td>
                           <td style={{ padding: '12px 8px' }}>{payment.paymentMethod || "N/A"}</td>
                           <td style={{ padding: '12px 8px' }}>{payment.paycode || "N/A"}</td>
+                          <td style={{ padding: '12px 8px' }}>{payment.contenPayment || "N/A"}</td>
                           <td style={{ padding: '12px 8px', fontWeight: 600, color: '#ff6961', textAlign: 'right' }}>
                             {payment.paymentAmount.toLocaleString()} đ
                           </td>
@@ -423,7 +481,7 @@ const AdminRevenue = () => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="4" style={{ textAlign: 'center', padding: '20px' }}>Không có dữ liệu chi phí</td>
+                        <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>No expense data available</td>
                       </tr>
                     )}
                   </tbody>
@@ -433,9 +491,9 @@ const AdminRevenue = () => {
             {/* Pagination for Expenses */}
             <div className="payment-pagination">
               <div className="pagination-info">
-                Trang {paymentData.currentPage + 1 || 1} / {Math.max(paymentData.totalPages, 1)} 
+                Page {paymentData.currentPage + 1 || 1} / {Math.max(paymentData.totalPages, 1)} 
                 <span style={{ marginLeft: '10px', fontSize: '0.9em', color: '#666' }}>
-                  Tổng: {paymentData.totalElements || 0} mục
+                  Total: {paymentData.totalElements || 0} items
                 </span>
               </div>
               <div className="pagination-controls">
@@ -444,14 +502,14 @@ const AdminRevenue = () => {
                   disabled={!paymentData.currentPage || paymentData.currentPage === 0}
                   onClick={() => setPaymentFilter(prev => ({ ...prev, page: prev.page - 1 }))}
                 >
-                  Trước
+                  Previous
                 </button>
                 <button 
                   className="pagination-button" 
                   disabled={!paymentData.totalPages || paymentData.currentPage >= paymentData.totalPages - 1}
                   onClick={() => setPaymentFilter(prev => ({ ...prev, page: prev.page + 1 }))}
                 >
-                  Tiếp
+                  Next
                 </button>
               </div>
             </div>
