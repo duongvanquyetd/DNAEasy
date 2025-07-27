@@ -589,148 +589,148 @@ public class AppointmentService implements IsAppointmentService {
         }
         return false;
     }
+//
+//    @Override
+//    public List<RevenueChartResponse> getRevenueByDay(String startDate, String endDate) {
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//
+//        LocalDate start = LocalDate.parse(startDate, formatter);
+//        LocalDate end = LocalDate.parse(endDate, formatter);
+//
+//        List<RevenueChartResponse> chartData = new ArrayList<>();
+//        LocalDate current = start;
+//        // Duyệt qua từng ngày trong khoảng thời gian
+//        while (!current.isAfter(end)) {
+//            // Get revenue cho ngày hiện tại (chỉ lấy completed payments)
+//            BigDecimal dailyRevenue = isPaymentResponsitory.getRevenueByDate(current);
+//            if (dailyRevenue == null) dailyRevenue = BigDecimal.ZERO;
+//
+//            // Get refund amount for this day
+//            BigDecimal refund = BigDecimal.ZERO;
+//            // Kiểm tra trực tiếp xem có khoản thanh toán refund nào cho ngày này không
+//            List<Payment> directRefunds = isPaymentResponsitory.findRefundPaymentsForDate(current);
+//            if (!directRefunds.isEmpty()) {
+//                for (Payment p : directRefunds) {
+//                    refund = refund.add(p.getPaymentAmount());
+//                }
+//            } else {
+//                // Nếu không tìm thấy qua phương thức trực tiếp, thử phương thức khác
+//                LocalDateTime startOfDay = current.atStartOfDay();
+//                LocalDateTime endOfDay = current.plusDays(1).atStartOfDay();
+//                List<Payment> rangeRefunds = isPaymentResponsitory.findRefundPaymentsForDateRange(startOfDay, endOfDay);
+//                if (!rangeRefunds.isEmpty()) {
+//                    for (Payment p : rangeRefunds) {
+//                        refund = refund.add(p.getPaymentAmount());
+//                    }
+//                }
+//            }
+//            RevenueChartResponse chartItem = new RevenueChartResponse();
+//            chartItem.setDate(current);
+//            chartItem.setRevenue(dailyRevenue);
+//            chartItem.setName(current.toString());
+//            chartItem.setRefund(refund);
+//            chartData.add(chartItem);
+//            current = current.plusDays(1);
+//        }
+//        return chartData;
+//    }
 
-    @Override
-    public List<RevenueChartResponse> getRevenueByDay(String startDate, String endDate) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-        LocalDate start = LocalDate.parse(startDate, formatter);
-        LocalDate end = LocalDate.parse(endDate, formatter);
-
-        List<RevenueChartResponse> chartData = new ArrayList<>();
-        LocalDate current = start;
-        // Duyệt qua từng ngày trong khoảng thời gian
-        while (!current.isAfter(end)) {
-            // Get revenue cho ngày hiện tại (chỉ lấy completed payments)
-            BigDecimal dailyRevenue = isPaymentResponsitory.getRevenueByDate(current);
-            if (dailyRevenue == null) dailyRevenue = BigDecimal.ZERO;
-            
-            // Get refund amount for this day 
-            BigDecimal refund = BigDecimal.ZERO;
-            // Kiểm tra trực tiếp xem có khoản thanh toán refund nào cho ngày này không
-            List<Payment> directRefunds = isPaymentResponsitory.findRefundPaymentsForDate(current);
-            if (!directRefunds.isEmpty()) {
-                for (Payment p : directRefunds) {
-                    refund = refund.add(p.getPaymentAmount());
-                }
-            } else {
-                // Nếu không tìm thấy qua phương thức trực tiếp, thử phương thức khác
-                LocalDateTime startOfDay = current.atStartOfDay();
-                LocalDateTime endOfDay = current.plusDays(1).atStartOfDay();
-                List<Payment> rangeRefunds = isPaymentResponsitory.findRefundPaymentsForDateRange(startOfDay, endOfDay);
-                if (!rangeRefunds.isEmpty()) {
-                    for (Payment p : rangeRefunds) {
-                        refund = refund.add(p.getPaymentAmount());
-                    }
-                }
-            }
-            RevenueChartResponse chartItem = new RevenueChartResponse();
-            chartItem.setDate(current);
-            chartItem.setRevenue(dailyRevenue);
-            chartItem.setName(current.toString());
-            chartItem.setRefund(refund);
-            chartData.add(chartItem);
-            current = current.plusDays(1);
-        }
-        return chartData;
-    }
-
-    @Override
-    public List<RevenueChartResponse> getRevenueStats(String type, LocalDate from, LocalDate to, Integer year) {
-        List<RevenueChartResponse> result = new ArrayList<>();
-        
-        switch (type) {
-            case "day":
-                if (from == null || to == null) {
-                    throw new BadRequestException("From and to dates are required for day type");
-                }
-                
-                // Xử lý từng ngày trong khoảng thời gian
-                LocalDate current = from;
-                while (!current.isAfter(to)) {
-                    // Lấy doanh thu ngày
-                    BigDecimal revenue = isPaymentResponsitory.getRevenueByDate(current);
-                    if (revenue == null) revenue = BigDecimal.ZERO;
-                    
-                    // Lấy hoàn tiền ngày
-                    BigDecimal refund = calculateRefundForDate(current);
-                    
-                    // Tạo response
-                    RevenueChartResponse item = new RevenueChartResponse();
-                    item.setDate(current);
-                    item.setRevenue(revenue);
-                    item.setName(current.toString());
-                    item.setRefund(refund);
-                    result.add(item);
-                    
-                    current = current.plusDays(1);
-                }
-                break;
-            case "month":
-                if (year == null) {
-                    year = LocalDate.now().getYear();
-                }
-                
-                // Xử lý 12 tháng trong năm
-                for (int month = 1; month <= 12; month++) {
-                    String monthName = Month.of(month).getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
-                    LocalDate firstDay = LocalDate.of(year, month, 1);
-                    LocalDate lastDay = firstDay.withDayOfMonth(firstDay.lengthOfMonth());
-                    
-                    // Lấy doanh thu tháng
-                    BigDecimal revenue = isPaymentResponsitory.getRevenueByPeriod(
-                            firstDay.atStartOfDay(), 
-                            lastDay.atTime(23, 59, 59)
-                    );
-                    if (revenue == null) revenue = BigDecimal.ZERO;
-                    
-                    // Lấy hoàn tiền tháng
-                    BigDecimal refund = calculateRefundForDateRange(firstDay, lastDay);
-                    
-                    // Tạo response
-                    RevenueChartResponse item = new RevenueChartResponse();
-                    item.setDate(firstDay);
-                    item.setRevenue(revenue);
-                    item.setName(monthName);
-                    item.setRefund(refund);
-                    result.add(item);
-                }
-                break;
-            case "year":
-                // Lấy 5 năm gần nhất
-                int currentYear = LocalDate.now().getYear();
-                int startYear = currentYear - 4;
-                
-                for (int yr = startYear; yr <= currentYear; yr++) {
-                    LocalDate firstDay = LocalDate.of(yr, 1, 1);
-                    LocalDate lastDay = LocalDate.of(yr, 12, 31);
-                    
-                    // Lấy doanh thu năm
-                    BigDecimal revenue = isPaymentResponsitory.getRevenueByPeriod(
-                            firstDay.atStartOfDay(), 
-                            lastDay.atTime(23, 59, 59)
-                    );
-                    if (revenue == null) revenue = BigDecimal.ZERO;
-                    
-                    // Lấy hoàn tiền năm
-                    BigDecimal refund = calculateRefundForDateRange(firstDay, lastDay);
-                    
-                    // Tạo response
-                    RevenueChartResponse item = new RevenueChartResponse();
-                    item.setDate(firstDay);
-                    item.setRevenue(revenue);
-                    item.setName(String.valueOf(yr));
-                    item.setRefund(refund);
-                    result.add(item);
-                }
-                break;
-                
-            default:
-                throw new BadRequestException("Invalid type. Must be 'day', 'month', or 'year'");
-        }
-        
-        return result;
-    }
+  //  @Override
+//    public List<RevenueChartResponse> getRevenueStats(String type, LocalDate from, LocalDate to, Integer year) {
+//        List<RevenueChartResponse> result = new ArrayList<>();
+//
+//        switch (type) {
+//            case "day":
+//                if (from == null || to == null) {
+//                    throw new BadRequestException("From and to dates are required for day type");
+//                }
+//
+//                // Xử lý từng ngày trong khoảng thời gian
+//                LocalDate current = from;
+//                while (!current.isAfter(to)) {
+//                    // Lấy doanh thu ngày
+//                    BigDecimal revenue = isPaymentResponsitory.getRevenueByDate(current);
+//                    if (revenue == null) revenue = BigDecimal.ZERO;
+//
+//                    // Lấy hoàn tiền ngày
+//                    BigDecimal refund = calculateRefundForDate(current);
+//
+//                    // Tạo response
+//                    RevenueChartResponse item = new RevenueChartResponse();
+//                    item.setDate(current);
+//                    item.setRevenue(revenue);
+//                    item.setName(current.toString());
+//                    item.setRefund(refund);
+//                    result.add(item);
+//
+//                    current = current.plusDays(1);
+//                }
+//                break;
+//            case "month":
+//                if (year == null) {
+//                    year = LocalDate.now().getYear();
+//                }
+//
+//                // Xử lý 12 tháng trong năm
+//                for (int month = 1; month <= 12; month++) {
+//                    String monthName = Month.of(month).getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
+//                    LocalDate firstDay = LocalDate.of(year, month, 1);
+//                    LocalDate lastDay = firstDay.withDayOfMonth(firstDay.lengthOfMonth());
+//
+//                    // Lấy doanh thu tháng
+//                    BigDecimal revenue = isPaymentResponsitory.getRevenueByPeriod(
+//                            firstDay.atStartOfDay(),
+//                            lastDay.atTime(23, 59, 59)
+//                    );
+//                    if (revenue == null) revenue = BigDecimal.ZERO;
+//
+//                    // Lấy hoàn tiền tháng
+//                    BigDecimal refund = calculateRefundForDateRange(firstDay, lastDay);
+//
+//                    // Tạo response
+//                    RevenueChartResponse item = new RevenueChartResponse();
+//                    item.setDate(firstDay);
+//                    item.setRevenue(revenue);
+//                    item.setName(monthName);
+//                    item.setRefund(refund);
+//                    result.add(item);
+//                }
+//                break;
+//            case "year":
+//                // Lấy 5 năm gần nhất
+//                int currentYear = LocalDate.now().getYear();
+//                int startYear = currentYear - 4;
+//
+//                for (int yr = startYear; yr <= currentYear; yr++) {
+//                    LocalDate firstDay = LocalDate.of(yr, 1, 1);
+//                    LocalDate lastDay = LocalDate.of(yr, 12, 31);
+//
+//                    // Lấy doanh thu năm
+//                    BigDecimal revenue = isPaymentResponsitory.getRevenueByPeriod(
+//                            firstDay.atStartOfDay(),
+//                            lastDay.atTime(23, 59, 59)
+//                    );
+//                    if (revenue == null) revenue = BigDecimal.ZERO;
+//
+//                    // Lấy hoàn tiền năm
+//                    BigDecimal refund = calculateRefundForDateRange(firstDay, lastDay);
+//
+//                    // Tạo response
+//                    RevenueChartResponse item = new RevenueChartResponse();
+//                    item.setDate(firstDay);
+//                    item.setRevenue(revenue);
+//                    item.setName(String.valueOf(yr));
+//                    item.setRefund(refund);
+//                    result.add(item);
+//                }
+//                break;
+//
+//            default:
+//                throw new BadRequestException("Invalid type. Must be 'day', 'month', or 'year'");
+//        }
+//
+//        return result;
+//    }
 
     private BigDecimal calculateRefundForDate(LocalDate date) {
         BigDecimal total = BigDecimal.ZERO;
@@ -760,53 +760,7 @@ public class AppointmentService implements IsAppointmentService {
         return total;
     }
 
-    @Override
-    public StaticReponse getStaticByDate(StaticRequest request) {
-        LocalDateTime start, end;
-
-        DateTimeFormatter yearMonthFormatter = DateTimeFormatter.ofPattern("yyyy-MM");
-        DateTimeFormatter yearFormatter = DateTimeFormatter.ofPattern("yyyy");
-
-        if (request.getStartDate() != null && request.getEndDate() != null) {
-            // ✅ Lọc theo khoảng ngày (giữ nguyên)
-            start = request.getStartDate().atStartOfDay();
-            end = request.getEndDate().atTime(23, 59, 59);
-
-        } else if (request.getStartPeriod() != null && request.getEndPeriod() != null) {
-            // 🆕 Lọc theo khoảng tháng hoặc năm
-            if (request.getStartPeriod().length() == 7 && request.getEndPeriod().length() == 7) {
-                // Khoảng theo tháng: "yyyy-MM"
-                YearMonth ymStart = YearMonth.parse(request.getStartPeriod(), yearMonthFormatter);
-                YearMonth ymEnd = YearMonth.parse(request.getEndPeriod(), yearMonthFormatter);
-                start = ymStart.atDay(1).atStartOfDay();
-                end = ymEnd.atEndOfMonth().atTime(23, 59, 59);
-
-            } else if (request.getStartPeriod().length() == 4 && request.getEndPeriod().length() == 4) {
-                // Khoảng theo năm: "yyyy"
-                Year yStart = Year.parse(request.getStartPeriod(), yearFormatter);
-                Year yEnd = Year.parse(request.getEndPeriod(), yearFormatter);
-                start = yStart.atMonth(1).atDay(1).atStartOfDay();
-                end = yEnd.atMonth(12).atEndOfMonth().atTime(23, 59, 59);
-            } else {
-                throw new IllegalArgumentException("Invalid startPeriod/endPeriod format (must be yyyy or yyyy-MM)");
-            }
-        } else {
-            throw new IllegalArgumentException("Please provide valid date info");
-        }
-
-        BigDecimal revenue = isPaymentResponsitory.getTodayRevenueToday(start, end);
-        if (revenue == null) revenue = BigDecimal.ZERO;
-
-        BigDecimal expense = isPaymentResponsitory.getTotalExpense(start, end);
-        if (expense == null) expense = BigDecimal.ZERO;
-
-        BigDecimal remain = revenue.subtract(expense);
-        StaticReponse response = new StaticReponse();
-        response.setRevenue(revenue);
-        response.setTotalExpense(expense);
-        response.setRemain(remain);
-        return new StaticReponse(revenue, expense, remain);
-    }
+//
     @Override
     public List<TopServiceReponse> findTopService() {
 
@@ -888,7 +842,6 @@ public class AppointmentService implements IsAppointmentService {
                     response.setInprocess(isAppointmentResponsitory.countAppointmentInprocess(star, end, list));
                     responses.add(response);
                 }
-
 
             return  responses;
         }

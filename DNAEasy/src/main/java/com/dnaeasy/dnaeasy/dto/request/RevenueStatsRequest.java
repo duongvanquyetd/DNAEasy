@@ -13,5 +13,4 @@ public class RevenueStatsRequest {
     private String type;
     private LocalDate from;
     private LocalDate to;
-    private Integer year;
 } 

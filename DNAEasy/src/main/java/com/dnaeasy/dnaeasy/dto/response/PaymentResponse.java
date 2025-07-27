@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -22,5 +24,7 @@ public class PaymentResponse {
     private BigDecimal paymentAmount;
     private String staffConfirmName;
     private String paycode;
+    private BigDecimal totalAmount;
+    private LocalDateTime paymentDate;
 
 }
