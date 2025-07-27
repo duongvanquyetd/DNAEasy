@@ -1,7 +1,7 @@
 import api from './api';
 
-export const GetPaymentList = (data) => {
-  return api.post("/payment/list", data);
+export const GetPaymentList = (data,pagesize,currentpage) => {
+  return api.post(`/payment/list?page=${currentpage}&size=${pagesize}`, data);
 };
 
 export const GetPaymentStatus = (appointmentId ) => {
@@ -35,4 +35,11 @@ export const  CreateRefund = (appoinment) =>{
 
 export const ChartOverview = (data)=>{
     return api.post("/appointment/revenue_chart",data)
+}
+export const GetRevenueForOverview = (data) => {
+  return api.post("/payment/statistics", data)
+}
+
+export const  FetchRevenueRefundStats = (data) => {
+  return api.post("/payment/revenue-stats",data);
 }

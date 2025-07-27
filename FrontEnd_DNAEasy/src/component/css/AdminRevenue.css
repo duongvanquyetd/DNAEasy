@@ -523,3 +523,35 @@
   flex: 1 1 100%;
   min-width: 0;
 }
+
+/* Date Range Filter Custom Styles */
+.admin-date-filter-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.admin-date-filter-controls select,
+.admin-date-filter-controls input[type="date"] {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background-color: #fff;
+  color: #374151;
+  min-width: 140px;
+  transition: border 0.18s;
+}
+
+.admin-date-filter-controls select:focus,
+.admin-date-filter-controls input[type="date"]:focus {
+  border: 1.5px solid #3b82f6;
+  outline: none;
+}
+
+.admin-date-filter-controls span {
+  color: #64748b;
+  font-weight: 500;
+  font-size: 1rem;
+}
