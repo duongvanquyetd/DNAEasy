@@ -176,7 +176,7 @@ export const BookingServicePage = () => {
                 id="typeCollect"
                 className={`form-select ${errors.typeCollect ? 'is-invalid' : ''}`}
                 value={typeCollect}
-                onChange={(e) => setTypeCollect(e.target.value)}
+                onChange={(e) => {setTypeCollect(e.target.value); e.target.value === 'Hospital_collection' &&   setLocation('111 Le Van Viet, District 9, Thu Duc City');}}
                 required
               >
 
@@ -260,9 +260,7 @@ export const BookingServicePage = () => {
                 id="location"
                 className={`form-control ${errors.location ? 'is-invalid' : ''}`}
                 value={
-                  typeCollect === 'Hospital_collection'
-                    ? '111 Le Van Viet, District 9, Thu Duc City'
-                    : location
+                  location 
                 }
                 onChange={(e) => setLocation(e.target.value)}
                 readOnly={typeCollect === 'Hospital_collection'}

@@ -196,7 +196,7 @@ const DNATestingAdminDashboard = () => {
   const [month, setMonth] = useState('');
   const [year, setYear] = useState('');
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i); // 5 năm trước đến 5 năm sau
+  const years = Array.from({ length: 5 }, (_, i) => currentYear - 4 + i); // 5 năm trước đến 5 năm sau
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const getDateRange = () => {
     const today = new Date();
@@ -211,8 +211,8 @@ const DNATestingAdminDashboard = () => {
       return { fromdate: d, todate: d };
     }
     if (dateRange === 'month') {
-      const startMonth = new Date(today.getFullYear(), month - 1, 1);
-      const endMonth = new Date(today.getFullYear(), month, 0);
+      const startMonth = new Date(Number(year), month - 1, 1);
+      const endMonth = new Date(Number(year), month, 0);
       const fromDate = startMonth.toISOString().slice(0, 10);
       const toDate = endMonth.toISOString().slice(0, 10);
       return { fromdate: fromDate, todate: toDate };
@@ -465,6 +465,7 @@ const DNATestingAdminDashboard = () => {
               </>
             )}
             {dateRange === 'month' && (
+               <>
               <div className="admin-date-filter-controls">
                 <select value={month} onChange={(e) => setMonth(e.target.value)}>
                   <option value=""> Month</option>
@@ -476,6 +477,15 @@ const DNATestingAdminDashboard = () => {
                 </select>
 
               </div>
+              <div className="admin-date-filter-controls">
+                <select value={year} onChange={(e) => setYear(e.target.value)}>
+                  <option value=""> Year</option>
+                  {years.map((year) => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
+             </>
             )}
             {dateRange === 'year' && (
               <div className="admin-date-filter-controls">
