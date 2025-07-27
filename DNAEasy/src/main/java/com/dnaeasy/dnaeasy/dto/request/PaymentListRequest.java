@@ -15,6 +15,5 @@ public class PaymentListRequest {
     private LocalDate startDate;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
-    private Integer page = 0;
-    private Integer size = 10;
+    private  boolean status;
 } 

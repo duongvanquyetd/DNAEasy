@@ -1,11 +1,10 @@
 package com.dnaeasy.dnaeasy.service.impl;
 
 import com.dnaeasy.dnaeasy.config.VnpayConfig;
-import com.dnaeasy.dnaeasy.dto.request.PaymentListRequest;
-import com.dnaeasy.dnaeasy.dto.request.PaymentRefundRequest;
-import com.dnaeasy.dnaeasy.dto.request.PaymentUpdateResquest;
-import com.dnaeasy.dnaeasy.dto.response.PaymentListResponse;
+import com.dnaeasy.dnaeasy.dto.request.*;
 import com.dnaeasy.dnaeasy.dto.response.PaymentResponse;
+import com.dnaeasy.dnaeasy.dto.response.RevenueChartResponse;
+import com.dnaeasy.dnaeasy.dto.response.StaticReponse;
 import com.dnaeasy.dnaeasy.dto.response.VnpayResponse;
 import com.dnaeasy.dnaeasy.enity.Appointment;
 import com.dnaeasy.dnaeasy.enity.AppointmnentTracking;
@@ -14,6 +13,7 @@ import com.dnaeasy.dnaeasy.enity.Person;
 import com.dnaeasy.dnaeasy.enums.PaymentMehtod;
 import com.dnaeasy.dnaeasy.exception.BadRequestException;
 import com.dnaeasy.dnaeasy.mapper.PaymentMapper;
+import com.dnaeasy.dnaeasy.mapper.SampleMapper;
 import com.dnaeasy.dnaeasy.responsity.IsAppointmentResponsitory;
 import com.dnaeasy.dnaeasy.responsity.IsPaymentResponsitory;
 import com.dnaeasy.dnaeasy.responsity.IsUserResponsity;
@@ -31,7 +31,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -236,6 +238,49 @@ public class PaymentService implements IsPaymentService {
   }
 
     @Override
+    public List<RevenueChartResponse> getRevenueStats(RevenueStatsRequest request) {
+        List<RevenueChartResponse> revenueChartResponses = new ArrayList<>();
+
+        if(request.getType() != null && request.getType().equals("year")) {
+
+            int year = request.getTo().getYear();
+            for (int i = 1; i <= 12; i++) {
+                LocalDateTime star = LocalDate.of(year, i, 1).atStartOfDay();
+                LocalDateTime end = LocalDate.of(year, i, 1).with(TemporalAdjusters.lastDayOfMonth()).atTime(23, 59, 59);
+                RevenueChartResponse response =  new RevenueChartResponse();
+
+                BigDecimal revenua = isPaymentResponsitory.getRevenueByPeriod(star,end,false);
+                BigDecimal refund = isPaymentResponsitory.getRevenueByPeriod(star,end,true);
+                response.setRevenue(revenua);
+                response.setRefund(refund);
+                response.setDate(LocalDate.from(star));
+
+                revenueChartResponses.add(response);
+            }
+            return revenueChartResponses;
+
+
+        }
+        LocalDateTime star = request.getFrom().atStartOfDay();
+        LocalDateTime end = request.getTo().atTime(23, 59, 59);
+        LocalDateTime current = star.plusDays(1);
+        while(star.isBefore(end)) {
+            RevenueChartResponse response =  new RevenueChartResponse();
+            BigDecimal revenua = isPaymentResponsitory.getRevenueByPeriod(star,end,false);
+            BigDecimal refund = isPaymentResponsitory.getRevenueByPeriod(star,end,true);
+            response.setRevenue(revenua);
+            response.setRefund(refund);
+            response.setDate(LocalDate.from(star));
+            revenueChartResponses.add(response);
+            star = star.plusDays(1);
+            current = star.plusDays(1);
+        }
+
+        return revenueChartResponses;
+    }
+
+
+    @Override
     public PaymentResponse CreatePaymentRefund(PaymentRefundRequest request, MultipartFile file) {
 
         List<Payment> p = isPaymentResponsitory.findALLByPaycode(request.getPaycode());
@@ -272,47 +317,27 @@ public class PaymentService implements IsPaymentService {
         return paymentMapper.PaymentToPaymentResponse(a.getPayment().getLast());
     }
 
+
+
     @Override
-    public PaymentListResponse getPaymentList(PaymentListRequest request) {
-        // Set default dates if not provided and convert LocalDate to LocalDateTime
-        LocalDateTime startDate = request.getStartDate() != null 
-            ? request.getStartDate().atStartOfDay() 
-            : LocalDateTime.now().minusMonths(1);
-            
-        LocalDateTime endDate = request.getEndDate() != null 
-            ? request.getEndDate().atTime(23, 59, 59) 
-            : LocalDateTime.now();
-        
-        // Create pageable with default sorting by payment date descending
-        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), Sort.by(Sort.Direction.DESC, "paymentDate"));
-        
-        // Get payments with pagination
-        Page<Payment> paymentPage = isPaymentResponsitory.findByPaymentDateBetween(startDate, endDate, pageable);
-        
-        // Map payments to DTOs
-        List<PaymentListResponse.PaymentSummaryDTO> paymentDTOs = paymentPage.getContent().stream()
-                .map(this::mapToPaymentSummaryDTO)
-                .collect(Collectors.toList());
-        
-        // Build response
-        return PaymentListResponse.builder()
-                .payments(paymentDTOs)
-                .totalElements(paymentPage.getTotalElements())
-                .totalPages(paymentPage.getTotalPages())
-                .currentPage(paymentPage.getNumber())
-                .build();
+    public Page<PaymentResponse> getPaymentList(PaymentListRequest request,Pageable pageable) {
+
+        Page<Payment> list = isPaymentResponsitory.findByTypeAndDate(request.getStartDate().atStartOfDay(),
+                request.getEndDate().atTime(23,59)
+                ,request.isStatus(),pageable);
+        return  list.map(paymentMapper::PaymentToPaymentResponse);
     }
-    
-    private PaymentListResponse.PaymentSummaryDTO mapToPaymentSummaryDTO(Payment payment) {
-        return PaymentListResponse.PaymentSummaryDTO.builder()
-                .paymentId(payment.getPaymentId())
-                .contenPayment(payment.getContenPayment())
-                .isExpense(payment.isExpense())
-                .paymentAmount(payment.getPaymentAmount())
-                .paymentDate(payment.getPaymentDate())
-                .paymentMethod(payment.getPaymentMethod() != null ? payment.getPaymentMethod().toString() : null)
-                .paycode(payment.getPaycode()) // Thêm paycode
-                .build();
+
+    @Override
+    public StaticReponse getStaticByDate(StaticRequest request) {
+
+        StaticReponse staticReponse = new StaticReponse();
+         BigDecimal revenua = isPaymentResponsitory.getRevenueByPeriod(request.getStartDate().atStartOfDay(),request.getEndDate().atTime(23,59),false);
+        BigDecimal refund = isPaymentResponsitory.getRevenueByPeriod(request.getStartDate().atStartOfDay(),request.getEndDate().atTime(23,59),true);
+        staticReponse.setRevenue(revenua);
+        staticReponse.setExpense(refund);
+
+        return staticReponse;
     }
 
 }

@@ -12,6 +12,5 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class StaticReponse {
     private BigDecimal revenue;
-    private BigDecimal totalExpense;
-    private BigDecimal remain;
+    private BigDecimal expense;
 }

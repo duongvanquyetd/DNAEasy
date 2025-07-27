@@ -1,16 +1,18 @@
 package com.dnaeasy.dnaeasy.controller;
 
-import com.dnaeasy.dnaeasy.dto.request.PaymentListRequest;
-import com.dnaeasy.dnaeasy.dto.request.PaymentRefundRequest;
-import com.dnaeasy.dnaeasy.dto.request.PaymentUpdateResquest;
-import com.dnaeasy.dnaeasy.dto.response.PaymentListResponse;
+import com.dnaeasy.dnaeasy.dto.request.*;
 import com.dnaeasy.dnaeasy.dto.response.PaymentResponse;
+import com.dnaeasy.dnaeasy.dto.response.RevenueChartResponse;
+import com.dnaeasy.dnaeasy.dto.response.StaticReponse;
 import com.dnaeasy.dnaeasy.dto.response.VnpayResponse;
 import com.dnaeasy.dnaeasy.enity.*;
 import com.dnaeasy.dnaeasy.service.impl.PaymentService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -89,7 +91,21 @@ public class PaymentController {
     }
     
     @PostMapping("/list")
-    public ResponseEntity<PaymentListResponse> getPaymentList(@RequestBody PaymentListRequest request) {
-        return ResponseEntity.ok(paymentService.getPaymentList(request));
+    public ResponseEntity<Page<PaymentResponse>> getPaymentList(@RequestBody PaymentListRequest request, @RequestParam int page, @RequestParam int size) {
+        Pageable pageable = PageRequest.of(page-1, size);
+
+        return ResponseEntity.ok(paymentService.getPaymentList(request,pageable));
+    }
+    @PostMapping("/revenue-stats")
+    public ResponseEntity<List<RevenueChartResponse>> getRevenueStats(@RequestBody RevenueStatsRequest request) {
+        return ResponseEntity.ok(paymentService.getRevenueStats(request));
+
+    }
+
+    @PostMapping("/statistics")
+    public ResponseEntity<StaticReponse> getByDate(@RequestBody StaticRequest request) {
+
+        StaticReponse response = paymentService.getStaticByDate(request);
+        return ResponseEntity.ok(response);
     }
 }

@@ -97,12 +97,7 @@ public class AppointmentController {
 //    }
 
 
-    @PostMapping("/statistics")
-    public ResponseEntity<StaticReponse> getByDate(@RequestBody StaticRequest request) {
 
-        StaticReponse response = appointmentService.getStaticByDate(request);
-        return ResponseEntity.ok(response);
-    }
 
     @GetMapping("/topservice")
     public ResponseEntity<List<TopServiceReponse>> getTopService() {
@@ -160,15 +155,7 @@ public class AppointmentController {
         return ResponseEntity.ok(chart);
     }
 
-    @PostMapping("/revenue-stats")
-    public ResponseEntity<List<RevenueChartResponse>> getRevenueStats(@RequestBody RevenueStatsRequest request) {
-        return ResponseEntity.ok(appointmentService.getRevenueStats(
-                request.getType(),
-                request.getFrom(),
-                request.getTo(),
-                request.getYear()
-        ));
-    }
+
 
     @GetMapping("/stats")
     public ResponseEntity<AppointmentStatsResponse> getAppointmentStats() {

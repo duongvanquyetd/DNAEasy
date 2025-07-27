@@ -1,17 +1,19 @@
 package com.dnaeasy.dnaeasy.service;
 
-import com.dnaeasy.dnaeasy.dto.request.PaymentListRequest;
-import com.dnaeasy.dnaeasy.dto.request.PaymentRefundRequest;
-import com.dnaeasy.dnaeasy.dto.request.PaymentUpdateResquest;
-import com.dnaeasy.dnaeasy.dto.response.PaymentListResponse;
+import com.dnaeasy.dnaeasy.dto.request.*;
 import com.dnaeasy.dnaeasy.dto.response.PaymentResponse;
+import com.dnaeasy.dnaeasy.dto.response.RevenueChartResponse;
+import com.dnaeasy.dnaeasy.dto.response.StaticReponse;
 import com.dnaeasy.dnaeasy.dto.response.VnpayResponse;
 import com.dnaeasy.dnaeasy.enity.Payment;
 import com.dnaeasy.dnaeasy.enity.Person;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface IsPaymentService {
@@ -24,9 +26,9 @@ public interface IsPaymentService {
 
     BigDecimal totalRevenueToday();
     PaymentResponse CreatePaymentRefund(PaymentRefundRequest request, MultipartFile file    );
-
+    StaticReponse getStaticByDate(StaticRequest request);
     Double findAllByPaymentYesterday();
-    
+    List<RevenueChartResponse> getRevenueStats(RevenueStatsRequest request);
     // New method for admin payment listing
-    PaymentListResponse getPaymentList(PaymentListRequest request);
+    Page<PaymentResponse> getPaymentList(PaymentListRequest request, Pageable pageable);
 }

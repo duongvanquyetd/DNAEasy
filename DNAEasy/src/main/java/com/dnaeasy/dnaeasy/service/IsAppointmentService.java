@@ -42,19 +42,10 @@ public interface IsAppointmentService {
     AppointmentResponse AssignStaffForApp(AppoinmetnAssignRequest request);
     Page<StaffResponse> getStaffForAppointment(int appointmentId,String keyword,Pageable pageable);
     boolean CanRefund(int appointmentId);
-
-
-    List<RevenueChartResponse>getRevenueByDay(String start, String end);
     List<RevenueDataPoint> getSimplifiedRevenueData(String start, String end);
-    StaticReponse getStaticByDate(StaticRequest request);
+
     List<TopServiceReponse> findTopService();
-    List<RevenueChartResponse> getRevenueStats(String type, LocalDate from, LocalDate to, Integer year);
-
-
     List<?> getAppointmentReport(AppointmnetReportRequest request);
-
-
-
     AppointmentStatsResponse getAppointmentStats();
    Page<AppointmentResponse> getAppointmentByDate(AppointmnetReportRequest request, Pageable pageabl);
     List<AppointmentResponse> recentAppointments(Pageable pageable);
