@@ -14,6 +14,14 @@ const AdminRevenue = () => {
     profit: { value: 0, change: 0, isUp: true }
   };
 
+
+  const FILTERS = {
+    day: { label: 'Day' },
+    month: { label: 'Month' },
+    year: { label: 'Year' }
+  };
+
+
   const [timeRangeDisplay, setTimeRangeDisplay] = useState('');
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -49,7 +57,12 @@ const AdminRevenue = () => {
       const response = await GetPaymentList(paymentFilter);
       setPaymentData(response.data);
     } catch (error) {
+
+      console.error("Error fetching payment list:", error);
+      setError("Unable to load payment data");
+
       setError("Cannot load payment data");
+
     } finally {
       setLoading(false);
     }
@@ -116,7 +129,11 @@ const AdminRevenue = () => {
         setExpenses(Number(data.totalExpense) || 0);
         setProfit(Number(data.remain) || 0);
       } catch (err) {
+
+        console.error("Error when fetching statistics data:", err);
+
         // eslint-disable-next-line
+
       }
     };
 
@@ -143,6 +160,13 @@ const AdminRevenue = () => {
     }
     return date;
   }
+
+
+  const formatDisplayDate = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
 
   return (
     <div className="style-dashboard">
@@ -173,7 +197,10 @@ const AdminRevenue = () => {
           <div className="dashboard-row">
             <div className="dashboard-card chart-card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 12 }}>
+
+                <div className="card-title"><FaChartLine size={22} /> Revenue and Refund Statistics</div>
                 <div className="card-title"><FaChartLine size={22} /> Revenue & Refund Statistics</div>
+
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
                   <div className="date-filter-label" style={{ fontWeight: 600, fontSize: 14, color: '#3a6ff8' }}>Select time range:</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -210,25 +237,85 @@ const AdminRevenue = () => {
                 <ResponsiveContainer width="100%" height={400}>
                   <LineChart
                     data={chartData}
-                    margin={{ top: 60, right: 30, left: 0, bottom: 80 }}
+                    margin={{ top: 60, right: 30, left: 20, bottom: 80 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e0e6f7" />
                     <XAxis
                       dataKey="date"
                       angle={-45}
                       textAnchor="end"
                       height={70}
-                      tickFormatter={(value) => value.substring(0, 10)}
+                      tickFormatter={(value) => {
+                        // Format date for better display
+                        const date = new Date(value);
+                        return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+                      }}
+                      tick={{ fill: '#0a1d56', fontSize: 12 }}
+                      axisLine={{ stroke: '#e0e6f7' }}
+                      tickLine={{ stroke: '#e0e6f7' }}
                     />
+                    <YAxis 
+                      tickFormatter={(value) => {
+                        // Format currency with proper spacing
+                        if (value >= 1000000) {
+                          return `${(value / 1000000).toFixed(1)}M đ`;
+                        } else if (value >= 1000) {
+                          return `${(value / 1000).toFixed(0)}K đ`;
+                        }
+                        return `${value} đ`;
+                      }}
+                      tick={{ fill: '#0a1d56', fontSize: 12 }}
+                      axisLine={{ stroke: '#e0e6f7' }}
+                      tickLine={{ stroke: '#e0e6f7' }}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'white', 
+                        borderRadius: '8px', 
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)', 
+                        border: '1px solid #e0e6f7',
+                        padding: '10px'
+                      }}
+                      formatter={(value) => [`${value.toLocaleString()} đ`, undefined]}
+                      labelFormatter={(label) => {
+                        const date = new Date(label);
+                        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                      }}
+                    />
+
                     <YAxis tickFormatter={(value) => `${value.toLocaleString()} VND`} />
                     <Tooltip formatter={(value) => `${value.toLocaleString()} VND`} />
+
                     <Legend
                       verticalAlign="top"
                       align="right"
                       height={50}
+                      iconType="circle"
+                      iconSize={10}
+                      wrapperStyle={{ paddingBottom: '20px' }}
                     />
+                    <Line 
+                      type="monotone" 
+                      dataKey="revenue" 
+                      stroke="#16c784" 
+                      strokeWidth={3} 
+                      name="Revenue (VND)" 
+                      dot={{ stroke: '#16c784', strokeWidth: 2, r: 4, fill: 'white' }}
+                      activeDot={{ stroke: '#16c784', strokeWidth: 2, r: 6, fill: 'white' }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="refund" 
+                      stroke="#ff6961" 
+                      strokeWidth={3} 
+                      name="Refund (VND)" 
+                      dot={{ stroke: '#ff6961', strokeWidth: 2, r: 4, fill: 'white' }}
+                      activeDot={{ stroke: '#ff6961', strokeWidth: 2, r: 6, fill: 'white' }}
+                    />
+
                     <Line type="monotone" dataKey="revenue" stroke="#82ca9d" name="Revenue (VND)" />
                     <Line type="monotone" dataKey="refund" stroke="#ff6961" name="Refund (VND)" />
+
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -240,7 +327,11 @@ const AdminRevenue = () => {
         <div className="dashboard-row" style={{ marginTop: '30px', marginBottom: '20px' }}>
           <div className="dashboard-card" style={{ flex: 1 }}>
             <div className="card-title">
+
+              <FaCalendarAlt size={22} style={{ color: '#3a6ff8' }} /> List Filters
+
               <FaCalendarAlt size={22} style={{ color: '#3a6ff8' }} /> List Filter
+
             </div>
             <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
               <div>
@@ -311,7 +402,12 @@ const AdminRevenue = () => {
                     <tr style={{ borderBottom: '1px solid #e0e6f7', textAlign: 'left' }}>
                       <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Date</th>
                       <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Method</th>
+
+                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Transaction ID</th>
+                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Payment Content</th>
+
                       <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Transaction Code</th>
+
                       <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600, textAlign: 'right' }}>Amount</th>
                     </tr>
                   </thead>
@@ -319,9 +415,13 @@ const AdminRevenue = () => {
                     {paymentData.payments && paymentData.payments.filter(payment => !payment.expense).length > 0 ? (
                       paymentData.payments.filter(payment => !payment.expense).map((payment) => (
                         <tr key={payment.paymentId}>
+
+                          <td style={{ padding: '12px 8px' }}>{new Date(payment.paymentDate).toLocaleDateString('en-US')}</td>
                           <td style={{ padding: '12px 8px' }}>{new Date(payment.paymentDate).toLocaleDateString('en-GB')}</td>
+
                           <td style={{ padding: '12px 8px' }}>{payment.paymentMethod || "N/A"}</td>
                           <td style={{ padding: '12px 8px' }}>{payment.paycode || "N/A"}</td>
+                          <td style={{ padding: '12px 8px' }}>{payment.contenPayment || "N/A"}</td>
                           <td style={{ padding: '12px 8px', fontWeight: 600, color: '#16c784', textAlign: 'right' }}>
                             {payment.paymentAmount.toLocaleString()} VND
                           </td>
@@ -329,7 +429,11 @@ const AdminRevenue = () => {
                       ))
                     ) : (
                       <tr>
+
+                        <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>No income data available</td>
+
                         <td colSpan="4" style={{ textAlign: 'center', padding: '20px' }}>No income data</td>
+
                       </tr>
                     )}
                   </tbody>
@@ -362,7 +466,9 @@ const AdminRevenue = () => {
               </div>
             </div>
           </div>
-          
+        </div>
+        
+        <div className="dashboard-row" style={{ marginTop: '20px' }}>
           {/* Expense List */}
           <div className="dashboard-card" style={{ flex: 1 }}>
             <div className="card-title">
@@ -377,7 +483,12 @@ const AdminRevenue = () => {
                     <tr style={{ borderBottom: '1px solid #e0e6f7', textAlign: 'left' }}>
                       <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Date</th>
                       <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Method</th>
+
+                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Transaction ID</th>
+                      <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Payment Content</th>
+
                       <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600 }}>Transaction Code</th>
+
                       <th style={{ padding: '12px 8px', color: '#3a6ff8', fontWeight: 600, textAlign: 'right' }}>Amount</th>
                     </tr>
                   </thead>
@@ -385,9 +496,14 @@ const AdminRevenue = () => {
                     {paymentData.payments && paymentData.payments.filter(payment => payment.expense).length > 0 ? (
                       paymentData.payments.filter(payment => payment.expense).map((payment) => (
                         <tr key={payment.paymentId} style={{ borderBottom: '1px solid #f5f8ff' }}>
+
+                          <td style={{ padding: '12px 8px' }}>{new Date(payment.paymentDate).toLocaleDateString('en-US')}</td>
+
                           <td style={{ padding: '12px 8px' }}>{new Date(payment.paymentDate).toLocaleDateString('en-GB')}</td>
+
                           <td style={{ padding: '12px 8px' }}>{payment.paymentMethod || "N/A"}</td>
                           <td style={{ padding: '12px 8px' }}>{payment.paycode || "N/A"}</td>
+                          <td style={{ padding: '12px 8px' }}>{payment.contenPayment || "N/A"}</td>
                           <td style={{ padding: '12px 8px', fontWeight: 600, color: '#ff6961', textAlign: 'right' }}>
                             {payment.paymentAmount.toLocaleString()} VND
                           </td>
@@ -395,7 +511,11 @@ const AdminRevenue = () => {
                       ))
                     ) : (
                       <tr>
+
+                        <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>No expense data available</td>
+
                         <td colSpan="4" style={{ textAlign: 'center', padding: '20px' }}>No expense data</td>
+
                       </tr>
                     )}
                   </tbody>
