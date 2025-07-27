@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getAllBlogs } from '../../service/MockBlogService';
 import '../../component/css/BlogListSidebar.css';
+import { GetALlBlog } from '../../service/Blog';
 
 const BlogListSidebar = () => {
   const [blogs, setBlogs] = useState([]);
@@ -10,11 +10,13 @@ const BlogListSidebar = () => {
 
   useEffect(() => {
     const fetchBlogs = async () => {
-      const response = await getAllBlogs();
+      const response = await GetALlBlog();
+        console.log("Fetching blogs for sidebar...", response.data);
       if (response.data) {
         setBlogs(response.data.filter(blog => blog.blogId !== blogId));
       }
     };
+  
     fetchBlogs();
   }, [blogId]);
 
@@ -31,7 +33,7 @@ const BlogListSidebar = () => {
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
             >
-              {blog.title}
+              {blog.blogTitle}
             </button>
           </li>
         ))}
