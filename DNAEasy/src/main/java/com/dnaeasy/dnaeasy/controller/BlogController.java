@@ -55,14 +55,14 @@ public class BlogController {
     }
 
     @GetMapping("/active/{id}")
-    public ResponseEntity<?> ApproveBlog(@PathVariable("id") int blogid) {
+    public ResponseEntity<?>active(@PathVariable("id") int blogid) {
 
-        return ResponseEntity.ok(blogService.ApproveBlog(blogid));
+        return ResponseEntity.ok(blogService.active(blogid));
     }
 
     @GetMapping("/delete/{id}")
-    public ResponseEntity<?> DeleteeBlog(@PathVariable("id") int blogid) {
-        blogService.DeleteBlog(blogid);
+    public ResponseEntity<?> inactive(@PathVariable("id") int blogid) {
+        blogService.inactive(blogid);
         return ResponseEntity.ok("Deleted blog");
     }
 
@@ -100,6 +100,11 @@ public class BlogController {
     public ResponseEntity<ManageBlogResponse> response() {
 
         return ResponseEntity.ok(blogService.ManageBlogReport());
+    }
+
+    @GetMapping("/typeblog")
+    public ResponseEntity<List<String>> typeBlog() {
+        return ResponseEntity.ok(blogService.listtypeBlog());
     }
 
 }

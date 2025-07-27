@@ -51,7 +51,7 @@ public interface IsAppointmentService {
     List<RevenueChartResponse> getRevenueStats(String type, LocalDate from, LocalDate to, Integer year);
 
 
-    List<AppointmentReportResponse> getAppointmentReport(AppointmnetReportRequest request);
+    List<?> getAppointmentReport(AppointmnetReportRequest request);
 
 
 

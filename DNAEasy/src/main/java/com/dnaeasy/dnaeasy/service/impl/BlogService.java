@@ -138,15 +138,15 @@ public class BlogService implements IsBlogService {
     }
 
     @Override
-    public String ApproveBlog(int blogid) {
+    public String active(int blogid) {
         Blog b = isBlogResponsity.findById(blogid).orElseThrow(() -> new ResourceNotFound("Blog id not found" + blogid));
         b.setActive(true);
         isBlogResponsity.save(b);
-        return "Approved";
+        return "active";
     }
 
     @Override
-    public void DeleteBlog(int blogid) {
+    public void inactive(int blogid) {
         Blog blog = isBlogResponsity.findById(blogid).orElseThrow(() -> new ResourceNotFound("Blog id not found" + blogid));
         blog.setActive(false);
         isBlogResponsity.save(blog);
@@ -186,6 +186,21 @@ public class BlogService implements IsBlogService {
         mn.setTotalblogActive(isBlogResponsity.countByActive(true));
         mn.setTotalblogInactive(isBlogResponsity.countByActive(false));
         return mn;
+    }
+
+    @Override
+    public List<String> listtypeBlog() {
+
+        List<String> type = new ArrayList<>();
+        List<Blog> blogList  = isBlogResponsity.findAll();
+        for (Blog blog : blogList) {
+
+            if(!type.contains(blog.getBlogType())) {
+                type.add(blog.getBlogType());
+            }
+
+        }
+        return type;
     }
 
 }
