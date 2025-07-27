@@ -18,10 +18,11 @@ public interface IsBlogService {
 
     BlogResponse UpdateBlog(int blogid, BlogCreateRequest blogCreateRequest, List<MultipartFile> files, List<String> removeimg);
 
-    String ApproveBlog(int blogid);
-    void DeleteBlog(int blogid);
+    String active(int blogid);
+    void inactive(int blogid);
     Page<BlogResponse> findbyNameAndType(SearchRequest searchRequest, Pageable pageable,boolean active);
     BlogResponse getBlogByID(int id);
     ManageBlogResponse ManageBlogReport();
+    List<String> listtypeBlog();
 
 }

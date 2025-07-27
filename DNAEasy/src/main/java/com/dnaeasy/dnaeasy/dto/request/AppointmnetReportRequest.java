@@ -13,4 +13,5 @@ public class AppointmnetReportRequest {
     LocalDate  fromdate;
     LocalDate  todate;
     String currentStatus;
+    String type;
 }

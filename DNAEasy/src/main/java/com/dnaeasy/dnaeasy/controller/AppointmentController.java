@@ -138,7 +138,7 @@ public class AppointmentController {
     }
 
     @PostMapping("/reportappointment")
-    public ResponseEntity<List<AppointmentReportResponse>> getAppointmentReport(@RequestBody AppointmnetReportRequest request) {
+    public ResponseEntity<List<?>> getAppointmentReport(@RequestBody AppointmnetReportRequest request) {
         return ResponseEntity.ok(appointmentService.getAppointmentReport(request));
     }
 

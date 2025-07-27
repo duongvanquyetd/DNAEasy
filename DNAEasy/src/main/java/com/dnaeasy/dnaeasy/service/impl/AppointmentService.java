@@ -42,6 +42,7 @@ import java.sql.Timestamp;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -806,8 +807,6 @@ public class AppointmentService implements IsAppointmentService {
         response.setRemain(remain);
         return new StaticReponse(revenue, expense, remain);
     }
-
-
     @Override
     public List<TopServiceReponse> findTopService() {
 
@@ -863,47 +862,55 @@ public class AppointmentService implements IsAppointmentService {
             dataPoint.setDate(current.format(formatter));
             dataPoint.setRevenue(dailyRevenue.intValue());
             chartData.add(dataPoint);
-
             current = current.plusDays(1);
         }
         return chartData;
     }
 
     @Override
-    public List<AppointmentReportResponse> getAppointmentReport(AppointmnetReportRequest request) {
-        List<Appointment> appointments= null;
-
-            appointments = isAppointmentResponsitory.findAllByDateCollect(request.getFromdate().atStartOfDay(), request.getTodate().plusDays(1).atStartOfDay());
-
+    public List<?> getAppointmentReport(AppointmnetReportRequest request) {
         List<AppointmentReportResponse> responses = new ArrayList<>();
-        for (Appointment a : appointments) {
-            int cout = 0;
-            if (responses.size() > 0) {
 
-                for (AppointmentReportResponse r : responses) {
-                    if (LocalDate.from(a.getCreatedate()).equals(r.getAppointmentDate())) {
-                        cout++;
-                    }
+            if ( request.getType() != null && request.getType().equalsIgnoreCase("year")) {
+                int year = request.getTodate().getYear();
+                for (int i = 1; i <= 12; i++) {
+                    LocalDateTime star = LocalDate.of(year, i, 1).atStartOfDay();
+                    LocalDateTime end = LocalDate.of(year, i , 1).with(TemporalAdjusters.lastDayOfMonth()).atTime(23, 59, 59);
+                    AppointmentReportResponse response = new AppointmentReportResponse();
+                    response.setAppointmentDate(LocalDate.from(star));
+                    response.setComplete(isAppointmentResponsitory.countByDateCollectAndCurentStatusAppointmentIsLike(star, end, "COMPLETE"));
+                    response.setCancle(isAppointmentResponsitory.countByDateCollectAndCurentStatusAppointmentIsLike(star, end, "CANCLE"));
+                    response.setRefunded(isAppointmentResponsitory.countByDateCollectAndCurentStatusAppointmentIsLike(star, end, "REFUNDED"));
+                    List<String> list = new ArrayList<>();
+                    list.add("COMPLETE");
+                    list.add("CANCLE");
+                    list.add("REFUNDED");
+                    response.setInprocess(isAppointmentResponsitory.countAppointmentInprocess(star, end, list));
+                    responses.add(response);
                 }
-            }
-            if (cout == 0) {
-                AppointmentReportResponse response = new AppointmentReportResponse();
-                response.setAppointmentDate(LocalDate.from(a.getCreatedate()));
-                LocalDate time = LocalDate.from(a.getCreatedate());
-                response.setComplete(isAppointmentResponsitory.countByDateCollectAndCurentStatusAppointmentIsLike(time.atStartOfDay(), time.plusDays(1).atStartOfDay(), "COMPLETE"));
-                response.setCancle(isAppointmentResponsitory.countByDateCollectAndCurentStatusAppointmentIsLike(time.atStartOfDay(), time.plusDays(1).atStartOfDay(), "CANCLE"));
-                response.setRefunded(isAppointmentResponsitory.countByDateCollectAndCurentStatusAppointmentIsLike(time.atStartOfDay(), time.plusDays(1).atStartOfDay(), "REFUNDED"));
-                List<String> list = new ArrayList<>();
-                list.add("COMPLETE");
-                list.add("CANCLE");
-                list.add("REFUNDED");
-                response.setInprocess(isAppointmentResponsitory.countAppointmentInprocess(time.atStartOfDay(), time.plusDays(1).atStartOfDay(), list));
-                responses.add(response);
-
-            }
 
 
+            return  responses;
         }
+        LocalDateTime star = request.getFromdate().atStartOfDay();
+        LocalDateTime end = request.getTodate().atTime(23, 59, 59);
+        LocalDateTime current = star.plusDays(1);
+        while(star.isBefore(end)) {
+            AppointmentReportResponse response = new AppointmentReportResponse();
+            response.setAppointmentDate(LocalDate.from(star));
+            response.setComplete(isAppointmentResponsitory.countByDateCollectAndCurentStatusAppointmentIsLike(star, current, "COMPLETE"));
+            response.setCancle(isAppointmentResponsitory.countByDateCollectAndCurentStatusAppointmentIsLike(star, current, "CANCLE"));
+            response.setRefunded(isAppointmentResponsitory.countByDateCollectAndCurentStatusAppointmentIsLike(star, current, "REFUNDED"));
+            List<String> list = new ArrayList<>();
+            list.add("COMPLETE");
+            list.add("CANCLE");
+            list.add("REFUNDED");
+            response.setInprocess(isAppointmentResponsitory.countAppointmentInprocess(star, current, list));
+            responses.add(response);
+            star = star.plusDays(1);
+            current = star.plusDays(1);
+
+            }
         return responses;
 
     }
