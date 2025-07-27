@@ -211,11 +211,13 @@ const ManageService = () => {
         setCreateForm(false);       // Ẩn form
         form.resetFields();
         setToast({ type: 'success', message: 'Service updated successfully!' });
-        setTimeout(() => setToast(null), 1500);
+        setTimeout(() => setToast(null), 20000);
       }).catch((error) => {
         console.log("Error", error.response?.data?.error)
         setToast({ type: 'error', message: 'Error updating service!' });
+
       setTimeout(() => setToast(null), 2000);
+
       })
     }
     else {
