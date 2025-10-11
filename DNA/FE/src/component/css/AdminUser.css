@@ -1,0 +1,660 @@
+/* --- Modern Admin User Management Styles (Minimal, Elegant) --- */
+.aum-root {
+  min-height: 100vh;
+  background: linear-gradient(120deg, #f8fafc 0%, #e0e7ef 100%);
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  color: #1e293b;
+}
+
+.aum-header {
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(30,41,59,0.05);
+  border-bottom: 1px solid #e5e7eb;
+  padding: 2rem 0 1.5rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.aum-header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1.5rem;
+}
+.aum-header-title {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+.aum-header-icon {
+  color: #2563eb;
+  background: linear-gradient(135deg, #e0e7ef 0%, #60a5fa 100%);
+  border-radius: 1rem;
+  padding: 0.5rem;
+}
+.aum-header-title h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin: 0 0 0.2rem 0;
+  background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+.aum-header-title p {
+  color: #64748b;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.aum-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 2rem 1.5rem;
+}
+
+/* Stats Cards */
+.aum-stats-row {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+}
+.aum-stats-card {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 1px 4px rgba(30,41,59,0.06);
+  border: 1px solid #e5e7eb;
+  padding: 1.5rem 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  cursor: pointer;
+  transition: background 0.18s, border 0.18s;
+  min-width: 220px;
+  flex: 1 1 220px;
+}
+.aum-stats-card.active, .aum-stats-card:hover {
+  border: 2px solid #2563eb;
+  background: #f5f7fa;
+  box-shadow: 0 1px 8px rgba(30,41,59,0.08);
+}
+.aum-stats-icon {
+  background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
+  border-radius: 1rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: none;
+}
+.aum-stats-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.aum-stats-label {
+  font-size: 1rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.aum-stats-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+/* Tabs */
+.aum-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+.aum-tab-btn {
+  background: #f1f5f9;
+  border: none;
+  border-radius: 0.8rem 0.8rem 0 0;
+  padding: 0.9rem 2.2rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  position: relative;
+  outline: none;
+}
+.aum-tab-btn.active, .aum-tab-btn:focus {
+  background: #fff;
+  color: #2563eb;
+  border-bottom: 3px solid #2563eb;
+  z-index: 2;
+}
+.aum-tab-count {
+  margin-left: 0.7rem;
+  background: #e0e7ef;
+  color: #2563eb;
+  border-radius: 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.2rem 0.8rem;
+}
+
+/* Search & Filter */
+.aum-search-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+.aum-search-box {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 0.9rem;
+  padding: 0.5rem 1.2rem;
+  gap: 0.7rem;
+  box-shadow: none;
+  flex: 1 1 320px;
+}
+.aum-search-box input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1rem;
+  color: #1e293b;
+  width: 100%;
+  padding: 0.5rem 0;
+}
+.aum-filter-box {
+  position: relative;
+}
+.aum-filter-btn {
+  background: #e0e7ef;
+  color: #2563eb;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.7rem;
+  font-weight: 500;
+  padding: 0.7rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+.aum-filter-btn:hover {
+  background: #2563eb;
+  color: #fff;
+}
+.aum-filter-dropdown {
+  position: absolute;
+  top: 120%;
+  left: 0;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.7rem;
+  box-shadow: 0 1px 4px rgba(30,41,59,0.08);
+  padding: 1rem;
+  z-index: 10;
+}
+.aum-filter-dropdown select {
+  padding: 0.7rem 1.1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.7rem;
+  background: #fff;
+  color: #1e293b;
+  font-size: 1rem;
+}
+
+/* Error Display */
+.aum-error-display {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  border-radius: 0.7rem;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.aum-error-display button {
+  background: none;
+  border: none;
+  color: #b91c1c;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* Table Section */
+.aum-table-section {
+  margin-bottom: 2.5rem;
+}
+.aum-table-wrapper {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 1px 4px rgba(30,41,59,0.06);
+  border: 1px solid #e5e7eb;
+  overflow-x: auto;
+}
+.aum-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 900px;
+}
+.aum-table thead tr {
+  background: #f1f5f9;
+}
+.aum-table th, .aum-table td {
+  padding: 1.1rem 1.5rem;
+  font-size: 1rem;
+  text-align: left;
+}
+.aum-table th {
+  font-weight: 700;
+  color: #2563eb;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: #f1f5f9;
+  border-bottom: 1px solid #e5e7eb;
+}
+.aum-table tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background 0.18s;
+}
+.aum-table tbody tr:hover {
+  background: #e0e7ef;
+}
+.aum-user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.aum-avatar {
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+  border: 2px solid #fff;
+}
+.aum-user-name {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 1.1rem;
+}
+.aum-user-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  color: #64748b;
+  font-size: 0.98rem;
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  border-radius: 2rem;
+  box-shadow: none;
+  border: none;
+}
+.status-badge.active {
+  background: linear-gradient(90deg, #22c55e 0%, #4ade80 100%);
+}
+.status-badge.inactive {
+  background: linear-gradient(90deg, #f87171 0%, #fbbf24 100%);
+}
+
+/* Actions */
+.aum-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.aum-actions button {
+  background: #f1f5f9;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.7rem;
+  padding: 0.5rem 0.7rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  font-size: 1rem;
+  box-shadow: none;
+}
+.aum-action-view:hover {
+  background: #e0e7ef;
+  color: #2563eb;
+}
+.aum-action-edit:hover {
+  background: #e0e7ef;
+  color: #22c55e;
+}
+.aum-action-delete:hover {
+  background: #e0e7ef;
+  color: #f87171;
+}
+
+/* Pagination */
+.aum-pagination-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+.aum-pagination-info {
+  font-size: 1rem;
+  color: #64748b;
+}
+.aum-pagination-btns {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.aum-pagination-btns button {
+  padding: 0.7rem 1.3rem;
+  color: #2563eb;
+  background: #e0e7ef;
+  border-radius: 0.7rem;
+  border: 1px solid #cbd5e1;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+.aum-pagination-btns button.active, .aum-pagination-btns button:focus {
+  background: #2563eb;
+  color: #fff;
+  border: 1px solid #2563eb;
+}
+.aum-pagination-btns button:disabled {
+  color: #b6c2d6;
+  background: #f1f5f9;
+  cursor: not-allowed;
+}
+
+/* Modal */
+.aum-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1.5rem;
+}
+.aum-modal {
+  background: #fff;
+  border-radius: 1.5rem;
+  box-shadow: 0 2px 8px rgba(30,41,59,0.08);
+  max-width: 32rem;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.aum-modal-header {
+  padding: 2rem 2rem 1rem 2rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+.aum-modal-header h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+.aum-modal-header p {
+  color: #64748b;
+  margin-top: 0.5rem;
+  font-size: 1rem;
+}
+.aum-modal-body {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.aum-modal-user {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+.aum-modal-user .aum-avatar {
+  width: 4rem;
+  height: 4rem;
+  font-size: 1.25rem;
+}
+.aum-modal-user h4 {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 1.25rem;
+  margin: 0 0 0.2rem 0;
+}
+.aum-modal-user p {
+  font-size: 0.98rem;
+  color: #64748b;
+  margin: 0;
+}
+.aum-modal-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.2rem;
+  font-size: 0.98rem;
+}
+.aum-modal-info-grid span {
+  color: #64748b;
+  font-weight: 500;
+}
+.aum-modal-info-grid p {
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0.1rem 0 0 0;
+}
+.aum-modal-role label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #1e293b;
+  margin-bottom: 0.7rem;
+}
+.aum-modal-role-options {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.aum-role-option {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  border: 1.5px solid #d1d5db;
+  border-radius: 0.7rem;
+  padding: 0.7rem 1.2rem;
+  cursor: pointer;
+  transition: background 0.18s, border 0.18s;
+  background: #f8fafc;
+}
+.aum-role-option.selected, .aum-role-option:hover {
+  border: 2px solid #2563eb;
+  background: #e0e7ef;
+}
+.aum-role-option input[type="radio"] {
+  margin-right: 0.5rem;
+  accent-color: #2563eb;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+.aum-role-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
+  color: #fff;
+}
+.aum-modal-footer {
+  padding: 1.5rem 2rem;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+.aum-btn-cancel {
+  padding: 0.7rem 1.5rem;
+  color: #1e293b;
+  background: #f1f5f9;
+  border-radius: 0.7rem;
+  border: 1px solid #e5e7eb;
+  font-weight: 500;
+  transition: background 0.18s, color 0.18s;
+}
+.aum-btn-cancel:hover {
+  background: #e0e7ef;
+}
+.aum-btn-update {
+  padding: 0.7rem 2rem;
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  color: #fff;
+  border-radius: 0.7rem;
+  font-weight: 500;
+  border: none;
+  box-shadow: none;
+  transition: background 0.18s;
+}
+.aum-btn-update:hover {
+  background: #2563eb;
+}
+
+/* Loading Spinner */
+.aum-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 0;
+  gap: 1rem;
+}
+.aum-spinner {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .aum-main, .aum-header-content {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  .aum-stats-row {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .aum-tabs {
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .aum-table {
+    min-width: 600px;
+  }
+}
+@media (max-width: 600px) {
+  .aum-header-title h1 {
+    font-size: 1.3rem;
+  }
+  .aum-stats-card {
+    padding: 1rem 1.2rem;
+  }
+  .aum-table th, .aum-table td {
+    padding: 0.7rem 0.5rem;
+    font-size: 0.95rem;
+  }
+  .aum-modal {
+    padding: 0.5rem;
+  }
+}
+/* ...existing code... */
+
+.aum-filter-box input[type="date"] {
+  border: 1.5px solid #cbd5e1;
+  border-radius: 0.7rem;
+  padding: 0.6rem 1.1rem;
+  background: #fff;
+  color: #1e293b;
+  font-size: 1rem;
+  margin: 0 0.3rem;
+  transition: border 0.18s, box-shadow 0.18s;
+  outline: none;
+  box-shadow: none;
+}
+
+.aum-filter-box input[type="date"]:focus {
+  border: 2px solid #2563eb;
+  box-shadow: 0 0 0 2px #dbeafe;
+}
+.aum-date-picker {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  background: #fff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 0.7rem;
+  box-shadow: 0 1px 4px rgba(30,41,59,0.04);
+  margin: 0 0.3rem;
+  transition: border 0.18s, box-shadow 0.18s;
+}
+
+.aum-date-picker input[type="date"] {
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #1e293b;
+  font-size: 1rem;
+  padding: 0.6rem 1.1rem 0.6rem 2.2rem;
+  border-radius: 0.7rem;
+  width: 130px;
+  transition: background 0.18s;
+}
+
+.aum-date-picker input[type="date"]:focus {
+  background: #f0f7ff;
+}
+
+.aum-date-icon {
+  position: absolute;
+  left: 0.7rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #2563eb;
+  opacity: 0.85;
+  display: flex;
+  align-items: center;
+}
+
+.aum-date-picker:focus-within {
+  border: 2px solid #2563eb;
+  box-shadow: 0 0 0 2px #dbeafe;
+}

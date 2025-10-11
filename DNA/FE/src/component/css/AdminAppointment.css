@@ -1,0 +1,478 @@
+
+.orders-container {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.orders-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.orders-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.orders-controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.search-container {
+  position: relative;
+}
+
+.search-input {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  width: 250px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
+
+.time-filter {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: white;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.time-filter:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+.orders-table th {
+  background-color: #f9fafb;
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.orders-table td {
+  padding: 16px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 14px;
+  color: #1f2937;
+}
+
+.orders-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.orders-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.product-cell {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.number-cell {
+  color: #6b7280;
+  font-family: monospace;
+}
+
+.date-cell {
+  color: #6b7280;
+}
+
+.location-cell {
+  color: #374151;
+}
+
+.amount-cell {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.status-cell {
+  text-align: center;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-delivered {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-canceled {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .orders-container {
+    padding: 16px;
+  }
+
+  .orders-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .orders-controls {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .time-filter {
+    width: 100%;
+  }
+
+  .orders-table {
+    font-size: 12px;
+  }
+
+  .orders-table th,
+  .orders-table td {
+    padding: 12px 8px;
+  }
+}
+
+@media (max-width: 640px) {
+  .orders-table th,
+  .orders-table td {
+    padding: 8px 4px;
+  }
+
+  .orders-title {
+    font-size: 20px;
+  }
+}
+
+.pagination-admin-appoint {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.page-admin-appoint-button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background: #f1f5ff;
+  color: #1e3a8a;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.page-admin-appoint-button.active,
+.page-admin-appoint-button:hover {
+  background: #1e3a8a;
+  color: #ffffff;
+}
+/* ...existing code... */
+
+.status-badge {
+  padding: 6px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  min-width: 110px;
+  text-align: center;
+  border: 1.5px solid transparent;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
+}
+
+.status-completed {
+  background: linear-gradient(90deg, #d1fae5 0%, #bbf7d0 100%);
+  color: #15803d;
+  border-color: #34d399;
+}
+
+.status-canceled {
+  background: linear-gradient(90deg, #fee2e2 0%, #fecaca 100%);
+  color: #b91c1c;
+  border-color: #f87171;
+}
+
+.status-refunded {
+  background: linear-gradient(90deg, #fef9c3 0%, #fde68a 100%);
+  color: #b45309;
+  border-color: #fde68a;
+}
+
+.status-processing {
+  background: linear-gradient(90deg, #dbeafe 0%, #bae6fd 100%);
+  color: #2563eb;
+  border-color: #60a5fa;
+}
+
+.status-other {
+  background: #f3f4f6;
+  color: #374151;
+  border-color: #d1d5db;
+}
+
+/* Table hover effect */
+.orders-table tbody tr:hover {
+  background-color: #f1f5f9;
+  transition: background 0.2s;
+}
+
+/* ...existing code... */
+
+.styled-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2563eb;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.icon-list {
+  font-size: 1.5rem;
+  color: #0ea5e9;
+}
+
+.icon-star {
+  font-size: 1.5rem;
+  color: #f59e42;
+}
+
+.orders-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.orders-filter-btns {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.filter-btn {
+  background: #f1f5f9;
+  color: #2563eb;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  padding: 6px 18px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+
+.filter-btn.active,
+.filter-btn:hover {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+
+.orders-empty {
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.icon-calendar {
+  font-size: 1.3rem;
+  color: #f59e42;
+}
+
+.date-highlight {
+  color: #2563eb;
+  font-weight: 600;
+  background: #e0e7ff;
+  border-radius: 6px;
+  padding: 0 6px;
+}
+/* ...existing code... */
+
+.no-appointment-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: linear-gradient(90deg, #f1f5f9 60%, #e0e7ff 100%);
+  border: 1.5px solid #c7d2fe;
+  border-radius: 12px;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px 0 rgba(30, 64, 175, 0.04);
+}
+
+.no-appointment-alert .icon-calendar {
+  font-size: 2.2rem;
+  color: #2563eb;
+  margin-top: 0.1rem;
+}
+
+.no-appointment-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2563eb;
+  margin-bottom: 0.2rem;
+}
+
+.no-appointment-desc {
+  font-size: 1rem;
+  color: #64748b;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* Date Range Filter Custom Styles */
+.admin-date-filter-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.admin-date-filter-controls select,
+.admin-date-filter-controls input[type="date"] {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background-color: #fff;
+  color: #374151;
+  min-width: 140px;
+  transition: border 0.18s;
+}
+
+.admin-date-filter-controls select:focus,
+.admin-date-filter-controls input[type="date"]:focus {
+  border: 1.5px solid #3b82f6;
+  outline: none;
+}
+
+.admin-date-filter-controls span {
+  color: #64748b;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+/* Pagination */
+.pagination-admin-appoint {
+  display: flex;
+  justify-content: center;
+  margin: 32px 0 0 0;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.page-admin-appoint-button {
+  padding: 12px 18px;
+  border: 2px solid #e0e7ef;
+  border-radius: 14px;
+  background: #fff;
+  color: #1e293b;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 48px;
+  text-align: center;
+}
+
+.page-admin-appoint-button:hover {
+  background: #f1f5f9;
+  border-color: #3b82f6;
+  color: #2563eb;
+  transform: translateY(-2px) scale(1.04);
+}
+
+.page-admin-appoint-button.active {
+  background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.13);
+  transform: translateY(-1px) scale(1.06);
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .admin-date-filter-controls {
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+  .pagination-admin-appoint {
+    gap: 6px;
+  }
+  .page-admin-appoint-button {
+    padding: 10px 12px;
+    font-size: 13px;
+    min-width: 36px;
+  }
+}

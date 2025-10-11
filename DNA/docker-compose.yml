@@ -1,0 +1,102 @@
+
+services:
+  # 🌐 Reverse Proxy tự động
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    container_name: nginx-proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./certs:/etc/nginx/certs:ro
+      - ./vhost.d:/etc/nginx/vhost.d
+      - ./html:/usr/share/nginx/html
+    networks:
+      - web
+
+  # 🔐 Tự động xin SSL Let’s Encrypt
+  letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: letsencrypt
+    restart: always
+    environment:
+      - NGINX_PROXY_CONTAINER=nginx-proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./certs:/etc/nginx/certs
+      - ./vhost.d:/etc/nginx/vhost.d
+      - ./html:/usr/share/nginx/html
+    networks:
+      - web
+
+  # 🗃️ Database
+  mysql:
+    container_name: mysql
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: "@4002614Qq"
+      MYSQL_DATABASE: DNA_DB
+      MYSQL_USER: dna_user
+      MYSQL_PASSWORD: "User@1234"
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p@4002614Qq"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - web
+
+  # 🧠 Backend (Spring Boot)
+  backend:
+    image: duongvanquyet/dna-booking-service:latest
+    expose:
+      - "8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/DNA_DB?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: dna_user
+      SPRING_DATASOURCE_PASSWORD: "User@1234"
+      VNPAY_CALLBACK: https://library.id.vn/api/payment/vnpay-callback
+      OATH2_REDIRECT_URI: https://library.id.vn/login/oauth2/code/{registrationId}
+      VIRTUAL_HOST: library.id.vn
+      VIRTUAL_PATH: /api
+      TZ: Asia/Ho_Chi_Minh
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: always
+    networks:
+      - web
+
+  # 🎨 Frontend (React + Nginx)
+  frontend:
+    image: duongvanquyet/dna-booking-service-fe:latest
+    expose:
+      - "80"
+    environment:
+      REACT_APP_API_URL: https://library.id.vn/api
+      VIRTUAL_HOST: library.id.vn
+      LETSENCRYPT_HOST: library.id.vn
+      LETSENCRYPT_EMAIL: d.duongvanquyettn@gmail.com 
+    depends_on:
+      - backend
+    restart: always
+    networks:
+      - web
+
+volumes:
+  mysql_data:
+
+networks:
+  web:
+    external: false

@@ -1,0 +1,111 @@
+.hard-modal-overlay {
+    position: fixed;
+    z-index: 1200;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(30, 64, 175, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hard-modal-content {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(30,64,175,0.18);
+    padding: 2.5rem 2rem 2rem 2rem;
+    min-width: 350px;
+    max-width: 95vw;
+    width: 400px;
+    position: relative;
+    animation: hard-fade-in 0.3s;
+}
+
+@keyframes hard-fade-in {
+    from { opacity: 0; transform: translateY(-30px);}
+    to { opacity: 1; transform: translateY(0);}
+}
+
+.hard-modal-title {
+    color: #2563eb;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+.hard-modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+
+.hard-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.hard-input {
+    padding: 0.6rem 0.9rem;
+    border: 1.5px solid #dbeafe;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: #f8fafc;
+    transition: border 0.2s;
+    outline: none;
+}
+.hard-input:focus {
+    border: 1.5px solid #2563eb;
+    background: #fff;
+}
+
+.hard-error {
+    color: #ef4444;
+    font-size: 0.95rem;
+    margin-top: 2px;
+}
+
+.hard-fixed-address {
+    background: #e0e7ff;
+    color: #1e40af;
+    padding: 0.6rem 1rem;
+    border-radius: 7px;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.hard-modal-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1.2rem;
+}
+
+.hard-btn {
+    padding: 0.6rem 1.5rem;
+    border-radius: 7px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+}
+
+.hard-btn-blue {
+    background: #2563eb;
+    color: #fff;
+}
+.hard-btn-blue:hover {
+    background: #1e40af;
+}
+
+.hard-btn-white {
+    background: #fff;
+    color: #2563eb;
+    border: 1.5px solid #2563eb;
+}
+.hard-btn-white:hover {
+    background: #e0e7ff;
+    color: #1e40af;
+}

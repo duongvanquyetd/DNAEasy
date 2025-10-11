@@ -1,0 +1,134 @@
+.transaction-modal-overlay {
+  background: rgba(30, 64, 175, 0.15);
+  z-index: 1200;
+}
+
+.transaction-modal-content {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(30,64,175,0.18);
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  min-width: 400px;
+  max-width: 600px;
+  width: 100%;
+  position: relative;
+  animation: transaction-fade-in 0.3s;
+  border: 2px solid #2563eb0d;
+}
+
+@keyframes transaction-fade-in {
+  from { opacity: 0; transform: translateY(-30px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+
+.transaction-modal-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.transaction-modal-header h2 {
+  color: #2563eb;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0.5rem 0 0.2rem 0;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+.transaction-modal-subtitle {
+  color: #64748b;
+  font-size: 1.05rem;
+  margin-top: 0.2rem;
+}
+
+.transaction-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.transaction-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.transaction-input {
+  padding: 0.7rem 1rem;
+  border: 1.5px solid #dbeafe;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #f8fafc;
+  transition: border 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+.transaction-input:focus {
+  border: 1.5px solid #2563eb;
+  background: #fff;
+  box-shadow: 0 0 0 2px #2563eb22;
+}
+
+.transaction-error {
+  color: #ef4444;
+  font-size: 0.97rem;
+  margin-top: 2px;
+}
+
+.transaction-modal-buttons {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.transaction-btn {
+  padding: 0.7rem 2rem;
+  border-radius: 8px;
+  font-size: 1.08rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  box-shadow: 0 2px 8px #2563eb11;
+}
+
+.transaction-btn-blue {
+  background: #2563eb;
+  color: #fff;
+}
+.transaction-btn-blue:hover {
+  background: #1e40af;
+}
+
+.transaction-btn-white {
+  background: #fff;
+  color: #2563eb;
+  border: 1.5px solid #2563eb;
+}
+.transaction-btn-white:hover {
+  background: #e0e7ff;
+  color: #1e40af;
+}.transaction-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(30, 64, 175, 0.15);
+  z-index: 2000; /* Đảm bảo modal nổi trên header */
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+.transaction-modal-content {
+  margin-top: 350px;   /* Đẩy modal xuống dưới header, chỉnh đúng chiều cao header thực tế */
+  margin-bottom: 40px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(30,64,175,0.18);
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  min-width: 400px;
+  max-width: 600px;
+  width: 100%;
+  position: relative;
+  animation: transaction-fade-in 0.3s;
+  border: 2px solid #2563eb0d;
+ 
+}
