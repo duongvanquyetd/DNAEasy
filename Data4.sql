@@ -1,14 +1,16 @@
-﻿delete from person where person_id ='P11'
-select  username, email,phone from person group by username, email,phone
-select  username from person group by username
-drop database DNAEasy
-create database DNAEasy
 
 
+create database DNAEasy;
+
+use DNAEasy;
 
 
 INSERT INTO Person (phone, name, password, gender, work_hour, streets, city, district, rolename, avatar_url, username, email)
 VALUES 
+('0900000011', N'Admin', 'password123', 'F', NULL, N'Đường A', N'Hà Nội', N'Ba Đình', 'ADMIN',
+ 'https://res.cloudinary.com/dy3uhobsq/image/upload/db11418a-7874-4286-91c8-40b2c618d25c_male.jpg?_a=DAGAACAYZAA0', 'Admin', 'ADMIN@example.com'),
+
+
 ('0900000001', N'Nguyễn Thị Mai', 'password123', 'F', NULL, N'Đường A', N'Hà Nội', N'Ba Đình', 'CUSTOMER',
  'https://res.cloudinary.com/dy3uhobsq/image/upload/db11418a-7874-4286-91c8-40b2c618d25c_male.jpg?_a=DAGAACAYZAA0', 'nguyenthimai', 'mai1@example.com'),
 
@@ -168,52 +170,89 @@ INSERT INTO Person (phone, name, password, gender, work_hour, streets, city, dis
 ('0910000040', N'Phan Văn Hậu', 'pass123', 'M', 'ca_4', N'Đường H5', N'Bạc Liêu', N'TP Bạc Liêu', 'STAFF_TEST',
 'https://res.cloudinary.com/dy3uhobsq/image/upload/ba8f8801-97bb-4d7c-8bb2-1464ae1e309c_Female.png?_a=DAGAACAYZAA0', 'phanvanhau', 'hau40@example.com');
 
+INSERT INTO Person (
+    phone, name, password, gender, work_hour,
+    streets, city, district, rolename,
+    avatar_url, username, email
+) VALUES
+('0900000100', 'Nguyen Thi Hanh', '123456', 'F', 'ca_1', '434 Duong K', 'Ha Noi', 'Dong Da', 'STAFF_LAB',
+ 'https://res.cloudinary.com/dy3uhobsq/image/upload/db11418a-7874-4286-91c8-40b2c618d25c_male.jpg?_a=DAGAACAYZAA0',
+ 'hanh.nguyen1', 'hanh.nguyen1@lab.com'),
+('0900000101', 'Le Thi Thanh', '123456', 'F', 'ca_2', '123 Duong L', 'Hue', 'Dong Da', 'STAFF_LAB',
+ 'https://res.cloudinary.com/dy3uhobsq/image/upload/db11418a-7874-4286-91c8-40b2c618d25c_male.jpg?_a=DAGAACAYZAA0',
+ 'thanh.le1', 'thanh.le1@lab.com'),
+('0900000102', 'Phan Thi Ngoc', '123456', 'F', 'ca_3', '100 Duong M', 'Can Tho', 'Quan 1', 'STAFF_LAB',
+ 'https://res.cloudinary.com/dy3uhobsq/image/upload/db11418a-7874-4286-91c8-40b2c618d25c_male.jpg?_a=DAGAACAYZAA0',
+ 'ngoc.phan', 'ngoc.phan@lab.com'),
+('0900000103', 'Hoang Thi Yen', '123456', 'F', 'ca_4', '393 Duong N', 'Da Nang', 'Ninh Kieu', 'STAFF_LAB',
+ 'https://res.cloudinary.com/dy3uhobsq/image/upload/db11418a-7874-4286-91c8-40b2c618d25c_male.jpg?_a=DAGAACAYZAA0',
+ 'yen.hoang', 'yen.hoang@lab.com'),
+('0900000104', 'Dang Thi Trang', '123456', 'F', 'ca_1', '881 Duong O', 'HCM', 'Hai Chau', 'STAFF_LAB',
+ 'https://res.cloudinary.com/dy3uhobsq/image/upload/db11418a-7874-4286-91c8-40b2c618d25c_male.jpg?_a=DAGAACAYZAA0',
+ 'trang.dang', 'trang.dang@lab.com'),
+('0900000105', 'Vu Van Long', '123456', 'M', 'ca_2', '156 Duong P', 'Hue', 'Quan 1', 'STAFF_LAB',
+ 'https://res.cloudinary.com/dy3uhobsq/image/upload/ba8f8801-97bb-4d7c-8bb2-1464ae1e309c_Female.png?_a=DAGAACAYZAA0',
+ 'long.vu1', 'long.vu1@lab.com'),
+('0900000106', 'Tran Van Dung', '123456', 'M', 'ca_3', '399 Duong Q', 'Da Nang', 'Quan 3', 'STAFF_LAB',
+ 'https://res.cloudinary.com/dy3uhobsq/image/upload/ba8f8801-97bb-4d7c-8bb2-1464ae1e309c_Female.png?_a=DAGAACAYZAA0',
+ 'dung.tran1', 'dung.tran1@lab.com'),
+('0900000107', 'Nguyen Huu Phuoc', '123456', 'M', 'ca_4', '478 Duong R', 'Can Tho', 'Dong Da', 'STAFF_LAB',
+ 'https://res.cloudinary.com/dy3uhobsq/image/upload/ba8f8801-97bb-4d7c-8bb2-1464ae1e309c_Female.png?_a=DAGAACAYZAA0',
+ 'phuoc.nguyen', 'phuoc.nguyen@lab.com'),
+('0900000108', 'Pham Van Cuong', '123456', 'M', 'ca_1', '420 Duong S', 'Da Nang', 'Hai Chau', 'STAFF_LAB',
+ 'https://res.cloudinary.com/dy3uhobsq/image/upload/ba8f8801-97bb-4d7c-8bb2-1464ae1e309c_Female.png?_a=DAGAACAYZAA0',
+ 'cuong.pham', 'cuong.pham@lab.com'),
+('0900000109', 'Ly Anh Khoa', '123456', 'M', 'ca_2', '158 Duong T', 'HCM', 'Hai Chau', 'STAFF_LAB',
+ 'https://res.cloudinary.com/dy3uhobsq/image/upload/ba8f8801-97bb-4d7c-8bb2-1464ae1e309c_Female.png?_a=DAGAACAYZAA0',
+ 'khoa.ly', 'khoa.ly@lab.com');
+-- Bạn có muốn mình tạo tiếp 10 người nữa không? Hoặc mình có thể tạo toàn bộ script cho 100 người nếu cần.
 
-
+update person set rolename = 'STAFF_TEST' where rolename = 'Staff_TEST'
+update person set password='$2a$10$kL9m/vyvZnnvvA2sp9IIq.H7cq/nJmq0GJ4g6KlsbuuYLgBuNNOtu' where username != 'tttdmin';
 
 -- 20 dịch vụ loại civil (dân sự) 20 phap ly 
-INSERT INTO Service (service_name, service_description, service_price, type_service) VALUES
-('Father-Child DNA Test (Civil)', 'DNA test to verify biological father-child relationship for civil matters.', 2500000.00, 'civil'),
-('Mother-Child DNA Test (Civil)', 'DNA test to confirm biological mother-child relationship.', 2500000.00, 'civil'),
-('Sibling DNA Test (Civil)', 'DNA test to determine whether two individuals share biological parents.', 4000000.00, 'civil'),
-('Grandparent DNA Test (Civil)', 'DNA test to establish biological relationship between grandparents and grandchildren.', 4000000.00, 'civil'),
-('Uncle-Nephew DNA Test (Civil)', 'DNA test to verify biological link between uncle and nephew.', 4000000.00, 'civil'),
-('Aunt-Niece DNA Test (Civil)', 'DNA test to confirm biological relationship between aunt and niece.', 4000000.00, 'civil'),
-('Cousin DNA Test (Civil)', 'DNA test to establish biological link between cousins.', 4000000.00, 'civil'),
-('Half-Sibling DNA Test (Civil)', 'DNA test to check shared biological parent between half siblings.', 4000000.00, 'civil'),
-('Maternity Test (Civil)', 'DNA test to verify biological mother.', 2500000.00, 'civil'),
-('Paternity Test for Inheritance (Civil)', 'DNA test to verify father-child relationship for inheritance purposes.', 3000000.00, 'civil'),
-('Child Custody DNA Test (Civil)', 'DNA test to support child custody arrangements.', 3500000.00, 'civil'),
-('Family Reunion DNA Test (Civil)', 'DNA test to support family reunification.', 3500000.00, 'civil'),
-('Grandmother-Grandchild DNA Test (Civil)', 'DNA test to confirm grandmother and grandchild relationship.', 4000000.00, 'civil'),
-('Half-Brother DNA Test (Civil)', 'DNA test to verify biological half-brothers.', 4000000.00, 'civil'),
-('DNA Test for Social Support (Civil)', 'DNA test to prove family relationships for social support benefits.', 3500000.00, 'civil'),
-('DNA Test for Adoption (Civil)', 'DNA test to confirm biological relationship in adoption cases.', 3500000.00, 'civil'),
-('Legal Name Change DNA Test (Civil)', 'DNA test required for legal name change procedures.', 3000000.00, 'civil'),
-('DNA Test for Marriage Registration (Civil)', 'DNA test to verify relationship status for marriage registration.', 3000000.00, 'civil'),
-('DNA Test for Child Identification (Civil)', 'DNA test for official child identification purposes.', 3000000.00, 'civil'),
-('DNA Test for Family Benefits (Civil)', 'DNA test to verify eligibility for family-related benefits.', 3500000.00, 'civil'),
-('Legal Father-Child DNA Test', 'Court-admissible DNA test to verify father-child biological relationship.', 3000000.00, 'legal'),
-('Legal Mother-Child DNA Test', 'Legal DNA test to confirm mother-child biological relationship.', 3000000.00, 'legal'),
-('Legal Sibling DNA Test', 'DNA test for siblings used in legal cases.', 4500000.00, 'legal'),
-('Legal Grandparent DNA Test', 'Legal DNA test between grandparents and grandchildren for court use.', 4500000.00, 'legal'),
-('Legal Uncle-Nephew DNA Test', 'DNA test to verify uncle-nephew relationship in legal disputes.', 4500000.00, 'legal'),
-('Legal Aunt-Niece DNA Test', 'DNA test for aunt-niece relationship in legal matters.', 4500000.00, 'legal'),
-('Legal Cousin DNA Test', 'DNA test to prove cousin relationship for legal purposes.', 4500000.00, 'legal'),
-('Legal Half-Sibling DNA Test', 'DNA test for half siblings in inheritance claims.', 4500000.00, 'legal'),
-('Legal Maternity DNA Test', 'Court-approved maternity DNA test.', 3000000.00, 'legal'),
-('Legal Paternity DNA Test', 'Legal DNA test for paternity verification.', 3500000.00, 'legal'),
-('Legal Child Custody DNA Test', 'DNA test supporting child custody cases.', 4000000.00, 'legal'),
-('Legal Immigration DNA Test', 'DNA test for immigration and family reunification cases.', 5000000.00, 'legal'),
-('Legal DNA Test for Identity Verification', 'DNA test used for identity verification in legal procedures.', 5500000.00, 'legal'),
-('Legal DNA Test for Inheritance Disputes', 'DNA test used in inheritance claims.', 5500000.00, 'legal'),
-('Legal DNA Test for Adoption', 'Court-recognized DNA test for adoption procedures.', 4000000.00, 'legal'),
-('Legal DNA Test for Name Change', 'DNA test required for legal name change applications.', 3500000.00, 'legal'),
-('Legal DNA Test for Marriage Certification', 'DNA test used for marriage registration.', 3500000.00, 'legal'),
-('Legal DNA Test for Divorce Proceedings', 'DNA test used in divorce cases.', 4000000.00, 'legal'),
-('Legal DNA Test for Child Support', 'DNA test for child support legal cases.', 4000000.00, 'legal'),
-('Legal DNA Test for Social Security Claims', 'DNA test supporting social security and welfare claims.', 4500000.00, 'legal');
+INSERT INTO Service (service_name, service_description, service_price, type_service, sample_count) VALUES
+('Father-Child DNA Test', 'DNA test to verify biological father-child relationship for civil matters.', 2500000.00, 'civil', 2),
+('Mother-Child DNA Test', 'DNA test to confirm biological mother-child relationship.', 2500000.00, 'civil', 2),
+('Sibling DNA Test', 'DNA test to determine whether two individuals share biological parents.', 4000000.00, 'civil', 2),
+('Grandparent DNA Test', 'DNA test to establish biological relationship between grandparents and grandchildren.', 4000000.00, 'civil', 2),
+('Uncle-Nephew DNA Test', 'DNA test to verify biological link between uncle and nephew.', 4000000.00, 'civil', 2),
+('Aunt-Niece DNA Test', 'DNA test to confirm biological relationship between aunt and niece.', 4000000.00, 'civil', 2),
+('Cousin DNA Test', 'DNA test to establish biological link between cousins.', 4000000.00, 'civil', 2),
+('Half-Sibling DNA Test', 'DNA test to check shared biological parent between half siblings.', 4000000.00, 'civil', 2),
+('Maternity Test', 'DNA test to verify biological mother.', 2500000.00, 'civil', 2),
+('Paternity Test for Inheritance', 'DNA test to verify father-child relationship for inheritance purposes.', 3000000.00, 'civil', 2),
+('Child Custody DNA Test', 'DNA test to support child custody arrangements.', 3500000.00, 'civil', 2),
+('Family Reunion DNA Test', 'DNA test to support family reunification.', 3500000.00, 'civil', 2),
+('Grandmother-Grandchild DNA Test', 'DNA test to confirm grandmother and grandchild relationship.', 4000000.00, 'civil', 2),
+('Half-Brother DNA Test', 'DNA test to verify biological half-brothers.', 4000000.00, 'civil', 2),
+('DNA Test for Social Support', 'DNA test to prove family relationships for social support benefits.', 3500000.00, 'civil', 2),
+('DNA Test for Adoption', 'DNA test to confirm biological relationship in adoption cases.', 3500000.00, 'civil', 2),
+('Legal Name Change DNA Test', 'DNA test required for legal name change procedures.', 3000000.00, 'civil', 2),
+('DNA Test for Marriage Registration', 'DNA test to verify relationship status for marriage registration.', 3000000.00, 'civil', 2),
+('DNA Test for Child Identification', 'DNA test for official child identification purposes.', 3000000.00, 'civil', 1),
+('DNA Test for Family Benefits', 'DNA test to verify eligibility for family-related benefits.', 3500000.00, 'civil', 2),
 
+('Legal Father-Child DNA Test', 'Court-admissible DNA test to verify father-child biological relationship.', 3000000.00, 'legal', 2),
+('Legal Mother-Child DNA Test', 'Legal DNA test to confirm mother-child biological relationship.', 3000000.00, 'legal', 2),
+('Legal Sibling DNA Test', 'DNA test for siblings used in legal cases.', 4500000.00, 'legal', 2),
+('Legal Grandparent DNA Test', 'Legal DNA test between grandparents and grandchildren for court use.', 4500000.00, 'legal', 2),
+('Legal Uncle-Nephew DNA Test', 'DNA test to verify uncle-nephew relationship in legal disputes.', 4500000.00, 'legal', 2),
+('Legal Aunt-Niece DNA Test', 'DNA test for aunt-niece relationship in legal matters.', 4500000.00, 'legal', 2),
+('Legal Cousin DNA Test', 'DNA test to prove cousin relationship for legal purposes.', 4500000.00, 'legal', 2),
+('Legal Half-Sibling DNA Test', 'DNA test for half siblings in inheritance claims.', 4500000.00, 'legal', 2),
+('Legal Maternity DNA Test', 'Court-approved maternity DNA test.', 3000000.00, 'legal', 2),
+('Legal Paternity DNA Test', 'Legal DNA test for paternity verification.', 3500000.00, 'legal', 2),
+('Legal Child Custody DNA Test', 'DNA test supporting child custody cases.', 4000000.00, 'legal', 2),
+('Legal Immigration DNA Test', 'DNA test for immigration and family reunification cases.', 5000000.00, 'legal', 2),
+('Legal DNA Test for Identity Verification', 'DNA test used for identity verification in legal procedures.', 5500000.00, 'legal', 1),
+('Legal DNA Test for Inheritance Disputes', 'DNA test used in inheritance claims.', 5500000.00, 'legal', 2),
+('Legal DNA Test for Adoption', 'Court-recognized DNA test for adoption procedures.', 4000000.00, 'legal', 2),
+('Legal DNA Test for Name Change', 'DNA test required for legal name change applications.', 3500000.00, 'legal', 2),
+('Legal DNA Test for Marriage Certification', 'DNA test used for marriage registration.', 3500000.00, 'legal', 2),
+('Legal DNA Test for Divorce Proceedings', 'DNA test used in divorce cases.', 4000000.00, 'legal', 2),
+('Legal DNA Test for Child Support', 'DNA test for child support legal cases.', 4000000.00, 'legal', 2),
+('Legal DNA Test for Social Security Claims', 'DNA test supporting social security and welfare claims.', 4500000.00, 'legal', 2);
 
 
 
@@ -289,26 +328,44 @@ In summary, the DNA testing process is a complex, multi-step procedure requiring
 -- Self-collection method
 
 -- Self-collection method
-INSERT INTO process_testing (sample_method, status_name, order_process, is_finished) VALUES
-('Self-collection', 'Waiting for payment', 1, 0),
-('Self-collection', 'Payment completed', 2, 0),
-('Self-collection', 'Kit sent', 3, 0),
-('Self-collection', 'Kit received', 4, 0),
-('Self-collection', 'Sample sent', 5, 0),
-('Self-collection', 'Sample received', 6, 0),
-('Self-collection', 'Sent to lab', 7, 0),
-('Self-collection', 'Result available', 8, 1),
-('Home visit', 'Waiting for payment', 1, 0),
-('Home visit', 'Payment completed', 2, 0),
-('Home visit', 'In transit', 3, 0),
-('Home visit', 'Sample collected', 4, 0),
-('Home visit', 'Sent to lab', 5, 0),
-('Home visit', 'Result available', 6, 1),
-('Hospital collection', 'Waiting for payment', 1, 0),
-('Hospital collection', 'Payment completed', 2, 0),
-('Hospital collection', 'Sample collected', 3, 0),
-('Hospital collection', 'Sent to lab', 4, 0),
-('Hospital collection', 'Result available', 5, 1);
+-- Self_collection
+-- Xóa 2 bước đầu cho mỗi phương thức (payment)
+
+-- Xóa bảng cũ nếu muốn làm lại hoàn toàn
+-- DROP TABLE process_testing;
+
+-- Tạo lại bảng (nếu cần)
+
+
+-- INSERT lại dữ liệu chuẩn hoá
+
+-- SELF_COLLECTION
+INSERT INTO process_testing (sample_method, status_name, order_process, is_finished, person_confirm,formfor) VALUES
+('Self_collection', 'Kit sent', 1, 0, 'STAFF_TEST',null),
+('Self_collection', 'Kit received', 2, 0, 'CUSTOMER',null),
+('Self_collection', 'Sample sent', 3, 0, 'CUSTOMER','Sample'),
+('Self_collection', 'Sample received', 4, 0, 'STAFF_LAB',null),
+('Self_collection', 'Is analyzing', 5, 0, 'STAFF_LAB',null),
+('Self_collection', 'Result available', 6, 1, 'STAFF_LAB','Result');
+
+-- HOME_COLLECTION
+INSERT INTO process_testing (sample_method, status_name, order_process, is_finished, person_confirm,formfor) VALUES
+('Home_collection', 'on the move', 1, 0, 'STAFF_TEST',null),
+('Home_collection', 'Sample collected', 2, 0, 'STAFF_TEST','Sample'),
+('Home_collection', 'Sent to lab', 3, 0, 'STAFF_TEST',null),
+('Home_collection', 'Is analyzing', 4, 0, 'STAFF_LAB',null),
+('Home_collection', 'Result available', 5, 1, 'STAFF_LAB','Result');
+
+-- HOSPITAL_COLLECTION
+INSERT INTO process_testing (sample_method, status_name, order_process, is_finished, person_confirm,formfor) VALUES
+('Hospital_collection', 'has been present', 1, 0, 'CUSTOMER',null),
+('Hospital_collection', 'Sample collected', 2, 0, 'STAFF_TEST','Sample'),
+('Hospital_collection', 'Sent to lab', 3, 0, 'STAFF_TEST',null),
+('Hospital_collection', 'Is analyzing', 4, 0, 'STAFF_LAB',null),
+('Hospital_collection', 'Result available', 5, 1, 'STAFF_LAB','Result');
+
+
+
 INSERT INTO Blog (blog_title, blog_content, blog_status, blog_type, staff_id)
 VALUES (
     'DNA Technology: Unlocking the Mysteries of Life',
@@ -335,9 +392,72 @@ In summary, DNA technology has dramatically expanded our ability to understand a
     'DNA Technology',
     20 -- staff_id (có thể là số trong khoảng 20 đến 50)
 );
+insert into service_image 	(service_image_id,service_image_name,	service_image_path,	service_id) values 
+(2,'Anh','data:image/jpeg;base64,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'
+,2)
 
-select *from Service
 
+
+
+select *from   Service;
+select *from service_image
+
+select *from person  
+select *from process_testing where sample_method ='Self_collection' and order_process = 4
+
+select *from sample
+
+
+select *from blog;
+select *from blog_image
+
+select *from appoinment
+select *from appointment_tracking
+select *from payment
+select *from  sample
+
+select *from sample_tracking
+select *from person_test 
+select *from Sample_result
+select *from notification
+select *from  appoinment
+select *from result
+cure_status_sample
+alter table Sample drop column result_id
+delete result where  result_id >= 47 and result_id <= 39
+delete sample  where sampleid  >= 29
+delete sample_tracking  where sample_id  >= 17
+
+delete sample_result   where sample_id in (11,12,13,14) 
+delete person_test where cccd = null
+
+delete sample
+delete payment  where apppointment_id = 2
+delete appointment_tracking  where appointment_id =2
+delete appoinment where appointment_id = 2
+delete person_test
+delete process_testing
+
+
+
+
+
+drop table person
+drop table sample_tracking  
+drop table appoinment
+drop table payment
+drop table appointment_tracking
+drop table sample
+drop table result
+drop table process_testing
 select *from process_testing
-select *from person
-select *from blog
+select *from blog b where b.blog_title like '% (NGS)%' or b.blog_type like '%(NGS)%'
+update  sample set cure_status_sample ='Is analyzing' where appointment_id = 11
+update Sample set cure_status_sample =null
+update appoinment set curent_status_appointment='COMPLETE' where appointment_id in (15)
+update payment set payment_amount =1500000.00 where payment_id = 11
+set 
+
+delete result
+
+drop table app
