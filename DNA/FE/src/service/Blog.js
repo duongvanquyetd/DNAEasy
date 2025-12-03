@@ -1,19 +1,19 @@
 import axios from "axios";
 import api from "./api";
 
-
+const baseUrl = import.meta.env.VITE_API_URL
 export const GetALlBlog = () => {
-    return axios.get("/api/blog");
+    return axios.get(baseUrl+"/blog");
 }
 export const SearchByTitleAndCatagery = (data, page, size, active, sortcolumn, modesort) => {
-    let url = `/api/blog/find?page=${page}&size=${size}`;
+    let url = baseUrl+`/blog/find?page=${page}&size=${size}`;
     if (typeof active === 'boolean') url += `&active=${active}`;
     url += `&sortcolumn=${sortcolumn}&sortmode=${modesort}`;
     return axios.post(url, data);
 }
 
 export const GetBlogById = (id) => {
-    return axios.get(`/api/blog/${id}`);
+    return axios.get(baseUrl+`/blog/${id}`);
 }
 
 export const MangerReportBlog=()=>{

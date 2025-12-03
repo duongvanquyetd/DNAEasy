@@ -47,6 +47,8 @@ public class AuthencationController {
     CloudinaryUtil cloudinaryUtil;
     @Autowired
     UserService userService;
+    @Value("${redrect.google}")
+    private String redrect;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String CLIENT_ID;
@@ -126,7 +128,7 @@ public class AuthencationController {
 
         System.out.println(email + " " + name + " " +  " " + picture);
         AuthenctionResponse authencationResponse = authencationService.LoginWithGoogle(request);
-        return  new RedirectView("https://library.id.vn/user/login?"+"token="+authencationResponse.getToken()+"&rolename="+authencationResponse.getRolename());
+        return  new RedirectView(redrect+"/user/login?token="+authencationResponse.getToken()+"&rolename="+authencationResponse.getRolename());
 
     }
 }

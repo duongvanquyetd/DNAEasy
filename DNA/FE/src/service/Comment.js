@@ -1,14 +1,12 @@
 import axios from "axios";
 import api from "./api";
-
-const API_URL = "/api/comments/";
-
+const baseUrl = import.meta.env.VITE_API_URL
 export const createComment = (commentData) => {
   return  api.post("/comments/create", commentData);
 }
 
 export const getCommentsByServiceId = (serviceId) => {
-  return axios.get(API_URL + `${serviceId}`);
+  return axios.get(baseUrl+"/comments/"+ `${serviceId}`);
 }
 
 export const CanComment = (serviceId) => {
