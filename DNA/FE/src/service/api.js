@@ -6,7 +6,7 @@ import { RefreshTokenExprie } from './refreshtoken';
 
 // Create API instance with detailed logging
 const api = axios.create({
-  baseURL: '/api'
+  baseURL: import.meta.env.VITE_API_URL
 });
 
 // // Add request logging

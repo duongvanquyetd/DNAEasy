@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Image from '../../component/image/banner/family.jpg'; // Adjust the path as necessary
-import DNA from '../../component/image/banner/dna.jpg'; // Adjust the path as necessary
-import Doctor from '../../component/image/banner/doctor.jpg'; // Adjust the path as necessary
+import DNA from '../../component/image/banner/DNA.jpg'; // Adjust the path as necessary
+import Doctor from '../../component/image/banner/Doctor.jpg'; // Adjust the path as necessary
 import '../css/HomePage.css';
 import DynamicHeader from '../DynamicHeader';
 import Footer from '../Footer.jsx';

@@ -63,9 +63,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/DNA_DB?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: dna_user
       SPRING_DATASOURCE_PASSWORD: "User@1234"
-      VNPAY_CALLBACK: https://library.id.vn/api/payment/vnpay-callback
-      OATH2_REDIRECT_URI: https://library.id.vn/login/oauth2/code/{registrationId}
-      VIRTUAL_HOST: library.id.vn
+      VNPAY_CALLBACK: https://dna.library.id.vn/api/payment/vnpay-callback
+      OATH2_REDIRECT_URI: https://dna.library.id.vn/login/oauth2/code/{registrationId}
+      VIRTUAL_HOST: dna.library.id.vn
       VIRTUAL_PATH: /api
       TZ: Asia/Ho_Chi_Minh
     volumes:
@@ -84,9 +84,9 @@ services:
     expose:
       - "80"
     environment:
-      REACT_APP_API_URL: https://library.id.vn/api
-      VIRTUAL_HOST: library.id.vn
-      LETSENCRYPT_HOST: library.id.vn
+      REACT_APP_API_URL: https://dna.library.id.vn/api
+      VIRTUAL_HOST: dna.library.id.vn
+      LETSENCRYPT_HOST: dna.library.id.vn
       LETSENCRYPT_EMAIL: d.duongvanquyettn@gmail.com 
     depends_on:
       - backend
