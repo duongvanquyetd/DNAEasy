@@ -63,6 +63,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/DNA_DB?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: dna_user
       SPRING_DATASOURCE_PASSWORD: "User@1234"
+      REDRECT_VIEW: https://dna.library.id.vn
       VNPAY_CALLBACK: https://dna.library.id.vn/api/payment/vnpay-callback
       OATH2_REDIRECT_URI: https://dna.library.id.vn/login/oauth2/code/{registrationId}
       VIRTUAL_HOST: dna.library.id.vn

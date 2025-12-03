@@ -150,7 +150,7 @@ const LoginPage = () => {
           </p>
           <p className="p line">Or With</p>
           <div className="flex-row">
-            <a href="https://library.id.vn/oauth2/authorization/google" className="btn google">
+            <a href={import.meta.env.VITE_GOOGLE_URL} className="btn google">
               <svg
                 version="1.1"
                 width={20}

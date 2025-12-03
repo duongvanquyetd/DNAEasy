@@ -1,15 +1,15 @@
 import axios from 'axios';
 import api from './api';
-
+const baseUrl = import.meta.env.VITE_API_URL
 export const GetALlServies = () => {
-    return axios.get('/api/service');
+    return axios.get(baseUrl+'/service');
 }
 export const getServiceById = (id) => {
-    return axios.get(`/api/service/${id}`);
+    return axios.get(baseUrl+`/service/${id}`);
 }
 
 export const SearchAndGet = (search,page,size,active,sortcolumn,modesort) => {
-    return axios.post(`/api/service/search?size=${size}&page=${page}&active=${active}&sortcolumn=${sortcolumn}&sortmode=${modesort}`,search);
+    return axios.post(baseUrl+`/service/search?size=${size}&page=${page}&active=${active}&sortcolumn=${sortcolumn}&sortmode=${modesort}`,search);
 }
 
 export const CreateService = (serviceData) => {
@@ -31,7 +31,7 @@ export const ActiveSerive=(id)=>{
     return api.post(`/service/active/${id}`)
 }
 export const ServiceReportCommnent=(id)=>{
-    return axios.get(`/api/service/starAndNumber/${id}`)
+    return axios.get(baseUrl+`/service/starAndNumber/${id}`)
 }
 
 export const GetTop5Service = () => {

@@ -50,15 +50,10 @@ public class SecurityConfig {
 
         } )
                 .cors(customizer -> customizer.configurationSource(corsFilter()))
-                .cors(customizer ->  customizer.configurationSource(corsFilter()))
                 .oauth2Login(auth -> auth
                         .defaultSuccessUrl("/api/auth/login/google", true)
 
                 );
-
-
-
-
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
         httpSecurity.oauth2ResourceServer(oth2 ->
